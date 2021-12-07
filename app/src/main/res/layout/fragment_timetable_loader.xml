@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/vs_timetable_loader"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    tools:context=".ui.adminPanel.timtableEditor.loader.TimetableLoaderFragment">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_timetable_load"
+            style="@style/CustomBtnFilled"
+            android:layout_width="196dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/blue"
+            android:text="Загрузить документ"
+            app:icon="@drawable/ic_download"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create_empty"
+            style="@style/CustomBtnOutline"
+            android:layout_marginTop="16sp"
+            android:layout_width="196dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Создать с нуля"
+            android:textColor="@color/black"
+            app:icon="@drawable/ic_file"
+            app:iconTint="@color/purple" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_preference"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tl_timetable_group"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@drawable/tab_layout_bg"
+                android:paddingEnd="56dp"
+                app:tabIndicator="@drawable/tab_indicator"
+                app:tabIndicatorFullWidth="false"
+                app:tabMode="scrollable"
+                app:tabRippleColor="@android:color/transparent"
+                app:tabTextAppearance="@style/AppTheme.Tabs.TextAppearance"
+                tools:ignore="RtlSymmetry"></com.google.android.material.tabs.TabLayout>
+
+            <Button
+                android:id="@+id/btn_add_group"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="end"
+                android:background="?android:windowBackground"
+                app:icon="@drawable/ic_add"
+                app:iconGravity="textTop"
+                app:iconPadding="0dp" />
+        </FrameLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp_timetable_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+</ViewSwitcher>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_centerInParent="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".ui.login.auth.AuthFragment">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/rpv"
+        android:layout_width="124dp"
+        android:layout_height="124dp"
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/logo"
+        app:lottie_repeatCount="0"
+        app:lottie_speed="1.4" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/gilroy_medium"
+        android:text="Добро Пожаловать!"
+        android:textColor="@color/black"
+        android:textSize="22sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16sp"
+        android:fontFamily="@font/gilroy_medium"
+        android:text="Выберите способ авторизации"
+        android:textAppearance="@style/TextAppearance.App.Body2"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_sms"
+        style="@style/CustomBtnOutline"
+        app:shapeAppearanceOverlay="@style/ShapeFullCornerSize"
+        android:layout_width="256dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="16dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="Смс подтверждение"
+        android:textSize="16sp"
+        app:icon="@drawable/ic_sms"
+        app:iconSize="28dp"
+        app:iconTint="@color/blue" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_mail"
+        style="@style/CustomBtnOutline"
+        app:shapeAppearanceOverlay="@style/ShapeFullCornerSize"
+        android:layout_width="256dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/white"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="Вход через почту"
+        android:textSize="16sp"
+        app:icon="@drawable/ic_email"
+        app:iconSize="28dp"
+        app:iconTint="@color/blue" />
+</LinearLayout>

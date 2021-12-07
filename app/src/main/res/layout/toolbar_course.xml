@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.appbar.CollapsingToolbarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar_layout"
+    android:layout_width="match_parent"
+    android:layout_height="156dp"
+    app:expandedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar.Expanded"
+    app:collapsedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar"
+    app:maxLines="2"
+    app:expandedTitleMarginStart="16sp"
+    app:title="Элементы высшей математики"
+    app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+    app:toolbarId="@+id/toolbar">
+
+<androidx.appcompat.widget.Toolbar
+    android:id="@+id/toolbar"
+    app:layout_collapseMode="pin"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize" />
+</com.google.android.material.appbar.CollapsingToolbarLayout>

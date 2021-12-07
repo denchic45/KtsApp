@@ -1,0 +1,12 @@
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="42sp"
+    android:layout_height="42sp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center"
+    android:layout_gravity="center"
+    app:layout_anchorGravity="center"
+    android:textSize="16sp"
+    android:text="3"
+    android:textColor="@drawable/date_text_selector"
+    android:background="@drawable/date_background_selector"
+    android:fontFamily="@font/gilroy_medium"/>

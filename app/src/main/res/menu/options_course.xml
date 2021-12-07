@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/option_edit_items"
+        android:title="Редактировать элементы" />
+    <item
+        android:id="@+id/option_edit_course"
+        android:title="Редактировать курс" />
+</menu>

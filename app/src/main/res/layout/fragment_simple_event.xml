@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_event"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:foreground="?selectableItemBackgroundBorderless"
+    tools:context=".ui.adminPanel.timtableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment">
+
+    <ImageView
+        android:id="@+id/iv_subject_ic"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16sp"
+        app:srcCompat="@drawable/ic_event"
+        app:tint="@color/gray" />
+
+    <TextView
+        android:id="@+id/tv_event_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16sp"
+        android:layout_toEndOf="@id/iv_subject_ic"
+        android:fontFamily="@font/gilroy_semibold"
+        android:hint="Событие"
+        android:maxLines="1"
+        android:textColor="@color/dark_gray"
+        android:textSize="18sp" />
+
+    <View
+        style="@style/Divider"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>

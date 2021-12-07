@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.Kts.Subtitle1" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
+        <item name="fontFamily">@font/gilroy_semibold</item>
+        <item name="android:fontFamily">@font/gilroy_semibold</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="TextAppearance.Kts.Subtitle2" parent="@style/TextAppearance.MaterialComponents.Subtitle2">
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+        <item name="android:textColor">?android:textColorPrimary</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="TextAppearance.Kts.Body1" parent="@style/TextAppearance.MaterialComponents.Body1">
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+        <item name="android:textColor">?colorOnSurface</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+
+    <style name="TextAppearance.Kts.Body2" parent="@style/TextAppearance.MaterialComponents.Body2">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?colorControlNormal</item>
+    </style>
+
+    <style name="TextAppearance.Kts.CollapsingToolbar" parent="">
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+    </style>
+    
+    <style name="TextAppearance.Kts.CollapsingToolbar.Expanded" parent="TextAppearance.Design.CollapsingToolbar.Expanded">
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+    </style>
+
+</resources>

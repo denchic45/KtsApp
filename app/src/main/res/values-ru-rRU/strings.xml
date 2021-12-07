@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">КТС</string>
+    <string name="menu_title_home">Главная</string>
+    <string name="menu_title_timetable">Расписание</string>
+    <string name="menu_title_group">Группа</string>
+    <string name="menu_title_control_panel">Управление</string>
+    <string name="group_users">Участники</string>
+    <string name="group_courses">Курсы</string>
+    <string name="gender_male">Мужской</string>
+    <string name="gender_female">Женский</string>
+    <string name="role_student">Студент</string>
+    <string name="role_deputyMonitor">Зам. старосты</string>
+    <string name="role_classMonitor">Староста</string>
+    <string name="role_teacher">Преподаватель</string>
+    <string name="role_headTeacher">Завуч</string>
+    <string name="course_1">1 курс</string>
+    <string name="course_2">2 курс</string>
+    <string name="course_3">3 курс</string>
+    <string name="course_4">4 курс</string>
+    <string name="course_5">5 курс</string>
+    <string name="timetable">Расписание</string>
+    <string name="error_check_network">Проверьте интернет-подключение</string>
+    <string name="error_not_curator">Куратор группы не выбран</string>
+    <string name="nav_schedule">Расписание звонков</string>
+    <string name="nav_tasks">Задания</string>
+    <string name="nav_duty_roster">Дежурства</string>
+    <string name="nav_control_panel">Управление</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="nav_help">Справка</string>
+    <string name="nav_courses_show_all">Показать все</string>
+    <string name="nav_courses_archive">Архив курсов</string>
+    <string name="nav_courses_my">Мои курсы</string>
+    <string name="nav_courses_hide">Скрыть</string>
+</resources>

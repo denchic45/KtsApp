@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="?dialogPreferredPadding"
+    tools:context=".ui.subjectEditor.SubjectEditorDialog">
+
+    <ImageView
+        android:id="@+id/iv_subject_ic"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="?dialogPreferredPadding"
+        android:layout_marginTop="8dp"
+        app:srcCompat="@drawable/ic_subject"
+        app:tint="@color/blue" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginHorizontal="16sp"
+        android:layout_toEndOf="@id/iv_subject_ic"
+        android:hint="Название"
+        app:errorEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_subject_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="?dialogPreferredPadding"
+            android:ellipsize="end"
+            android:inputType="textCapSentences"
+            android:maxLines="1"
+            android:scrollHorizontally="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/iv_fill"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_below="@id/iv_subject_ic"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="?dialogPreferredPadding"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        app:srcCompat="@drawable/ic_fill"
+        app:tint="@color/gray" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_color_picker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_subject_ic"
+        android:layout_marginStart="16sp"
+        android:layout_marginTop="12sp"
+        android:layout_toEndOf="@+id/iv_fill"
+        android:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_color" />
+
+<!--    <CheckBox-->
+<!--        android:id="@+id/cb_special_subject"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@+id/rv_color_picker"-->
+<!--        android:layout_alignParentStart="true"-->
+<!--        android:layout_marginStart="24dp"-->
+<!--        android:fontFamily="@font/gilroy_medium"-->
+<!--        android:text="Специальный предмет"-->
+<!--        app:buttonTint="@color/blue" />-->
+
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_below="@id/cb_special_subject"-->
+<!--        android:layout_marginStart="58dp"-->
+<!--        android:layout_marginEnd="16sp"-->
+<!--        android:text="Предмет, для которого не треуется аудитория и преподаватель. Доступен любой группе.\nПример: обед, практика" />-->
+
+</RelativeLayout>

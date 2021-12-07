@@ -1,0 +1,17 @@
+[
+  {
+    "id": "OPTION_SHOW_PROFILE",
+    "title": "Посмотреть профиль",
+    "iconUrl": "ic_user"
+  },
+  {
+    "id": "OPTION_EDIT_USER",
+    "title": "Редактировать",
+    "iconUrl": "ic_edit"
+  },
+  {
+    "id": "OPTION_DELETE_USER",
+    "title": "Удалить",
+    "iconUrl": "ic_delete"
+  }
+]

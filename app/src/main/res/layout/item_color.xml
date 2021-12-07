@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="4dp">
+
+    <RadioButton
+        android:id="@+id/rb_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/color_rb"
+        android:checked="true"
+        android:button="@android:color/transparent"
+        android:minWidth="0dp"
+        android:minHeight="0dp" />
+</FrameLayout>

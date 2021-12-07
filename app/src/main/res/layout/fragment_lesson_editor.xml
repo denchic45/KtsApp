@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.adminPanel.timtableEditor.eventEditor.lessonEditor.LessonEditorFragment">
+
+    <RelativeLayout
+        android:id="@+id/rl_subject"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:foreground="?selectableItemBackgroundBorderless">
+
+        <ImageView
+            android:id="@+id/iv_subject_ic"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16sp"
+            app:srcCompat="@drawable/ic_subject" />
+
+        <TextView
+            android:id="@+id/tv_subject_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16sp"
+            android:layout_toEndOf="@id/iv_subject_ic"
+            android:fontFamily="@font/gilroy_semibold"
+            android:hint="Предмет"
+            android:maxLines="1"
+            android:textColor="@color/dark_gray"
+            android:textSize="18sp" />
+
+        <View
+            style="@style/Divider"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_header_teachers"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginStart="16sp"
+        android:fontFamily="@font/gilroy_semibold"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:text="Преподаватель"
+        android:textColor="@color/dark_gray"
+        android:textSize="16sp" />
+
+    <HorizontalScrollView
+        android:id="@+id/nsv_teachers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        android:layout_marginStart="16sp"
+        android:requiresFadingEdge="horizontal"
+        android:scrollbars="none"
+        tools:ignore="RtlSymmetry">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cp_teachers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingEnd="56dp"
+            app:singleLine="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/cp_add_teacher"
+                style="@style/Widget.App.Chip"
+                android:layout_width="wrap_content"
+                android:text="Добавить"
+                app:chipIcon="@drawable/ic_add" />
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+</LinearLayout>

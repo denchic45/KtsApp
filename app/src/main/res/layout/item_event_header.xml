@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:gravity="center_vertical"
+    android:paddingStart="12dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="12sp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/textView_lesson_order"
+        android:layout_width="26dp"
+        android:layout_height="match_parent"
+        android:fontFamily="@font/gilroy_semibold"
+        android:gravity="center_vertical|end"
+        android:text="0"
+        android:textSize="22sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView_lesson_icon"
+        android:layout_width="42dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView_lesson_order"
+        app:layout_constraintTop_toTopOf="parent"/>
+    <!--    android:layout_toStartOf="@id/ll_groupInfo"-->
+    <!--    <LinearLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_alignParentTop="true"-->
+    <!--        android:layout_marginStart="16dp"-->
+
+    <!--        android:layout_toEndOf="@+id/imageView_lesson_icon"-->
+    <!--        android:gravity="center_vertical"-->
+    <!--        android:orientation="vertical">-->
+
+    <TextView
+        android:id="@+id/textView_lesson_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:fontFamily="@font/gilroy_semibold"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        app:layout_constraintEnd_toStartOf="@id/ll_lesson_icons"
+        android:text="subject"
+        android:textColor="@color/dark"
+        android:textSize="16sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@+id/textView_lesson_time"
+        app:layout_constraintStart_toEndOf="@+id/imageView_lesson_icon"
+        app:layout_constraintTop_toTopOf="@id/imageView_lesson_icon"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/textView_lesson_time"
+        android:layout_width="0dp"
+        app:layout_constraintEnd_toStartOf="@id/ll_lesson_icons"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:fontFamily="@font/gilroy_semibold"
+        android:gravity="top"
+        android:text="8:30-9:10"
+        android:textSize="12sp"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/imageView_lesson_icon"
+        app:layout_constraintStart_toEndOf="@+id/imageView_lesson_icon"
+        app:layout_constraintTop_toBottomOf="@+id/textView_lesson_name" />
+
+    <!--    </LinearLayout>-->
+
+
+
+    <LinearLayout
+        android:id="@+id/ll_lesson_icons"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintEnd_toEndOf="parent">
+        <LinearLayout
+            android:id="@+id/ll_group"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="8dp"
+            android:layout_toStartOf="@+id/ll_lesson_icons"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toStartOf="@id/ll_lesson_icons">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_margin="8dp"
+                app:srcCompat="@drawable/ic_group"
+                app:tint="@color/blue" />
+
+            <TextView
+                android:id="@+id/tv_group_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_semibold"
+                android:gravity="center_vertical"
+                android:textColor="@color/gray"
+                android:text="sdfdsf"
+                android:textSize="14sp" />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/iv_lesson_expand"
+            android:layout_width="26dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="8dp"
+            app:srcCompat="@drawable/ic_baseline_keyboard_arrow_down" />
+
+        <ImageView
+            android:id="@+id/iv_lesson_edit"
+            android:layout_width="26dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_edit" />
+
+        <ImageView
+            android:id="@+id/iv_lesson_drag"
+            android:layout_width="26dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_drag" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

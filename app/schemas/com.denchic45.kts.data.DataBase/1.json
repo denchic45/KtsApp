@@ -1,0 +1,612 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "503b8f82305d7519e0f5fa01bbab865e",
+    "entities": [
+      {
+        "tableName": "subject",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_subject` TEXT NOT NULL, `name` TEXT, `iconUrl` TEXT, `colorName` TEXT, PRIMARY KEY(`uuid_subject`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid_subject",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "iconUrl",
+            "columnName": "iconUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "colorName",
+            "columnName": "colorName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid_subject"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "event",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventUuid` TEXT NOT NULL, `timestamp` INTEGER, `order` INTEGER NOT NULL, `date` TEXT, `room` TEXT, `uuid_subject` TEXT, `teacherUuidList` TEXT, `groupUuid` TEXT, `type` TEXT, `name` TEXT, `iconUrl` TEXT, `color` TEXT, PRIMARY KEY(`eventUuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "eventUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "room",
+            "columnName": "room",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "subjectUuid",
+            "columnName": "uuid_subject",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "teacherUuidList",
+            "columnName": "teacherUuidList",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "groupUuid",
+            "columnName": "groupUuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "iconUrl",
+            "columnName": "iconUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "eventUuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "homework",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_homework` TEXT NOT NULL, `courseId` TEXT NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `date_completion` TEXT NOT NULL, `date_created` TEXT NOT NULL, `completed` INTEGER NOT NULL, `timestamp` INTEGER, PRIMARY KEY(`uuid_homework`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid_homework",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "courseId",
+            "columnName": "courseId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateOfCompletion",
+            "columnName": "date_completion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateOfCreated",
+            "columnName": "date_created",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completed",
+            "columnName": "completed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid_homework"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "user",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_user` TEXT NOT NULL, `firstName` TEXT, `surname` TEXT, `uuid_user_group` TEXT, `role` TEXT, `phoneNum` TEXT, `email` TEXT, `photoUrl` TEXT, `gender` INTEGER NOT NULL, `admin` INTEGER NOT NULL, `patronymic` TEXT, `generatedAvatar` INTEGER NOT NULL, `timestamp_user` INTEGER, PRIMARY KEY(`uuid_user`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid_user",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstName",
+            "columnName": "firstName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "surname",
+            "columnName": "surname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "groupUuid",
+            "columnName": "uuid_user_group",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "phoneNum",
+            "columnName": "phoneNum",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "photoUrl",
+            "columnName": "photoUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "gender",
+            "columnName": "gender",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "admin",
+            "columnName": "admin",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patronymic",
+            "columnName": "patronymic",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "generatedAvatar",
+            "columnName": "generatedAvatar",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp_user",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid_user"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "day",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_uuid` TEXT NOT NULL, `date` TEXT, `group_uuid` TEXT, PRIMARY KEY(`day_uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "day_uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "groupUuid",
+            "columnName": "group_uuid",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "day_uuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "group",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_group` TEXT NOT NULL, `name_group` TEXT, `uuid_curator` TEXT, `course` INTEGER NOT NULL, `specialtyUuid` TEXT, `timestamp_group` INTEGER, PRIMARY KEY(`uuid_group`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid_group",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name_group",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "curatorUuid",
+            "columnName": "uuid_curator",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "course",
+            "columnName": "course",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "specialtyUuid",
+            "columnName": "specialtyUuid",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp_group",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid_group"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "specialty",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`specialtyUuid` TEXT NOT NULL, `name` TEXT, PRIMARY KEY(`specialtyUuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "specialtyUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "specialtyUuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "course",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_course` TEXT NOT NULL, `name` TEXT NOT NULL, `uuid_subject` TEXT NOT NULL, `uuid_teacher` TEXT NOT NULL, PRIMARY KEY(`uuid_course`), FOREIGN KEY(`uuid_subject`) REFERENCES `subject`(`uuid_subject`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`uuid_teacher`) REFERENCES `user`(`uuid_user`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid_course",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "subjectUuid",
+            "columnName": "uuid_subject",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "teacherUuid",
+            "columnName": "uuid_teacher",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid_course"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_course_uuid_subject",
+            "unique": false,
+            "columnNames": [
+              "uuid_subject"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_course_uuid_subject` ON `${TABLE_NAME}` (`uuid_subject`)"
+          },
+          {
+            "name": "index_course_uuid_teacher",
+            "unique": false,
+            "columnNames": [
+              "uuid_teacher"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_course_uuid_teacher` ON `${TABLE_NAME}` (`uuid_teacher`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "subject",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "uuid_subject"
+            ],
+            "referencedColumns": [
+              "uuid_subject"
+            ]
+          },
+          {
+            "table": "user",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "uuid_teacher"
+            ],
+            "referencedColumns": [
+              "uuid_user"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "teacher_event",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventUuid` TEXT NOT NULL, `uuid_user` TEXT NOT NULL, PRIMARY KEY(`eventUuid`, `uuid_user`), FOREIGN KEY(`uuid_user`) REFERENCES `user`(`uuid_user`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`eventUuid`) REFERENCES `event`(`eventUuid`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "eventUuid",
+            "columnName": "eventUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "teacherUuid",
+            "columnName": "uuid_user",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "eventUuid",
+            "uuid_user"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_teacher_event_eventUuid",
+            "unique": false,
+            "columnNames": [
+              "eventUuid"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_teacher_event_eventUuid` ON `${TABLE_NAME}` (`eventUuid`)"
+          },
+          {
+            "name": "index_teacher_event_uuid_user",
+            "unique": false,
+            "columnNames": [
+              "uuid_user"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_teacher_event_uuid_user` ON `${TABLE_NAME}` (`uuid_user`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "user",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "uuid_user"
+            ],
+            "referencedColumns": [
+              "uuid_user"
+            ]
+          },
+          {
+            "table": "event",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "eventUuid"
+            ],
+            "referencedColumns": [
+              "eventUuid"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "group_course",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_group` TEXT NOT NULL, `uuid_course` TEXT NOT NULL, PRIMARY KEY(`uuid_group`, `uuid_course`), FOREIGN KEY(`uuid_group`) REFERENCES `group`(`uuid_group`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`uuid_course`) REFERENCES `course`(`uuid_course`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "groupUuid",
+            "columnName": "uuid_group",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "courseUuid",
+            "columnName": "uuid_course",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid_group",
+            "uuid_course"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_group_course_uuid_group",
+            "unique": false,
+            "columnNames": [
+              "uuid_group"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_course_uuid_group` ON `${TABLE_NAME}` (`uuid_group`)"
+          },
+          {
+            "name": "index_group_course_uuid_course",
+            "unique": false,
+            "columnNames": [
+              "uuid_course"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_course_uuid_course` ON `${TABLE_NAME}` (`uuid_course`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "group",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "uuid_group"
+            ],
+            "referencedColumns": [
+              "uuid_group"
+            ]
+          },
+          {
+            "table": "course",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "uuid_course"
+            ],
+            "referencedColumns": [
+              "uuid_course"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '503b8f82305d7519e0f5fa01bbab865e')"
+    ]
+  }
+}

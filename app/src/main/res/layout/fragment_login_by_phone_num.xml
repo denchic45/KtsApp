@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginHorizontal="16sp"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context=".ui.login.loginByPhoneNum.LoginByPhoneNumFragment">
+
+    <ImageView
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_marginBottom="16sp"
+        app:srcCompat="@drawable/ic_sms"
+        app:tint="@color/dark_blue" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:fontFamily="@font/gilroy_medium"
+        android:text="Смс подтверждение"
+        android:textColor="@color/black"
+        android:textSize="22sp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textinput_num"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:errorEnabled="true"
+        app:hintEnabled="false"
+        app:startIconDrawable="@drawable/ic_local_phone">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editText_num"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Напр. +7 123 456-78-90"
+            android:inputType="phone"
+            android:text="+7" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/btn_next"
+        style="@style/CustomBtnFilled"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:text="Продолжить"
+        android:textSize="16sp" />
+
+</LinearLayout>

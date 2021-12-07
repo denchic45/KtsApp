@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.group.GroupFragment">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tl_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/tab_layout_bg"
+        app:tabRippleColor="@android:color/transparent"
+        app:tabIndicator="@drawable/tab_indicator"
+        app:tabIndicatorFullWidth="false"
+        app:tabTextAppearance="@style/AppTheme.Tabs.TextAppearance"
+        app:tabMode="fixed" >
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabItem_group_users"
+            android:text="@string/group_users"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tabItem_group_subjects"
+            android:text="@string/group_courses"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vp_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

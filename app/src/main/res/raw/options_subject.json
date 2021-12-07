@@ -1,0 +1,17 @@
+[
+  {
+    "id": "OPTION_SHOW_SUBJECT",
+    "title": "Открыть",
+    "iconUrl": "ic_edit"
+  },
+  {
+    "id": "OPTION_EDIT_SUBJECT",
+    "title": "Редактировать",
+    "iconUrl": "ic_edit"
+  },
+  {
+    "id": "OPTION_DELETE_SUBJECT",
+    "title": "Удалить",
+    "iconUrl": "ic_edit"
+  }
+]

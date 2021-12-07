@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/search_root"
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize">
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView_search"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="6dp"
+        app:cardCornerRadius="6dp"
+        app:cardElevation="2dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/MaterialToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:background="@android:color/transparent"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:navigationIcon="@drawable/ic_menu">
+
+            <ViewSwitcher
+                android:id="@+id/viewSwitcher_search_input"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/textView_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:hint="@string/hint_search_def"
+                    android:focusableInTouchMode="false"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/editText_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:autofillHints=""
+                    android:background="@null"
+                    android:gravity="center_vertical"
+                    android:hint="@string/hint_search_def"
+                    android:imeOptions="actionSearch"
+                    android:inputType="textCapSentences" />
+            </ViewSwitcher>
+        </androidx.appcompat.widget.Toolbar>
+    </androidx.cardview.widget.CardView>
+
+</FrameLayout>

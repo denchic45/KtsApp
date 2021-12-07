@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/option_duplicate_lesson"
+        android:title="Дублировать" />
+    <item
+        android:id="@+id/option_clear_lesson"
+        android:title="Очистить" />
+    <item
+        android:id="@+id/option_delete_lesson"
+        android:title="Удалить" />
+</menu>

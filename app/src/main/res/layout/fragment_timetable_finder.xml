@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.adminPanel.timtableEditor.finder.TimetableFinderFragment">
+
+    <com.example.searchbar.SearchBar
+        android:id="@+id/sb_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:hint="Найти группу"
+        app:expandable="alwaysCollapse"
+        app:searchBar_leftActionMode="search" />
+
+    <com.denchic45.widget.calendar.WeekCalendarView
+        android:id="@+id/wcv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/sb_group" />
+
+    <com.denchic45.widget.ListStateLayout
+        android:id="@+id/listStateLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/wcv">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_timetable"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_lesson" />
+    </com.denchic45.widget.ListStateLayout>
+
+</RelativeLayout>

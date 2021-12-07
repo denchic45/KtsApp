@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.profile.ProfileFragment">
+
+    <androidx.constraintlayout.utils.widget.ImageFilterView
+        android:id="@+id/iv_avatar"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_margin="16dp"
+        android:scaleType="centerCrop"
+        android:background="@color/pale_white"
+        android:transitionName="image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:roundPercent="1" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_avatar"
+        app:layout_constraintTop_toTopOf="@id/iv_avatar">
+
+        <TextView
+            android:id="@+id/tv_fullName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gilroy_semibold"
+            android:text="Имя Фамилия"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_role"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gilroy_medium"
+            android:text="роль"
+            android:textColor="@color/gray"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="20sp"
+        app:layout_constraintTop_toBottomOf="@id/iv_avatar" />
+
+    <LinearLayout
+        android:id="@+id/ll_group"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16sp"
+        app:layout_constraintTop_toBottomOf="@id/empty">
+
+        <ImageView
+            android:id="@+id/iv_group"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            app:srcCompat="@drawable/ic_group"
+            app:tint="@color/blue" />
+
+        <TextView
+            android:id="@+id/tv_group_nfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16sp"
+            android:fontFamily="@font/gilroy_semibold"
+            android:maxLines="1"
+            android:letterSpacing="0"
+            android:text="Участник группы"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textSize="16sp"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/div_group"
+        style="@style/Divider"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_group" />
+
+    <LinearLayout
+        android:id="@+id/ll_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/div_group">
+
+        <TextView
+            android:id="@+id/tv_header_nfo"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            android:fontFamily="@font/gilroy_semibold"
+            android:gravity="center_vertical"
+            android:text="Информация"
+            android:textColor="@color/blue"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/ll_phoneNum"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingHorizontal="16sp">
+
+            <TextView
+                android:id="@+id/tv_phoneNum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_semibold"
+                android:maxLines="1"
+                android:text="+7 (123) 456-78-90"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/dark"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_phoneNum_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_medium"
+                android:maxLines="1"
+                android:text="Телефон"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/dark_gray"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_email"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingHorizontal="16sp">
+
+            <TextView
+                android:id="@+id/tv_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_semibold"
+                android:maxLines="1"
+                android:text="example@gmail.com"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/dark"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_email_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_medium"
+                android:maxLines="1"
+                android:text="Почта"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/dark_gray"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

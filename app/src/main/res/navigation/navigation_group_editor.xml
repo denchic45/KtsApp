@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/group_editor_navigation"
+    app:startDestination="@id/groupEditorFragment">
+    <fragment
+        android:id="@+id/groupEditorFragment"
+        android:name="com.denchic45.kts.ui.group.editor.GroupEditorFragment"
+        android:label="GroupEditorFragment" >
+        <action
+            android:id="@+id/action_groupEditorFragment_to_choiceOfCuratorFragment"
+            app:destination="@id/choiceOfCuratorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/choiceOfCuratorFragment"
+        android:name="com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorFragment"
+        android:label="fragment_choice_of_curator"
+        tools:layout="@layout/fragment_choice_of_curator" />
+</navigation>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:gravity="center_vertical"
+    android:paddingStart="12dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="12sp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/textView_lesson_order"
+        android:layout_width="26dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:fontFamily="@font/gilroy_semibold"
+        android:gravity="center_vertical|end"
+        android:text="0"
+        android:textSize="22sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="14sp"
+        android:layout_toEndOf="@+id/textView_lesson_order"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView_lesson_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/gilroy_semibold"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:text="Пусто"
+            android:textColor="@color/dark"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/textView_lesson_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gilroy_semibold"
+            android:gravity="top"
+            android:text="8:30-9:10"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_lesson_icons"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:id="@+id/iv_lesson_edit"
+            android:layout_width="26dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_edit" />
+
+        <ImageView
+            android:id="@+id/iv_lesson_drag"
+            android:layout_width="26dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="8dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_drag" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.denchic45.widget.calendar.WeekCalendarView
+        android:id="@+id/wcv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <com.denchic45.widget.ListStateLayout
+        android:id="@+id/listStateLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:emptyView="@layout/state_empty_lessons"
+        tools:context=".ui.timetable.TimetableFragment">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_lessons"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:paddingBottom="96dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_lesson" />
+    </com.denchic45.widget.ListStateLayout>
+</LinearLayout>

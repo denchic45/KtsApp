@@ -1,0 +1,52 @@
+<resources>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="app_name">КТС</string>
+    <string name="menu_title_home">Home</string>
+    <string name="menu_title_timetable">Timetable</string>
+    <string name="menu_title_group">Group</string>
+    <string name="menu_title_control_panel">Управление</string>
+
+    <string name="nav_schedule">Call Schedule</string>
+
+    <string name="gender_male">Мужской</string>
+    <string name="gender_female">Женский</string>
+
+
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="group_users">Members</string>
+    <string name="group_courses">Courses</string>
+    <string name="title_activity_user_editor" translatable="false">UserEditorActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label" translatable="false">First Fragment</string>
+    <string name="second_fragment_label" translatable="false">Second Fragment</string>
+    <string name="next" translatable="false">Next</string>
+    <string name="previous" translatable="false">Previous</string>
+
+    <string name="hello_first_fragment" translatable="false">Hello first fragment</string>
+    <string name="hello_second_fragment" translatable="false">Hello second fragment. Arg: %1$s</string>
+    <string name="role_student">Student</string>
+    <string name="role_deputyMonitor">Deputy monitor</string>
+    <string name="role_classMonitor">Monitor</string>
+    <string name="role_teacher">Teacher</string>
+    <string name="role_headTeacher">Head teacher</string>
+    <string name="course_1">1 Course</string>
+    <string name="course_2">2 Course</string>
+    <string name="course_3">3 Course</string>
+    <string name="course_4">4 Course</string>
+    <string name="course_5">5 Course</string>
+    <string name="timetable">Timetable</string>
+
+    <string name="error_check_network">Check network</string>
+    <string name="error_not_curator">Group curator not selected</string>
+
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_duty_roster">Duty roster</string>
+    <string name="nav_control_panel">Control</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_help">Help</string>
+    <string name="nav_courses_show_all">Show all</string>
+    <string name="nav_courses_archive">Course archive</string>
+    <string name="nav_courses_my">My courses</string>
+    <string name="nav_courses_hide">Hide</string>
+</resources>

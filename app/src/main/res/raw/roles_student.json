@@ -1,0 +1,14 @@
+[
+  {
+    "title": "role_student",
+    "content": "STUDENT"
+  },
+  {
+    "title": "role_deputyMonitor",
+    "content": "DEPUTY_MONITOR"
+  },
+  {
+    "title": "role_classMonitor",
+    "content": "CLASS_MONITOR"
+  }
+]

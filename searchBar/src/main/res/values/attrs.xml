@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SearchBar">
+        <attr name="searchBar_leftActionMode" format="integer">
+            <enum name="none" value="0" />
+            <enum name="menu" value="1" />
+            <enum name="search" value="2" />
+        </attr>
+        <attr name="searchBar_leftIcon" format="reference" />
+        <attr name="searchBar_menu" format="reference" />
+        <attr name="expandable">
+            <enum name="enable" value="0" />
+            <enum name="alwaysCollapse" value="1" />
+            <enum name="alwaysExpand" value="2" />
+            <enum name="noAnimation" value="3" />
+        </attr>
+        <attr name="menu" format="reference" />
+        <attr name="android:fontFamily" />
+        <attr name="android:hint" />
+        <attr name="android:letterSpacing" />
+        <attr name="android:layout_margin" />
+        <attr name="searchBar_content_layer" format="reference" />
+    </declare-styleable>
+</resources>

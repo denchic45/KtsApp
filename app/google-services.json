@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "276697941756",
+    "firebase_url": "https://kts-app-2ab1f.firebaseio.com",
+    "project_id": "kts-app-2ab1f",
+    "storage_bucket": "kts-app-2ab1f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:276697941756:android:014e7ac702e8dfe148f979",
+        "android_client_info": {
+          "package_name": "com.example.kts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "276697941756-k882s63kn2l7skoec1qn8qvpap9n2795.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB76HAiBD81LwU4_L9ocbE1IOERYm3RMt8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "276697941756-k882s63kn2l7skoec1qn8qvpap9n2795.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

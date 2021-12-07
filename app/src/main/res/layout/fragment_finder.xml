@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.denchic45.widget.ListStateLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/listStateLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    app:emptyView="@layout/state_empty_search"
+    android:layout_height="match_parent"
+    tools:context=".ui.adminPanel.finder.FinderFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        tools:context=".ui.adminPanel.finder.FinderFragment"
+        android:id="@+id/rv_found_items"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="16sp"
+        android:clipToPadding="false"
+        android:layout_below="@+id/app_bar"
+        android:overScrollMode="never"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</com.denchic45.widget.ListStateLayout>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rl_foreground"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    android:background="?android:windowBackground"
+    android:foreground="?attr/selectableItemBackground"
+    android:gravity="center_vertical">
+
+    <com.denchic45.kts.CircleImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="16dp"
+        android:background="@color/pale_white"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_teacher_full_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16sp"
+        android:fontFamily="@font/gilroy_medium"
+        android:text="Имя Фамилия пользователя"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@id/textView_user_role"
+        app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+        app:layout_constraintTop_toTopOf="@id/iv_avatar" />
+
+    <TextView
+        android:id="@+id/textView_user_role"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16sp"
+        android:fontFamily="@font/gilroy_semibold"
+        android:text="Староста"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
+        app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+        app:layout_constraintTop_toBottomOf="@id/tv_teacher_full_name" />
+</androidx.constraintlayout.widget.ConstraintLayout>

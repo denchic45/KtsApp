@@ -1,0 +1,12 @@
+[
+  {
+    "uuid": "ITEM_GENDER_MALE",
+    "title": "gender_female",
+    "content": 1
+  },
+  {
+    "uuid": "ITEM_GENDER_FEMALE",
+    "title": "gender_male",
+    "content": 2
+  }
+]

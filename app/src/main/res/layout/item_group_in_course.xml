@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:foreground="?selectableItemBackgroundBorderless"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16sp">
+
+    <ImageView
+        android:id="@+id/iv_ic"
+        android:layout_centerVertical="true"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_alignParentStart="true"
+        app:srcCompat="@drawable/ic_group" />
+
+    <TextView
+        android:id="@+id/tv_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16sp"
+        android:layout_toEndOf="@id/iv_ic"
+        android:layout_centerVertical="true"
+        android:fontFamily="@font/gilroy_semibold"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:text="Some group"
+        android:textColor="@color/dark_gray"
+        android:textSize="16sp" />
+
+    <ImageView
+        android:id="@+id/iv_remove"
+        android:layout_centerVertical="true"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_alignParentEnd="true"
+        app:srcCompat="@drawable/ic_delete"
+        app:tint="@color/red" />
+</RelativeLayout>

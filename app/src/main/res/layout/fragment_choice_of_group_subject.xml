@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.denchic45.widget.ListStateLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/listStateLayout"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.adminPanel.timtableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment"
+    app:networkView="@layout/state_error_network">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_subjects"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/item_icon_content" />
+</com.denchic45.widget.ListStateLayout>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_login"
+    app:startDestination="@id/authFragment">
+
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="com.denchic45.kts.ui.login.auth.AuthFragment"
+        android:label="fragment_auth"
+        tools:layout="@layout/fragment_auth" >
+        <action
+            android:id="@+id/action_authFragment_to_loginByPhoneNumFragment"
+            app:destination="@id/loginByPhoneNumFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_authFragment_to_loginByEmailFragment"
+            app:destination="@id/loginByEmailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginByPhoneNumFragment"
+        android:name="com.denchic45.kts.ui.login.loginByPhoneNum.LoginByPhoneNumFragment"
+        android:label="fragment_sign_in_by_phone_num"
+        tools:layout="@layout/fragment_login_by_phone_num" >
+        <action
+            android:id="@+id/action_loginByPhoneNumFragment_to_verifyPhoneNumFragment"
+            app:destination="@id/verifyPhoneNumFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/verifyPhoneNumFragment"
+        android:name="com.denchic45.kts.ui.login.verifyPhoneNum.VerifyPhoneNumFragment"
+        android:label="VerifyPhoneNumFragment" />
+    <fragment
+        android:id="@+id/loginByEmailFragment"
+        android:name="com.denchic45.kts.ui.login.loginByEmail.LoginByEmailFragment"
+        android:label="LoginByEmailFragment" >
+        <action
+            android:id="@+id/action_loginByEmailFragment_to_resetPasswordFragment"
+            app:destination="@id/resetPasswordFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.denchic45.kts.ui.login.resetPassword.ResetPasswordFragment"
+        android:label="fragment_reset_password"
+        tools:layout="@layout/fragment_reset_password" />
+</navigation>

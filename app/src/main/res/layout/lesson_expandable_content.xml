@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rl_homework"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="18sp">
+
+        <CheckBox
+            android:id="@+id/cb_homework_completed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/gilroy_semibold"
+            android:maxLines="1"
+            android:minHeight="4dp"
+            android:paddingStart="14sp"
+            android:text="Some Homework"
+            android:textSize="16sp"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:id="@+id/tv_homework_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cb_homework_completed"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="46dp"
+            android:fontFamily="@font/gilroy_medium"
+            android:lineSpacingExtra="8sp"
+            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing
+                elit, sed do eiusmod tempor incididunt ut labore et
+                dolore magna aliqua. Ut enim ad minim veniam." />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_homework_content"
+            android:fadingEdgeLength="16sp"
+            android:overScrollMode="never"
+            android:requiresFadingEdge="horizontal"
+            android:scrollbars="none"
+            tools:ignore="RtlSymmetry">
+
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="46dp"
+                android:clipToPadding="false"
+                android:paddingEnd="56dp"
+                app:singleLine="true">
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.App.Chip"
+                    android:layout_width="wrap_content"
+                    android:maxWidth="130dp"
+                    android:text="IMG-01-01-2020"
+                    app:chipIcon="@drawable/ic_picture" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.App.Chip"
+                    android:layout_width="wrap_content"
+                    android:maxWidth="130dp"
+                    android:text="IMG-01-01-2020"
+                    app:chipIcon="@drawable/ic_picture" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.App.Chip"
+                    android:layout_width="wrap_content"
+                    android:maxWidth="130dp"
+                    android:text="IMG-01-01-2020"
+                    app:chipIcon="@drawable/ic_picture" />
+
+                <com.google.android.material.chip.Chip
+                    style="@style/Widget.App.Chip"
+                    android:layout_width="wrap_content"
+                    android:maxWidth="130dp"
+                    android:text="IMG-01-01-2020"
+                    app:chipIcon="@drawable/ic_picture" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_teachers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18sp">
+
+        <ImageView
+            android:id="@+id/iv_room"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:padding="4dp"
+            app:srcCompat="@drawable/ic_room" />
+
+        <TextView
+            android:id="@+id/et_room"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14sp"
+            android:fontFamily="@font/gilroy_semibold"
+            android:singleLine="true"
+            android:text="23 room"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,160 @@
+<resources>
+    <style name="AppTheme.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="appBarLayoutStyle">@style/MyAppBar</item>
+        <item name="windowActionModeOverlay">true</item>
+<!--        <item name="colorControlNormal">@color/dark_gray</item>-->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorPrimary">@color/blue</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="colorPrimaryDark">@color/dark_blue</item>
+        <item name="colorAccent">@color/yellow</item>
+        <item name="android:textColor">#424658</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="MyAppBar" parent="Widget.Design.AppBarLayout">
+        <item name="colorPrimary">@color/yellow</item>
+        <item name="backgroundColor">@color/yellow</item>
+        <item name="background">@color/yellow</item>
+    </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="BottomNavigation.ActiveItemTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+    </style>
+
+    <style name="CustomBtnOutline" parent="Widget.MaterialComponents.Button">
+        <item name="strokeColor">@color/white_gray</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="materialThemeOverlay">@style/CustomBtnOutline.CustomText</item>
+        <item name="textInputStyle">@style/SmallText</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeCornerSize</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="rippleColor">@color/light_blue</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minWidth">56dp</item>
+    </style>
+
+    <style name="CustomBtnFilled" parent="Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/blue</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="materialThemeOverlay">@style/CustomBtnFilled.CustomText</item>
+        <item name="textInputStyle">@style/SmallText</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeCornerSize</item>
+        <item name="rippleColor">@android:color/transparent</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minWidth">56dp</item>
+        <item name="android:minHeight">42dp</item>
+    </style>
+
+    <style name="CustomBtnOutline.CustomText">
+        <item name="colorOnPrimary">@color/dark</item>
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="CustomBtnFilled.CustomText">
+        <item name="colorOnPrimary">@color/dark</item>
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="ShapeCornerSize">
+        <item name="cornerSize">8dp</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
+    <style name="ShapeFullCornerSize">
+        <item name="cornerSize">28dp</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
+    <style name="SmallText">
+        <item name="fontFamily">@font/gilroy_medium</item>
+    </style>
+
+    <style name="MaterialAlertDialog.Rounded" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MaterialAlertDialog.Rounded</item>
+        <item name="fontFamily">@font/gilroy_semibold</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="ShapeAppearance.MaterialAlertDialog.Rounded" parent="">
+        <item name="cornerSize">8dp</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
+    <style name="CustomFont" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/gilroy_semibold</item>
+    </style>
+
+    <style name="BottomSheetShapeAppearance" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+    </style>
+
+    <style name="BottomSheetModal" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/shape_bottomsheet</item>
+    </style>
+
+    <style name="BaseBottomSheetMenu" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="bottomSheetStyle">@style/BottomSheetModal</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+    </style>
+
+    <style name="AppTheme.Tabs.TextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="fontFamily">@font/gilroy_semibold</item>
+    </style>
+
+    <style name="Widget.App.Chip" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="chipBackgroundColor">@android:color/transparent</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="chipIconSize">20dp</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="chipStrokeColor">@color/white_gray</item>
+        <item name="chipStartPadding">8dp</item>
+    </style>
+
+    <style name="TextAppearance.App.Body2" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+    </style>
+
+    <style name="TransparentActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+
+    <style name="CustomActionBar" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:windowActionBarOverlay">true</item>
+        <!-- Support library compatibility -->
+        <item name="windowActionBarOverlay">true</item>
+    </style>
+
+</resources>
