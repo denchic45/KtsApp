@@ -66,4 +66,7 @@ object DatabaseModule {
 
     @Provides
     fun provideDayDao(dataBase: DataBase): DayDao = dataBase.dayDao()
+
+    @Provides
+    fun provideSectionDao(dataBase: DataBase): SectionDao = dataBase.sectionDao()
 }
