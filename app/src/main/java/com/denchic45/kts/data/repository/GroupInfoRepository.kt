@@ -185,10 +185,7 @@ class GroupInfoRepository @Inject constructor(
         return groupDoc.timestamp != null
     }
 
-    fun getStudentsOfGroupByGroupUuid(groupUuid: String?): LiveData<List<User?>> {
-        if (groupDao.getByUuid(groupUuid) == null) {
-            findGroupInfoByUuid(groupUuid)
-        }
+    fun getStudentsOfGroupByGroupUuid(groupUuid: String): LiveData<List<User?>> {
         return Transformations.map(userDao.getStudentsOfGroupByGroupUuid(groupUuid)) { entities: List<UserEntity?> ->
             ArrayList(
                 userMapper.entityToDomain(entities)

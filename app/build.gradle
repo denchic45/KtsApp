@@ -123,15 +123,15 @@ dependencies {
     //Leak Canary
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.5'
 
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.0-alpha10'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.0-alpha10'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.0-beta02'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.0-beta02'
     implementation 'com.github.tarek360.RichPath:animator:0.1.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'com.airbnb.android:lottie:4.0.0'
 
-    implementation 'androidx.room:room-runtime:2.3.0'
-    kapt 'androidx.room:room-compiler:2.3.0'
+    implementation 'androidx.room:room-runtime:2.4.0-rc01'
+    kapt 'androidx.room:room-compiler:2.4.0-rc01'
     implementation 'android.arch.persistence.room:runtime:1.1.1'
     kapt 'android.arch.persistence.room:compiler:1.1.1'
 

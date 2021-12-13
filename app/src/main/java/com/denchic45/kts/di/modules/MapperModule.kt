@@ -27,4 +27,7 @@ object MapperModule {
 
     @Provides
     fun provideSpecialtyMapper(): SpecialtyMapper = SpecialtyMapperImpl()
+
+    @Provides
+    fun provideSectionMapper(): SectionMapper = SectionMapperImpl()
 }

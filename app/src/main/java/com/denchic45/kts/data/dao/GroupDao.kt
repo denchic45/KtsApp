@@ -11,13 +11,13 @@ import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-abstract class GroupDao : BaseDao<GroupEntity?>() {
+abstract class GroupDao : BaseDao<GroupEntity>() {
     @get:Query("SELECT * FROM `group`")
     abstract val allGroups: LiveData<List<GroupEntity?>?>?
 
     @Transaction
     @Query("SELECT * FROM `group` WHERE uuid_group=:uuid")
-    abstract fun getByUuid(uuid: String?): LiveData<GroupWithCuratorAndSpecialtyEntity>
+    abstract fun getByUuid(uuid: String): LiveData<GroupWithCuratorAndSpecialtyEntity>
 
     @Transaction
     @Query("SELECT * FROM `group` WHERE uuid_group=:uuid")

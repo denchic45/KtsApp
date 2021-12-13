@@ -30,6 +30,8 @@ class MainViewModel @Inject constructor(
         R.string.nav_help to { open.value = 0 },
     )
 
+    private var courseUuids = emptyMap<String,String>()
+
     val goBack = SingleLiveData<Unit>()
 
     val closeNavMenu = SingleLiveData<Unit>()
@@ -86,7 +88,7 @@ class MainViewModel @Inject constructor(
         name.onId {
             onNavItemClickActions.getValue(it).invoke()
         }.onString {
-            openCourse.call()
+            openCourse.postValue(courseUuids[it])
         }
 
 
@@ -124,6 +126,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             interactor.findOwnCourses()
                 .combine(interactor.observeHasGroup()) { courses, hasGroup ->
+                    courseUuids = courses.map { it.name to it.uuid }.toMap()
                     NavMenuState.NavMenu(
                         courses,
                         interactor.findThisUser(),
@@ -175,6 +178,10 @@ class MainViewModel @Inject constructor(
             private val footerTextItems: MutableList<NavTextItem> = mutableListOf()
 
             val items: List<NavItem>
+
+            interface OnMenuItemClickListener {
+
+            }
 
             private fun generate(): MutableList<NavItem> {
                 val list: MutableList<NavItem> = mainTextItems.toMutableList()

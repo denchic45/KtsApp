@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "503b8f82305d7519e0f5fa01bbab865e",
+    "identityHash": "821d651c8ebbcdcf8dba064216972aa8",
     "entities": [
       {
         "tableName": "subject",
@@ -129,8 +129,8 @@
         "foreignKeys": []
       },
       {
-        "tableName": "homework",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_homework` TEXT NOT NULL, `courseId` TEXT NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `date_completion` TEXT NOT NULL, `date_created` TEXT NOT NULL, `completed` INTEGER NOT NULL, `timestamp` INTEGER, PRIMARY KEY(`uuid_homework`))",
+        "tableName": "task",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_homework` TEXT NOT NULL, `courseUuid` TEXT NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `date_created` TEXT NOT NULL, `date_updated` TEXT NOT NULL, `date_completion` TEXT NOT NULL, `timestamp` INTEGER, PRIMARY KEY(`uuid_homework`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -139,8 +139,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "courseId",
-            "columnName": "courseId",
+            "fieldPath": "courseUuid",
+            "columnName": "courseUuid",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -157,21 +157,21 @@
             "notNull": true
           },
           {
-            "fieldPath": "dateOfCompletion",
-            "columnName": "date_completion",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "dateOfCreated",
+            "fieldPath": "createdDate",
             "columnName": "date_created",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "completed",
-            "columnName": "completed",
-            "affinity": "INTEGER",
+            "fieldPath": "updatedDate",
+            "columnName": "date_updated",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completionDate",
+            "columnName": "date_completion",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -432,6 +432,7 @@
             "columnNames": [
               "uuid_subject"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_course_uuid_subject` ON `${TABLE_NAME}` (`uuid_subject`)"
           },
           {
@@ -440,6 +441,7 @@
             "columnNames": [
               "uuid_teacher"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_course_uuid_teacher` ON `${TABLE_NAME}` (`uuid_teacher`)"
           }
         ],
@@ -499,6 +501,7 @@
             "columnNames": [
               "eventUuid"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_teacher_event_eventUuid` ON `${TABLE_NAME}` (`eventUuid`)"
           },
           {
@@ -507,6 +510,7 @@
             "columnNames": [
               "uuid_user"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_teacher_event_uuid_user` ON `${TABLE_NAME}` (`uuid_user`)"
           }
         ],
@@ -566,6 +570,7 @@
             "columnNames": [
               "uuid_group"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_group_course_uuid_group` ON `${TABLE_NAME}` (`uuid_group`)"
           },
           {
@@ -574,6 +579,7 @@
             "columnNames": [
               "uuid_course"
             ],
+            "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_group_course_uuid_course` ON `${TABLE_NAME}` (`uuid_course`)"
           }
         ],
@@ -601,12 +607,44 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "section",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `name` TEXT NOT NULL, `courseUuid` TEXT NOT NULL, PRIMARY KEY(`uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "courseUuid",
+            "columnName": "courseUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "uuid"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '503b8f82305d7519e0f5fa01bbab865e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '821d651c8ebbcdcf8dba064216972aa8')"
     ]
   }
 }
