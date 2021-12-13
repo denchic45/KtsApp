@@ -8,4 +8,6 @@ import javax.inject.Inject
 class TaskRepository @Inject constructor(
     context: Context,
     override val networkService: NetworkService
-) : Repository(context) {}
+) : Repository(context) {
+
+}
