@@ -9,12 +9,15 @@ import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.CourseInfo
 import com.denchic45.kts.data.model.domain.Group
+import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SubjectTeacherPair
+import com.denchic45.kts.data.model.firestore.TaskDoc
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups
 import com.denchic45.kts.data.model.room.GroupCourseCrossRef
@@ -47,12 +50,16 @@ class CourseRepository @Inject constructor(
     private val userPreference: UserPreference,
     private val groupMapper: GroupMapper,
     private val specialtyMapper: SpecialtyMapper,
+    private val sectionMapper: SectionMapper,
+    private val taskMapper: TaskMapper,
     private val courseDao: CourseDao,
+    private val sectionDao :SectionDao,
     private val groupCourseDao: GroupCourseDao,
     private val subjectDao: SubjectDao,
     private val groupDao: GroupDao,
     private val userDao: UserDao,
-    private val specialtyDao: SpecialtyDao
+    private val specialtyDao: SpecialtyDao,
+    private val taskDao: TaskDao
 ) : Repository(context) {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
@@ -103,7 +110,6 @@ class CourseRepository @Inject constructor(
             }
         }
         return courseDao.getByUuid(courseUuid)
-            .filterNotNull()
             .map { courseMapper.entityToDomain(it) }
             .distinctUntilChanged()
     }
@@ -159,6 +165,23 @@ class CourseRepository @Inject constructor(
         }
         return courseDao.getByTeacherUuid(userPreference.uuid)
             .map { courseMapper.entityToDomainInfo2(it) }
+    }
+
+    fun findContentByCourseUuid(courseUuid: String):Flow<List<DomainModel>> {
+        coursesRef.document(courseUuid).collection("Contents")
+            .addSnapshotListener { value, error ->
+                if (error != null) {
+                    return@addSnapshotListener
+                }
+                if (value != null && !value.isEmpty) {
+                    taskMapper.docToEntity(value.toObjects(TaskDoc::class.java))
+                }
+            }
+
+        return sectionDao.getByCourseUuid(courseUuid)
+            .combine(taskDao.getByCourseUuid(courseUuid)) { sections, tasks ->
+                sectionMapper.entityToDomain(sections) + taskMapper.entityToDomain(tasks)
+            }
     }
 
     private fun saveCourseOfTeacher(courseDocs: List<CourseDoc>, teacherUuid: String) {

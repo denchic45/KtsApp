@@ -67,38 +67,44 @@ class CourseFragment :
                 delegates(TaskAdapterDelegate(), CourseSectionAdapterDelegate())
             }
             rvCourseItems.adapter = adapter
-            adapter.submit(
-                listOf(
-                    CourseSection("","Общее"),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    CourseSection("","Тема 1"),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    CourseSection("","Тема 2"),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Важнейшее задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    Task("", "", "Тут еще есть задание", "", Date(), Date(), false),
-                    CourseSection("","Наставления"),
-                )
-            )
+//            adapter.submit(
+//                listOf(
+//                    CourseSection("","Общее"),
+//                    Task("", "", "", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
+//                    CourseSection("","Тема 1"),
+//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
+//                    CourseSection("","Тема 2"),
+//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    Task("", "","","", "Тут еще есть задание", Date(), Date(),false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
+//                    CourseSection("","Наставления"),
+//                )
+//            )
+            viewModel.showContents.observe(viewLifecycleOwner) {
+                adapter.submit(it)
+            }
+            viewModel.courseName.observe(viewLifecycleOwner) {
+                collapsingToolbarLayout!!.title = it
+            }
         }
     }
 
