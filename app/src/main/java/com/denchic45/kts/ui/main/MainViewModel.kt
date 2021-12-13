@@ -179,10 +179,6 @@ class MainViewModel @Inject constructor(
 
             val items: List<NavItem>
 
-            interface OnMenuItemClickListener {
-
-            }
-
             private fun generate(): MutableList<NavItem> {
                 val list: MutableList<NavItem> = mainTextItems.toMutableList()
                 list.add(DividerItem())
