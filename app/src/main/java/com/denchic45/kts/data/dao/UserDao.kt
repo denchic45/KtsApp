@@ -72,6 +72,6 @@ abstract class UserDao : BaseDao<UserEntity>() {
     @Query("SELECT * FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND uuid_user NOT IN(SELECT u.uuid_user FROM user u INNER JOIN course c INNER JOIN `group` g ON c.uuid_teacher == u.uuid_user OR g.uuid_curator = u.uuid_user)")
     abstract fun findUnrelatedTeachersByCourseOrGroupAsCurator():List<UserEntity>
 
-    @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND uuid_user NOT IN(SELECT u.uuid_user FROM user u INNER JOIN course c INNER JOIN `group` g ON c.uuid_teacher == u.uuid_user OR g.uuid_curator = u.uuid_user)")
+    @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND uuid_user NOT IN(SELECT u.uuid_user FROM user u LEFT JOIN course c LEFT JOIN `group` g ON c.uuid_teacher == u.uuid_user OR g.uuid_curator = u.uuid_user)")
     abstract fun deleteUnrelatedTeachersByCourseOrGroupAsCurator()
 }
