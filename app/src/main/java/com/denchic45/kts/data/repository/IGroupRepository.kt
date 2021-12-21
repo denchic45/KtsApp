@@ -25,12 +25,12 @@ interface IGroupRepository {
         specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
     }
 
-    private suspend fun upsertUsersOfGroup(groupDoc: GroupDoc) {
+     suspend fun upsertUsersOfGroup(groupDoc: GroupDoc) {
         val allUsersEntity = userMapper.docToEntity(groupDoc.allUsers)
         userDao.upsert(allUsersEntity)
         val availableUsers = allUsersEntity.stream().map { obj: UserEntity -> obj.uuid }
             .collect(Collectors.toList())
-        availableUsers.add(groupDoc.curator!!.uuid)
+//        availableUsers.add(groupDoc.curator!!.uuid)
         userDao.deleteMissingStudentsByGroup(availableUsers, groupDoc.uuid)
     }
 }

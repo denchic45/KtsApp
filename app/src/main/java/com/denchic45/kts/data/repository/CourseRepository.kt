@@ -13,7 +13,6 @@ import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.CourseInfo
 import com.denchic45.kts.data.model.domain.Group
-import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SubjectTeacherPair

@@ -23,7 +23,7 @@ class ProfileInteractor @Inject constructor(
     }
 
     fun findThisUser(): User {
-        return userRepository.findThisUser()
+        return userRepository.findSelf()
     }
 
     fun findGroupByStudent(user: User): Observable<Group> {

@@ -7,18 +7,19 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.ActivityGroupEditorBinding
-import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.BaseActivity
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import javax.inject.Inject
 
-class GroupEditorActivity : AppCompatActivity(R.layout.activity_group_editor) {
+class GroupEditorActivity :
+    BaseActivity<GroupEditorViewModel, ActivityGroupEditorBinding>(R.layout.activity_group_editor) {
+//    AppCompatActivity(R.layout.activity_group_editor) {
 
-    val binding: ActivityGroupEditorBinding by viewBinding(ActivityGroupEditorBinding::bind)
-    val viewModel: GroupEditorViewModel by viewModels ()
+    override val binding: ActivityGroupEditorBinding by viewBinding(ActivityGroupEditorBinding::bind)
+    override val viewModel: GroupEditorViewModel by viewModels {viewModelFactory}
 
     private var menu: Menu? = null
     private var navController: NavController? = null
@@ -29,7 +30,8 @@ class GroupEditorActivity : AppCompatActivity(R.layout.activity_group_editor) {
             setSupportActionBar(toolbar)
         }
         viewModel.finish.observe(this, { finish() })
-        navController = findNavController(this, R.id.nav_host_fragment)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         viewModel.finish.observe(this, { finish() })

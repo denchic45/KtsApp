@@ -17,6 +17,7 @@ import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
 
 class CourseFragment :
@@ -25,6 +26,7 @@ class CourseFragment :
     override val binding: FragmentCourseBinding by viewBinding(FragmentCourseBinding::bind)
     override val viewModel: CourseViewModel by viewModels { viewModelFactory }
     var collapsingToolbarLayout: CollapsingToolbarLayout? = null
+    lateinit var fab : FloatingActionButton
 
     private var mainToolbar: Toolbar? = null
 
@@ -39,6 +41,7 @@ class CourseFragment :
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        fab = requireActivity().findViewById(R.id.fab_main)
         appBarController = AppBarController.findController(requireActivity())
         appBarController.apply {
             mainToolbar = toolbar
@@ -67,45 +70,22 @@ class CourseFragment :
                 delegates(TaskAdapterDelegate(), CourseSectionAdapterDelegate())
             }
             rvCourseItems.adapter = adapter
-//            adapter.submit(
-//                listOf(
-//                    CourseSection("","Общее"),
-//                    Task("", "", "", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
-//                    CourseSection("","Тема 1"),
-//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "", "","Важнейшее задание", "", Date(), Date(), false),
-//                    CourseSection("","Тема 2"),
-//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "","", "Важнейшее задание", "", Date(), Date(), false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    Task("", "","","", "Тут еще есть задание", Date(), Date(),false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    Task("", "","", "Тут еще есть задание", "", Date(), Date(), false),
-//                    CourseSection("","Наставления"),
-//                )
-//            )
             viewModel.showContents.observe(viewLifecycleOwner) {
                 adapter.submit(it)
             }
             viewModel.courseName.observe(viewLifecycleOwner) {
                 collapsingToolbarLayout!!.title = it
             }
+            viewModel.fabVisibility.observe(viewLifecycleOwner) {
+
+                if (it) fab.show() else fab.hide()
+            }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        fab.hide()
     }
 
     override fun onDestroyView() {

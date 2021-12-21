@@ -34,10 +34,16 @@ object IntentModule {
         return groupCoursesFragment.requireArguments().getString(GroupFragment.GROUP_UUID)!!
     }
 
+//    @Named("GroupEditor ${GroupEditorActivity.GROUP_UUID}")
+//    @Provides
+//    fun provideGroupUuidFromGroupEditorFragment(fragment: GroupEditorFragment): String? {
+//        return fragment.requireActivity().intent.getStringExtra(GroupEditorActivity.GROUP_UUID)
+//    }
+
     @Named("GroupEditor ${GroupEditorActivity.GROUP_UUID}")
     @Provides
-    fun provideGroupUuidFromGroupEditorFragment(fragment: GroupEditorFragment): String? {
-        return fragment.requireActivity().intent.getStringExtra(GroupEditorActivity.GROUP_UUID)
+    fun provideGroupUuidFromGroupEditorActivity(activity: GroupEditorActivity): String? {
+        return activity.intent.getStringExtra(GroupEditorActivity.GROUP_UUID)
     }
 
     @Named(SubjectEditorDialog.SUBJECT_UUID)
