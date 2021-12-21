@@ -1,4 +1,4 @@
-package com.denchic45.kts.data.usecase
+package com.denchic45.kts.data.usecase.base
 
 abstract class SyncUseCase<out T, P:Any> {
 
