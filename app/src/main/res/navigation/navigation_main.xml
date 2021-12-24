@@ -99,7 +99,11 @@
         android:id="@+id/courseFragment"
         android:name="com.denchic45.kts.ui.course.CourseFragment"
         android:label="fragment_course"
-        tools:layout="@layout/fragment_course" />
+        tools:layout="@layout/fragment_course" >
+        <action
+            android:id="@+id/action_courseFragment_to_taskEditorFragment"
+            app:destination="@id/taskEditorFragment" />
+    </fragment>
     <action
         android:id="@+id/action_global_courseFragment"
         app:destination="@id/courseFragment" />
@@ -110,5 +114,10 @@
         tools:layout="@layout/fragment_course_editor"
         android:name="com.denchic45.kts.ui.courseEditor.CourseEditorFragment"
         android:label="CourseEditorFragment" />
+    <fragment
+        android:id="@+id/taskEditorFragment"
+        android:name="com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment"
+        android:label="fragment_task_editor"
+        tools:layout="@layout/fragment_task_editor" />
 
 </navigation>

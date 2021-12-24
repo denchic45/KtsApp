@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.course
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.usecase.FindSelfUserUseCase
@@ -21,6 +22,12 @@ class CourseViewModel @Inject constructor(
     private val findSelfUserUseCase: FindSelfUserUseCase
 ) : ViewModel() {
 
+
+    fun onFabClick() {
+        openTaskEditor.call()
+    }
+
+    val openTaskEditor:SingleLiveData<Nothing> = SingleLiveData()
     val courseName: MutableLiveData<String> = MutableLiveData()
     val showContents: MutableLiveData<List<DomainModel>> = MutableLiveData()
     val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
