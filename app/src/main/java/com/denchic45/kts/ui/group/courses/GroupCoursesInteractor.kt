@@ -30,6 +30,6 @@ class GroupCoursesInteractor @Inject constructor(
         get() = groupRepository.yourGroupUuid
 
     fun findThisUser(): User {
-        return userRepository.findThisUser()
+        return userRepository.findSelf()
     }
 }

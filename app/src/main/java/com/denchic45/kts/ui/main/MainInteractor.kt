@@ -96,7 +96,7 @@ class MainInteractor @Inject constructor(
         get() = userRepository.roleOfThisUser
 
     fun findThisUser(): User {
-        return userRepository.findThisUser()
+        return userRepository.findSelf()
     }
 
     fun listenThisUser(): Flow<Optional<User>> {

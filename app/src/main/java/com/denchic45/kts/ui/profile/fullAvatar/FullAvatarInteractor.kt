@@ -20,7 +20,7 @@ class FullAvatarInteractor @Inject constructor(
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 
     fun findThisUser(): User {
-        return userRepository.findThisUser()
+        return userRepository.findSelf()
     }
 
     suspend fun removeUserAvatar(user: User) {

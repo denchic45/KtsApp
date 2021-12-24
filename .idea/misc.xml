@@ -81,7 +81,18 @@
         <entry key="..\:/DENIS/AndroidStudioProjects/KTS/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3671875" />
         <entry key="..\:/DENIS/AndroidStudioProjects/KTS/app/src/main/res/xml/root_preferences.xml" value="0.31851851851851853" />
         <entry key="..\:/DENIS/AndroidStudioProjects/KTS/searchBar/src/main/res/drawable/ic_arrow_back.xml" value="0.2518518518518518" />
+        <entry key="app/src/main/res/drawable/ic_baseline_more_vert.xml" value="0.2921875" />
+        <entry key="app/src/main/res/layout/activity_course_editor.xml" value="0.14479166666666668" />
+        <entry key="app/src/main/res/layout/activity_group_editor.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.1766304347826087" />
         <entry key="app/src/main/res/layout/fragment_course.xml" value="0.213768115942029" />
+        <entry key="app/src/main/res/layout/fragment_course_editor.xml" value="0.14479166666666668" />
+        <entry key="app/src/main/res/layout/fragment_lesson_editor.xml" value="0.14479166666666668" />
+        <entry key="app/src/main/res/layout/fragment_task_editor.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/item_content.xml" value="0.14479166666666668" />
+        <entry key="app/src/main/res/layout/item_file_content.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/item_header.xml" value="0.23324275362318841" />
+        <entry key="app/src/main/res/layout/item_icon_content.xml" value="0.14479166666666668" />
         <entry key="app/src/main/res/layout/toolbar_course.xml" value="0.1" />
       </map>
     </option>

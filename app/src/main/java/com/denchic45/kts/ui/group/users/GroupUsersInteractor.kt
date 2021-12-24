@@ -44,6 +44,6 @@ class GroupUsersInteractor @Inject constructor(
     }
 
     fun findThisUser(): User {
-        return userRepository.findThisUser()
+        return userRepository.findSelf()
     }
 }

@@ -33,7 +33,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class GroupEditorViewModel @Inject constructor(
-    @Named("GroupEditor " + GroupPreference.GROUP_UUID) uuid: String?,
+    @Named("GroupEditor ${GroupPreference.GROUP_UUID}") uuid: String?,
     private val choiceOfCuratorInteractor: ChoiceOfCuratorInteractor,
     private val interactor: GroupEditorInteractor,
     @Named("courses") val courseList: List<ListItem>

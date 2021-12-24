@@ -94,7 +94,7 @@ open class UserRepository @Inject constructor(
         user.groupUuid?.let { groupPreference.groupUuid = it }
     }
 
-    fun findThisUser(): User {
+    fun findSelf(): User {
         return User(
             userPreference.uuid,
             userPreference.firstName,

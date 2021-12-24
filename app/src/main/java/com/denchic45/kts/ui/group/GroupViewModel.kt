@@ -87,8 +87,8 @@ class GroupViewModel @Inject constructor(
             groupNameByGroupUuid.collect { title.value = it }
         }
         isExistGroup = interactor.isExistGroup(this.groupUuid)
-        isExistGroupObserver = Observer { exist: Boolean? ->
-            if (!exist!!) {
+        isExistGroupObserver = Observer { exist: Boolean ->
+            if (!exist) {
                 finish.call()
             }
         }

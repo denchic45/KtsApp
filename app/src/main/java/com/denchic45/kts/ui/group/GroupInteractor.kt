@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.group
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.denchic45.kts.data.Interactor
@@ -32,6 +31,6 @@ class GroupInteractor @Inject constructor(
     }
 
     fun findThisUser(): User {
-        return userRepository.findThisUser()
+        return userRepository.findSelf()
     }
 }

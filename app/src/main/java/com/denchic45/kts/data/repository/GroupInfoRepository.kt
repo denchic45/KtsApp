@@ -66,7 +66,7 @@ class GroupInfoRepository @Inject constructor(
     private suspend fun saveUsersAndTeachersWithSubjectsAndCoursesOfYourGroup(groupDoc: GroupDoc) {
         saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
         groupPreference.saveGroupInfo(groupMapper.docToEntity(groupDoc))
-        timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses!!.time)
+//        timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses!!.time)
     }
 
 //    override suspend fun saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc: GroupDoc) {
@@ -74,15 +74,6 @@ class GroupInfoRepository @Inject constructor(
 //        groupDao.upsert(groupMapper.docToEntity(groupDoc))
 //        specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
 //    }
-
-    private suspend fun upsertUsersOfGroup(groupDoc: GroupDoc) {
-        val allUsersEntity = userMapper.docToEntity(groupDoc.allUsers)
-        userDao.upsert(allUsersEntity)
-        val availableUsers = allUsersEntity.stream().map { obj: UserEntity -> obj.uuid }
-            .collect(Collectors.toList())
-        availableUsers.add(groupDoc.curator!!.uuid)
-        userDao.deleteMissingStudentsByGroup(availableUsers, groupDoc.uuid)
-    }
 
     private suspend fun saveUsersAndGroupsAndSubjectsOfTeacher(
         groupDocs: List<GroupDoc>,
@@ -327,7 +318,7 @@ class GroupInfoRepository @Inject constructor(
     }
 
     fun findCurator(groupUuid: String): LiveData<User> {
-        return Transformations.map(userDao.getCurator(groupUuid)) { entity: UserEntity ->
+        return Transformations.map(userDao.getCurator(groupUuid)) { entity: UserEntity? ->
             userMapper.entityToDomain(entity)
         }
     }

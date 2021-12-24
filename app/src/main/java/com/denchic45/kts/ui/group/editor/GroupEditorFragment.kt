@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.group.editor
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
@@ -17,7 +18,6 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentGroupEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
-import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
@@ -25,10 +25,10 @@ import com.jakewharton.rxbinding4.widget.textChanges
 import java.util.*
 
 class GroupEditorFragment :
-    BaseFragment<GroupEditorViewModel, FragmentGroupEditorBinding>(R.layout.fragment_group_editor) {
+    Fragment(R.layout.fragment_group_editor) {
 
-    override val binding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
-    override val viewModel: GroupEditorViewModel by activityViewModels { viewModelFactory }
+    val binding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
+    val viewModel: GroupEditorViewModel by activityViewModels()
     private val viewBinding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
     private var specialtyAdapter: ListPopupWindowAdapter? = null
     private var navController: NavController? = null
@@ -36,6 +36,7 @@ class GroupEditorFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController(view)
+        viewModel //need for init before in activity
         val curatorHeader = view.findViewById<TextView>(R.id.tv_header)
         specialtyAdapter = ListPopupWindowAdapter(activity, ArrayList())
         viewBinding.apply {
