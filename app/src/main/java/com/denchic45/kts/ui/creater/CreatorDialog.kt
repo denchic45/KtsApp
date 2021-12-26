@@ -9,7 +9,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
@@ -63,13 +65,14 @@ class CreatorDialog : BottomSheetDialogFragment() {
         })
         viewModel!!.openSpecialtyEditor.observe(viewLifecycleOwner, {
             SpecialtyEditorDialog.newInstance(null).show(
-               requireActivity().supportFragmentManager, null
+                requireActivity().supportFragmentManager, null
             )
         })
         viewModel!!.openCourseEditor.observe(viewLifecycleOwner, {
-            val intent = Intent(activity, CourseEditorActivity::class.java)
-            intent.putExtra(CourseEditorActivity.COURSE_UUID, null as String?)
-           requireActivity().startActivity(intent)
+            findNavController().navigate(
+                R.id.action_global_courseEditorFragment,
+                bundleOf(CourseEditorActivity.COURSE_UUID to it)
+            )
         })
         viewModel!!.finish.observe(viewLifecycleOwner, { dismiss() })
     }
@@ -80,7 +83,7 @@ class CreatorDialog : BottomSheetDialogFragment() {
 
     private class ItemAdapter : RecyclerView.Adapter<EntityHolder>() {
         private var listItems: List<ListItem> = emptyList()
-        private var itemClickListener: OnItemClickListener = OnItemClickListener {  }
+        private var itemClickListener: OnItemClickListener = OnItemClickListener { }
         fun setOnItemClickListener(itemClickListener: OnItemClickListener) {
             this.itemClickListener = itemClickListener
         }
@@ -112,14 +115,17 @@ class CreatorDialog : BottomSheetDialogFragment() {
     private class EntityHolder(
         itemEntityBinding: ItemEntityBinding,
         itemClickListener: OnItemClickListener
-    ) : BaseViewHolder<ListItem,ItemEntityBinding>(itemEntityBinding, itemClickListener) {
+    ) : BaseViewHolder<ListItem, ItemEntityBinding>(itemEntityBinding, itemClickListener) {
         private val tvTitle: TextView
         private val ivIcon: ImageView
         override fun onBind(item: ListItem) {
             tvTitle.text = item.title
             item.icon.onId {
                 val icon = ContextCompat.getDrawable(itemView.context, it)
-                DrawableCompat.setTint(icon!!, ContextCompat.getColor(itemView.context, R.color.blue))
+                DrawableCompat.setTint(
+                    icon!!,
+                    ContextCompat.getColor(itemView.context, R.color.blue)
+                )
                 ivIcon.setImageDrawable(icon)
             }
         }

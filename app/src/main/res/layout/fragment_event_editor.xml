@@ -119,8 +119,8 @@
                 android:background="@null"
                 android:fontFamily="@font/gilroy_semibold"
                 android:hint="Аудитория"
-                android:maxLines="1"
                 android:inputType="text"
+                android:maxLines="1"
                 android:textColor="@color/dark_gray"
                 android:textSize="16sp" />
 

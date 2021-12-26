@@ -179,7 +179,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
 
         viewModel.openCourse.observe(viewLifecycleOwner) {
             navController.navigate(
-                R.id.action_finderFragment_to_courseEditorFragment,
+                R.id.action_global_courseEditorFragment,
                 bundleOf(CourseEditorActivity.COURSE_UUID to it)
             )
         }
