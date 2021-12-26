@@ -9,6 +9,7 @@ import com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.simpleEventEdi
 import com.denchic45.kts.ui.adminPanel.timtableEditor.finder.TimetableFinderFragment
 import com.denchic45.kts.ui.adminPanel.timtableEditor.loader.TimetableLoaderFragment
 import com.denchic45.kts.ui.course.CourseFragment
+import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorFragment
@@ -100,5 +101,8 @@ interface FragmentModule {
     fun contributeAuthFragment(): AuthFragment
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
-    fun contributeACourseFragment(): CourseFragment
+    fun contributeCourseFragment(): CourseFragment
+
+    @ContributesAndroidInjector(modules = [IntentModule::class])
+    fun contributeTaskEditorFragment(): TaskEditorFragment
 }
