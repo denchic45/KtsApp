@@ -61,12 +61,11 @@ class GroupInfoRepository @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val usersRef: CollectionReference = firestore.collection("Users")
-//    private var batch: WriteBatch? = null
 
     private suspend fun saveUsersAndTeachersWithSubjectsAndCoursesOfYourGroup(groupDoc: GroupDoc) {
         saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
         groupPreference.saveGroupInfo(groupMapper.docToEntity(groupDoc))
-//        timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses!!.time)
+        timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses!!.time)
     }
 
 //    override suspend fun saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc: GroupDoc) {

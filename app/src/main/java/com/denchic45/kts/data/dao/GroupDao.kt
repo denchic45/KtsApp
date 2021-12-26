@@ -36,7 +36,7 @@ abstract class GroupDao : BaseDao<GroupEntity>() {
     abstract fun isExist(uuid: String): Flow<Boolean>
 
     @Query("SELECT EXISTS(SELECT * FROM `group` WHERE uuid_group = :uuid)")
-    abstract suspend fun isExistSync(uuid: String?): Boolean
+    abstract suspend fun isExistSync(uuid: String): Boolean
 
     @Query("DELETE FROM `group` WHERE uuid_group =:groupUuid")
     abstract fun deleteByUuid(groupUuid: String?)

@@ -41,7 +41,7 @@ class TimetableFinderFragment :
     private var popupWindow: ListPopupWindow? = null
     private var rv: RecyclerView? = null
     private var adapter: EventAdapter? = null
-    private var menu: Menu? = null
+    private lateinit var menu: Menu
     private var actionMode: ActionMode? = null
     private lateinit var wcv: WeekCalendarView
     private var listStateLayout: ListStateLayout? = null

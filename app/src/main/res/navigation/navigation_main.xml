@@ -57,9 +57,6 @@
         <action
             android:id="@+id/action_finderFragment_to_group_editor"
             app:destination="@id/group" />
-        <action
-            android:id="@+id/action_finderFragment_to_courseEditorFragment"
-            app:destination="@id/courseEditorFragment" />
     </fragment>
     <fragment
         android:id="@+id/choiceOfCuratorFragment"
@@ -118,6 +115,6 @@
         android:id="@+id/taskEditorFragment"
         android:name="com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment"
         android:label="fragment_task_editor"
-        tools:layout="@layout/fragment_task_editor" />
+        tools:layout="@layout/fragment_task_editor" /><action android:id="@+id/action_global_courseEditorFragment" app:destination="@id/courseEditorFragment"/>
 
 </navigation>

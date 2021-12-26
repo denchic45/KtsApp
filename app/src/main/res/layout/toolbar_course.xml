@@ -4,12 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar_layout"
     android:layout_width="match_parent"
-    android:layout_height="156dp"
+    android:layout_height="124dp"
     app:expandedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar.Expanded"
     app:collapsedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar"
     app:maxLines="2"
     app:expandedTitleMarginStart="16sp"
-    app:title="Элементы высшей математики"
+    app:title="Элементы"
     app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
     app:toolbarId="@+id/toolbar">
 

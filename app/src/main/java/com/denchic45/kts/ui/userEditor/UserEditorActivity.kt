@@ -29,7 +29,7 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
     override val binding: ActivityUserEditorBinding by viewBinding(ActivityUserEditorBinding::bind)
     override val viewModel: UserEditorViewModel by viewModels { viewModelFactory }
     private lateinit var keyboardManager: KeyboardManager
-    private var menu: Menu? = null
+    private lateinit var menu: Menu
     private var groupAdapter: ListPopupWindowAdapter? = null
 
     @SuppressLint("ClickableViewAccessibility")
@@ -159,7 +159,7 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
             viewModel.deleteOptionVisibility.observe(
                 this@UserEditorActivity,
                 { visibility: Boolean? ->
-                    menu!!.findItem(R.id.option_delete_user).isVisible = visibility!!
+                    menu.findItem(R.id.option_delete_user).isVisible = visibility!!
                 })
             viewModel.fieldGroupVisibility.observe(
                 this@UserEditorActivity,
