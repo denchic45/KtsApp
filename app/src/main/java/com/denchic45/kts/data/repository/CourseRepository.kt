@@ -20,6 +20,7 @@ import com.denchic45.kts.data.model.firestore.TaskDoc
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups
 import com.denchic45.kts.data.model.room.GroupCourseCrossRef
+import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.TimestampPreference.Companion.TIMESTAMP_LAST_UPDATE_GROUP_COURSES
@@ -47,12 +48,14 @@ class CourseRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val database: DataBase,
     private val userPreference: UserPreference,
+    private val timestampPreference: TimestampPreference,
+    private val appPreference: AppPreference,
     private val groupMapper: GroupMapper,
     private val specialtyMapper: SpecialtyMapper,
     private val sectionMapper: SectionMapper,
     private val taskMapper: TaskMapper,
     private val courseDao: CourseDao,
-    private val sectionDao :SectionDao,
+    private val sectionDao: SectionDao,
     private val groupCourseDao: GroupCourseDao,
     private val subjectDao: SubjectDao,
     private val groupDao: GroupDao,
@@ -62,9 +65,8 @@ class CourseRepository @Inject constructor(
 ) : Repository(context) {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
-    private val timestampPreference = TimestampPreference(context)
 
-    private var startDrop = 1
+//    private var startDrop = 1
 
     fun find(courseUuid: String): Flow<Course> {
         addListenerRegistration("findCourseByUuid $courseUuid") {
@@ -78,6 +80,9 @@ class CourseRepository @Inject constructor(
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
                         database.runInTransaction {
                             launch {
+
+                                groupCourseDao.deleteByCourse(courseDoc.uuid)
+
                                 subjectDao.upsert(
                                     subjectMapper.docToEntity(
                                         courseDoc.subject
@@ -85,23 +90,28 @@ class CourseRepository @Inject constructor(
                                 )
                                 userDao.upsert(userMapper.docToEntity(courseDoc.teacher))
                                 courseDao.upsert(courseMapper.docToEntity(courseDoc))
-                            }
-                        }
-                        groupCourseDao.deleteByCourse(courseDoc.uuid)
-                        courseDoc.groupUuids?.let { groupUuids ->
-                            if (groupUuids.isNotEmpty()) {
-                                val groupDocs = groupsRef.whereIn("uuid", groupUuids)
-                                    .get()
-                                    .await().toObjects(GroupDoc::class.java)
-                                groupDao.upsert(groupMapper.docToEntity(groupDocs))
-                                specialtyDao.upsert(
-                                    specialtyMapper.docToEntity(
-                                        groupDocs.map(GroupDoc::specialty)
-                                    )
-                                )
-                                groupCourseDao.upsert(groupUuids.map { groupUuid ->
-                                    GroupCourseCrossRef(groupUuid, courseDoc.uuid)
-                                })
+
+                                courseDoc.groupUuids?.let { groupUuids ->
+                                    if (groupUuids.isNotEmpty()) {
+                                        val groupDocs = groupsRef.whereIn("uuid", groupUuids)
+                                            .get()
+                                            .await().toObjects(GroupDoc::class.java)
+                                        groupDao.upsert(groupMapper.docToEntity(groupDocs))
+                                        specialtyDao.upsert(
+                                            specialtyMapper.docToEntity(
+                                                groupDocs.map(GroupDoc::specialty)
+                                            )
+                                        )
+                                        groupCourseDao.upsert(
+                                            groupUuids.map { groupUuid ->
+                                                GroupCourseCrossRef(
+                                                    groupUuid,
+                                                    courseDoc.uuid
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -123,18 +133,14 @@ class CourseRepository @Inject constructor(
 
 
     suspend fun observeByYouGroup() {
-        groupPreference.observeValue(GroupPreference.GROUP_UUID, "").mapLatest {
-            if (it.isNotEmpty()) {
-                timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
-                    .drop(startDrop)
-                    .mapLatest { timestamp ->
-                        startDrop = 1
-                        getCoursesByGroupUuidRemotely(groupPreference.groupUuid)
-                    }.collect()
-            } else {
-                startDrop = 0
+        timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
+            .filter {it != 0L}
+            .drop(if (appPreference.coursesLoadedFirstTime) 1 else 0)
+//            .flatMapLatest { timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L) }
+            .collect {
+                appPreference.coursesLoadedFirstTime = true
+                getCoursesByGroupUuidRemotely(groupPreference.groupUuid)
             }
-        }.collect()
     }
 
     // todo проверить получше
@@ -166,7 +172,7 @@ class CourseRepository @Inject constructor(
             .map { courseMapper.entityToDomainInfo2(it) }
     }
 
-    fun findContentByCourseUuid(courseUuid: String):Flow<List<DomainModel>> {
+    fun findContentByCourseUuid(courseUuid: String): Flow<List<DomainModel>> {
         coursesRef.document(courseUuid).collection("Contents")
             .addSnapshotListener { value, error ->
                 if (error != null) {
@@ -220,6 +226,7 @@ class CourseRepository @Inject constructor(
         val subjectEntities = courseDocs.map { subjectMapper.docToEntity(it.subject) }
         val groupWithCourseEntities = courseDocs.flatMap { courseDoc ->
             courseDoc.groupUuids!!
+                .filter { groupDao.isExistSync(it) }
                 .map { groupUuid ->
                     GroupCourseCrossRef(groupUuid, courseDoc.uuid)
                 }
@@ -229,91 +236,6 @@ class CourseRepository @Inject constructor(
         courseDao.upsert(courseEntities)
         groupCourseDao.upsert(groupWithCourseEntities)
     }
-
-//    private fun saveCoursesOfGroup(
-//        courseDocs: MutableList<CourseDoc>,
-//        groupUuid: String
-//    ) {
-//        externalScope.launch(dispatcher) {
-//            val teachers = mutableListOf<UserEntity>()
-//            val subjects = mutableListOf<SubjectEntity>()
-//            val availableCourseUuids = mutableListOf<String>()
-//            val availableSubjectUuids = mutableListOf<String>()
-//            val availableTeacherUuids = mutableListOf<String>()
-//            val groupsCourses = mutableListOf<GroupCourseCrossRef>()
-//
-//            courseDocs.forEach { courseDoc ->
-//                courseDoc.apply {
-//                    teachers.add(userMapper.docToEntity(teacher))
-//                    subjects.add(subjectMapper.docToEntity(subject))
-//                    availableCourseUuids.add(uuid)
-//                    availableTeacherUuids.add(teacher!!.uuid)
-//                    availableSubjectUuids.add(subject!!.uuid)
-//                    groupsCourses.add(
-//                        GroupCourseCrossRef(groupUuid, courseDoc.uuid)
-//                    )
-//                }
-//            }
-//            userDao.upsert(teachers)
-//            subjectDao.upsert(subjects)
-//            courseDao.upsert(courseMapper.docToEntity(courseDocs))
-//            groupCourseDao.upsert(groupsCourses)
-//
-//            //todo методы removeMissing ПРОВЕРИТЬ
-//
-//            courseDao.deleteMissingByGroup(availableCourseUuids, groupUuid)
-//            userDao.deleteMissingTeachersByGroup(availableTeacherUuids, groupUuid)
-//            subjectDao.deleteUnrelatedByCourse()
-//        }
-//    }
-
-//    private suspend fun saveCourses(courseDocs: MutableList<CourseDoc>) {
-//        for (courseDoc in courseDocs) {
-//            val teachers = mutableListOf<UserEntity>()
-//            val subjects = mutableListOf<SubjectEntity>()
-//            val availableCourseUuids = mutableListOf<String>()
-//            val availableSubjectUuids = mutableListOf<String>()
-//            val availableTeacherUuids = mutableListOf<String>()
-//
-//            courseDoc.apply {
-//                teachers.add(userMapper.docToEntity(teacher))
-//                subjects.add(subjectMapper.docToEntity(subject))
-//                availableCourseUuids.add(uuid)
-//                availableTeacherUuids.add(teacher!!.uuid)
-//                availableSubjectUuids.add(subject!!.uuid)
-//                groupUuids!!.forEach { groupUuid ->
-//                    database.runInTransaction {
-//                        courseDao.deleteMissingByGroup(
-//                            availableCourseUuids,
-//                            groupUuid
-//                        )
-//                        externalScope.launch(Dispatchers.IO) {
-//                            userDao.upsert(teachers)
-//                            subjectDao.upsert(subjects)
-////                        groupCourseDao.deleteByGroup(groupUuid)
-//                            groupCourseDao.upsert(
-//                                GroupCourseCrossRef(
-//                                    groupUuid,
-//                                    uuid
-//                                )
-//                            )
-//                            courseDao.upsert(courseMapper.docToEntity(this@apply))
-//                            //todo методы removeMissing ПРОВЕРИТЬ
-//                            userDao.deleteMissingTeachersByGroup(
-//                                availableTeacherUuids,
-//                                groupUuid
-//                            )
-//                            subjectDao.deleteMissingByGroup(
-//                                availableSubjectUuids,
-//                                groupUuid
-//                            )
-//                        }
-//
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     fun findByGroupUuid(groupUuid: String): Flow<List<CourseInfo>> {
         if (groupUuid != groupPreference.groupUuid)
@@ -413,7 +335,6 @@ class CourseRepository @Inject constructor(
         )
     }
 
-
     private fun mapOfAddedFieldsCourse(
         groupDoc: GroupDoc,
         courseDoc: CourseDoc
@@ -431,7 +352,6 @@ class CourseRepository @Inject constructor(
                 "subjects.${courseDoc.subject!!.uuid}" to courseDoc.subject!!,
                 "teachers.${courseDoc.teacher!!.uuid}" to courseDoc.teacher!!,
 
-                //TODO проверить добавление элемента в этот массив
                 "teacherIds" to FieldValue.arrayUnion(courseDoc.teacher!!.uuid)
             )
         } else {
@@ -597,7 +517,8 @@ class CourseRepository @Inject constructor(
                 .whereArrayContains("searchKeys", name.lowercase())
                 .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                     val courseDocs = value!!.toObjects(CourseDoc::class.java)
-//                    externalScope.launch(dispatcher) { saveCourses(courseDocs) }
+                    externalScope.launch(dispatcher) { saveCourses(courseDocs) }
+//
                     trySend(
                         Resource.successful(
                             courseMapper.docToDomain(courseDocs)

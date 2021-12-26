@@ -40,7 +40,7 @@ class CourseEditorFragment :
     override val viewModel: CourseEditorViewModel by viewModels { viewModelFactory }
     private var imm: InputMethodManager? = null
     private var popupWindow: ListPopupWindow? = null
-    private var menu: Menu? = null
+    private lateinit var menu: Menu
 
     override val binding: FragmentCourseEditorBinding by viewBinding(FragmentCourseEditorBinding::bind)
 
@@ -67,11 +67,6 @@ class CourseEditorFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
-
-//    override fun onPrepareOptionsMenu(menu: Menu) {
-//        super.onPrepareOptionsMenu(menu)
-//        viewModel.onPrepareOptions(viewPager!!.currentItem)
-//    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -127,22 +122,14 @@ class CourseEditorFragment :
                 false
             })
 
-            fab.setOnClickListener { viewModel.onFabClick() }
-
             viewModel.optionVisibility.observe(
                 viewLifecycleOwner,
                 { idAndVisiblePair: Pair<Int, Boolean> ->
-                    val menuItem = menu!!.findItem(
+                    val menuItem = menu.findItem(
                         idAndVisiblePair.first
                     )
                     if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
                 })
-
-
-            viewModel.enablePositiveBtn.observe(viewLifecycleOwner, { enabled: Boolean ->
-                if (enabled) fab.show() else fab.hide()
-
-            })
 
             viewModel.groupList.observe(viewLifecycleOwner) {
                 adapter.submit(it)
@@ -192,6 +179,11 @@ class CourseEditorFragment :
                 tvSubjectName.text = name
                 etSubjectName.setText("")
             })
+
+            viewModel.finish.observe(viewLifecycleOwner) {
+                findNavController().popBackStack()
+            }
+
             viewModel.selectTeacher.observe(viewLifecycleOwner, { teacher: User ->
                 Glide.with(requireActivity())
                     .load(teacher.photoUrl)
@@ -203,7 +195,7 @@ class CourseEditorFragment :
             viewModel.showFoundTeachers.observe(viewLifecycleOwner, { items: List<ListItem> ->
                 popupWindow!!.anchorView = etTeacherName
                 popupWindow!!.setAdapter(ListPopupWindowAdapter(activity, items))
-                popupWindow!!.setOnItemClickListener { parent: AdapterView<*>?, view12: View?, position: Int, id: Long ->
+                popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                     popupWindow!!.dismiss()
                     viewModel.onTeacherSelect(position)
                 }
@@ -219,7 +211,7 @@ class CourseEditorFragment :
             viewModel.showFoundSubjects.observe(viewLifecycleOwner, { items: List<ListItem> ->
                 popupWindow!!.anchorView = etSubjectName
                 popupWindow!!.setAdapter(ListPopupWindowAdapter(activity, items))
-                popupWindow!!.setOnItemClickListener { parent: AdapterView<*>?, view1: View?, position: Int, id: Long ->
+                popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, view1: View?, position: Int, _: Long ->
                     popupWindow!!.dismiss()
                     viewModel.onSubjectSelect(position)
                 }
@@ -235,9 +227,6 @@ class CourseEditorFragment :
             viewModel.openChoiceOfGroup.observe(viewLifecycleOwner) {
                 findNavController().navigate(R.id.action_global_choiceOfGroupFragment)
             }
-            viewModel.deleteBtnVisibility.observe(viewLifecycleOwner, { visibility: Boolean ->
-                // todo кнопка удаления должна стать доступной
-            })
 
             etSubjectName.textChanges()
                 .compose(EditTextTransformer())
@@ -250,11 +239,7 @@ class CourseEditorFragment :
             etTeacherName.textChanges()
                 .compose(EditTextTransformer())
                 .filter(NonThrowingPredicate { charSequence: CharSequence -> charSequence.length > 3 && etTeacherName.hasFocus() } as NonThrowingPredicate<CharSequence>)
-                .subscribe { teacherName: String? ->
-                    viewModel.onTeacherNameType(
-                        teacherName!!
-                    )
-                }
+                .subscribe { teacherName: String -> viewModel.onTeacherNameType(teacherName) }
         }
     }
 
