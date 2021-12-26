@@ -19,6 +19,10 @@ class MainViewModel @Inject constructor(
     private val interactor: MainInteractor
 ) : BaseViewModel() {
 
+    private val screenIdsWithFab: Set<Int> = setOf(
+        R.id.courseFragment
+    )
+
     private val mainScreenIds: Set<Int> = setOf(R.id.menu_timetable, R.id.menu_group)
     private val onNavItemClickActions = mapOf(
         R.string.nav_tasks to { open.value = 0 },
@@ -29,6 +33,8 @@ class MainViewModel @Inject constructor(
         R.string.nav_settings to { open.value = R.id.action_global_menu_settings },
         R.string.nav_help to { open.value = 0 },
     )
+
+    val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
 
     private var courseUuids = emptyMap<String,String>()
 
@@ -109,6 +115,8 @@ class MainViewModel @Inject constructor(
             toolbarNavigationState.value = ToolbarNavigationState.BACK
             bottomMenuVisibility.value = false
         }
+
+        fabVisibility.postValue(screenIdsWithFab.contains(id))
     }
 
     companion object {

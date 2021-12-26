@@ -93,6 +93,9 @@ class MainActivity : AppCompatActivity() {
             viewModel.bottomMenuVisibility.observe(this@MainActivity) {
                 bnv.visibility = if (it) View.VISIBLE else View.GONE
             }
+            viewModel.fabVisibility.observe(this@MainActivity) {
+                if (it) fabMain.show() else fabMain.hide()
+            }
         }
 
         lifecycleScope.launchWhenResumed {
