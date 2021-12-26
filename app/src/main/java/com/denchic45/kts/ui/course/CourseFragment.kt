@@ -70,9 +70,6 @@ class CourseFragment :
             viewModel.courseName.observe(viewLifecycleOwner) {
                 collapsingToolbarLayout!!.title = it
             }
-            viewModel.fabVisibility.observe(viewLifecycleOwner) {
-                if (it) fab.show() else fab.hide()
-            }
         }
         viewModel.openTaskEditor.observe(viewLifecycleOwner) {
             findNavController().navigate(R.id.action_courseFragment_to_taskEditorFragment)
