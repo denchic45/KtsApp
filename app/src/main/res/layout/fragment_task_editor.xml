@@ -1,86 +1,381 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.course.taskEditor.TaskEditorFragment">
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/til_name"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        app:errorEnabled="false">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="Название"
-            android:maxLength="1" />
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/til_description"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        app:errorEnabled="false">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_description"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="Описание (необязательно)"/>
-    </com.google.android.material.textfield.TextInputLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:foreground="?selectableItemBackgroundBorderless"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="16sp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16sp"
+        tools:context=".ui.course.taskEditor.TaskEditorFragment">
 
-        <ImageView
-            android:id="@+id/iv_ic"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            app:srcCompat="@drawable/ic_calendar" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Название"
+                android:maxLength="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_description"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_description"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Описание (необязательно)" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:id="@+id/tv_content"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16sp"
+            android:id="@+id/tv_header_files"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
             android:fontFamily="@font/gilroy_semibold"
-            android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceBody2"
-            android:text="Без срока сдачи"
-            android:textColor="@color/dark_gray"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:text="Прикрепленые файлы"
             android:textSize="16sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_file_content" />
+
+        <TextView
+            android:id="@+id/tv_header_availability"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:fontFamily="@font/gilroy_semibold"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:text="Доступность"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <ImageView
+                android:id="@+id/iv_ic"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                app:srcCompat="@drawable/ic_calendar" />
+
+            <TextView
+                android:id="@+id/tv_availability_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16sp"
+                android:fontFamily="@font/gilroy_semibold"
+                android:maxLines="1"
+                android:text="Без срока сдачи"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View style="@style/Divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <CheckBox
+                android:id="@+id/cb_availability_send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_calendar" />
+
+            <TextView
+                android:id="@+id/tv_availability_send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16sp"
+                android:maxLines="1"
+                android:text="Запретить сдачу после срока сдачи"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <View style="@style/Divider" />
+
+        <TextView
+            android:id="@+id/tv_header_answer"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:fontFamily="@font/gilroy_semibold"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:text="Тип ответа"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <TextView
+                android:id="@+id/tv_answer_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:fontFamily="@font/gilroy_semibold"
+                android:maxLines="1"
+                android:text="Текст"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <CheckBox
+                android:id="@+id/cb_chars_limit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_calendar" />
+
+            <TextView
+                android:id="@+id/tv_chars_limit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16sp"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:text="Лимит символов"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_chars_limit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:background="@null"
+                android:hint="999"
+                android:maxLength="3"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/dark"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <TextView
+                android:id="@+id/tv_answer_files"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:fontFamily="@font/gilroy_semibold"
+                android:maxLines="1"
+                android:text="Прикрепленные файлы"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw_files"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <TextView
+                android:id="@+id/tv_files_limit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:text="Макс. количество файлов"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_files_limit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:background="@null"
+                android:hint="99"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:inputType="text"
+                android:maxLines="1"
+                android:maxLength="2"
+                android:textColor="@color/dark"
+                android:textSize="16sp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <TextView
+                android:id="@+id/tv_file_size_limit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxLines="1"
+                android:text="Макс. размер файлов"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/et_file_size_limit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:background="@null"
+                android:hint="999"
+                android:text="200"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/dark"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_files_limit_mb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:background="@null"
+                android:layout_marginStart="4dp"
+                android:text="MB"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:inputType="text"
+                android:maxLines="1"
+                android:maxLength="2"
+                android:textColor="@color/gray"
+                android:textSize="16sp" />
+        </LinearLayout>
+        
+        <TextView
+            android:id="@+id/tv_header_grade"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:fontFamily="@font/gilroy_semibold"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:text="Тип оценки"
+            android:textSize="16sp" />
+        
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16sp">
+            <AutoCompleteTextView
+                android:layout_width="match_parent"
+                android:text="Бальная"
+                android:inputType="none"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <View style="@style/Divider" android:layout_marginVertical="16sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:foreground="?selectableItemBackgroundBorderless"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16sp">
+
+            <CheckBox
+                android:id="@+id/cb_comments_enable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:srcCompat="@drawable/ic_calendar" />
+
+            <TextView
+                android:id="@+id/tv_comments_enable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16sp"
+                android:maxLines="1"
+                android:text="Комментарии включены"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
+                android:textColor="@color/dark_gray"
+                android:textSize="16sp" />
+        </LinearLayout>
+
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_header"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:fontFamily="@font/gilroy_semibold"
-        android:paddingHorizontal="16dp"
-        android:gravity="center_vertical"
-        android:text="Прикрепленые файлы"
-        android:textSize="16sp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_files"
-        android:layout_width="match_parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        android:orientation="horizontal"
-        tools:listitem="@layout/item_file_content"
-        android:layout_height="wrap_content"/>
-
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>
