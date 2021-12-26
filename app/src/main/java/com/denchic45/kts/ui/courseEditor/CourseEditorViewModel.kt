@@ -19,6 +19,7 @@ import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.NetworkException
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
@@ -41,10 +42,10 @@ class CourseEditorViewModel @Inject constructor(
     val nameField = MutableLiveData<String>()
     val showFoundTeachers = SingleLiveData<List<ListItem>>()
     val showFoundSubjects = SingleLiveData<List<ListItem>>()
-    val enablePositiveBtn = MutableLiveData(false)
+
+    //    val enablePositiveBtn = MutableLiveData(false)
     val subjectNameTypeEnable = MutableLiveData<Boolean>()
     val teacherNameTypeEnable = MutableLiveData<Boolean>()
-    val deleteBtnVisibility = MutableLiveData(true)
     val groupList = MutableLiveData(addAdderGroupItem())
     val optionVisibility = MutableLiveData<Pair<Int, Boolean>>()
     val title = MutableLiveData<String>()
@@ -81,7 +82,7 @@ class CourseEditorViewModel @Inject constructor(
     private val uiValidator: UIValidator = UIValidator.of<Any>(
         Validation(Rule({ subjectUuid.isNullOrEmpty() }, "Предмет отсутствует")),
         Validation(Rule({ teacherUuid.isNullOrEmpty() }, "Преподаватель отсутствует")),
-        Validation(Rule({ uiEditor.hasBeenChanged() }, "Нет изменений!"))
+//        Validation(Rule({ uiEditor.hasBeenChanged() }, "Нет изменений!"))
     )
 
     private fun setup() {
@@ -141,7 +142,6 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private fun setupForNewItem() {
-        deleteBtnVisibility.value = false
         title.value = "Добавить курс"
     }
 
@@ -171,7 +171,7 @@ class CourseEditorViewModel @Inject constructor(
             icon = EitherResource.Id(R.drawable.ic_add)
         )
 
-    fun onFabClick() {
+    private fun onSaveClick() {
         viewModelScope.launch {
             try {
                 if (uiEditor.isNew) interactor.addCourse(uiEditor.item)
@@ -212,7 +212,13 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private fun enablePositiveBtn() {
-        enablePositiveBtn.postValue(uiValidator.runValidates())
+       viewModelScope.launch(Dispatchers.Main) {
+           setSaveOptionVisibility(uiValidator.runValidates() && uiEditor.hasBeenChanged())
+       }
+    }
+
+    private fun setSaveOptionVisibility(visible: Boolean) {
+        optionVisibility.postValue(R.id.option_save_course to visible)
     }
 
     fun onSubjectSelect(position: Int) {
@@ -228,12 +234,13 @@ class CourseEditorViewModel @Inject constructor(
 
     fun onSubjectNameClick() {
         subjectNameTypeEnable.value = true
-        enablePositiveBtn.value = false
+        optionVisibility
+        setSaveOptionVisibility(false)
     }
 
     fun onTeacherNameClick() {
         teacherNameTypeEnable.value = true
-        enablePositiveBtn.value = false
+        setSaveOptionVisibility(false)
     }
 
     fun onSubjectEditClick() {
@@ -281,24 +288,31 @@ class CourseEditorViewModel @Inject constructor(
                 confirmFinish()
             }
             R.id.option_delete_course -> {
-                if (uiEditor.hasBeenChanged() || !uiEditor.isNew) {
-                    openConfirmation.value =
-                        Pair(
-                            "Удаление курса",
-                            "Удаленный курс нельзя будет восстановить"
-                        )
-                    subscribeConfirmation = RxBusConfirm.getInstance()
-                        .event
-                        .subscribe { confirm: Boolean ->
-                            if (confirm) {
-                                deleteCourse()
-                            }
-                            subscribeConfirmation!!.dispose()
-                        }
-                } else {
-                    deleteCourse()
-                }
+                onDeleteClick()
             }
+            R.id.option_save_course -> {
+                onSaveClick()
+            }
+        }
+    }
+
+    private fun onDeleteClick() {
+        if (uiEditor.hasBeenChanged() || !uiEditor.isNew) {
+            openConfirmation.value =
+                Pair(
+                    "Удаление курса",
+                    "Удаленный курс нельзя будет восстановить"
+                )
+            subscribeConfirmation = RxBusConfirm.getInstance()
+                .event
+                .subscribe { confirm: Boolean ->
+                    if (confirm) {
+                        deleteCourse()
+                    }
+                    subscribeConfirmation!!.dispose()
+                }
+        } else {
+            deleteCourse()
         }
     }
 
@@ -344,8 +358,6 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     fun onCreateOptions() {
-        if (uiEditor.isNew) {
-            optionVisibility.value = R.id.option_delete_course to false
-        }
+        optionVisibility.postValue(R.id.option_delete_course to !uiEditor.isNew)
     }
 }

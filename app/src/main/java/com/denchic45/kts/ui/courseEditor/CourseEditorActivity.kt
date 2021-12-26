@@ -25,7 +25,7 @@ class CourseEditorActivity : AppCompatActivity(R.layout.activity_course_editor) 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+//        val navController = Navigation.findNavController(this, R.id.nav_host_fragment)
         viewBinding.apply {
             setSupportActionBar(toolbar)
             AppBarController.create(this@CourseEditorActivity, appBar)
