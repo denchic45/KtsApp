@@ -101,15 +101,16 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launchWhenResumed {
             viewModel.toolbarNavigationState.collect {
 
+                toggle = ActionBarDrawerToggle(
+                    this@MainActivity,
+                    drawerLayout,
+                    toolbar,
+                    R.string.navigation_drawer_open,
+                    R.string.navigation_drawer_close
+                )
+
                 when(it) {
                     MainViewModel.ToolbarNavigationState.MENU -> {
-                        toggle = ActionBarDrawerToggle(
-                            this@MainActivity,
-                            drawerLayout,
-                            toolbar,
-                            R.string.navigation_drawer_open,
-                            R.string.navigation_drawer_close
-                        )
                         drawerLayout.addDrawerListener(toggle)
                         toggle.isDrawerIndicatorEnabled = true
                         toggle.syncState()

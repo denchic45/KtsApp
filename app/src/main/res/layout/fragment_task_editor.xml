@@ -75,6 +75,7 @@
             android:textSize="16sp" />
 
         <LinearLayout
+            android:id="@+id/ll_availability_date"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:foreground="?selectableItemBackgroundBorderless"
@@ -83,7 +84,7 @@
             android:paddingHorizontal="16sp">
 
             <ImageView
-                android:id="@+id/iv_ic"
+                android:id="@+id/iv_availability_date"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 app:srcCompat="@drawable/ic_calendar" />
@@ -99,6 +100,12 @@
                 android:textAppearance="?attr/textAppearanceBody2"
                 android:textColor="@color/dark_gray"
                 android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/iv_remove_availability_date"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                app:srcCompat="@drawable/ic_close" />
         </LinearLayout>
 
         <View style="@style/Divider" />

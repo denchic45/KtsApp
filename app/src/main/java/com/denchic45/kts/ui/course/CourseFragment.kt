@@ -22,7 +22,7 @@ class CourseFragment :
     override val binding: FragmentCourseBinding by viewBinding(FragmentCourseBinding::bind)
     override val viewModel: CourseViewModel by viewModels { viewModelFactory }
     var collapsingToolbarLayout: CollapsingToolbarLayout? = null
-    lateinit var fab: FloatingActionButton
+
 
     private var mainToolbar: Toolbar? = null
 
@@ -35,7 +35,6 @@ class CourseFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        fab = requireActivity().findViewById(R.id.fab_main)
         appBarController = AppBarController.findController(requireActivity())
         appBarController.apply {
             mainToolbar = toolbar
@@ -55,7 +54,7 @@ class CourseFragment :
 //            (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         }
 
-        fab.setOnClickListener {
+        requireActivity().findViewById<FloatingActionButton>(R.id.fab_main).setOnClickListener {
             viewModel.onFabClick()
         }
 
@@ -74,11 +73,6 @@ class CourseFragment :
         viewModel.openTaskEditor.observe(viewLifecycleOwner) {
             findNavController().navigate(R.id.action_courseFragment_to_taskEditorFragment)
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        fab.hide()
     }
 
     override fun onDestroyView() {
