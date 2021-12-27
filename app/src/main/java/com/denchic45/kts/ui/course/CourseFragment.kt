@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.course
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -11,6 +12,7 @@ import com.denchic45.kts.databinding.FragmentCourseBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
+import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.widget.extendedAdapter.adapter
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -71,7 +73,7 @@ class CourseFragment :
             }
         }
         viewModel.openTaskEditor.observe(viewLifecycleOwner) {
-            findNavController().navigate(R.id.action_courseFragment_to_taskEditorFragment)
+            findNavController().navigate(R.id.action_courseFragment_to_taskEditorFragment, bundleOf(TaskEditorFragment.TASK_ID to null))
         }
     }
 

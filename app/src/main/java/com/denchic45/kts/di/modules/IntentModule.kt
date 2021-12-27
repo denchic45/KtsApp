@@ -3,6 +3,7 @@ package com.denchic45.kts.di.modules
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.course.CourseFragment
+import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorActivity
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
@@ -97,13 +98,19 @@ object IntentModule {
   @Named(SpecialtyEditorDialog.SPECIALTY_UUID)
     @Provides
     fun provideSpecialtyUuid(specialtyEditorDialog: SpecialtyEditorDialog):String? {
-        return specialtyEditorDialog.arguments?.getString(SpecialtyEditorDialog.SPECIALTY_UUID)
+        return specialtyEditorDialog.requireArguments().getString(SpecialtyEditorDialog.SPECIALTY_UUID)
     }
 
     @Named(CourseFragment.COURSE_UUID)
     @Provides
     fun provideCourseUuidFromCourseFragment(courseFragment: CourseFragment):String {
         return courseFragment.requireArguments().getString(CourseFragment.COURSE_UUID)!!
+    }
+
+    @Named(TaskEditorFragment.TASK_ID)
+    @Provides
+    fun provideTaskId(taskEditorFragment: TaskEditorFragment):String? {
+        return taskEditorFragment.requireArguments().getString(TaskEditorFragment.TASK_ID)
     }
 
 }
