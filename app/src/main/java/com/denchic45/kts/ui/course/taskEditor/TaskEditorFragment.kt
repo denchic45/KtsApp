@@ -2,6 +2,8 @@ package com.denchic45.kts.ui.course.taskEditor
 
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
@@ -23,14 +25,34 @@ class TaskEditorFragment :
         const val TASK_ID = "TASK_ID"
     }
 
+    private lateinit var menu: Menu
+
     override val viewModel: TaskEditorViewModel by viewModels { viewModelFactory }
 
     override val binding: FragmentTaskEditorBinding by viewBinding(FragmentTaskEditorBinding::bind)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        this.menu = menu
+        inflater.inflate(R.menu.options_task_editor, menu)
+        viewModel.onCreateOptions()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
             llAvailabilityDate.setOnClickListener { viewModel.onAvailabilityDateClick() }
+
+            llAvailabilitySend.setOnClickListener {
+                val check = !cbAvailabilitySend.isChecked
+                cbAvailabilitySend.isChecked = check
+                viewModel.onProhibitSendAfterAvailabilityDateCheck(check)
+            }
 
             ivRemoveAvailabilityDate.setOnClickListener { viewModel.onRemoveAvailabilityDate() }
 

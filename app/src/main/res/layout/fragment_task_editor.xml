@@ -27,8 +27,7 @@
                 android:id="@+id/et_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="Название"
-                android:maxLength="1" />
+                android:hint="Название"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -125,6 +124,7 @@
             <CheckBox
                 android:id="@+id/cb_availability_send"
                 android:layout_width="wrap_content"
+                android:clickable="false"
                 android:layout_height="wrap_content"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -167,7 +167,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:fontFamily="@font/gilroy_semibold"
+                android:fontFamily="@font/gilroy_medium"
                 android:maxLines="1"
                 android:text="Текст"
                 android:textAppearance="?attr/textAppearanceBody2"
@@ -237,7 +237,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:fontFamily="@font/gilroy_semibold"
+                android:fontFamily="@font/gilroy_medium"
                 android:maxLines="1"
                 android:text="Прикрепленные файлы"
                 android:textAppearance="?attr/textAppearanceBody2"

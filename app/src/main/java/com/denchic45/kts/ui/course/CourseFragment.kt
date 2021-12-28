@@ -25,7 +25,6 @@ class CourseFragment :
     override val viewModel: CourseViewModel by viewModels { viewModelFactory }
     var collapsingToolbarLayout: CollapsingToolbarLayout? = null
 
-
     private var mainToolbar: Toolbar? = null
 
     companion object {

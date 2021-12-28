@@ -73,10 +73,9 @@ class TaskEditorViewModel @Inject constructor(
             availabilityDateField.postValue(
                 date!!.format(DateTimeFormatter.ofPattern("EE, dd LLLL yyyy, HH:mm"))
             )
+        } ?: kotlin.run {
+            availabilityDateField.postValue(null)
         }
-            ?: kotlin.run {
-                availabilityDateField.postValue(null)
-            }
     }
 
     fun onAvailabilityTimeSelect(hour: Int, minute: Int) {
@@ -88,5 +87,13 @@ class TaskEditorViewModel @Inject constructor(
         date = null
         availabilityDateRemoveVisibility.postValue(false)
         postAvailabilityDate()
+    }
+
+    fun onProhibitSendAfterAvailabilityDateCheck(check: Boolean) {
+
+    }
+
+    fun onCreateOptions() {
+
     }
 }
