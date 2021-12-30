@@ -2,8 +2,11 @@ package com.denchic45.kts.ui.course.taskEditor
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
+import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.utils.UUIDS
+import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -22,9 +25,13 @@ class TaskEditorViewModel @Inject constructor(
     val availabilityDateField = MutableLiveData<String?>()
 
     val availabilityDateRemoveVisibility = MutableLiveData<Boolean>()
+    val showFiles = MutableLiveData<List<Attachment>>()
     val filesVisibility = MutableLiveData<Boolean>()
 
+    val openFileChooser = SingleLiveData<Unit>()
+
     var date: LocalDateTime? = null
+    private val files: MutableList<Attachment> = mutableListOf()
 
     val openDatePicker: SingleLiveData<Long> = SingleLiveData()
     val openTimePicker: SingleLiveData<Pair<Int, Int>> = SingleLiveData()
@@ -73,9 +80,10 @@ class TaskEditorViewModel @Inject constructor(
             availabilityDateField.postValue(
                 date!!.format(DateTimeFormatter.ofPattern("EE, dd LLLL yyyy, HH:mm"))
             )
-        } ?: kotlin.run {
-            availabilityDateField.postValue(null)
         }
+            ?: kotlin.run {
+                availabilityDateField.postValue(null)
+            }
     }
 
     fun onAvailabilityTimeSelect(hour: Int, minute: Int) {
@@ -89,11 +97,18 @@ class TaskEditorViewModel @Inject constructor(
         postAvailabilityDate()
     }
 
-    fun onProhibitSendAfterAvailabilityDateCheck(check: Boolean) {
-
+    fun onOptionClick(itemId: Int) {
+        when (itemId) {
+            R.id.option_attachment -> {
+                openFileChooser.call()
+            }
+            R.id.option_save_task -> {}
+        }
     }
 
-    fun onCreateOptions() {
-
+    fun onAttachmentsSelect(selectedFiles: List<File>) {
+        selectedFiles[0]
+        files.addAll(selectedFiles.map { Attachment(it) })
+        showFiles.postValue(files)
     }
 }

@@ -1,22 +1,31 @@
 package com.denchic45.kts.ui.course.taskEditor
 
+import android.app.Activity
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.View
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
+import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.databinding.FragmentTaskEditorBinding
+import com.denchic45.kts.databinding.ItemAttachmentBinding
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.adapter.BaseViewHolder
+import com.denchic45.kts.utils.FilePicker
+import com.denchic45.kts.utils.path
+import com.denchic45.kts.utils.viewBinding
+import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
+import com.denchic45.widget.extendedAdapter.adapter
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat.CLOCK_24H
+import java.io.File
 
 class TaskEditorFragment :
     BaseFragment<TaskEditorViewModel, FragmentTaskEditorBinding>(R.layout.fragment_task_editor) {
@@ -25,7 +34,9 @@ class TaskEditorFragment :
         const val TASK_ID = "TASK_ID"
     }
 
-    private lateinit var menu: Menu
+    private val adapter = adapter { delegates(AttachmentAdapterDelegate()) }
+
+    private lateinit var filePicker: FilePicker
 
     override val viewModel: TaskEditorViewModel by viewModels { viewModelFactory }
 
@@ -34,25 +45,37 @@ class TaskEditorFragment :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        filePicker = FilePicker(requireActivity() as AppCompatActivity, this) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                with(it.data!!) {
+                    clipData?.let { clipData ->
+                        viewModel.onAttachmentsSelect(
+                            List(clipData.itemCount) {
+                                File(
+                                    requireContext().path(
+                                        clipData.getItemAt(0).uri
+                                    )
+                                )
+                            }
+                        )
+                    } ?: viewModel.onAttachmentsSelect(listOf(File(requireContext().path(data!!))))
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        this.menu = menu
         inflater.inflate(R.menu.options_task_editor, menu)
-        viewModel.onCreateOptions()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            llAvailabilityDate.setOnClickListener { viewModel.onAvailabilityDateClick() }
 
-            llAvailabilitySend.setOnClickListener {
-                val check = !cbAvailabilitySend.isChecked
-                cbAvailabilitySend.isChecked = check
-                viewModel.onProhibitSendAfterAvailabilityDateCheck(check)
-            }
+            rvFiles.adapter = adapter
+
+            llAvailabilityDate.setOnClickListener { viewModel.onAvailabilityDateClick() }
 
             ivRemoveAvailabilityDate.setOnClickListener { viewModel.onRemoveAvailabilityDate() }
 
@@ -127,6 +150,42 @@ class TaskEditorFragment :
                     )
                 }
             }
+
+            viewModel.openFileChooser.observe(viewLifecycleOwner) {
+                filePicker.selectFiles()
+            }
+
+            viewModel.showFiles.observe(viewLifecycleOwner) {
+                adapter.submit(it)
+            }
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.onOptionClick(item.itemId)
+        return super.onOptionsItemSelected(item)
+    }
+}
+
+class AttachmentAdapterDelegate : ListItemAdapterDelegate<Attachment, AttachmentHolder>() {
+    override fun isForViewType(item: Any): Boolean = item is Attachment
+
+    override fun onBindViewHolder(item: Attachment, holder: AttachmentHolder) {
+        holder.onBind(item)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): AttachmentHolder {
+        return AttachmentHolder(parent.viewBinding(ItemAttachmentBinding::inflate))
+    }
+
+}
+
+class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding) :
+    BaseViewHolder<Attachment, ItemAttachmentBinding>(itemAttachmentBinding) {
+    override fun onBind(item: Attachment) {
+        with(binding) {
+            tvName.text = item.file.name
+        }
+    }
+
 }
