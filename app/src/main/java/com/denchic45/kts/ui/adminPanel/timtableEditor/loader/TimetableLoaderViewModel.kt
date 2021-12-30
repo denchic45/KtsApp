@@ -1,8 +1,5 @@
 package com.denchic45.kts.ui.adminPanel.timtableEditor.loader
 
-import android.app.Application
-import android.content.Context
-
 import androidx.lifecycle.MutableLiveData
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
@@ -28,37 +25,16 @@ class TimetableLoaderViewModel @Inject constructor(
     private val interactor: TimetableLoaderInteractor
 ) : BaseViewModel() {
 
-    @JvmField
-    val openFilePicker: SingleLiveData<*> = SingleLiveData<Any>()
-
-    @JvmField
+    val openFilePicker = SingleLiveData<Unit>()
     val allowEditTimetable = SingleLiveData<Void>()
-
-    @JvmField
     val showPublishingTimetable = SingleLiveData<Void>()
-
-    @JvmField
     val enableEditMode = MutableLiveData(false)
-
-    @JvmField
     val showAddedGroup = SingleLiveData<Void>()
-
-    @JvmField
     val showDone = SingleLiveData<Void>()
-
-    @JvmField
     val showErrorDialog = SingleLiveData<String>()
-
-    @JvmField
     val openLessonEditor = SingleLiveData<Void>()
-
-    @JvmField
     val openChoiceOfGroup = SingleLiveData<Void>()
-
-    @JvmField
     val updateLessonsOfGroup = SingleLiveData<Pair<Int, MutableList<DomainModel>>>()
-
-    @JvmField
     val showPreferenceList: MutableLiveData<MutableList<ListItem>> = MutableLiveData(
         ArrayList(
             listOf(
@@ -73,10 +49,7 @@ class TimetableLoaderViewModel @Inject constructor(
         )
     )
 
-    @JvmField
     val showPage = MutableLiveData<Int>()
-
-    @JvmField
     val showTimetable =
         MutableLiveData<Pair<MutableList<String>, MutableList<MutableList<DomainModel>>>>()
     private val groups: MutableList<Group> = mutableListOf()

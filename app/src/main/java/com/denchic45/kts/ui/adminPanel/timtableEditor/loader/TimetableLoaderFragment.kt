@@ -5,20 +5,17 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcel
-import android.provider.Settings
-
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -39,7 +36,8 @@ import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.adapter.EventAdapter.*
 import com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.ui.adminPanel.timtableEditor.loader.lessonsOfDay.LessonsOfDayFragment
-import com.denchic45.kts.utils.Files
+import com.denchic45.kts.utils.FilePicker
+import com.denchic45.kts.utils.path
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -68,39 +66,24 @@ class TimetableLoaderFragment :
         FragmentTimetableLoaderBinding::bind
     )
 
-    private val requestResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager()) {
-                chooseFile()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Нет прав на чтение файлов",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        } else {
-            chooseFile()
-        }
-    }
-
-    private val pickFileResultLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        with(result) {
-            if (resultCode == Activity.RESULT_OK && data!!.data != null) {
-                viewModel.onSelectedFile(File(Files.getPath(requireActivity(), data!!.data!!)!!))
-            }
-        }
-    }
+    private lateinit var filePicker: FilePicker
 
     private var navController: NavController? = null
 
     override fun onResume() {
         super.onResume()
         setHasOptionsMenu(true)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        filePicker = FilePicker(requireActivity() as AppCompatActivity, this) { result ->
+            with(result) {
+                if (resultCode == Activity.RESULT_OK && data!!.data != null) {
+                    viewModel.onSelectedFile(File(requireContext().path(data!!.data!!)!!))
+                }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -144,22 +127,6 @@ class TimetableLoaderFragment :
                 }
             rvPreference.layoutManager = LinearLayoutManager(activity)
             btnTimetableLoad.setOnClickListener {
-                if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-                    ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        arrayOf(
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.MANAGE_EXTERNAL_STORAGE
-                        ),
-                        PICK_FILE_RESULT_CODE
-                    )
-                } else
-                    ActivityCompat.requestPermissions(
-                        requireActivity(),
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                        PICK_FILE_RESULT_CODE
-                    )
                 viewModel.onLoadTimetableDocClick()
             }
             btnCreateEmpty.setOnClickListener {
@@ -255,11 +222,6 @@ class TimetableLoaderFragment :
                 }
             rvPreference.layoutManager = LinearLayoutManager(activity)
             btnTimetableLoad.setOnClickListener {
-                ActivityCompat.requestPermissions(
-                    requireActivity(),
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    PICK_FILE_RESULT_CODE
-                )
                 viewModel.onLoadTimetableDocClick()
             }
             btnCreateEmpty.setOnClickListener {
@@ -301,10 +263,8 @@ class TimetableLoaderFragment :
         val navHostFragment = requireActivity().supportFragmentManager.primaryNavigationFragment
         navController = findNavController(navHostFragment!!.requireView())
         viewModel.openFilePicker.observe(viewLifecycleOwner, {
-            if (isPermissionChecked())
-                chooseFile()
-            else
-                requestPermission()
+
+            filePicker.selectFiles()
         })
         viewModel.allowEditTimetable.observe(
             viewLifecycleOwner,
@@ -354,53 +314,6 @@ class TimetableLoaderFragment :
             )
         })
 
-    }
-
-    private fun isPermissionChecked(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Environment.isExternalStorageManager()
-        } else {
-            val hasStoragePermission = ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-            hasStoragePermission == PackageManager.PERMISSION_GRANTED
-        }
-    }
-
-    private fun chooseFile() {
-        var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-        chooseFile.type = "*/*"
-        chooseFile = Intent.createChooser(
-            chooseFile,
-            "Выберите документ с расписанием за" + " N " + "курс"
-        )
-        pickFileResultLauncher.launch(chooseFile)
-    }
-
-    private fun requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                requestResultLauncher.launch(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                    addCategory("android.intent.category.DEFAULT")
-                    data = Uri.parse(
-                        String.format(
-                            "package:%s",
-                            requireContext().applicationContext.packageName
-                        )
-                    )
-                })
-            } catch (e: Exception) {
-                requestResultLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
-            }
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(), arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ), PICK_FILE_RESULT_CODE
-            )
-        }
     }
 
     internal class GroupLessonsAdapter2(
