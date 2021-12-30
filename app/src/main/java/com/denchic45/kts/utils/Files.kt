@@ -4,17 +4,18 @@ import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
-import android.text.TextUtils
 import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.min
 
+
 object Files {
-    fun getPath(context: Context, uri: Uri): String? {
+    fun getPath(context: Context, uri: Uri): String {
 
         // DocumentProvider
         if (DocumentsContract.isDocumentUri(context, uri)) {
@@ -27,17 +28,39 @@ object Files {
                     return context.getExternalFilesDir(null)!!.absolutePath
                 }
             } else if (isDownloadsDocument(uri)) {
-                val id = DocumentsContract.getDocumentId(uri)
-                if (!TextUtils.isEmpty(id)) {
-                    if (id.startsWith("raw:")) {
-                        return id.replaceFirst("raw:".toRegex(), "")
-                    }
+
+                val fileName: String? = getFilePath(context, uri)
+                if (fileName != null) {
+                    return Environment.getExternalStorageDirectory()
+                        .toString() + "/Download/" + fileName
                 }
+
+                var id = DocumentsContract.getDocumentId(uri)
+                if (id.startsWith("raw:")) {
+                    id = id.replaceFirst("raw:".toRegex(), "")
+                    val file = File(id)
+                    if (file.exists()) return id
+                }
+
                 val contentUri = ContentUris.withAppendedId(
                     Uri.parse("content://downloads/public_downloads"),
-                    id.toLong()
+                    java.lang.Long.valueOf(id)
                 )
                 return getDataColumn(context, contentUri, null, null)
+
+//                var id = DocumentsContract.getDocumentId(uri)
+//                if (!TextUtils.isEmpty(id)) {
+//                    if (id.startsWith("raw:")) {
+//                        id = id.replaceFirst("raw:".toRegex(), "")
+//                    } else if (id.startsWith("msf:")) {
+//                        id = id.replaceFirst("msf:".toRegex(), "")
+//                    }
+//                }
+//                val contentUri = ContentUris.withAppendedId(
+//                    Uri.parse("content://downloads/my_downloads"),
+//                    id.toLong()
+//                )
+//                return getDataColumn(context, contentUri, null, null)
             } else if (isMediaDocument(uri)) {
                 val docId = DocumentsContract.getDocumentId(uri)
                 val split = docId.split(":".toRegex()).toTypedArray()
@@ -57,7 +80,7 @@ object Files {
                 return getDriveFilePath(uri, context)
             }
         }
-        return null
+        throw IllegalStateException()
     }
 
     private fun getDataColumn(
@@ -65,7 +88,7 @@ object Files {
         uri: Uri?,
         selection: String?,
         selectionArgs: Array<String>?
-    ): String? {
+    ): String {
         var cursor: Cursor? = null
         val column = "_data"
         val projection = arrayOf(column)
@@ -79,7 +102,7 @@ object Files {
         } finally {
             cursor?.close()
         }
-        return null
+        throw IllegalStateException()
     }
 
     fun isExternalStorageDocument(uri: Uri): Boolean {
@@ -139,6 +162,26 @@ object Files {
         }
         returnCursor.close()
         return file.path
+    }
+
+    fun getFilePath(context: Context, uri: Uri?): String? {
+        var cursor: Cursor? = null
+        val projection = arrayOf(
+            MediaStore.MediaColumns.DISPLAY_NAME
+        )
+        try {
+            cursor = context.contentResolver.query(
+                uri!!, projection, null, null,
+                null
+            )
+            if (cursor != null && cursor.moveToFirst()) {
+                val index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+                return cursor.getString(index)
+            }
+        } finally {
+            cursor?.close()
+        }
+        return null
     }
 
     /**
