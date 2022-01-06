@@ -194,7 +194,7 @@ class CourseEditorFragment :
             })
             viewModel.showFoundTeachers.observe(viewLifecycleOwner, { items: List<ListItem> ->
                 popupWindow!!.anchorView = etTeacherName
-                popupWindow!!.setAdapter(ListPopupWindowAdapter(activity, items))
+                popupWindow!!.setAdapter(ListPopupWindowAdapter(requireContext(), items))
                 popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                     popupWindow!!.dismiss()
                     viewModel.onTeacherSelect(position)
@@ -210,7 +210,7 @@ class CourseEditorFragment :
             })
             viewModel.showFoundSubjects.observe(viewLifecycleOwner, { items: List<ListItem> ->
                 popupWindow!!.anchorView = etSubjectName
-                popupWindow!!.setAdapter(ListPopupWindowAdapter(activity, items))
+                popupWindow!!.setAdapter(ListPopupWindowAdapter(requireContext(), items))
                 popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, view1: View?, position: Int, _: Long ->
                     popupWindow!!.dismiss()
                     viewModel.onSubjectSelect(position)

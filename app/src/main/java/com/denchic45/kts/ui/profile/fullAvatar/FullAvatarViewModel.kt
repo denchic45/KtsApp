@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.profile.fullAvatar
 
 import androidx.lifecycle.viewModelScope
-import com.denchic45.kts.Pair
+
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.User

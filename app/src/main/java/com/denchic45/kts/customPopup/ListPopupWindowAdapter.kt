@@ -16,10 +16,12 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
+import com.denchic45.kts.databinding.ItemPopupContentBinding
+import com.denchic45.kts.utils.viewBinding
 import java.util.*
 
-class ListPopupWindowAdapter(context: Context?, items: List<ListItem>) : ArrayAdapter<ListItem>(
-    context!!, 0, items
+class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAdapter<ListItem>(
+    context, 0, items
 ) {
     private val list: MutableList<ListItem>
     var nameFilter: Filter = object : Filter() {
@@ -44,23 +46,17 @@ class ListPopupWindowAdapter(context: Context?, items: List<ListItem>) : ArrayAd
         notifyDataSetChanged()
     }
 
-    override fun getCount(): Int {
-        return list.size
-    }
+    override fun getCount(): Int = list.size
 
-    override fun getFilter(): Filter {
-        return nameFilter
-    }
+    override fun getFilter(): Filter = nameFilter
 
-    override fun getItem(position: Int): ListItem? {
-        return list[position]
-    }
+    override fun getItem(position: Int): ListItem = list[position]
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         var convertView = convertView
         if (convertView == null) {
             val item = getItem(position)
-            if (item!!.hasIcon()) {
+            if (item.hasIcon()) {
                 when (item.type) {
                     TYPE_NONE -> convertView = LayoutInflater.from(parent.context)
                         .inflate(R.layout.item_popup_icon_content, null)
@@ -70,14 +66,11 @@ class ListPopupWindowAdapter(context: Context?, items: List<ListItem>) : ArrayAd
                 val tItemWithIconHolder = ItemWithIconHolder(convertView!!)
                 tItemWithIconHolder.onBind(item)
             } else {
-                convertView =
-                    LayoutInflater.from(parent.context).inflate(R.layout.item_popup_content, null)
-                ItemHolder(convertView).onBind(
-                    item
-                )
+                convertView = parent.viewBinding(ItemPopupContentBinding::inflate).root
+                ItemHolder(convertView).onBind(item)
             }
         }
-        return convertView!!
+        return convertView
     }
 
     class ItemWithIconHolder(private val convertView: View) {

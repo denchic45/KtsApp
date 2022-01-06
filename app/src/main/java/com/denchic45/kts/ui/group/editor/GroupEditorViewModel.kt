@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.group.editor
 import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.denchic45.kts.Pair
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
@@ -41,7 +40,6 @@ class GroupEditorViewModel @Inject constructor(
     val enableSpecialtyField = MutableLiveData<Boolean>()
     val toolbarTitle = MutableLiveData<String>()
     val showMessageId = SingleLiveData<Int>()
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
     val nameField = MutableLiveData<String>()
     val specialtyField = MutableLiveData<String>()
     val showSpecialties = MutableLiveData<List<ListItem>>()

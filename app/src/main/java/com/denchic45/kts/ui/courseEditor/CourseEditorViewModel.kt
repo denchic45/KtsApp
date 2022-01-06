@@ -49,7 +49,6 @@ class CourseEditorViewModel @Inject constructor(
     val groupList = MutableLiveData(addAdderGroupItem())
     val optionVisibility = MutableLiveData<Pair<Int, Boolean>>()
     val title = MutableLiveData<String>()
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
     val openChoiceOfGroup = SingleLiveData<Unit>()
 
     private var subscribeConfirmation: Disposable? = null

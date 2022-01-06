@@ -18,7 +18,7 @@ class ContentCourseRepository @Inject constructor(
 
    suspend fun add(task: Task) {
        checkInternetConnection()
-         firestore.document(task.courseUuid)
+         firestore.document(task.courseId)
             .collection("Contents")
             .document(task.uuid)
             .set(taskMapper.domainToDoc(task))

@@ -11,7 +11,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.EventObserver
-import com.denchic45.kts.Pair
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.model.domain.ListItem
@@ -38,10 +37,10 @@ class GroupEditorFragment :
         navController = findNavController(view)
         viewModel //need for init before in activity
         val curatorHeader = view.findViewById<TextView>(R.id.tv_header)
-        specialtyAdapter = ListPopupWindowAdapter(activity, ArrayList())
+        specialtyAdapter = ListPopupWindowAdapter(requireContext(), ArrayList())
         viewBinding.apply {
             etSpecialty.setAdapter(specialtyAdapter)
-            etCourse.setAdapter(ListPopupWindowAdapter(activity, viewModel.courseList))
+            etCourse.setAdapter(ListPopupWindowAdapter(requireContext(), viewModel.courseList))
             etCourse.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                 viewModel.onCourseSelect(position)
             }

@@ -36,7 +36,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
 import java.util.function.Consumer
-import java.util.stream.Collectors
 import javax.inject.Inject
 
 class GroupInfoRepository @Inject constructor(
@@ -120,7 +119,7 @@ class GroupInfoRepository @Inject constructor(
     }
 
     private val yourGroupByCuratorListener: ListenerRegistration
-        get() = groupsRef.whereEqualTo("curator.uuid", userPreference.uuid)
+        get() = groupsRef.whereEqualTo("curator.uuid", userPreference.id)
             .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if (error != null) {
                     Log.d("lol", "getYourGroupByCuratorListener: ", error)
@@ -164,7 +163,7 @@ class GroupInfoRepository @Inject constructor(
     }
 
     private val queryOfYourGroupByCurator: Query
-        get() = groupsRef.whereEqualTo("curator.uuid", userPreference.uuid)
+        get() = groupsRef.whereEqualTo("curator.uuid", userPreference.id)
 
     private fun getQueryOfGroupByCurator(curatorUuid: String): Query {
         return groupsRef.whereEqualTo("curator.uuid", curatorUuid)

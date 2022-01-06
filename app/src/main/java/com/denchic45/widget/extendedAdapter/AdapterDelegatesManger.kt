@@ -191,6 +191,8 @@ class AdapterDelegatesManger(
         return adapterDelegateExtension as T
     }
 
+    override fun delegatesCount(): Int = delegates.size()
+
     override fun add(item: Any) {
         listItems.add(item)
         adapter.notifyAdapterItemInserted(count)

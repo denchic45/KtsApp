@@ -9,6 +9,7 @@ import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UIPermissions
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -124,7 +125,7 @@ class MainViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch { interactor.startListeners() }
+        viewModelScope.launch(Dispatchers.IO) { interactor.startListeners() }
         viewModelScope.launch {
             interactor.observeHasGroup().collect { hasGroup: Boolean ->
                 menuBtnVisibility.value = Pair(R.id.menu_group, hasGroup)

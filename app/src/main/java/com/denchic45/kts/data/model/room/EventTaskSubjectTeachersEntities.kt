@@ -13,10 +13,10 @@ data class EventTaskSubjectTeachersEntities(
     @Relation(parentColumn = "date", entityColumn = "date_completion")
     var taskEntity: TaskEntity?,
 
-    @Relation(parentColumn = "uuid_subject", entityColumn = "uuid_subject")
+    @Relation(parentColumn = "subject_id", entityColumn = "subject_id")
     var subjectEntity: SubjectEntity?,
 
-    @Relation(entity = GroupEntity::class, parentColumn = "groupUuid", entityColumn = "uuid_group")
+    @Relation(entity = GroupEntity::class, parentColumn = "group_id", entityColumn = "group_id")
     var groupEntity: GroupWithCuratorAndSpecialtyEntity?,
 
     @Relation(

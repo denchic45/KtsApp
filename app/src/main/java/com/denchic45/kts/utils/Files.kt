@@ -11,10 +11,33 @@ import android.provider.OpenableColumns
 import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
+import java.net.FileNameMap
+import java.net.URLConnection
 import kotlin.math.min
 
+fun File.getType() = getMimeType().split("/")[0]
+
+fun File.getMimeType(): String {
+    val fileNameMap: FileNameMap = URLConnection.getFileNameMap()
+    val mime = fileNameMap.getContentTypeFor(this.name) ?: return ""
+    return if (mime.split("/")[0] == "application") {
+        return if (mime.contains(".")) {
+            mime.substring(mime.lastIndexOf(".") + 1)
+        } else {
+            mime.substring(mime.indexOf('/') + 1)
+        }
+    } else mime.split("/")[0]
+}
+
+fun File.getExtension(): String {
+    val fileName = name
+    val i: Int = fileName.lastIndexOf('.')
+    return fileName.substring(i + 1)
+}
 
 object Files {
+
+
     fun getPath(context: Context, uri: Uri): String {
 
         // DocumentProvider
@@ -47,20 +70,6 @@ object Files {
                     java.lang.Long.valueOf(id)
                 )
                 return getDataColumn(context, contentUri, null, null)
-
-//                var id = DocumentsContract.getDocumentId(uri)
-//                if (!TextUtils.isEmpty(id)) {
-//                    if (id.startsWith("raw:")) {
-//                        id = id.replaceFirst("raw:".toRegex(), "")
-//                    } else if (id.startsWith("msf:")) {
-//                        id = id.replaceFirst("msf:".toRegex(), "")
-//                    }
-//                }
-//                val contentUri = ContentUris.withAppendedId(
-//                    Uri.parse("content://downloads/my_downloads"),
-//                    id.toLong()
-//                )
-//                return getDataColumn(context, contentUri, null, null)
             } else if (isMediaDocument(uri)) {
                 val docId = DocumentsContract.getDocumentId(uri)
                 val split = docId.split(":".toRegex()).toTypedArray()

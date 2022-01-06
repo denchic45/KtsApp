@@ -31,9 +31,6 @@ class FinderViewModel @Inject constructor(
     val finderEntities = MutableLiveData<List<ListItem>>()
 
     @JvmField
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
-
-    @JvmField
     val currentSelectedEntity = MutableLiveData(POSITION_FIND_USERS)
 
     @JvmField

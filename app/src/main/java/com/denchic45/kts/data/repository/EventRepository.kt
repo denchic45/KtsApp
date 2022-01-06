@@ -18,7 +18,6 @@ import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.*
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
-import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.DateFormatUtil
@@ -125,7 +124,7 @@ class EventRepository @Inject constructor(
     }
 
     fun findLessonsForTeacherByDate(date: Date): Flow<List<Event>> {
-        val teacherUuid = userPreference.uuid
+        val teacherUuid = userPreference.id
         addListenerRegistrationIfNotExist("$date of teacher") {
             getListenerOfLessonsOfTeacherByDate(
                 date,

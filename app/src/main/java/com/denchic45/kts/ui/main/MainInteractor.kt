@@ -105,7 +105,6 @@ class MainInteractor @Inject constructor(
 
     suspend fun startListeners() {
         listenThisUser().mapLatest { optionalUser: Optional<User> ->
-            Log.d("lol", "fucking listenThisUser!")
             if (!optionalUser.isPresent) {
                 clearAllData(context)
                 authRepository.signOut()

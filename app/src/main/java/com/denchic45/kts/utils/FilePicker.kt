@@ -16,8 +16,9 @@ import com.denchic45.kts.ui.adminPanel.timtableEditor.loader.TimetableLoaderFrag
 
 class FilePicker(
     private val activity: AppCompatActivity,
-    private val owner: LifecycleOwner,
-    private val callback: (activityResult: ActivityResult) -> Unit
+    owner: LifecycleOwner,
+    private val callback: (activityResult: ActivityResult) -> Unit,
+    private val multipleSelect: Boolean = false
 ) {
 
     private val registry: ActivityResultRegistry = activity.activityResultRegistry
@@ -77,13 +78,18 @@ class FilePicker(
     }
 
     private fun chooseFile() {
-        var chooseFile = Intent(Intent.ACTION_GET_CONTENT)
-        chooseFile.type = "*/*"
-        chooseFile = Intent.createChooser(
-            chooseFile,
+        var chooserIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "*/*"
+            if (multipleSelect) {
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            }
+        }
+
+        chooserIntent = Intent.createChooser(
+            chooserIntent,
             "Выберите документ с расписанием за" + " N " + "курс"
         )
-        getFile.launch(chooseFile)
+        getFile.launch(chooserIntent)
     }
 
     private companion object {

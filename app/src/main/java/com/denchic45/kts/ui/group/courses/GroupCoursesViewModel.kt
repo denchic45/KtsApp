@@ -26,7 +26,6 @@ class GroupCoursesViewModel @Inject constructor(
     private val groupUuid: String = groupUuid ?: interactor.yourGroupUuid
     private val uiPermissions: UIPermissions = UIPermissions(interactor.findThisUser())
     var openCourseEditorDialog = SingleLiveData<CourseInfo>()
-    var openConfirmation = SingleLiveData<Pair<String, String>>()
     var courses: StateFlow<List<CourseInfo>> =
         interactor.findCoursesByGroupUuid(this.groupUuid).stateIn(
             viewModelScope,

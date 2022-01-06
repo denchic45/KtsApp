@@ -19,6 +19,6 @@ public class EditTextTransformer implements ObservableTransformer<CharSequence, 
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
-                .debounce(100, TimeUnit.MILLISECONDS);
+                .debounce(200, TimeUnit.MILLISECONDS);
     }
 }

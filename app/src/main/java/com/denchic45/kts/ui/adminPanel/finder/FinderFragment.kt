@@ -187,7 +187,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             val popupWindow = ListPopupWindow(
                 requireActivity()
             )
-            val popupAdapter = ListPopupWindowAdapter(activity, second)
+            val popupAdapter = ListPopupWindowAdapter(requireContext(), second)
             popupWindow.anchorView = layoutManager.findViewByPosition(first)
             popupWindow.setOnItemClickListener { parent: AdapterView<*>?, view1: View?, position: Int, id: Long ->
                 popupWindow.dismiss()

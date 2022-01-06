@@ -129,12 +129,12 @@ class TimetableFinderFragment :
                 popupWindow!!.dismiss()
                 return@observe
             }
-            popupAdapter = ListPopupWindowAdapter(activity, groups)
+            popupAdapter = ListPopupWindowAdapter(requireContext(), groups)
             popupWindow!!.setAdapter(popupAdapter)
             popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                 popupWindow!!.dismiss()
                 searchBar.setIgnoreText(true)
-                searchBar.setText(popupAdapter!!.getItem(position)!!.title)
+                searchBar.setText(popupAdapter!!.getItem(position).title)
                 searchBar.setIgnoreText(false)
                 viewModel.onGroupClick(position)
             }
@@ -214,7 +214,7 @@ class TimetableFinderFragment :
         })
         viewModel.editTimetableOptionVisibility.observe(
             viewLifecycleOwner,
-            { visible: Boolean -> menu!!.getItem(0).isVisible = visible })
+            { visible: Boolean -> menu.getItem(0).isVisible = visible })
 
         itemTouchHelper.attachToRecyclerView(rv)
     }

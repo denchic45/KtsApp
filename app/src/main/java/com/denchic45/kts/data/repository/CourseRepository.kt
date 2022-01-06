@@ -164,11 +164,11 @@ class CourseRepository @Inject constructor(
                             value.documents[0].toObject(CourseDoc::class.java)!!
                                 .timestamp!!
                                 .time
-                        getCoursesByTeacherRemotely(userPreference.uuid)
+                        getCoursesByTeacherRemotely(userPreference.id)
                     }
                 }
         }
-        return courseDao.getByTeacherUuid(userPreference.uuid)
+        return courseDao.getByTeacherUuid(userPreference.id)
             .map { courseMapper.entityToDomainInfo2(it) }
     }
 
@@ -256,7 +256,7 @@ class CourseRepository @Inject constructor(
     }
 
     fun findByTeacherUuid(teacherUuid: String): Flow<List<CourseInfo>> {
-        if (teacherUuid != userPreference.uuid)
+        if (teacherUuid != userPreference.id)
             getCoursesByTeacherRemotely(teacherUuid)
         return courseDao.getByTeacherUuid(teacherUuid)
             .map { courseMapper.entityToDomainInfo2(it) }
@@ -530,7 +530,7 @@ class CourseRepository @Inject constructor(
     }
 
     fun findWhereYouTeacher(): Flow<List<CourseInfo>> {
-        return courseDao.getByTeacherUuid(userPreference.uuid)
+        return courseDao.getByTeacherUuid(userPreference.id)
             .map { courseMapper.entityToDomainInfo2(it) }
     }
 

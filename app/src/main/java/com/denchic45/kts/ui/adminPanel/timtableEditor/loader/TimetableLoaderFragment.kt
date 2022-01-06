@@ -77,13 +77,13 @@ class TimetableLoaderFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        filePicker = FilePicker(requireActivity() as AppCompatActivity, this) { result ->
+        filePicker = FilePicker(requireActivity() as AppCompatActivity, this, { result ->
             with(result) {
                 if (resultCode == Activity.RESULT_OK && data!!.data != null) {
-                    viewModel.onSelectedFile(File(requireContext().path(data!!.data!!)!!))
+                    viewModel.onSelectedFile(File(requireContext().path(data!!.data!!)))
                 }
             }
-        }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
