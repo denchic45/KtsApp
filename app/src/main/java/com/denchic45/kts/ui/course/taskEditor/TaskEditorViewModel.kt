@@ -1,11 +1,13 @@
 package com.denchic45.kts.ui.course.taskEditor
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Attachment
+import com.denchic45.kts.rx.bus.RxBusConfirm
+import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.UUIDS
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
@@ -16,22 +18,33 @@ import javax.inject.Named
 
 class TaskEditorViewModel @Inject constructor(
     @Named(TaskEditorFragment.TASK_ID) taskId: String?
-) :
-    ViewModel() {
+) : BaseViewModel() {
 
     private val taskId: String
     val titleField = MutableLiveData<String>()
     val descriptionField = MutableLiveData<String>()
     val availabilityDateField = MutableLiveData<String?>()
+    val availabilitySend = MutableLiveData<Boolean>()
 
     val availabilityDateRemoveVisibility = MutableLiveData<Boolean>()
-    val showFiles = MutableLiveData<List<Attachment>>()
+    val showAttachments = MutableLiveData<List<Attachment>>()
     val filesVisibility = MutableLiveData<Boolean>()
 
+    val answerType = MutableStateFlow(
+        AnswerTypeViewState(
+            true,
+            "9999",
+            false,
+            "16",
+            "200"
+        )
+    )
+
     val openFileChooser = SingleLiveData<Unit>()
+    val openAttachment = SingleLiveData<File>()
 
     var date: LocalDateTime? = null
-    private val files: MutableList<Attachment> = mutableListOf()
+    private val attachments: MutableList<Attachment> = mutableListOf()
 
     val openDatePicker: SingleLiveData<Long> = SingleLiveData()
     val openTimePicker: SingleLiveData<Pair<Int, Int>> = SingleLiveData()
@@ -86,6 +99,11 @@ class TaskEditorViewModel @Inject constructor(
             }
     }
 
+    private fun postAttachments() {
+        filesVisibility.postValue(attachments.isNotEmpty())
+        showAttachments.postValue(attachments)
+    }
+
     fun onAvailabilityTimeSelect(hour: Int, minute: Int) {
         date = date!!.withHour(hour).withMinute(minute)
         postAvailabilityDate()
@@ -108,7 +126,55 @@ class TaskEditorViewModel @Inject constructor(
 
     fun onAttachmentsSelect(selectedFiles: List<File>) {
         selectedFiles[0]
-        files.addAll(selectedFiles.map { Attachment(it) })
-        showFiles.postValue(files)
+        attachments.addAll(selectedFiles.map { Attachment(file = it) })
+        postAttachments()
     }
+
+    fun onRemoveFileClick(position: Int) {
+        openConfirmation.postValue("Убрать файл" to "подтвердите ваш выбор")
+        RxBusConfirm.getInstance()
+            .event
+            .subscribe {
+                if (it) {
+                    attachments.removeAt(position)
+                    postAttachments()
+                }
+            }
+    }
+
+    fun onAttachmentClick(position: Int) {
+        openAttachment.postValue(attachments[position].file)
+    }
+
+    fun onAvailabilitySendCheck(check: Boolean) {
+        availabilitySend.postValue(check)
+    }
+
+    fun onTextAvailableAnswerCheck(check: Boolean) {
+        answerType.value = answerType.value.copy(textAvailable = check)
+    }
+
+    fun onAttachmentsAvailableAnswerCheck(check: Boolean) {
+        answerType.value = answerType.value.copy(attachmentsAvailable = check)
+    }
+
+    fun onCharsLimitType(charsLimit: String) {
+        answerType.value = answerType.value.copy(charsLimit = charsLimit)
+    }
+
+    fun onAttachmentsLimitType(attachmentsLimit: String) {
+        answerType.value = answerType.value.copy(attachmentsLimit = attachmentsLimit)
+    }
+
+    fun onAttachmentsSizeLimitType(attachmentsSizeLimit: String) {
+        answerType.value = answerType.value.copy(attachmentsSizeLimit = attachmentsSizeLimit)
+    }
+
+    data class AnswerTypeViewState(
+        val textAvailable: Boolean,
+        val charsLimit: String,
+        val attachmentsAvailable: Boolean,
+        val attachmentsLimit: String,
+        val attachmentsSizeLimit: String
+    )
 }
