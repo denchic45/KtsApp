@@ -2,26 +2,27 @@ package com.denchic45.kts.uivalidator;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.denchic45.kts.Pair;
 import com.denchic45.kts.SingleLiveData;
 import com.denchic45.kts.uivalidator.validatorlistener.ActionValidationListener;
-import com.denchic45.kts.uivalidator.validatorlistener.FieldMessageLiveDataValidationListener;
 import com.denchic45.kts.uivalidator.validatorlistener.FieldMessageIdLiveDataValidationListener;
-import com.denchic45.kts.uivalidator.validatorlistener.MessageLiveDataValidationListener;
+import com.denchic45.kts.uivalidator.validatorlistener.FieldMessageLiveDataValidationListener;
 import com.denchic45.kts.uivalidator.validatorlistener.MessageIdLiveDataValidationListener;
+import com.denchic45.kts.uivalidator.validatorlistener.MessageLiveDataValidationListener;
 import com.denchic45.kts.uivalidator.validatorlistener.ValidationListener;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public  class Validation {
+import kotlin.Pair;
+
+public class Validation {
 
     //    private final MutableLiveData<T> errorEventLiveData;
 //    private final T defValue;
 //    private final int fieldResId;
     private final Rule[] rules;
-//    private boolean lastValidate = true;
+    //    private boolean lastValidate = true;
     private Runnable errorRunnable;
     private Consumer<String> messageConsumer;
     private Consumer<Integer> resIdConsumer;
@@ -114,7 +115,7 @@ public  class Validation {
         validationListener = new FieldMessageIdLiveDataValidationListener(id, mutableLiveData);
         return this;
     }
-    
+
     public Validation sendMessageIdResult(MutableLiveData<Integer> mutableLiveData) {
         validationListener = new MessageIdLiveDataValidationListener(mutableLiveData);
         return this;

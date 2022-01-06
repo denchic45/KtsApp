@@ -5,7 +5,7 @@ import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.denchic45.kts.Pair
+
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
@@ -76,8 +76,6 @@ open class UserEditorViewModel @Inject constructor(
     val fieldPasswordVisibility = MutableLiveData(true)
 
     val fieldErrorMessage = SingleLiveData<Pair<Int, String>>()
-
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
 
     private val typedNameGroup = MutableSharedFlow<String>()
 

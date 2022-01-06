@@ -2,28 +2,18 @@ package com.denchic45.kts.ui.adapter
 
 import android.graphics.drawable.PictureDrawable
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.AutoTransition
-import androidx.transition.TransitionManager
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.EitherResource
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.databinding.ItemIconContentBinding
-import com.denchic45.kts.databinding.ItemSubjectEventBinding
 import com.denchic45.kts.glideSvg.GlideApp
-import com.denchic45.kts.utils.ViewUtils
-import com.denchic45.kts.utils.colors
 import com.denchic45.kts.utils.viewBinding
-import com.google.android.material.textfield.TextInputLayout
 
 class SubjectAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel,*>> {
 
