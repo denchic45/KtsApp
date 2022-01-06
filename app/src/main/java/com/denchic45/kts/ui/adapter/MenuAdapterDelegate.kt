@@ -80,9 +80,6 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
                         height = 32.dp
                         width = 32.dp
                     }
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        Log.d("lol", "size: ${root.width}")
-                    }, 200)
                 }
             }
 
