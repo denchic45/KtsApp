@@ -28,7 +28,7 @@ public interface GroupInfoMapper extends DomainDocMapper<GroupWithCourses, Group
 //
 //    @Mapping(source = "name", target = "group.name")
 //    @Mapping(source = "course", target = "group.course")
-//    @Mapping(source = "uuid", target = "group.uuid")
+//    @Mapping(source = "uuid", target = "group.id")
 //    @Mapping(source = "timestamp", target = "group.timestamp")
 //    @Mapping(source = "curator", target = "group.curator")
 //    @Mapping(source = "specialty", target = "group.specialty")

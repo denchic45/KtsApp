@@ -1,7 +1,5 @@
 package com.denchic45.kts.data.model.mapper;
 
-import androidx.annotation.NonNull;
-
 import com.denchic45.kts.data.model.domain.Group;
 import com.denchic45.kts.data.model.firestore.GroupDoc;
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity;
@@ -17,7 +15,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Mapper(uses = {UserMapper.class, SpecialtyMapper.class})
@@ -35,6 +32,7 @@ public interface GroupMapper extends
     @Mapping(source = "specialty", target = "specialtyEntity")
     @Mapping(source = ".", target = "groupEntity")
     @Mapping(source = "curator", target = "curatorEntity")
+    @Mapping(source = "uuid", target = "groupEntity.id")
     GroupWithCuratorAndSpecialtyEntity domainToEntity(Group domain);
 
     @DoIgnore
@@ -82,6 +80,7 @@ public interface GroupMapper extends
 
     @Mapping(source = "curator.uuid", target = "curatorUuid")
     @Mapping(source = "specialty.uuid", target = "specialtyUuid")
+    @Mapping(source = "uuid", target = "id")
     @Override
     GroupEntity docToEntity(GroupDoc doc);
 

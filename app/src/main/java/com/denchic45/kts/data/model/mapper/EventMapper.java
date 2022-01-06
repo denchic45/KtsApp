@@ -78,7 +78,7 @@ public interface EventMapper extends
 
     EmptyEventDetails eventEntityToEmpty(EventTaskSubjectTeachersEntities entities);
 
-    @Mapping(source = "group.uuid", target = "groupUuid")
+    @Mapping(source = "group.uuid", target = "groupId")
     @Mapping(source = "details", target = ".", qualifiedByName = "mapDetails")
     EventEntity eventToEventEntity(Event domain);
 
@@ -115,7 +115,7 @@ public interface EventMapper extends
         return eventDoc;
     }
 
-    @Mapping(source = "group.uuid", target = "groupUuid")
+    @Mapping(source = "group.uuid", target = "groupId")
     EventDoc eventToEventDoc(Event domain);
 
     default List<EventDoc> domainToDoc(@NonNull List<Event> docs) {
@@ -135,7 +135,7 @@ public interface EventMapper extends
     }
 
     @Mapping(source = "teachers", target = "teacherUuidList", qualifiedByName = "mapTeacherList")
-    @Mapping(source = "subject.uuid", target = "subjectUuid")
+    @Mapping(source = "subject.uuid", target = "subjectId")
     EventDetailsDoc lessonToDetailsDoc(Lesson eventDetails);
 
     EventDetailsDoc simpleToDetailsDoc(SimpleEventDetails eventDetails);

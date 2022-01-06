@@ -6,7 +6,6 @@ import com.denchic45.kts.data.model.domain.Course;
 import com.denchic45.kts.data.model.domain.CourseInfo;
 import com.denchic45.kts.data.model.domain.Group;
 import com.denchic45.kts.data.model.firestore.CourseDoc;
-import com.denchic45.kts.data.model.firestore.GroupDoc;
 import com.denchic45.kts.data.model.room.CourseEntity;
 import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacher;
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups;
@@ -55,8 +54,9 @@ public interface CourseMapper {
     @Mapping(source = ".", target = "info", qualifiedByName = "entityToDomainInfo")
     Course entityToDomain(CourseWithSubjectWithTeacherAndGroups entity);
 
-    @Mapping(source = "subject.uuid", target = "subjectUuid")
+    @Mapping(source = "subject.uuid", target = "subjectId")
     @Mapping(source = "teacher.uuid", target = "teacherUuid")
+    @Mapping(source = "uuid", target = "id")
     
     CourseEntity docToEntity(CourseDoc doc);
 
@@ -74,6 +74,7 @@ public interface CourseMapper {
     @Named("entityToDomainInfo")
             @Mapping(source = "subjectEntity", target = "subject")
     @Mapping(source = "teacherEntity", target = "teacher")
+    @Mapping(source = "courseEntity.id", target = "uuid")
     CourseInfo entityToDomainInfo(CourseWithSubjectWithTeacherAndGroups entity);
 
     @Mapping(source = "courseEntity", target = ".")
@@ -96,7 +97,7 @@ public interface CourseMapper {
 
     default List<String> mapCoursesGroup(@NonNull List<GroupWithCuratorAndSpecialtyEntity> entities) {
         return entities.stream()
-                .map(groupWithCuratorAndSpecialtyEntity -> groupWithCuratorAndSpecialtyEntity.getGroupEntity().getUuid())
+                .map(groupWithCuratorAndSpecialtyEntity -> groupWithCuratorAndSpecialtyEntity.getGroupEntity().getId())
                 .collect(Collectors.toList());
     }
 

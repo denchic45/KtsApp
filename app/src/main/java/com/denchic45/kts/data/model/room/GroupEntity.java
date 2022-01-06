@@ -19,9 +19,9 @@ public class GroupEntity implements EntityModel {
 
     @NonNull
     @PrimaryKey
-    @ColumnInfo(name = "uuid_group")
-    protected String uuid;
-    @ColumnInfo(name = "name_group")
+    @ColumnInfo(name = "group_id")
+    protected String id;
+    @ColumnInfo(name = "group_name")
     private String name;
     @ColumnInfo(name = "uuid_curator")
     private String curatorUuid;
@@ -32,8 +32,8 @@ public class GroupEntity implements EntityModel {
     private Date timestamp;
 
     @Ignore
-    public GroupEntity(@Nonnull String uuid, String name, int course, String specialtyUuid, Date timestamp) {
-        this.uuid = uuid;
+    public GroupEntity(@Nonnull String id, String name, int course, String specialtyUuid, Date timestamp) {
+        this.id = id;
         this.name = name;
         this.course = course;
         this.specialtyUuid = specialtyUuid;
@@ -42,7 +42,7 @@ public class GroupEntity implements EntityModel {
 
     @Ignore
     public GroupEntity(String name, int course, String specialtyUuid, Date timestamp) {
-        uuid = UUID.randomUUID().toString();
+        id = UUID.randomUUID().toString();
         this.name = name;
         this.course = course;
         this.specialtyUuid = specialtyUuid;
@@ -84,12 +84,12 @@ public class GroupEntity implements EntityModel {
         this.timestamp = timestamp;
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getId() {
+        return id;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getCuratorUuid() {

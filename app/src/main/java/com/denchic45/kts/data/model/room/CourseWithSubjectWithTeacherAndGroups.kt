@@ -18,14 +18,14 @@ class CourseWithSubjectWithTeacherAndGroups : EntityModel {
     @Relation(
         entity = GroupEntity::class,
         parentColumn = "uuid_course",
-        entityColumn = "uuid_group",
+        entityColumn = "group_id",
         associateBy = Junction(
             GroupCourseCrossRef::class
         )
     )
     var groupEntities: List<GroupWithCuratorAndSpecialtyEntity>? = null
 
-    @Relation(parentColumn = "uuid_subject", entityColumn = "uuid_subject")
+    @Relation(parentColumn = "subject_id", entityColumn = "subject_id")
     var subjectEntity: SubjectEntity? = null
 
     @Relation(parentColumn = "uuid_teacher", entityColumn = "uuid_user")
@@ -39,14 +39,14 @@ class CourseWithSubjectAndTeacher : EntityModel {
     @Relation(
         entity = GroupEntity::class,
         parentColumn = "uuid_course",
-        entityColumn = "uuid_group",
+        entityColumn = "group_id",
         associateBy = Junction(
             GroupCourseCrossRef::class
         )
     )
     var groupEntities: List<GroupWithCuratorAndSpecialtyEntity>? = null
 
-    @Relation(parentColumn = "uuid_subject", entityColumn = "uuid_subject")
+    @Relation(parentColumn = "subject_id", entityColumn = "subject_id")
     var subjectEntity: SubjectEntity? = null
 
     @Relation(parentColumn = "uuid_teacher", entityColumn = "uuid_user")

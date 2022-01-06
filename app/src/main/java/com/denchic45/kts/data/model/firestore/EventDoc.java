@@ -1,13 +1,8 @@
 package com.denchic45.kts.data.model.firestore;
 
 import com.denchic45.kts.data.model.DocModel;
-import com.denchic45.kts.data.model.domain.User;
-import com.google.firebase.firestore.ServerTimestamp;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
-import java.util.List;
 
 public class EventDoc implements DocModel {
 
@@ -19,20 +14,20 @@ public class EventDoc implements DocModel {
     private String room;
     //    private String subjectUuid;
 //    private List<User> teachers;
-    private String groupUuid;
+    private String groupId;
     private EventDetailsDoc eventDetailsDoc;
 
 
 
-    public EventDoc(String uuid, Date timestamp, int order, Date date, String room, String groupUuid, EventDetailsDoc eventDetailsDoc) {
-        this.uuid = uuid;
+    public EventDoc(String id, Date timestamp, int order, Date date, String room, String groupId, EventDetailsDoc eventDetailsDoc) {
+        this.uuid = id;
 //        this.timestamp = timestamp;
         this.order = order;
         this.date = date;
         this.room = room;
 //        this.subjectUuid = subjectUuid;
 //        this.teachers = teachers;
-        this.groupUuid = groupUuid;
+        this.groupId = groupId;
         this.eventDetailsDoc = eventDetailsDoc;
 //        this.type = type;
     }
@@ -99,12 +94,12 @@ public class EventDoc implements DocModel {
 //        this.teachers = teachers;
 //    }
 
-    public String getGroupUuid() {
-        return groupUuid;
+    public String getGroupId() {
+        return groupId;
     }
 
-    public void setGroupUuid(String groupUuid) {
-        this.groupUuid = groupUuid;
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     public String getUuid() {

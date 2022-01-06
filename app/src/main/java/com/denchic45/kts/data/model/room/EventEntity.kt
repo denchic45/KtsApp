@@ -21,12 +21,13 @@ data class EventEntity(
     var date: Date? = null,
     var room: String? = null,
 
-    @ColumnInfo(name = "uuid_subject")
+    @ColumnInfo(name = "subject_id")
     var subjectUuid: String? = null,
 
     @field:TypeConverters(ListConverter::class)
     var teacherUuidList: List<String>? = null,
-    var groupUuid: String? = null,
+    @ColumnInfo(name = "group_id")
+    var groupId: String? = null,
     var type: TYPE? = null,
     var name: String? = null,
     var iconUrl: String? = null,

@@ -8,12 +8,12 @@ import com.denchic45.kts.data.model.room.GroupCourseCrossRef
 @Dao
 abstract class GroupCourseDao : BaseDao<GroupCourseCrossRef?>() {
 
-    @Query("DELETE FROM group_course WHERE uuid_group =:groupUuid")
+    @Query("DELETE FROM group_course WHERE group_id =:groupUuid")
     abstract fun deleteByGroup(groupUuid: String)
 
     @Query("DELETE FROM group_course WHERE uuid_course =:courseUuid")
     abstract fun deleteByCourse(courseUuid: String)
 
-    @Query("DELETE FROM group_course WHERE uuid_group =:groupUuid AND uuid_course NOT IN(:availableCourseUuids)")
+    @Query("DELETE FROM group_course WHERE group_id =:groupUuid AND uuid_course NOT IN(:availableCourseUuids)")
     abstract fun deleteMissingByGroup(availableCourseUuids: List<String>, groupUuid: String)
 }

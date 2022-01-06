@@ -8,7 +8,7 @@ import java.util.List;
 
 public class EventDetailsDoc implements DocModel {
 
-    private String subjectUuid;
+    private String subjectId;
     private TaskEntity taskEntity;
     private List<String> teacherUuidList;
     private String name;
@@ -16,8 +16,8 @@ public class EventDetailsDoc implements DocModel {
     private String color;
     private String type;
 
-    public EventDetailsDoc(String subjectUuid, TaskEntity taskEntity, List<String> teacherUuidList, String name, String iconUrl, String color, String type) {
-        this.subjectUuid = subjectUuid;
+    public EventDetailsDoc(String subjectId, TaskEntity taskEntity, List<String> teacherUuidList, String name, String iconUrl, String color, String type) {
+        this.subjectId = subjectId;
         this.taskEntity = taskEntity;
         this.teacherUuidList = teacherUuidList;
         this.name = name;
@@ -29,19 +29,19 @@ public class EventDetailsDoc implements DocModel {
     public EventDetailsDoc() {
     }
 
-    public String getSubjectUuid() {
-        return subjectUuid;
+    public String getSubjectId() {
+        return subjectId;
     }
 
-    public void setSubjectUuid(String subjectUuid) {
-        this.subjectUuid = subjectUuid;
+    public void setSubjectId(String subjectId) {
+        this.subjectId = subjectId;
     }
 
-    public TaskEntity gettaskEntity() {
+    public TaskEntity getTaskEntity() {
         return taskEntity;
     }
 
-    public void settaskEntity(TaskEntity taskEntity) {
+    public void setTaskEntity(TaskEntity taskEntity) {
         this.taskEntity = taskEntity;
     }
 
