@@ -22,7 +22,7 @@ data class Course(
 }
 
 data class CourseInfo(
-   override var uuid: String,
+    override var uuid: String,
     val name: String,
     var subject: Subject,
     var teacher: User

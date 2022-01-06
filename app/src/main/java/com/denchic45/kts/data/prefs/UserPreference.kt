@@ -36,7 +36,7 @@ class UserPreference @Inject constructor(context: Context) : BaseSharedPreferenc
         set(phoneNum) {
             setValue(PHONE_NUM, phoneNum)
         }
-    var uuid: String
+    var id: String
         get() = getValue(UUID, "")
         set(uuid) {
             setValue(UUID, uuid)

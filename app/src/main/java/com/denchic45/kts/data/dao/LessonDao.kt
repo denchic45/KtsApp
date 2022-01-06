@@ -15,7 +15,7 @@ abstract class LessonDao : BaseDao<EventEntity?>() {
     @Query("SELECT * FROM event WHERE eventUuid=:uuid")
     abstract fun getByUuid(uuid: String?): EventEntity?
     @Transaction
-    @Query("SELECT * FROM event WHERE date=:date AND groupUuid =:groupUuid ORDER BY `order`")
+    @Query("SELECT * FROM event WHERE date=:date AND group_id =:groupUuid ORDER BY `order`")
     abstract fun getLessonWithHomeWorkWithSubjectByDateAndGroupUuid(
         @TypeConverters(
             DateConverter::class
@@ -30,14 +30,14 @@ abstract class LessonDao : BaseDao<EventEntity?>() {
         ) date: Date, teacherUuid: String
     ): Flow<List<EventTaskSubjectTeachersEntities>>
 
-    @Query("DELETE FROM event WHERE date BETWEEN :start AND :end AND groupUuid =:groupUuid")
+    @Query("DELETE FROM event WHERE date BETWEEN :start AND :end AND group_id =:groupUuid")
     abstract fun deleteByGroupAndDateRange(
         groupUuid: String, @TypeConverters(
             DateConverter::class
         ) start: Date?, @TypeConverters(DateConverter::class) end: Date?
     )
 
-    @Query("DELETE FROM event WHERE date =:date AND groupUuid =:groupUuid")
+    @Query("DELETE FROM event WHERE date =:date AND group_id =:groupUuid")
     abstract fun deleteByDateAndGroup(
         @TypeConverters(
             DateConverter::class

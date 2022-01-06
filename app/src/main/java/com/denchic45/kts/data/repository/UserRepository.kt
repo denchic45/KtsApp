@@ -79,7 +79,7 @@ open class UserRepository @Inject constructor(
     }
 
     private fun loadUserPreference(user: User) {
-        userPreference.uuid = user.uuid
+        userPreference.id = user.uuid
         userPreference.firstName = user.firstName
         userPreference.patronymic = user.patronymic ?: ""
         userPreference.setSurname(user.surname)
@@ -96,7 +96,7 @@ open class UserRepository @Inject constructor(
 
     fun findSelf(): User {
         return User(
-            userPreference.uuid,
+            userPreference.id,
             userPreference.firstName,
             userPreference.surName,
             userPreference.patronymic,
@@ -256,8 +256,7 @@ open class UserRepository @Inject constructor(
     }
 
     val thisUserObserver: Flow<Optional<User>> = callbackFlow {
-
-        usersRef.whereEqualTo("uuid", userPreference.uuid)
+        usersRef.whereEqualTo("uuid", userPreference.id)
             .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if (error != null) {
                     close(error)

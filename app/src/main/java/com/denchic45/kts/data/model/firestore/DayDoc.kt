@@ -30,7 +30,7 @@ data class DayDoc(
                 .collect(Collectors.toList())
             subjectIds = events.stream()
                 .filter { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.type == "LESSON" }
-                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.subjectUuid }
+                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.subjectId }
                 .collect(Collectors.toList())
         }
         get() = _events

@@ -10,8 +10,8 @@ import com.denchic45.kts.data.model.EntityModel
     tableName = "course",
     foreignKeys = [ForeignKey(
         entity = SubjectEntity::class,
-        parentColumns = ["uuid_subject"],
-        childColumns = ["uuid_subject"],
+        parentColumns = ["subject_id"],
+        childColumns = ["subject_id"],
         onDelete = ForeignKey.CASCADE,
         onUpdate = ForeignKey.CASCADE
     ), ForeignKey(
@@ -25,10 +25,10 @@ import com.denchic45.kts.data.model.EntityModel
 class CourseEntity(
     @field:PrimaryKey
     @field:ColumnInfo(name = "uuid_course")
-    var uuid: String,
+    var id: String,
     var name: String,
-    @field:ColumnInfo(index = true, name = "uuid_subject")
-    var subjectUuid: String,
+    @field:ColumnInfo(index = true, name = "subject_id")
+    var subjectId: String,
     @field:ColumnInfo(index = true, name = "uuid_teacher")
     var teacherUuid: String
 ) : EntityModel

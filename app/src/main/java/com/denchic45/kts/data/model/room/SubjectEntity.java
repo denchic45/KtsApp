@@ -13,7 +13,7 @@ public class SubjectEntity implements EntityModel {
 
     @NonNull
     @PrimaryKey()
-    @ColumnInfo(name = "uuid_subject")
+    @ColumnInfo(name = "subject_id")
     protected String uuid;
     private String name;
     private String iconUrl;
