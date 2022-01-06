@@ -99,7 +99,6 @@
                 android:layout_marginEnd="16sp"
                 android:text="Без срока сдачи"
                 android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="@color/dark_gray"
                 android:textSize="16sp" />
 
             <ImageView
@@ -124,7 +123,6 @@
             <CheckBox
                 android:id="@+id/cb_availability_send"
                 android:layout_width="wrap_content"
-                android:clickable="false"
                 android:layout_height="wrap_content"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -138,7 +136,6 @@
                 android:maxLines="1"
                 android:text="Запретить сдачу после срока сдачи"
                 android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
-                android:textColor="@color/dark_gray"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -171,7 +168,7 @@
                 android:maxLines="1"
                 android:text="Текст"
                 android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="@color/dark_gray"
+                
                 android:textSize="16sp" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
@@ -189,24 +186,15 @@
             android:orientation="horizontal"
             android:paddingHorizontal="16sp">
 
-            <CheckBox
-                android:id="@+id/cb_chars_limit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                app:srcCompat="@drawable/ic_calendar" />
-
             <TextView
                 android:id="@+id/tv_chars_limit"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16sp"
                 android:layout_weight="1"
                 android:maxLines="1"
+                android:textColor="@color/text_selector"
                 android:text="Лимит символов"
                 android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
-                android:textColor="@color/dark_gray"
                 android:textSize="16sp" />
 
             <EditText
@@ -215,12 +203,12 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:background="@null"
-                android:hint="999"
-                android:maxLength="3"
+                android:textAlignment="textEnd"
+                android:hint="2000"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:inputType="text"
                 android:maxLines="1"
-                android:textColor="@color/dark"
+                android:textColor="@color/text_selector"
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -241,11 +229,11 @@
                 android:maxLines="1"
                 android:text="Прикрепленные файлы"
                 android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="@color/dark_gray"
+                
                 android:textSize="16sp" />
 
             <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/sw_files"
+                android:id="@+id/sw_attachments"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0" />
@@ -260,28 +248,27 @@
             android:paddingHorizontal="16sp">
 
             <TextView
-                android:id="@+id/tv_files_limit"
-                android:layout_width="0dp"
+                android:id="@+id/tv_attachments_limit"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:maxLines="1"
                 android:text="Макс. количество файлов"
                 android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
-                android:textColor="@color/dark_gray"
+                android:textColor="@color/text_selector"
                 android:textSize="16sp" />
 
             <EditText
-                android:id="@+id/et_files_limit"
+                android:id="@+id/et_attachments_limit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:background="@null"
                 android:hint="99"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:inputType="text"
+                android:inputType="number"
                 android:maxLines="1"
-                android:maxLength="2"
-                android:textColor="@color/dark"
+                android:textColor="@color/text_selector"
                 android:textSize="16sp" />
 
 
@@ -296,18 +283,18 @@
             android:paddingHorizontal="16sp">
 
             <TextView
-                android:id="@+id/tv_file_size_limit"
-                android:layout_width="0dp"
+                android:id="@+id/tv_attachments_size_limit"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:maxLines="1"
+                android:textColor="@color/text_selector"
                 android:text="Макс. размер файлов"
                 android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
-                android:textColor="@color/dark_gray"
                 android:textSize="16sp" />
 
             <EditText
-                android:id="@+id/et_file_size_limit"
+                android:id="@+id/et_attachments_size_limit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
@@ -315,13 +302,13 @@
                 android:hint="999"
                 android:text="200"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:inputType="text"
+                android:inputType="number"
                 android:maxLines="1"
-                android:textColor="@color/dark"
+                android:textColor="@color/text_selector"
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/tv_files_limit_mb"
+                android:id="@+id/tv_attachments_limit_mb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
@@ -329,10 +316,8 @@
                 android:layout_marginStart="4dp"
                 android:text="MB"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-                android:inputType="text"
                 android:maxLines="1"
-                android:maxLength="2"
-                android:textColor="@color/gray"
+                android:textColor="@color/text_selector"
                 android:textSize="16sp" />
         </LinearLayout>
         
@@ -358,11 +343,10 @@
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <View style="@style/Divider" android:layout_marginVertical="16sp"/>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            android:layout_marginTop="8dp"
             android:foreground="?selectableItemBackgroundBorderless"
             android:gravity="center_vertical"
             android:orientation="horizontal"
@@ -384,7 +368,7 @@
                 android:maxLines="1"
                 android:text="Комментарии включены"
                 android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
-                android:textColor="@color/dark_gray"
+                
                 android:textSize="16sp" />
         </LinearLayout>
 
