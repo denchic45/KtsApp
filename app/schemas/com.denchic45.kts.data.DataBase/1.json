@@ -2,15 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "821d651c8ebbcdcf8dba064216972aa8",
+    "identityHash": "4be7ae35307e1c4eb639e307bc721136",
     "entities": [
       {
         "tableName": "subject",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_subject` TEXT NOT NULL, `name` TEXT, `iconUrl` TEXT, `colorName` TEXT, PRIMARY KEY(`uuid_subject`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subject_id` TEXT NOT NULL, `name` TEXT, `iconUrl` TEXT, `colorName` TEXT, PRIMARY KEY(`subject_id`))",
         "fields": [
           {
             "fieldPath": "uuid",
-            "columnName": "uuid_subject",
+            "columnName": "subject_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -35,7 +35,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid_subject"
+            "subject_id"
           ],
           "autoGenerate": false
         },
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventUuid` TEXT NOT NULL, `timestamp` INTEGER, `order` INTEGER NOT NULL, `date` TEXT, `room` TEXT, `uuid_subject` TEXT, `teacherUuidList` TEXT, `groupUuid` TEXT, `type` TEXT, `name` TEXT, `iconUrl` TEXT, `color` TEXT, PRIMARY KEY(`eventUuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventUuid` TEXT NOT NULL, `timestamp` INTEGER, `order` INTEGER NOT NULL, `date` TEXT, `room` TEXT, `subject_id` TEXT, `teacherUuidList` TEXT, `group_id` TEXT, `type` TEXT, `name` TEXT, `iconUrl` TEXT, `color` TEXT, PRIMARY KEY(`eventUuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -78,7 +78,7 @@
           },
           {
             "fieldPath": "subjectUuid",
-            "columnName": "uuid_subject",
+            "columnName": "subject_id",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -89,8 +89,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "groupUuid",
-            "columnName": "groupUuid",
+            "fieldPath": "groupId",
+            "columnName": "group_id",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -316,17 +316,17 @@
       },
       {
         "tableName": "group",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_group` TEXT NOT NULL, `name_group` TEXT, `uuid_curator` TEXT, `course` INTEGER NOT NULL, `specialtyUuid` TEXT, `timestamp_group` INTEGER, PRIMARY KEY(`uuid_group`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `group_name` TEXT, `uuid_curator` TEXT, `course` INTEGER NOT NULL, `specialtyUuid` TEXT, `timestamp_group` INTEGER, PRIMARY KEY(`group_id`))",
         "fields": [
           {
             "fieldPath": "uuid",
-            "columnName": "uuid_group",
+            "columnName": "group_id",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "name",
-            "columnName": "name_group",
+            "columnName": "group_name",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -357,7 +357,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid_group"
+            "group_id"
           ],
           "autoGenerate": false
         },
@@ -392,7 +392,7 @@
       },
       {
         "tableName": "course",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_course` TEXT NOT NULL, `name` TEXT NOT NULL, `uuid_subject` TEXT NOT NULL, `uuid_teacher` TEXT NOT NULL, PRIMARY KEY(`uuid_course`), FOREIGN KEY(`uuid_subject`) REFERENCES `subject`(`uuid_subject`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`uuid_teacher`) REFERENCES `user`(`uuid_user`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_course` TEXT NOT NULL, `name` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `uuid_teacher` TEXT NOT NULL, PRIMARY KEY(`uuid_course`), FOREIGN KEY(`subject_id`) REFERENCES `subject`(`subject_id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`uuid_teacher`) REFERENCES `user`(`uuid_user`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -408,7 +408,7 @@
           },
           {
             "fieldPath": "subjectUuid",
-            "columnName": "uuid_subject",
+            "columnName": "subject_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -427,13 +427,13 @@
         },
         "indices": [
           {
-            "name": "index_course_uuid_subject",
+            "name": "index_course_subject_id",
             "unique": false,
             "columnNames": [
-              "uuid_subject"
+              "subject_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_course_uuid_subject` ON `${TABLE_NAME}` (`uuid_subject`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_course_subject_id` ON `${TABLE_NAME}` (`subject_id`)"
           },
           {
             "name": "index_course_uuid_teacher",
@@ -451,10 +451,10 @@
             "onDelete": "CASCADE",
             "onUpdate": "CASCADE",
             "columns": [
-              "uuid_subject"
+              "subject_id"
             ],
             "referencedColumns": [
-              "uuid_subject"
+              "subject_id"
             ]
           },
           {
@@ -541,11 +541,11 @@
       },
       {
         "tableName": "group_course",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_group` TEXT NOT NULL, `uuid_course` TEXT NOT NULL, PRIMARY KEY(`uuid_group`, `uuid_course`), FOREIGN KEY(`uuid_group`) REFERENCES `group`(`uuid_group`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`uuid_course`) REFERENCES `course`(`uuid_course`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `uuid_course` TEXT NOT NULL, PRIMARY KEY(`group_id`, `uuid_course`), FOREIGN KEY(`group_id`) REFERENCES `group`(`group_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`uuid_course`) REFERENCES `course`(`uuid_course`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
-            "fieldPath": "groupUuid",
-            "columnName": "uuid_group",
+            "fieldPath": "groupId",
+            "columnName": "group_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -558,20 +558,20 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid_group",
+            "group_id",
             "uuid_course"
           ],
           "autoGenerate": false
         },
         "indices": [
           {
-            "name": "index_group_course_uuid_group",
+            "name": "index_group_course_group_id",
             "unique": false,
             "columnNames": [
-              "uuid_group"
+              "group_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_course_uuid_group` ON `${TABLE_NAME}` (`uuid_group`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_course_group_id` ON `${TABLE_NAME}` (`group_id`)"
           },
           {
             "name": "index_group_course_uuid_course",
@@ -589,10 +589,10 @@
             "onDelete": "CASCADE",
             "onUpdate": "CASCADE",
             "columns": [
-              "uuid_group"
+              "group_id"
             ],
             "referencedColumns": [
-              "uuid_group"
+              "group_id"
             ]
           },
           {
@@ -644,7 +644,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '821d651c8ebbcdcf8dba064216972aa8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4be7ae35307e1c4eb639e307bc721136')"
     ]
   }
 }

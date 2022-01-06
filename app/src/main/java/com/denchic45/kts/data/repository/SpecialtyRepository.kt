@@ -16,7 +16,6 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.NetworkException
 import com.google.firebase.firestore.*
 import io.reactivex.rxjava3.core.*
-import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose

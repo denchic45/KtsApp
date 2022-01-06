@@ -34,9 +34,6 @@ class SpecialtyEditorViewModel @Inject constructor(
     val enablePositiveBtn = MutableLiveData(false)
 
     @JvmField
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
-
-    @JvmField
     val deleteBtnVisibility = MutableLiveData(true)
 
     private val uuid = uuid ?: UUID.randomUUID().toString()

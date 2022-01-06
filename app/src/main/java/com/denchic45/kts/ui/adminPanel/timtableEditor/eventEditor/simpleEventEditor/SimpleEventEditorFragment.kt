@@ -58,7 +58,7 @@ class SimpleEventEditorFragment :
                     return@observe
                 }
                 popupWindow!!.anchorView = rlEvent
-                val adapter = ListPopupWindowAdapter(context, eventItems)
+                val adapter = ListPopupWindowAdapter(requireContext(), eventItems)
                 popupWindow!!.setAdapter(adapter)
                 popupWindow!!.setOnItemClickListener { parent: AdapterView<*>, view1: View, position: Int, id: Long ->
                     viewModel.onEventSelect(

@@ -8,6 +8,7 @@ import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Specialty
+import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.GroupMapper
 import com.denchic45.kts.data.model.room.GroupEntity
 import com.denchic45.kts.data.prefs.GroupPreference
@@ -67,7 +68,7 @@ class GroupRepository @Inject constructor(
                 .addOnCompleteListener { task: Task<QuerySnapshot> ->
                     if (task.isSuccessful) {
                         for (snapshot in task.result!!) {
-                            groupPreference.saveGroupInfo(snapshot.toObject(GroupEntity::class.java))
+                            groupPreference.saveGroupInfo(groupMapper.docToEntity(snapshot.toObject(GroupDoc::class.java)))
                         }
                         emitter.onComplete()
                     } else {

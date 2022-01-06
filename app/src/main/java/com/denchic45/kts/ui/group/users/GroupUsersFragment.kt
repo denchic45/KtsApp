@@ -60,7 +60,7 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
                     popupWindow.anchorView = rvUsers.layoutManager!!.findViewByPosition(
                         it.first
                     )
-                    val adapter = ListPopupWindowAdapter(activity, it.second)
+                    val adapter = ListPopupWindowAdapter(requireContext(), it.second)
                     popupWindow.setAdapter(adapter)
                     popupWindow.width = ViewUtils.measureAdapter(adapter, activity)
                     popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())

@@ -95,8 +95,16 @@
         <entry key="..\:/DENIS/AndroidStudioProjects/TEST/KtsApp/app/src/main/res/layout/toolbar_course.xml" value="0.3194444444444444" />
         <entry key="..\:/DENIS/AndroidStudioProjects/TEST/KtsApp/app/src/main/res/menu/options_course_editor.xml" value="0.14" />
         <entry key="..\:/DENIS/AndroidStudioProjects/TEST/KtsApp/app/src/main/res/menu/options_task_editor.xml" value="0.35104166666666664" />
+        <entry key="app/src/main/res/drawable/ic_audio_file.xml" value="0.29322916666666665" />
         <entry key="app/src/main/res/layout/fragment_course.xml" value="0.213768115942029" />
+        <entry key="app/src/main/res/layout/fragment_task_editor.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/item_attachment.xml" value="0.49123336025960324" />
+        <entry key="app/src/main/res/layout/item_content.xml" value="0.19746376811594202" />
+        <entry key="app/src/main/res/layout/item_popup_icon_content.xml" value="0.20742753623188406" />
+        <entry key="app/src/main/res/layout/item_task.xml" value="0.2006340579710145" />
         <entry key="app/src/main/res/layout/toolbar_course.xml" value="0.1" />
+        <entry key="app/src/main/res/menu/options_task_editor.xml" value="0.18425925925925926" />
+        <entry key="app/src/main/res/xml/provider_paths.xml" value="0.1" />
       </map>
     </option>
   </component>

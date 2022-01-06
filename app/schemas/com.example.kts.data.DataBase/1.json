@@ -95,8 +95,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "groupUuid",
-            "columnName": "groupUuid",
+            "fieldPath": "group_id",
+            "columnName": "group_id",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -183,7 +183,7 @@
             "notNull": false
           },
           {
-            "fieldPath": "groupUuid",
+            "fieldPath": "group_id",
             "columnName": "uuid_user_group",
             "affinity": "TEXT",
             "notNull": false
@@ -242,17 +242,17 @@
       },
       {
         "tableName": "groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_group` TEXT NOT NULL, `name_group` TEXT, `uuid_curator` TEXT, `course` INTEGER NOT NULL, `specialtyUuid` TEXT, `timestamp_group` INTEGER, PRIMARY KEY(`uuid_group`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `name_group` TEXT, `uuid_curator` TEXT, `course` INTEGER NOT NULL, `specialtyUuid` TEXT, `timestamp_group` INTEGER, PRIMARY KEY(`group_id`))",
         "fields": [
           {
             "fieldPath": "uuid",
-            "columnName": "uuid_group",
+            "columnName": "group_id",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "name",
-            "columnName": "name_group",
+            "columnName": "group_name",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -283,7 +283,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid_group"
+            "group_id"
           ],
           "autoGenerate": false
         },
@@ -318,11 +318,11 @@
       },
       {
         "tableName": "course",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupUuid` TEXT NOT NULL, `subjectUuid` TEXT NOT NULL, `teacherUuid` TEXT NOT NULL, PRIMARY KEY(`groupUuid`, `subjectUuid`, `teacherUuid`), FOREIGN KEY(`groupUuid`) REFERENCES `groups`(`uuid_group`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subjectUuid`) REFERENCES `subjects`(`subjectUuid`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`teacherUuid`) REFERENCES `users`(`uuid_user`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupUuid` TEXT NOT NULL, `subjectUuid` TEXT NOT NULL, `teacherUuid` TEXT NOT NULL, PRIMARY KEY(`groupUuid`, `subjectUuid`, `teacherUuid`), FOREIGN KEY(`groupUuid`) REFERENCES `groups`(`group_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subjectUuid`) REFERENCES `subjects`(`subjectUuid`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`teacherUuid`) REFERENCES `users`(`uuid_user`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
-            "fieldPath": "groupUuid",
-            "columnName": "groupUuid",
+            "fieldPath": "group_id",
+            "columnName": "group_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -341,7 +341,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "groupUuid",
+            "group_id",
             "subjectUuid",
             "teacherUuid"
           ],
@@ -354,10 +354,10 @@
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "groupUuid"
+              "group_id"
             ],
             "referencedColumns": [
-              "uuid_group"
+              "group_id"
             ]
           },
           {

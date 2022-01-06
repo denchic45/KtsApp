@@ -1,9 +1,7 @@
 package com.denchic45.kts.ui.adapter
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.CompoundButton
-import android.widget.ViewSwitcher
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat

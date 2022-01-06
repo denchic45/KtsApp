@@ -22,7 +22,7 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageView
 import com.canhub.cropper.PickImageContract
 import com.canhub.cropper.options
-import com.denchic45.kts.Pair
+
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.avatar.FullImageActivity

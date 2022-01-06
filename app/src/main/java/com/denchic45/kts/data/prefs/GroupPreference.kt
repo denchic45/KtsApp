@@ -33,7 +33,7 @@ class GroupPreference @Inject constructor(context: Context) :
         groupName = group.name
         groupCourse = group.course
         groupSpecialtyUuid = group.specialtyUuid
-        groupUuid = group.uuid
+        groupUuid = group.id
     }
 
     companion object {

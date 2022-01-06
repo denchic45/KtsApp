@@ -34,27 +34,17 @@ class SubjectEditorViewModel @Inject constructor(
 
     val title = MutableLiveData<String>()
 
-
     val icon = MutableLiveData<String>()
-
 
     val colorIcon = MutableLiveData(R.color.blue)
 
-
     val nameField = MutableLiveData<String>()
-
 
     val deleteBtnVisibility = MutableLiveData(true)
 
-
     val enablePositiveBtn = MutableLiveData(false)
 
-
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
-
-
     val currentSelectedColor = MutableLiveData(0)
-
 
     val openIconPicker = SingleLiveData<Void>()
 
