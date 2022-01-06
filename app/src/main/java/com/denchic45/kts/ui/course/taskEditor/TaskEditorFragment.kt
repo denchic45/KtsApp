@@ -9,9 +9,10 @@ import android.os.Bundle
 import android.text.InputFilter
 import android.view.*
 import android.webkit.MimeTypeMap
+import android.widget.ArrayAdapter
+import android.widget.Filter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.ImageViewCompat
@@ -65,9 +66,34 @@ class TaskEditorFragment :
         }
     }
 
-    private val listPopupWindow: ListPopupWindow by lazy {
-        ListPopupWindow(requireContext()).apply {
-//            setAdapter(ListPopupWindowAdapter(requireContext(),R.array.ge))
+    private val arrayAdapter by lazy {
+        object : ArrayAdapter<String>(
+            requireContext(),
+            R.layout.item_content,
+            arrayOf("Балльная", "Бинарная", "По категориям")
+        ) {
+            override fun getView(
+                position: Int,
+                convertView: View?,
+                parent: ViewGroup
+            ): View {
+                val view1 = super.getView(position, convertView, parent)
+                view1.isEnabled = position != 2
+
+                return view1
+            }
+
+            override fun getFilter(): Filter {
+                return object : Filter() {
+                    override fun performFiltering(p0: CharSequence?): FilterResults {
+                        return FilterResults()
+                    }
+
+                    override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
+                    }
+
+                }
+            }
         }
     }
 
@@ -111,6 +137,14 @@ class TaskEditorFragment :
 
             rvFiles.adapter = adapter
 
+            etName.textChanges()
+                .compose(EditTextTransformer())
+                .subscribe(viewModel::onNameType)
+
+            etDescription.textChanges()
+                .compose(EditTextTransformer())
+                .subscribe(viewModel::onDescriptionType)
+
             etCharsLimit.textChanges()
                 .compose(EditTextTransformer())
                 .subscribe(viewModel::onCharsLimitType)
@@ -123,12 +157,22 @@ class TaskEditorFragment :
                 .compose(EditTextTransformer())
                 .subscribe(viewModel::onAttachmentsSizeLimitType)
 
+            etMaxScore.textChanges()
+                .compose(EditTextTransformer())
+                .subscribe(viewModel::onMaxScoreType)
+
             etCharsLimit.filters = arrayOf(ValueFilter(0, 2000), InputFilter.LengthFilter(4))
 
             etAttachmentsLimit.filters = arrayOf(ValueFilter(0, 99), InputFilter.LengthFilter(2))
 
             etAttachmentsSizeLimit.filters =
                 arrayOf(ValueFilter(0, 999), InputFilter.LengthFilter(3))
+
+            actMarkType.setAdapter(arrayAdapter)
+
+            actMarkType.setOnItemClickListener { _, _, position, _ ->
+                viewModel.onMarkTypeSelect(position)
+            }
 
             llAvailabilityDate.setOnClickListener { viewModel.onAvailabilityDateClick() }
 
@@ -144,6 +188,10 @@ class TaskEditorFragment :
 
             swAttachments.setOnCheckedChangeListener { _, check ->
                 viewModel.onAttachmentsAvailableAnswerCheck(check)
+            }
+
+            cbCommentsEnable.setOnCheckedChangeListener { _, check ->
+                viewModel.onCommentsEnableCheck(check)
             }
 
             viewModel.titleField.observe(viewLifecycleOwner) {
@@ -181,9 +229,9 @@ class TaskEditorFragment :
                 )
             }
 
-            viewModel.openAttachment.observe(viewLifecycleOwner) { file ->
-                open_file(file)
-            }
+
+
+            viewModel.openAttachment.observe(viewLifecycleOwner, this@TaskEditorFragment::openFile)
 
             viewModel.availabilityDateRemoveVisibility.observe(viewLifecycleOwner) {
                 ivRemoveAvailabilityDate.visibility = if (it) View.VISIBLE else View.GONE
@@ -236,8 +284,13 @@ class TaskEditorFragment :
             }
 
             viewModel.availabilitySend.observe(viewLifecycleOwner) {
-                if (cbAvailabilitySend.isEnabled != it)
-                    cbAvailabilitySend.isEnabled = it
+                if (cbAvailabilitySend.isChecked != it)
+                    cbAvailabilitySend.isChecked = it
+            }
+
+            viewModel.commentsEnabled.observe(viewLifecycleOwner) {
+                if (cbCommentsEnable.isChecked == it)
+                    cbCommentsEnable.isChecked = it
             }
 
             lifecycleScope.launchWhenStarted {
@@ -262,12 +315,28 @@ class TaskEditorFragment :
                 }
             }
 
+            lifecycleScope.launchWhenStarted {
+                viewModel.markType.collect {
+                    when (it) {
+                        is TaskEditorViewModel.MarkTypeState.Score -> {
+                            vfMarkType.displayedChild = 0
+                            etMaxScore.setText(it.max)
+                        }
+                        is TaskEditorViewModel.MarkTypeState.Binary -> {
+                            vfMarkType.displayedChild = 1
+                        }
+                    }
+                    if (actMarkType.text.toString() != arrayAdapter.getItem(it.position)) {
+                        actMarkType.setText(arrayAdapter.getItem(it.position) as String)
+                    }
+                }
+            }
+
         }
     }
 
 
-    fun open_file(file: File) {
-
+    private fun openFile(file: File) {
         // Get URI and MIME type of file
         // Open file with user selected app
         val intent = Intent()
@@ -286,7 +355,7 @@ class TaskEditorFragment :
         try {
             requireActivity().startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
-            Toast.makeText(requireContext(), "Не получается открыть файл =(", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), "Не получается открыть файл :(", Toast.LENGTH_SHORT)
                 .show()
         }
     }

@@ -19,8 +19,6 @@ import javax.inject.Named
 class TaskEditorViewModel @Inject constructor(
     @Named(TaskEditorFragment.TASK_ID) taskId: String?
 ) : BaseViewModel() {
-
-    private val taskId: String
     val titleField = MutableLiveData<String>()
     val descriptionField = MutableLiveData<String>()
     val availabilityDateField = MutableLiveData<String?>()
@@ -29,9 +27,10 @@ class TaskEditorViewModel @Inject constructor(
     val availabilityDateRemoveVisibility = MutableLiveData<Boolean>()
     val showAttachments = MutableLiveData<List<Attachment>>()
     val filesVisibility = MutableLiveData<Boolean>()
+    val commentsEnabled = MutableLiveData<Boolean>()
 
     val answerType = MutableStateFlow(
-        AnswerTypeViewState(
+        AnswerTypeState(
             true,
             "9999",
             false,
@@ -40,14 +39,16 @@ class TaskEditorViewModel @Inject constructor(
         )
     )
 
+    val markType = MutableStateFlow<MarkTypeState>(MarkTypeState.Score("5"))
+
     val openFileChooser = SingleLiveData<Unit>()
     val openAttachment = SingleLiveData<File>()
+    val openDatePicker: SingleLiveData<Long> = SingleLiveData()
+    val openTimePicker: SingleLiveData<Pair<Int, Int>> = SingleLiveData()
 
     var date: LocalDateTime? = null
     private val attachments: MutableList<Attachment> = mutableListOf()
-
-    val openDatePicker: SingleLiveData<Long> = SingleLiveData()
-    val openTimePicker: SingleLiveData<Pair<Int, Int>> = SingleLiveData()
+    private val taskId: String
 
     init {
         if (taskId != null) {
@@ -93,10 +94,9 @@ class TaskEditorViewModel @Inject constructor(
             availabilityDateField.postValue(
                 date!!.format(DateTimeFormatter.ofPattern("EE, dd LLLL yyyy, HH:mm"))
             )
+        } ?: kotlin.run {
+            availabilityDateField.postValue(null)
         }
-            ?: kotlin.run {
-                availabilityDateField.postValue(null)
-            }
     }
 
     private fun postAttachments() {
@@ -158,6 +158,14 @@ class TaskEditorViewModel @Inject constructor(
         answerType.value = answerType.value.copy(attachmentsAvailable = check)
     }
 
+    fun onNameType(name: String) {
+        titleField.postValue(name)
+    }
+
+    fun onDescriptionType(name: String) {
+        descriptionField.postValue(name)
+    }
+
     fun onCharsLimitType(charsLimit: String) {
         answerType.value = answerType.value.copy(charsLimit = charsLimit)
     }
@@ -170,11 +178,45 @@ class TaskEditorViewModel @Inject constructor(
         answerType.value = answerType.value.copy(attachmentsSizeLimit = attachmentsSizeLimit)
     }
 
-    data class AnswerTypeViewState(
+    fun onMaxScoreType(maxScore: String) {
+        markType.value.apply {
+            if (this is MarkTypeState.Score)
+                markType.value = copy(max = maxScore)
+        }
+    }
+
+    fun onMarkTypeSelect(position: Int) {
+        when (position) {
+            0 -> {
+                if (markType.value.position != 0) {
+                    markType.value = MarkTypeState.Score("5")
+                }
+            }
+            1 -> markType.value = MarkTypeState.Binary
+        }
+    }
+
+    fun onCommentsEnableCheck(check: Boolean) {
+        commentsEnabled.postValue(check)
+    }
+
+    data class AnswerTypeState(
         val textAvailable: Boolean,
         val charsLimit: String,
         val attachmentsAvailable: Boolean,
         val attachmentsLimit: String,
         val attachmentsSizeLimit: String
     )
+
+    sealed class MarkTypeState {
+        abstract val position: Int
+
+        data class Score(val max: String) : MarkTypeState() {
+            override val position: Int get() = 0
+        }
+
+        object Binary : MarkTypeState() {
+            override val position: Int get() = 1
+        }
+    }
 }
