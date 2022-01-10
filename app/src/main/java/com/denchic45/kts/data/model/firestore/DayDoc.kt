@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.firestore
 
 import com.denchic45.kts.data.model.DocModel
-import com.denchic45.kts.data.model.room.TaskEntity
+import com.denchic45.kts.data.model.room.CourseContentEntity
 import com.denchic45.kts.utils.UUIDS
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
@@ -11,7 +11,7 @@ data class DayDoc(
     val uuid: String = UUIDS.createShort(),
     var date: Date? = null,
     private var _events: List<EventDoc> = emptyList(),
-    var homework: List<TaskEntity> = emptyList(),
+    var homework: List<CourseContentEntity> = emptyList(),
     var teacherIds: List<String> = emptyList(),
     var subjectIds: List<String> = emptyList(),
     @ServerTimestamp
