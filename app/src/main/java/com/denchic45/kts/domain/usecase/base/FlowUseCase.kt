@@ -1,4 +1,4 @@
-package com.denchic45.kts.data.usecase.base
+package com.denchic45.kts.domain.usecase.base
 
 import kotlinx.coroutines.flow.Flow
 
