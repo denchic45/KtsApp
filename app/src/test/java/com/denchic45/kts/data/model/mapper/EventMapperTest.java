@@ -2,27 +2,17 @@ package com.denchic45.kts.data.model.mapper;
 
 
 import static com.denchic45.kts.TestUtils.createCurator;
-import static com.denchic45.kts.TestUtils.createGroupWithCuratorAndSpecialtyEntity;
 import static com.denchic45.kts.TestUtils.createStudent1;
 import static com.denchic45.kts.TestUtils.createStudent2;
-import static com.denchic45.kts.TestUtils.createSubject;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.denchic45.kts.data.model.domain.Event;
 import com.denchic45.kts.data.model.domain.Group;
-import com.denchic45.kts.data.model.domain.Lesson;
-import com.denchic45.kts.data.model.domain.SimpleEventDetails;
 import com.denchic45.kts.data.model.domain.Specialty;
 import com.denchic45.kts.data.model.domain.User;
 import com.denchic45.kts.data.model.firestore.EventDetailsDoc;
 import com.denchic45.kts.data.model.firestore.EventDoc;
 import com.denchic45.kts.data.model.room.EventEntity;
-import com.denchic45.kts.data.model.room.EventTaskSubjectTeachersEntities;
-import com.denchic45.kts.data.model.room.GroupEntity;
-import com.denchic45.kts.data.model.room.TaskEntity;
-import com.denchic45.kts.data.model.room.SubjectEntity;
-import com.denchic45.kts.data.model.room.UserEntity;
 
 import org.junit.jupiter.api.Test;
 
