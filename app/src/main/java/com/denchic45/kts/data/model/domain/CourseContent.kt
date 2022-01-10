@@ -15,8 +15,7 @@ abstract class CourseContent : DomainModel() {
 
 sealed class ContentDetails {
     class Task(
-        val isDisabledSendAfterDate: Boolean,
-        val attachments: List<String>,
+        val disabledSendAfterDate: Boolean,
         val answerType: AnswerType,
         val markType: MarkType
     ) : ContentDetails()
