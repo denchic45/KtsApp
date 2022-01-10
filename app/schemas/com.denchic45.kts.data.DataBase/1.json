@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4be7ae35307e1c4eb639e307bc721136",
+    "identityHash": "5b68b5d6cc8906923bddc21adfa7b20e",
     "entities": [
       {
         "tableName": "subject",
@@ -129,18 +129,24 @@
         "foreignKeys": []
       },
       {
-        "tableName": "task",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_homework` TEXT NOT NULL, `courseUuid` TEXT NOT NULL, `name` TEXT NOT NULL, `content` TEXT NOT NULL, `date_created` TEXT NOT NULL, `date_updated` TEXT NOT NULL, `date_completion` TEXT NOT NULL, `timestamp` INTEGER, PRIMARY KEY(`uuid_homework`))",
+        "tableName": "course_content",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `courseId` TEXT NOT NULL, `sectionId` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `date_created` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `date_completion` TEXT NOT NULL, PRIMARY KEY(`content_id`))",
         "fields": [
           {
-            "fieldPath": "uuid",
-            "columnName": "uuid_homework",
+            "fieldPath": "id",
+            "columnName": "content_id",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "courseUuid",
-            "columnName": "courseUuid",
+            "fieldPath": "courseId",
+            "columnName": "courseId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sectionId",
+            "columnName": "sectionId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -151,8 +157,26 @@
             "notNull": true
           },
           {
-            "fieldPath": "content",
-            "columnName": "content",
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "details",
+            "columnName": "details",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "commentsEnabled",
+            "columnName": "commentsEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentType",
+            "columnName": "contentType",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -163,9 +187,9 @@
             "notNull": true
           },
           {
-            "fieldPath": "updatedDate",
-            "columnName": "date_updated",
-            "affinity": "TEXT",
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -173,17 +197,11 @@
             "columnName": "date_completion",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "timestamp",
-            "columnName": "timestamp",
-            "affinity": "INTEGER",
-            "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid_homework"
+            "content_id"
           ],
           "autoGenerate": false
         },
@@ -319,7 +337,7 @@
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `group_name` TEXT, `uuid_curator` TEXT, `course` INTEGER NOT NULL, `specialtyUuid` TEXT, `timestamp_group` INTEGER, PRIMARY KEY(`group_id`))",
         "fields": [
           {
-            "fieldPath": "uuid",
+            "fieldPath": "id",
             "columnName": "group_id",
             "affinity": "TEXT",
             "notNull": true
@@ -395,7 +413,7 @@
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid_course` TEXT NOT NULL, `name` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `uuid_teacher` TEXT NOT NULL, PRIMARY KEY(`uuid_course`), FOREIGN KEY(`subject_id`) REFERENCES `subject`(`subject_id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`uuid_teacher`) REFERENCES `user`(`uuid_user`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
-            "fieldPath": "uuid",
+            "fieldPath": "id",
             "columnName": "uuid_course",
             "affinity": "TEXT",
             "notNull": true
@@ -407,7 +425,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "subjectUuid",
+            "fieldPath": "subjectId",
             "columnName": "subject_id",
             "affinity": "TEXT",
             "notNull": true
@@ -644,7 +662,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4be7ae35307e1c4eb639e307bc721136')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b68b5d6cc8906923bddc21adfa7b20e')"
     ]
   }
 }
