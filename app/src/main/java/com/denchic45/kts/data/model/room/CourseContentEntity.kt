@@ -16,6 +16,7 @@ data class CourseContentEntity(
     var courseId: String,
     val sectionId: String,
     val name: String,
+    @field:TypeConverters(ListConverter::class) val attachments: List<String>,
     val description: String,
     val details: String,
     val commentsEnabled: Boolean,
@@ -25,7 +26,7 @@ data class CourseContentEntity(
     val createdDate: Date,
     @field:TypeConverters(TimestampConverter::class)
     val timestamp: Date,
-    @field:TypeConverters(DateConverter::class)
+    @field:TypeConverters(TimestampConverter::class)
     @field:ColumnInfo(name = "date_completion")
     val completionDate: Date
 ) : EntityModel
