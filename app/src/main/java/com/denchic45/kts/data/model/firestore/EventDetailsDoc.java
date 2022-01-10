@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.firestore;
 
 import com.denchic45.kts.data.model.DocModel;
-import com.denchic45.kts.data.model.room.TaskEntity;
+import com.denchic45.kts.data.model.room.CourseContentEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,16 +9,16 @@ import java.util.List;
 public class EventDetailsDoc implements DocModel {
 
     private String subjectId;
-    private TaskEntity taskEntity;
+    private CourseContentEntity courseContentEntity;
     private List<String> teacherUuidList;
     private String name;
     private String iconUrl;
     private String color;
     private String type;
 
-    public EventDetailsDoc(String subjectId, TaskEntity taskEntity, List<String> teacherUuidList, String name, String iconUrl, String color, String type) {
+    public EventDetailsDoc(String subjectId, CourseContentEntity courseContentEntity, List<String> teacherUuidList, String name, String iconUrl, String color, String type) {
         this.subjectId = subjectId;
-        this.taskEntity = taskEntity;
+        this.courseContentEntity = courseContentEntity;
         this.teacherUuidList = teacherUuidList;
         this.name = name;
         this.iconUrl = iconUrl;
@@ -37,12 +37,12 @@ public class EventDetailsDoc implements DocModel {
         this.subjectId = subjectId;
     }
 
-    public TaskEntity getTaskEntity() {
-        return taskEntity;
+    public CourseContentEntity getTaskEntity() {
+        return courseContentEntity;
     }
 
-    public void setTaskEntity(TaskEntity taskEntity) {
-        this.taskEntity = taskEntity;
+    public void setTaskEntity(CourseContentEntity courseContentEntity) {
+        this.courseContentEntity = courseContentEntity;
     }
 
     public List<String> getTeacherUuidList() {
