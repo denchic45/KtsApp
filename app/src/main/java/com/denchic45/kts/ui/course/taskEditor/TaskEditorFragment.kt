@@ -10,6 +10,7 @@ import android.text.InputFilter
 import android.view.*
 import android.webkit.MimeTypeMap
 import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Filter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -19,6 +20,7 @@ import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
@@ -37,6 +39,8 @@ import com.denchic45.widget.extendedAdapter.extension.click
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat.CLOCK_24H
 import com.jakewharton.rxbinding4.widget.textChanges
@@ -49,6 +53,8 @@ class TaskEditorFragment :
 
     companion object {
         const val TASK_ID = "TASK_ID"
+        const val COURSE_ID = "COURSE_ID"
+        const val SECTION_ID = "SECTION_ID"
     }
 
     private val adapter = adapter {
@@ -194,7 +200,32 @@ class TaskEditorFragment :
                 viewModel.onCommentsEnableCheck(check)
             }
 
-            viewModel.titleField.observe(viewLifecycleOwner) {
+            viewModel.showMessage.observe(viewLifecycleOwner) {
+                if (it != null)
+                    Snackbar.make(view, it, Snackbar.LENGTH_SHORT).show()
+            }
+
+            viewModel.showErrorMessage.observe(viewLifecycleOwner) { idWithMessagePair ->
+                val fieldView = view.findViewById<View>(
+                    idWithMessagePair.first
+                )
+
+                if (fieldView is TextInputLayout) {
+                    if (idWithMessagePair.second != null) {
+                        fieldView.error = idWithMessagePair.second
+                    } else {
+                        fieldView.error = null
+                    }
+                } else if (fieldView is EditText) {
+                    if (idWithMessagePair.second != null) {
+                        fieldView.error = idWithMessagePair.second
+                    } else {
+                        fieldView.error = null
+                    }
+                }
+            }
+
+            viewModel.nameField.observe(viewLifecycleOwner) {
                 if (etName.text.toString() != it) etName.setText(it)
             }
 
@@ -202,7 +233,7 @@ class TaskEditorFragment :
                 if (etDescription.text.toString() != it) etDescription.setText(it)
             }
 
-            viewModel.availabilityDateField.observe(viewLifecycleOwner) {
+            viewModel.showCompletionDate.observe(viewLifecycleOwner) {
                 val dateNotNull = it != null
                 if (dateNotNull) {
                     tvAvailabilityDate.text = it
@@ -283,7 +314,7 @@ class TaskEditorFragment :
                     .show(parentFragmentManager, null)
             }
 
-            viewModel.availabilitySend.observe(viewLifecycleOwner) {
+            viewModel.disabledSendAfterDate.observe(viewLifecycleOwner) {
                 if (cbAvailabilitySend.isChecked != it)
                     cbAvailabilitySend.isChecked = it
             }
@@ -292,6 +323,8 @@ class TaskEditorFragment :
                 if (cbCommentsEnable.isChecked == it)
                     cbCommentsEnable.isChecked = it
             }
+
+            viewModel.finish.observe(viewLifecycleOwner) { findNavController().popBackStack() }
 
             lifecycleScope.launchWhenStarted {
                 viewModel.answerType.collect {
@@ -320,7 +353,7 @@ class TaskEditorFragment :
                     when (it) {
                         is TaskEditorViewModel.MarkTypeState.Score -> {
                             vfMarkType.displayedChild = 0
-                            etMaxScore.setText(it.max)
+                            etMaxScore.setText(it.maxScore)
                         }
                         is TaskEditorViewModel.MarkTypeState.Binary -> {
                             vfMarkType.displayedChild = 1
@@ -339,19 +372,27 @@ class TaskEditorFragment :
     private fun openFile(file: File) {
         // Get URI and MIME type of file
         // Open file with user selected app
-        val intent = Intent()
-        intent.action = Intent.ACTION_VIEW
-        val apkURI = FileProvider.getUriForFile(
-            context!!, context!!.applicationContext
-                .packageName.toString() + ".provider", file
-        )
-        val extensionFromMimeType =
-            MimeTypeMap.getSingleton().getExtensionFromMimeType(file.toURI().toURL().toString())
-        intent.setDataAndType(
-            apkURI,
-            extensionFromMimeType
-        )
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val intent = Intent().apply {
+            action = Intent.ACTION_VIEW
+            val apkURI = FileProvider.getUriForFile(
+                requireContext(),
+                requireActivity().applicationContext
+                    .packageName.toString() + ".provider", file
+            )
+            val extensionFromMimeType = MimeTypeMap
+                .getSingleton()
+                .getExtensionFromMimeType(
+                    file.toURI()
+                        .toURL()
+                        .toString()
+                )
+            setDataAndType(
+                apkURI,
+                extensionFromMimeType
+            )
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+        }
         try {
             requireActivity().startActivity(intent)
         } catch (exception: ActivityNotFoundException) {
@@ -386,7 +427,6 @@ class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding) :
         with(binding) {
             ivOverlay.setImageDrawable(null)
             tvName.text = item.file.name
-//            val uri = Uri.fromFile(item.file)
             val glide = Glide.with(ivFile)
             val load: RequestBuilder<Drawable> = when (item.file.getType()) {
                 "image" -> {
