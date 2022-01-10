@@ -2,21 +2,17 @@ package com.denchic45.kts.di.modules
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.dao.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import dagger.Module
 import dagger.Provides
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
 import javax.inject.Singleton
 
 @Module
 object DatabaseModule {
+
     @Provides
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -25,17 +21,22 @@ object DatabaseModule {
     fun provideDataBase(context: Context): DataBase = Room.databaseBuilder(
         context,
         DataBase::class.java, "database.db"
-    ).addCallback(object : RoomDatabase.Callback() {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            Executors.newSingleThreadExecutor().execute {
-                val dataBase = provideDataBase(context)
-                GlobalScope.launch {
+    )
+//        .addCallback(object : RoomDatabase.Callback() {
+//        override fun onCreate(db: SupportSQLiteDatabase) {
+//            Executors.newSingleThreadExecutor().execute {
+//                val dataBase = provideDataBase(context)
+//                GlobalScope.launch {
+//
+//                    cancel()
+//                }
+//            }
+//        }
+//    })
+        .build()
 
-                    cancel()
-                }
-            }
-        }
-    }).build()
+    @Provides
+    fun provideFirebaseStorage(): FirebaseStorage = FirebaseStorage.getInstance()
 
     @Provides
     fun provideSubjectDao(dataBase: DataBase): SubjectDao = dataBase.subjectDao()
