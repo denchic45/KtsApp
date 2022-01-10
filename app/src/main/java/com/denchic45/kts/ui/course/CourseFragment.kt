@@ -12,8 +12,10 @@ import com.denchic45.kts.databinding.FragmentCourseBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
+import com.denchic45.kts.ui.adapter.TaskHolder
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.widget.extendedAdapter.adapter
+import com.denchic45.widget.extendedAdapter.extension.click
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -62,6 +64,13 @@ class CourseFragment :
         with(binding) {
             val adapter = adapter {
                 delegates(TaskAdapterDelegate(), CourseSectionAdapterDelegate())
+                extensions {
+                    click<TaskHolder> {
+                        onClick = {
+                            viewModel.onTaskItemClick(it)
+                        }
+                    }
+                }
             }
             rvCourseItems.adapter = adapter
             viewModel.showContents.observe(viewLifecycleOwner) {
