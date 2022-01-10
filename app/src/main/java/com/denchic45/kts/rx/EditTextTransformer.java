@@ -15,10 +15,9 @@ public class EditTextTransformer implements ObservableTransformer<CharSequence, 
     @Override
     public @NonNull ObservableSource<String> apply(@NonNull Observable<CharSequence> upstream) {
         return upstream
-                .skip(0)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(CharSequence::toString)
-                .debounce(200, TimeUnit.MILLISECONDS);
+                .debounce(700, TimeUnit.MILLISECONDS);
     }
 }
