@@ -93,7 +93,7 @@ class SpecialtyEditorViewModel @Inject constructor(
     }
 
     init {
-        uiValidator = UIValidator.of<Any>(
+        uiValidator = UIValidator.of(
             Validation(Rule({ !TextUtils.isEmpty(uiEditor.item.name) }, "Нет названия!")),
             Validation(Rule { uiEditor.hasBeenChanged() })
         )

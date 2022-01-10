@@ -71,8 +71,15 @@ class CourseFragment :
                 collapsingToolbarLayout!!.title = it
             }
         }
-        viewModel.openTaskEditor.observe(viewLifecycleOwner) {
-            findNavController().navigate(R.id.action_courseFragment_to_taskEditorFragment, bundleOf(TaskEditorFragment.TASK_ID to null))
+        viewModel.openTaskEditor.observe(viewLifecycleOwner) { (taskId, courseId, sectionId) ->
+            findNavController().navigate(
+                R.id.action_courseFragment_to_taskEditorFragment,
+                bundleOf(
+                    TaskEditorFragment.TASK_ID to taskId,
+                    TaskEditorFragment.COURSE_ID to courseId,
+                    TaskEditorFragment.SECTION_ID to sectionId
+                )
+            )
         }
     }
 

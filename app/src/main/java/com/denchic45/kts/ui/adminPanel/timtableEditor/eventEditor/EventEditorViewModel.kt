@@ -178,7 +178,7 @@ class EventEditorViewModel @Inject constructor(
     init {
         uiEditor.oldItem = interactor.oldEvent.value
         fillFields()
-        uiValidator = UIValidator.of<Any>(
+        uiValidator = UIValidator.of(
             Validation(Rule { uiEditor.item.order != -1 })
                 .sendActionResult({
                     showErrorField.setValue(

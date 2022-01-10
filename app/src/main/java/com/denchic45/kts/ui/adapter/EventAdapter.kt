@@ -381,8 +381,8 @@ class EventAdapter(
 
         fun setHomeworkVisibility() {
             task?.let {
-                lessonExpandableContentBinding.tvHomeworkContent.text = it.content
-                lessonExpandableContentBinding.cbHomeworkCompleted.isChecked = it.completed
+                lessonExpandableContentBinding.tvHomeworkContent.text = it.description
+//                lessonExpandableContentBinding.cbHomeworkCompleted.isChecked = it.completed
                 lessonExpandableContentBinding.cbHomeworkCompleted.isEnabled = true
                 lessonExpandableContentBinding.cbHomeworkCompleted.setOnCheckedChangeListener { compoundButton: CompoundButton, checked: Boolean ->
                     if (lessonExpandableContentBinding.cbHomeworkCompleted.isShown) {

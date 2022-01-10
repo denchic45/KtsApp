@@ -13,10 +13,10 @@ import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.CourseInfo
 import com.denchic45.kts.data.model.domain.Group
+import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SubjectTeacherPair
-import com.denchic45.kts.data.model.firestore.TaskDoc
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups
 import com.denchic45.kts.data.model.room.GroupCourseCrossRef
@@ -53,20 +53,19 @@ class CourseRepository @Inject constructor(
     private val groupMapper: GroupMapper,
     private val specialtyMapper: SpecialtyMapper,
     private val sectionMapper: SectionMapper,
-    private val taskMapper: TaskMapper,
+    private val courseContentMapper: CourseContentMapper,
     private val courseDao: CourseDao,
+    private val courseContentDao: CourseContentDao,
     private val sectionDao: SectionDao,
     private val groupCourseDao: GroupCourseDao,
     private val subjectDao: SubjectDao,
     private val groupDao: GroupDao,
     private val userDao: UserDao,
     private val specialtyDao: SpecialtyDao,
-    private val taskDao: TaskDao
-) : Repository(context) {
+
+    ) : Repository(context) {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
-
-//    private var startDrop = 1
 
     fun find(courseUuid: String): Flow<Course> {
         addListenerRegistration("findCourseByUuid $courseUuid") {
@@ -134,9 +133,8 @@ class CourseRepository @Inject constructor(
 
     suspend fun observeByYouGroup() {
         timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
-            .filter {it != 0L}
+            .filter { it != 0L }
             .drop(if (appPreference.coursesLoadedFirstTime) 1 else 0)
-//            .flatMapLatest { timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L) }
             .collect {
                 appPreference.coursesLoadedFirstTime = true
                 getCoursesByGroupUuidRemotely(groupPreference.groupUuid)
@@ -179,13 +177,20 @@ class CourseRepository @Inject constructor(
                     return@addSnapshotListener
                 }
                 if (value != null && !value.isEmpty) {
-                    taskMapper.docToEntity(value.toObjects(TaskDoc::class.java))
+                    externalScope.launch(dispatcher) {
+                        courseContentDao.upsert(
+                            courseContentMapper.docToEntity(value)
+                        )
+                    }
                 }
             }
 
         return sectionDao.getByCourseUuid(courseUuid)
-            .combine(taskDao.getByCourseUuid(courseUuid)) { sections, tasks ->
-                sectionMapper.entityToDomain(sections) + taskMapper.entityToDomain(tasks)
+            .combine(courseContentDao.getByCourseUuid(courseUuid)) { sectionEntities, courseContentEntities ->
+                sectionMapper.entityToDomain(sectionEntities) +
+                        courseContentMapper.entityToDomain(courseContentEntities)
+
+                //todo отсортировать секции с курсами
             }
     }
 
@@ -550,6 +555,23 @@ class CourseRepository @Inject constructor(
             )
         }
         batch.commit().await()
+    }
+
+    fun findTask(id: String): Flow<Task> {
+        return courseContentDao.get(id)
+            .map { courseContentMapper.entityToTask(it) }
+    }
+
+    suspend fun addTask(task: Task) {
+        coursesRef.document(task.courseId)
+            .collection("Contents")
+            .document(task.uuid)
+            .set(courseContentMapper.domainToTaskDoc(task))
+            .await()
+    }
+
+    suspend fun updateTask(task: Task) {
+        addTask(task)
     }
 }
 

@@ -17,7 +17,8 @@ object MapperModule {
     fun provideGroupMapper(): GroupMapper = GroupMapperImpl()
 
     @Provides
-    fun provideTaskMapper(): TaskMapper = TaskMapperImpl()
+    fun provideTaskMapper(): CourseContentMapper =
+        CourseContentMapperImpl()
 
     @Provides
     fun provideUserMapper(): UserMapper = UserMapperImpl()

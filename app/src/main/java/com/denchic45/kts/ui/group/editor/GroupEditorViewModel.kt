@@ -83,7 +83,7 @@ class GroupEditorViewModel @Inject constructor(
 
             )
         }
-        uiValidator = UIValidator.of<Any>(
+        uiValidator = UIValidator.of(
             Validation(Rule { uiEditor.hasBeenChanged() }),
             Validation(
                 Rule(

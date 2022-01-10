@@ -78,10 +78,9 @@ class CourseEditorViewModel @Inject constructor(
         setup()
     }
 
-    private val uiValidator: UIValidator = UIValidator.of<Any>(
+    private val uiValidator: UIValidator = UIValidator.of(
         Validation(Rule({ subjectUuid.isNullOrEmpty() }, "Предмет отсутствует")),
-        Validation(Rule({ teacherUuid.isNullOrEmpty() }, "Преподаватель отсутствует")),
-//        Validation(Rule({ uiEditor.hasBeenChanged() }, "Нет изменений!"))
+        Validation(Rule({ teacherUuid.isNullOrEmpty() }, "Преподаватель отсутствует"))
     )
 
     private fun setup() {

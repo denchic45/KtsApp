@@ -8,13 +8,13 @@ import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.room.*
 
 @Database(
-    entities = [SubjectEntity::class, EventEntity::class, TaskEntity::class, UserEntity::class, DayEntity::class, GroupEntity::class, SpecialtyEntity::class, CourseEntity::class, TeacherEventCrossRef::class, GroupCourseCrossRef::class, SectionEntity::class],
+    entities = [SubjectEntity::class, EventEntity::class, CourseContentEntity::class, UserEntity::class, DayEntity::class, GroupEntity::class, SpecialtyEntity::class, CourseEntity::class, TeacherEventCrossRef::class, GroupCourseCrossRef::class, SectionEntity::class],
     version = 1
 )
 abstract class DataBase : RoomDatabase() {
     abstract fun subjectDao(): SubjectDao
     abstract fun lessonDao(): LessonDao
-    abstract fun taskDao(): TaskDao
+    abstract fun courseContentDao(): CourseContentDao
     abstract fun dayDao(): DayDao
     abstract fun userDao(): UserDao
     abstract fun groupDao(): GroupDao

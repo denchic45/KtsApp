@@ -63,7 +63,7 @@ class SimpleEventEditorViewModel @Inject constructor(
         }
 
         interactor.validateEventDetails = {
-            UIValidator.of<Any>(
+            UIValidator.of(
                 Validation(Rule { showSelectedEvent.value != null })
                     .sendActionResult({ rule: Rule ->
                         showErrorField.setValue(

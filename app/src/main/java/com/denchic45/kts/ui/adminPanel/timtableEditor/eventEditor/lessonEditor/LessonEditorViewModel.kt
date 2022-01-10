@@ -89,7 +89,7 @@ class LessonEditorViewModel @Inject constructor(
         }
 
 
-        val uiValidator = UIValidator.of<Any>(
+        val uiValidator = UIValidator.of(
             Validation(Rule { subjectField.value != null })
                 .sendActionResult(
                     { showErrorField.setValue(Pair(R.id.rl_subject, true)) }

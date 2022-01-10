@@ -171,7 +171,7 @@ class SubjectEditorViewModel @Inject constructor(
                 colorName
             )
         }
-        uiValidator = UIValidator.of<Any>(
+        uiValidator = UIValidator.of(
             Validation(Rule { uiEditor.hasBeenChanged() }),
             Validation(Rule({ !nameField.value.isNullOrEmpty() }, "Нет названия")),
             Validation(Rule({ !icon.value.isNullOrEmpty() }, "Нет иконки"))

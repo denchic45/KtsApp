@@ -91,7 +91,7 @@ open class UserEditorViewModel @Inject constructor(
     private var subscribeConfirmation: Disposable? = null
     private var password: String? = null
     private fun getUiValidator(): UIValidator {
-        val uiValidator: UIValidator = UIValidator.of<Any>(
+        val uiValidator: UIValidator = UIValidator.of(
             Validation(Rule({
                 !TextUtils.isEmpty(
                     fieldFirstName.value
@@ -115,12 +115,12 @@ open class UserEditorViewModel @Inject constructor(
                         fieldPhoneNum.value
                     )
                 }, "Номер некоректный")
-            )
-                .sendMessageResult(R.id.til_phoneNum, fieldErrorMessage),
+            ).sendMessageResult(R.id.til_phoneNum, fieldErrorMessage),
             Validation(Rule({ gender != 0 }, "Пол обязателен"))
                 .sendMessageResult(R.id.til_gender, fieldErrorMessage),
-            Validation(Rule({ !TextUtils.isEmpty(role) }, "Роль обязательна"))
-                .sendMessageResult(R.id.til_role, fieldErrorMessage),
+            Validation(
+                Rule({ !TextUtils.isEmpty(role) }, "Роль обязательна")
+            ).sendMessageResult(R.id.til_role, fieldErrorMessage),
             Validation(Rule({
                 isTeacher(
                     role!!

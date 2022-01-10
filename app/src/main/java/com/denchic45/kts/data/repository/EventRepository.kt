@@ -55,7 +55,7 @@ class EventRepository @Inject constructor(
     override val userDao: UserDao,
     private val courseDao: CourseDao,
     private val teacherEventDao: TeacherEventDao,
-    private val taskDao: TaskDao,
+    private val courseContentDao: CourseContentDao,
     private val subjectDao: SubjectDao,
     private val groupPreference: GroupPreference,
     private val firestore: FirebaseFirestore,
@@ -222,7 +222,7 @@ class EventRepository @Inject constructor(
 //                            .distinct()
 //                            .collect(Collectors.toList());
 //                    subjectDao.upsert(subjectMapper.domainToEntity(subjects));
-                        taskDao.upsert(dayDoc.homework)
+                        courseContentDao.upsert(dayDoc.homework)
                     }
                 }
             }
@@ -376,7 +376,7 @@ class EventRepository @Inject constructor(
                         coroutineScope.launch(dispatcher) {
                             for (dayDoc in snapshots.toObjects(DayDoc::class.java)) {
                                 lessonDao.insert(eventMapper.docToEntity(dayDoc.events))
-                                taskDao.insert(dayDoc.homework)
+                                courseContentDao.insert(dayDoc.homework)
                             }
                         }
                     }

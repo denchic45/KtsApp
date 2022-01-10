@@ -11,7 +11,7 @@ data class EventTaskSubjectTeachersEntities(
     var eventEntity: EventEntity?,
 
     @Relation(parentColumn = "date", entityColumn = "date_completion")
-    var taskEntity: TaskEntity?,
+    var courseContentEntity: CourseContentEntity?,
 
     @Relation(parentColumn = "subject_id", entityColumn = "subject_id")
     var subjectEntity: SubjectEntity?,
@@ -25,12 +25,4 @@ data class EventTaskSubjectTeachersEntities(
         ), entity = UserEntity::class
     )
     var teacherEntities: List<UserEntity>?
-) : EntityModel {
-
-
-    @Ignore
-    private constructor(
-    ) : this(
-       null,null,null,null,null
-    )
-}
+) : EntityModel
