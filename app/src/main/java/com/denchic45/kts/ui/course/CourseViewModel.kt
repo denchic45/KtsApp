@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UIPermissions
@@ -15,17 +16,14 @@ import javax.inject.Named
 
 class CourseViewModel @Inject constructor(
     @Named(CourseFragment.COURSE_UUID) private val courseId: String,
-    private val findUserUseCase: FindUserUseCase,
-    private val findCourseUseCase: FindCourseUseCase,
+    findCourseUseCase: FindCourseUseCase,
     private val findCourseContentUseCase: FindCourseContentUseCase,
-    private val findSelfUserUseCase: FindSelfUserUseCase
+    findSelfUserUseCase: FindSelfUserUseCase
 ) : ViewModel() {
 
-    val openTaskEditor: SingleLiveData<Triple<String?,String,String?>> = SingleLiveData()
+    val openTaskEditor: SingleLiveData<Triple<String?, String, String>> = SingleLiveData()
     val courseName: MutableLiveData<String> = MutableLiveData()
     val showContents: MutableLiveData<List<DomainModel>> = MutableLiveData()
-    private val selfUser = findSelfUserUseCase()
-
     private val findCourseFlow = findCourseUseCase(courseId)
 
     init {
@@ -50,10 +48,18 @@ class CourseViewModel @Inject constructor(
     }
 
     fun onFabClick() {
-        openTaskEditor.value = Triple(null,courseId, "")
+        openTaskEditor.value = Triple(null, courseId, "")
     }
 
-    private val uiPermissions: UIPermissions = UIPermissions(findUserUseCase()).apply {
+    fun onTaskItemClick(position: Int) {
+        openTaskEditor.value = Triple(
+            showContents.value!![position].uuid,
+            courseId,
+            (showContents.value!![position] as Task).sectionId
+        )
+    }
+
+    private val uiPermissions: UIPermissions = UIPermissions(findSelfUserUseCase()).apply {
 
     }
 
