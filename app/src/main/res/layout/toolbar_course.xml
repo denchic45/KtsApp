@@ -2,6 +2,7 @@
 
 <com.google.android.material.appbar.CollapsingToolbarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toolbar_layout"
     android:layout_width="match_parent"
     android:layout_height="124dp"
@@ -9,7 +10,7 @@
     app:collapsedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar"
     app:maxLines="2"
     app:expandedTitleMarginStart="16sp"
-    app:title="Элементы"
+    tools:title="Элементы высшей математики"
     app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
     app:toolbarId="@+id/toolbar">
 
