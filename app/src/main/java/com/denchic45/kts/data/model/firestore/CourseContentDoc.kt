@@ -14,18 +14,19 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
     val name: String,
     val description: String,
     val commentsEnabled: Boolean,
+    var attachments: List<String>,
     val completionDate: Date,
     val createdDate: Date,
     val timestamp: Date,
     @get:PropertyName("details")
     val contentDetails: ContentDetails,
     val contentType: ContentType,
-    val completions: List<CompletionTask> = emptyList()
+    val completions: List<CompletionTask>? = emptyList()
 ) : DocModel {
     private constructor() : this(
         "", "", "", "", "",
-        false, Date(), Date(), Date(), ContentDetails.Empty, ContentType.TASK,
-        emptyList()
+        false, emptyList(), Date(), Date(), Date(), ContentDetails.Empty,
+        ContentType.TASK, emptyList()
     )
 }
 
