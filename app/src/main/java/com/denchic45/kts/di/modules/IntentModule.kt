@@ -9,7 +9,6 @@ import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorActivity
-import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
@@ -35,12 +34,6 @@ object IntentModule {
         return groupCoursesFragment.requireArguments().getString(GroupFragment.GROUP_UUID)!!
     }
 
-//    @Named("GroupEditor ${GroupEditorActivity.GROUP_UUID}")
-//    @Provides
-//    fun provideGroupUuidFromGroupEditorFragment(fragment: GroupEditorFragment): String? {
-//        return fragment.requireActivity().intent.getStringExtra(GroupEditorActivity.GROUP_UUID)
-//    }
-
     @Named("GroupEditor ${GroupEditorActivity.GROUP_UUID}")
     @Provides
     fun provideGroupUuidFromGroupEditorActivity(activity: GroupEditorActivity): String? {
@@ -55,62 +48,76 @@ object IntentModule {
 
     @Named(TimetableFragment.GROUP_UUID)
     @Provides
-    fun provideAffiliation(timetableFragment: TimetableFragment):String? {
+    fun provideAffiliation(timetableFragment: TimetableFragment): String? {
         return timetableFragment.arguments?.getString(TimetableFragment.GROUP_UUID)
     }
+
     @Named(FullImageActivity.IMAGE_URL)
     @Provides
-    fun providePhotoUrlFromFullAvatarActivity(fullAvatarActivity: FullAvatarActivity):String {
+    fun providePhotoUrlFromFullAvatarActivity(fullAvatarActivity: FullAvatarActivity): String {
         return fullAvatarActivity.intent.getStringExtra(FullImageActivity.IMAGE_URL)!!
     }
 
     @Named(ProfileFragment.USER_UUID)
     @Provides
-    fun provideUserUuidFromProfileFragment(profileFragment: ProfileFragment):String {
+    fun provideUserUuidFromProfileFragment(profileFragment: ProfileFragment): String {
         return profileFragment.requireArguments().getString(ProfileFragment.USER_UUID)!!
     }
 
     @Named("Group ${GroupPreference.GROUP_UUID}")
     @Provides
-    fun provideGroupUuidFromGroupFragment(groupFragment: GroupFragment):String? {
+    fun provideGroupUuidFromGroupFragment(groupFragment: GroupFragment): String? {
         return groupFragment.arguments?.getString(GroupFragment.GROUP_UUID)
     }
 
     @Named("UserEditor ${UserEditorActivity.USER_UUID}")
     @Provides
-    fun provideUserUuidFromUserEditorActivity(userEditorActivity: UserEditorActivity):String? {
+    fun provideUserUuidFromUserEditorActivity(userEditorActivity: UserEditorActivity): String? {
         return userEditorActivity.intent.getStringExtra(UserEditorActivity.USER_UUID)
     }
 
     @Named(UserEditorActivity.USER_ROLE)
     @Provides
-    fun provideUserRole(userEditorActivity: UserEditorActivity):String {
+    fun provideUserRole(userEditorActivity: UserEditorActivity): String {
         return userEditorActivity.intent.getStringExtra(UserEditorActivity.USER_ROLE)!!
     }
 
 
     @Named(UserEditorActivity.USER_GROUP_UUID)
     @Provides
-    fun provideUserGroupUuid(userEditorActivity: UserEditorActivity):String? {
+    fun provideUserGroupUuid(userEditorActivity: UserEditorActivity): String? {
         return userEditorActivity.intent.getStringExtra(UserEditorActivity.USER_GROUP_UUID)
     }
 
-  @Named(SpecialtyEditorDialog.SPECIALTY_UUID)
+    @Named(SpecialtyEditorDialog.SPECIALTY_UUID)
     @Provides
-    fun provideSpecialtyUuid(specialtyEditorDialog: SpecialtyEditorDialog):String? {
-        return specialtyEditorDialog.requireArguments().getString(SpecialtyEditorDialog.SPECIALTY_UUID)
+    fun provideSpecialtyUuid(specialtyEditorDialog: SpecialtyEditorDialog): String? {
+        return specialtyEditorDialog.requireArguments()
+            .getString(SpecialtyEditorDialog.SPECIALTY_UUID)
     }
 
     @Named(CourseFragment.COURSE_UUID)
     @Provides
-    fun provideCourseUuidFromCourseFragment(courseFragment: CourseFragment):String {
+    fun provideCourseUuidFromCourseFragment(courseFragment: CourseFragment): String {
         return courseFragment.requireArguments().getString(CourseFragment.COURSE_UUID)!!
     }
 
     @Named(TaskEditorFragment.TASK_ID)
     @Provides
-    fun provideTaskId(taskEditorFragment: TaskEditorFragment):String? {
+    fun provideTaskId(taskEditorFragment: TaskEditorFragment): String? {
         return taskEditorFragment.requireArguments().getString(TaskEditorFragment.TASK_ID)
+    }
+
+    @Named(TaskEditorFragment.COURSE_ID)
+    @Provides
+    fun provideCourseId(taskEditorFragment: TaskEditorFragment): String {
+        return taskEditorFragment.requireArguments().getString(TaskEditorFragment.COURSE_ID)!!
+    }
+
+    @Named(TaskEditorFragment.SECTION_ID)
+    @Provides
+    fun provideSectionId(taskEditorFragment: TaskEditorFragment): String? {
+        return taskEditorFragment.requireArguments().getString(TaskEditorFragment.SECTION_ID)
     }
 
 }
