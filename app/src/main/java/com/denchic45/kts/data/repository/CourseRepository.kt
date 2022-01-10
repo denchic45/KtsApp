@@ -1,6 +1,7 @@
 package com.denchic45.kts.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.asFlow
@@ -10,21 +11,20 @@ import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.Course
-import com.denchic45.kts.data.model.domain.CourseInfo
-import com.denchic45.kts.data.model.domain.Group
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SubjectTeacherPair
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups
 import com.denchic45.kts.data.model.room.GroupCourseCrossRef
+import com.denchic45.kts.data.model.room.ListConverter
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.TimestampPreference.Companion.TIMESTAMP_LAST_UPDATE_GROUP_COURSES
 import com.denchic45.kts.data.prefs.UserPreference
+import com.denchic45.kts.data.storage.AttachmentStorage
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
@@ -45,6 +45,7 @@ class CourseRepository @Inject constructor(
     private val groupPreference: GroupPreference,
     private val subjectMapper: SubjectMapper,
     override val networkService: NetworkService,
+    private val attachmentStorage: AttachmentStorage,
     private val firestore: FirebaseFirestore,
     private val database: DataBase,
     private val userPreference: UserPreference,
@@ -62,8 +63,7 @@ class CourseRepository @Inject constructor(
     private val groupDao: GroupDao,
     private val userDao: UserDao,
     private val specialtyDao: SpecialtyDao,
-
-    ) : Repository(context) {
+) : Repository(context) {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
 
@@ -79,13 +79,10 @@ class CourseRepository @Inject constructor(
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
                         database.runInTransaction {
                             launch {
-
                                 groupCourseDao.deleteByCourse(courseDoc.uuid)
 
                                 subjectDao.upsert(
-                                    subjectMapper.docToEntity(
-                                        courseDoc.subject
-                                    )
+                                    subjectMapper.docToEntity(courseDoc.subject)
                                 )
                                 userDao.upsert(userMapper.docToEntity(courseDoc.teacher))
                                 courseDao.upsert(courseMapper.docToEntity(courseDoc))
@@ -103,10 +100,7 @@ class CourseRepository @Inject constructor(
                                         )
                                         groupCourseDao.upsert(
                                             groupUuids.map { groupUuid ->
-                                                GroupCourseCrossRef(
-                                                    groupUuid,
-                                                    courseDoc.uuid
-                                                )
+                                                GroupCourseCrossRef(groupUuid, courseDoc.uuid)
                                             }
                                         )
                                     }
@@ -170,23 +164,22 @@ class CourseRepository @Inject constructor(
             .map { courseMapper.entityToDomainInfo2(it) }
     }
 
-    fun findContentByCourseUuid(courseUuid: String): Flow<List<DomainModel>> {
-        coursesRef.document(courseUuid).collection("Contents")
+    fun findContentByCourseId(courseId: String): Flow<List<DomainModel>> {
+        coursesRef.document(courseId).collection("Contents")
             .addSnapshotListener { value, error ->
                 if (error != null) {
                     return@addSnapshotListener
                 }
                 if (value != null && !value.isEmpty) {
                     externalScope.launch(dispatcher) {
-                        courseContentDao.upsert(
-                            courseContentMapper.docToEntity(value)
-                        )
+                        val courseContents = courseContentMapper.docToEntity(value)
+                        courseContentDao.upsert(courseContents)
                     }
                 }
             }
 
-        return sectionDao.getByCourseUuid(courseUuid)
-            .combine(courseContentDao.getByCourseUuid(courseUuid)) { sectionEntities, courseContentEntities ->
+        return sectionDao.getByCourseUuid(courseId)
+            .combine(courseContentDao.getByCourseUuid(courseId)) { sectionEntities, courseContentEntities ->
                 sectionMapper.entityToDomain(sectionEntities) +
                         courseContentMapper.entityToDomain(courseContentEntities)
 
@@ -559,14 +552,23 @@ class CourseRepository @Inject constructor(
 
     fun findTask(id: String): Flow<Task> {
         return courseContentDao.get(id)
-            .map { courseContentMapper.entityToTask(it) }
+            .map(courseContentMapper::entityToTask)
+    }
+
+    fun findAttachmentsByContentId(contentId: String): Flow<List<Attachment>> {
+        return courseContentDao.getAttachmentsById(contentId)
+            .filterNotNull()
+            .map { attachments ->
+                attachmentStorage.get(contentId, ListConverter.tolList(attachments))
+            }
     }
 
     suspend fun addTask(task: Task) {
+        val attachments = attachmentStorage.addContentAttachments(task.uuid, task.attachments)
         coursesRef.document(task.courseId)
             .collection("Contents")
             .document(task.uuid)
-            .set(courseContentMapper.domainToTaskDoc(task))
+            .set(courseContentMapper.domainToTaskDoc(task).apply { this.attachments = attachments })
             .await()
     }
 
