@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5b68b5d6cc8906923bddc21adfa7b20e",
+    "identityHash": "377c40c83f63ea02030e90a54a0dd2b9",
     "entities": [
       {
         "tableName": "subject",
@@ -130,7 +130,7 @@
       },
       {
         "tableName": "course_content",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `courseId` TEXT NOT NULL, `sectionId` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `date_created` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `date_completion` TEXT NOT NULL, PRIMARY KEY(`content_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `courseId` TEXT NOT NULL, `sectionId` TEXT NOT NULL, `name` TEXT NOT NULL, `attachments` TEXT NOT NULL, `description` TEXT NOT NULL, `details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `date_created` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `date_completion` INTEGER NOT NULL, PRIMARY KEY(`content_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -153,6 +153,12 @@
           {
             "fieldPath": "name",
             "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attachments",
+            "columnName": "attachments",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -195,7 +201,7 @@
           {
             "fieldPath": "completionDate",
             "columnName": "date_completion",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -662,7 +668,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b68b5d6cc8906923bddc21adfa7b20e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '377c40c83f63ea02030e90a54a0dd2b9')"
     ]
   }
 }
