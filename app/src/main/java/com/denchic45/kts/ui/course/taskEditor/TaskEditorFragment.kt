@@ -320,7 +320,7 @@ class TaskEditorFragment :
             }
 
             viewModel.commentsEnabled.observe(viewLifecycleOwner) {
-                if (cbCommentsEnable.isChecked == it)
+                if (cbCommentsEnable.isChecked != it)
                     cbCommentsEnable.isChecked = it
             }
 

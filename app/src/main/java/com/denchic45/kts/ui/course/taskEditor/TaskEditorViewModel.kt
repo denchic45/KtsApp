@@ -9,6 +9,7 @@ import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.data.model.domain.MarkType
 import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.domain.AddTaskUseCase
+import com.denchic45.kts.domain.FindAttachmentsUseCase
 import com.denchic45.kts.domain.FindTaskUseCase
 import com.denchic45.kts.domain.UpdateTaskUseCase
 import com.denchic45.kts.rx.bus.RxBusConfirm
@@ -35,6 +36,7 @@ class TaskEditorViewModel @Inject constructor(
     @Named(TaskEditorFragment.COURSE_ID) private val courseId: String,
     @Named(TaskEditorFragment.SECTION_ID) sectionId: String?,
     private val findTaskUseCase: FindTaskUseCase,
+    private val findAttachmentsUseCase: FindAttachmentsUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase
 ) : BaseViewModel() {
@@ -176,23 +178,21 @@ class TaskEditorViewModel @Inject constructor(
     private fun setupForExist() {
         viewModelScope.launch {
             findTaskUseCase(taskId).collect {
-                    uiEditor.oldItem = it
-                    nameField.value = it.name
-                    descriptionField.value = it.description
-                    completionDate = it.completionDate
-                    postCompletionDate()
-                    disabledSendAfterDate.value = it.disabledSendAfterDate
-                    attachments.addAll(attachments)
-                    postAttachments()
-                    answerType.value = with(it.answerType) {
-                        AnswerTypeState(
-                            textAvailable,
-                            charsLimit.toString(),
-                            attachmentsAvailable,
-                            attachmentsSizeLimit.toString(),
-                            attachmentsSizeLimit.toString()
-                        )
-                    }
+                uiEditor.oldItem = it
+                nameField.value = it.name
+                descriptionField.value = it.description
+                completionDate = it.completionDate
+                postCompletionDate()
+                disabledSendAfterDate.value = it.disabledSendAfterDate
+                answerType.value = with(it.answerType) {
+                    AnswerTypeState(
+                        textAvailable,
+                        charsLimit.toString(),
+                        attachmentsAvailable,
+                        attachmentsSizeLimit.toString(),
+                        attachmentsSizeLimit.toString()
+                    )
+                }
                 markType.value = with(it.markType) {
                     when (this) {
                         is MarkType.Score -> MarkTypeState.Score(maxScore.toString())
@@ -200,6 +200,13 @@ class TaskEditorViewModel @Inject constructor(
                     }
                 }
                 commentsEnabled.value = it.commentsEnabled
+            }
+        }
+        viewModelScope.launch {
+            findAttachmentsUseCase(taskId).collect {
+                attachments.clear()
+                attachments.addAll(it)
+                postAttachments()
             }
         }
     }
