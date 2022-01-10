@@ -22,7 +22,7 @@ public class UIValidator {
     }
 
     @Contract("_ -> new")
-    public static <T> @NotNull UIValidator of(Validation... validations) {
+    public static @NotNull UIValidator of(Validation... validations) {
         return new UIValidator(Arrays.asList(validations));
     }
 
