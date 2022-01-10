@@ -29,7 +29,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Mapper(uses = {TaskMapper.class, UserMapper.class, GroupMapper.class, SubjectMapper.class})
+@Mapper(uses = {CourseContentMapper.class, UserMapper.class, GroupMapper.class, SubjectMapper.class})
 public interface EventMapper extends
         DocEntityMapper<EventDoc, EventEntity> {
     default EventEntity domainToEntity(@NonNull Event domain) {
@@ -70,7 +70,7 @@ public interface EventMapper extends
 
     @Mapping(source = "teacherEntities", target = "teachers")
     @Mapping(source = "subjectEntity", target = "subject")
-    @Mapping(source = "taskEntity", target = "task")
+    @Mapping(source = "courseContentEntity", target = "task")
     Lesson eventEntityToLesson(EventTaskSubjectTeachersEntities entities);
 
     @Mapping(source = "eventEntity", target = ".")
