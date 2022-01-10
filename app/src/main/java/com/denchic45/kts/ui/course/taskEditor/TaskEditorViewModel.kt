@@ -1,77 +1,211 @@
 package com.denchic45.kts.ui.course.taskEditor
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
+import com.denchic45.kts.data.model.domain.AnswerType
 import com.denchic45.kts.data.model.domain.Attachment
+import com.denchic45.kts.data.model.domain.MarkType
+import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.AddTaskUseCase
+import com.denchic45.kts.domain.FindTaskUseCase
+import com.denchic45.kts.domain.UpdateTaskUseCase
 import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.uieditor.UIEditor
+import com.denchic45.kts.uivalidator.Rule
+import com.denchic45.kts.uivalidator.UIValidator
+import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.UUIDS
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
 class TaskEditorViewModel @Inject constructor(
-    @Named(TaskEditorFragment.TASK_ID) taskId: String?
+    @Named(TaskEditorFragment.TASK_ID) taskId: String?,
+    @Named(TaskEditorFragment.COURSE_ID) private val courseId: String,
+    @Named(TaskEditorFragment.SECTION_ID) sectionId: String?,
+    private val findTaskUseCase: FindTaskUseCase,
+    private val addTaskUseCase: AddTaskUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase
 ) : BaseViewModel() {
-    val titleField = MutableLiveData<String>()
+    val nameField = MutableLiveData<String>()
     val descriptionField = MutableLiveData<String>()
-    val availabilityDateField = MutableLiveData<String?>()
-    val availabilitySend = MutableLiveData<Boolean>()
+    val showCompletionDate = MutableLiveData<String?>()
+    val disabledSendAfterDate = MutableLiveData<Boolean>()
 
     val availabilityDateRemoveVisibility = MutableLiveData<Boolean>()
     val showAttachments = MutableLiveData<List<Attachment>>()
-    val filesVisibility = MutableLiveData<Boolean>()
+    val filesVisibility = MutableLiveData(false)
     val commentsEnabled = MutableLiveData<Boolean>()
 
     val answerType = MutableStateFlow(
         AnswerTypeState(
             true,
-            "9999",
+            "500",
             false,
             "16",
             "200"
         )
     )
-
     val markType = MutableStateFlow<MarkTypeState>(MarkTypeState.Score("5"))
 
     val openFileChooser = SingleLiveData<Unit>()
     val openAttachment = SingleLiveData<File>()
     val openDatePicker: SingleLiveData<Long> = SingleLiveData()
     val openTimePicker: SingleLiveData<Pair<Int, Int>> = SingleLiveData()
+    val showErrorMessage = SingleLiveData<Pair<Int, String?>>()
 
-    var date: LocalDateTime? = null
+    var completionDate: LocalDateTime? = null
     private val attachments: MutableList<Attachment> = mutableListOf()
-    private val taskId: String
+    private val taskId: String = taskId ?: UUIDS.createShort()
+    private val sectionId: String = sectionId ?: ""
+    private val createdDate: Date = Date()
+    private val updatedDate: Date = Date()
+
+    private val uiEditor: UIEditor<Task> = UIEditor(taskId == null) {
+        Task(
+            this.taskId,
+            courseId,
+            this.sectionId,
+            nameField.value ?: "",
+            descriptionField.value ?: "",
+            if (showCompletionDate.value != null) LocalDateTime.parse(
+                showCompletionDate.value,
+                DateTimeFormatter.ofPattern("EE, dd LLLL yyyy, HH:mm")
+            ) else LocalDateTime.now(),
+            disabledSendAfterDate.value ?: false,
+            attachments,
+            with(answerType.value) {
+                AnswerType(
+                    textAvailable,
+                    charsLimit.toInt(),
+                    attachmentsAvailable,
+                    attachmentsLimit.toInt(),
+                    attachmentsSizeLimit.toInt()
+                )
+            },
+            with(markType.value) {
+                when (this) {
+                    is MarkTypeState.Score -> MarkType.Score(maxScore.toInt())
+                    is MarkTypeState.Binary -> MarkType.Binary
+                }
+            },
+            commentsEnabled.value ?: false,
+            createdDate,
+            updatedDate
+        )
+    }
+
+    private val uiValidator: UIValidator = UIValidator.of(
+        Validation(
+            Rule({ !nameField.value.isNullOrEmpty() }, "Название задания обязательно!")
+        ).sendMessageResult(R.id.til_name, showErrorMessage),
+        Validation(
+            Rule({
+                with(answerType.value) {
+                    attachmentsAvailable || textAvailable
+                }
+            }, "Должен быть выбран хотя бы один вариант ответа")
+        ).sendMessageResult(showMessage),
+        Validation(
+            Rule(
+                {
+                    with(answerType.value) {
+                        if (textAvailable) {
+                            charsLimit.isNotEmpty() && charsLimit != "0"
+                        } else true
+                    }
+                }, "Недопустимое число символов!"
+            )
+        ).sendMessageResult(R.id.et_chars_limit, showErrorMessage),
+        Validation(
+            Rule({
+                with(answerType.value) {
+                    if (attachmentsAvailable) {
+                        attachmentsLimit.isNotEmpty() && attachmentsLimit != "0"
+                    } else true
+                }
+            }, "Недопустимое количество файлов!")
+
+        ).sendMessageResult(R.id.et_attachments_limit, showErrorMessage),
+        Validation(
+            Rule({
+                with(answerType.value) {
+                    if (attachmentsAvailable) {
+                        attachmentsSizeLimit.isNotEmpty() && attachmentsSizeLimit != "0"
+                    } else true
+                }
+            }, "Недопустимый размер для файлов!")
+        ).sendMessageResult(R.id.et_attachments_size_limit, showErrorMessage),
+        Validation(
+            Rule(
+                {
+                    with(markType.value) {
+                        if (this is MarkTypeState.Score) {
+                            maxScore.isNotEmpty() && maxScore != "0"
+                        } else true
+                    }
+                }, "Недопустимая оценка!"
+            )
+        ).sendMessageResult(R.id.et_max_score, showErrorMessage)
+    )
 
     init {
-        if (taskId != null) {
-            this.taskId = taskId
-            setupForExist()
-        } else
-            this.taskId = UUIDS.createShort()
-        setupForNew()
+        if (uiEditor.isNew) {
+            setupForNew()
+        } else setupForExist()
 
-        availabilityDateRemoveVisibility.postValue(date != null)
-        filesVisibility.postValue(false) //todo временно
+        availabilityDateRemoveVisibility.postValue(completionDate != null)
     }
+
 
     private fun setupForNew() {
 
     }
 
     private fun setupForExist() {
-
+        viewModelScope.launch {
+            findTaskUseCase(taskId).collect {
+                    uiEditor.oldItem = it
+                    nameField.value = it.name
+                    descriptionField.value = it.description
+                    completionDate = it.completionDate
+                    postCompletionDate()
+                    disabledSendAfterDate.value = it.disabledSendAfterDate
+                    attachments.addAll(attachments)
+                    postAttachments()
+                    answerType.value = with(it.answerType) {
+                        AnswerTypeState(
+                            textAvailable,
+                            charsLimit.toString(),
+                            attachmentsAvailable,
+                            attachmentsSizeLimit.toString(),
+                            attachmentsSizeLimit.toString()
+                        )
+                    }
+                markType.value = with(it.markType) {
+                    when (this) {
+                        is MarkType.Score -> MarkTypeState.Score(maxScore.toString())
+                        is MarkType.Binary -> MarkTypeState.Binary
+                    }
+                }
+                commentsEnabled.value = it.commentsEnabled
+            }
+        }
     }
 
     fun onAvailabilityDateClick() {
-        date?.let {
+        completionDate?.let {
             openDatePicker.postValue(it.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
         } ?: run {
             openDatePicker.postValue(System.currentTimeMillis())
@@ -80,22 +214,23 @@ class TaskEditorViewModel @Inject constructor(
 
     fun onAvailabilityDateSelect(milliseconds: Long) {
         availabilityDateRemoveVisibility.postValue(true)
-        val dateIsNull = date == null
-        date = Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        val dateIsNull = completionDate == null
+        completionDate =
+            Instant.ofEpochMilli(milliseconds).atZone(ZoneId.systemDefault()).toLocalDateTime()
         if (dateIsNull)
-            date = date!!.withHour(23).withMinute(59).withSecond(0)
-        openTimePicker.postValue(date!!.hour to date!!.minute)
+            completionDate = completionDate!!.withHour(23).withMinute(59).withSecond(0)
+        openTimePicker.postValue(completionDate!!.hour to completionDate!!.minute)
 
-        postAvailabilityDate()
+        postCompletionDate()
     }
 
-    private fun postAvailabilityDate() {
-        date?.let {
-            availabilityDateField.postValue(
-                date!!.format(DateTimeFormatter.ofPattern("EE, dd LLLL yyyy, HH:mm"))
+    private fun postCompletionDate() {
+        completionDate?.let {
+            showCompletionDate.postValue(
+                completionDate!!.format(DateTimeFormatter.ofPattern("EE, dd LLLL yyyy, HH:mm"))
             )
         } ?: kotlin.run {
-            availabilityDateField.postValue(null)
+            showCompletionDate.postValue(null)
         }
     }
 
@@ -105,14 +240,14 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     fun onAvailabilityTimeSelect(hour: Int, minute: Int) {
-        date = date!!.withHour(hour).withMinute(minute)
-        postAvailabilityDate()
+        completionDate = completionDate!!.withHour(hour).withMinute(minute)
+        postCompletionDate()
     }
 
     fun onRemoveAvailabilityDate() {
-        date = null
+        completionDate = null
         availabilityDateRemoveVisibility.postValue(false)
-        postAvailabilityDate()
+        postCompletionDate()
     }
 
     fun onOptionClick(itemId: Int) {
@@ -120,7 +255,7 @@ class TaskEditorViewModel @Inject constructor(
             R.id.option_attachment -> {
                 openFileChooser.call()
             }
-            R.id.option_save_task -> {}
+            R.id.option_save_task -> onSaveClick()
         }
     }
 
@@ -147,24 +282,36 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     fun onAvailabilitySendCheck(check: Boolean) {
-        availabilitySend.postValue(check)
+        disabledSendAfterDate.postValue(check)
     }
 
     fun onTextAvailableAnswerCheck(check: Boolean) {
-        answerType.value = answerType.value.copy(textAvailable = check)
+        answerType.value.apply {
+            val availableAttachmentsIfAllOptionsDisabled =
+                !check && !attachmentsAvailable || attachmentsAvailable
+            answerType.value = copy(
+                textAvailable = check,
+                attachmentsAvailable = availableAttachmentsIfAllOptionsDisabled
+            )
+        }
     }
 
     fun onAttachmentsAvailableAnswerCheck(check: Boolean) {
-        answerType.value = answerType.value.copy(attachmentsAvailable = check)
+        answerType.value.apply {
+            val availableTextIfAllOptionsDisabled =
+                !check && !textAvailable || textAvailable
+            answerType.value = copy(
+                attachmentsAvailable = check,
+                textAvailable = availableTextIfAllOptionsDisabled
+            )
+        }
     }
 
-    fun onNameType(name: String) {
-        titleField.postValue(name)
-    }
+    fun onNameType(name: String) = nameField.postValue(name)
 
-    fun onDescriptionType(name: String) {
-        descriptionField.postValue(name)
-    }
+
+    fun onDescriptionType(name: String) = descriptionField.postValue(name)
+
 
     fun onCharsLimitType(charsLimit: String) {
         answerType.value = answerType.value.copy(charsLimit = charsLimit)
@@ -181,7 +328,7 @@ class TaskEditorViewModel @Inject constructor(
     fun onMaxScoreType(maxScore: String) {
         markType.value.apply {
             if (this is MarkTypeState.Score)
-                markType.value = copy(max = maxScore)
+                markType.value = copy(maxScore = maxScore)
         }
     }
 
@@ -200,6 +347,19 @@ class TaskEditorViewModel @Inject constructor(
         commentsEnabled.postValue(check)
     }
 
+    private fun onSaveClick() {
+        if (uiValidator.runValidates() && uiEditor.hasBeenChanged()) {
+            viewModelScope.launch {
+                if (uiEditor.isNew) {
+                    addTaskUseCase(uiEditor.item)
+                } else {
+                    updateTaskUseCase(uiEditor.item)
+                }
+                finish.call()
+            }
+        }
+    }
+
     data class AnswerTypeState(
         val textAvailable: Boolean,
         val charsLimit: String,
@@ -211,7 +371,7 @@ class TaskEditorViewModel @Inject constructor(
     sealed class MarkTypeState {
         abstract val position: Int
 
-        data class Score(val max: String) : MarkTypeState() {
+        data class Score(val maxScore: String) : MarkTypeState() {
             override val position: Int get() = 0
         }
 
