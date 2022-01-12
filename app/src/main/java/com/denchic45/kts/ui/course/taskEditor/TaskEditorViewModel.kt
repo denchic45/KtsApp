@@ -71,8 +71,8 @@ class TaskEditorViewModel @Inject constructor(
     private val attachments: MutableList<Attachment> = mutableListOf()
     private val taskId: String = taskId ?: UUIDS.createShort()
     private val sectionId: String = sectionId ?: ""
-    private val createdDate: Date = Date()
-    private val updatedDate: Date = Date()
+    private var createdDate: Date = Date()
+    private var timestamp: Date = Date()
 
     private val uiEditor: UIEditor<Task> = UIEditor(taskId == null) {
         Task(
@@ -104,7 +104,7 @@ class TaskEditorViewModel @Inject constructor(
             },
             commentsEnabled.value ?: false,
             createdDate,
-            updatedDate
+            timestamp
         )
     }
 
@@ -182,6 +182,8 @@ class TaskEditorViewModel @Inject constructor(
                 nameField.value = it.name
                 descriptionField.value = it.description
                 completionDate = it.completionDate
+                createdDate = it.createdDate
+                timestamp = it.timestamp
                 postCompletionDate()
                 disabledSendAfterDate.value = it.disabledSendAfterDate
                 answerType.value = with(it.answerType) {
@@ -189,7 +191,7 @@ class TaskEditorViewModel @Inject constructor(
                         textAvailable,
                         charsLimit.toString(),
                         attachmentsAvailable,
-                        attachmentsSizeLimit.toString(),
+                        attachmentsLimit.toString(),
                         attachmentsSizeLimit.toString()
                     )
                 }
@@ -206,6 +208,7 @@ class TaskEditorViewModel @Inject constructor(
             findAttachmentsUseCase(taskId).collect {
                 attachments.clear()
                 attachments.addAll(it)
+                uiEditor.oldItem = uiEditor.oldItem!!.copy(attachments = attachments.toList())
                 postAttachments()
             }
         }

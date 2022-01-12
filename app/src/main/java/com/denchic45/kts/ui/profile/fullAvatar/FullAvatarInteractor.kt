@@ -15,7 +15,7 @@ class FullAvatarInteractor @Inject constructor(
     private val userRepository: UserRepository,
     private val studentRepository: StudentRepository,
     private val teacherRepository: TeacherRepository,
-) : Interactor() {
+) : Interactor {
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 

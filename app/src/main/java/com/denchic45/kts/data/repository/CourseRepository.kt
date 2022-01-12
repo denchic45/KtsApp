@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.asFlow
@@ -19,13 +18,11 @@ import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups
 import com.denchic45.kts.data.model.room.GroupCourseCrossRef
 import com.denchic45.kts.data.model.room.ListConverter
-import com.denchic45.kts.data.prefs.AppPreference
-import com.denchic45.kts.data.prefs.GroupPreference
-import com.denchic45.kts.data.prefs.TimestampPreference
+import com.denchic45.kts.data.prefs.*
 import com.denchic45.kts.data.prefs.TimestampPreference.Companion.TIMESTAMP_LAST_UPDATE_GROUP_COURSES
-import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.data.storage.AttachmentStorage
 import com.denchic45.kts.di.modules.IoDispatcher
+import com.denchic45.kts.utils.MembersComparator
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -42,6 +39,7 @@ class CourseRepository @Inject constructor(
     private val externalScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val courseMapper: CourseMapper,
+    private val coursePreference: CoursePreference,
     private val groupPreference: GroupPreference,
     private val subjectMapper: SubjectMapper,
     override val networkService: NetworkService,
@@ -165,18 +163,41 @@ class CourseRepository @Inject constructor(
     }
 
     fun findContentByCourseId(courseId: String): Flow<List<DomainModel>> {
-        coursesRef.document(courseId).collection("Contents")
-            .addSnapshotListener { value, error ->
+        val query = coursesRef.document(courseId).collection("Contents").run {
+            val timestampContentsOfCourse = coursePreference.getTimestampContentsOfCourse(courseId)
+            if (timestampContentsOfCourse == 0L)
+                whereEqualTo("deleted", false)
+            else
+                whereGreaterThan("timestamp", Date(timestampContentsOfCourse))
+        }
+
+        addListenerRegistrationIfNotExist("findContentByCourseId: $courseId") {
+            query.addSnapshotListener { value, error ->
                 if (error != null) {
                     return@addSnapshotListener
                 }
                 if (value != null && !value.isEmpty) {
                     externalScope.launch(dispatcher) {
                         val courseContents = courseContentMapper.docToEntity(value)
-                        courseContentDao.upsert(courseContents)
+                        val removedCourseContents = courseContents.filter { it.deleted }
+                        val remainingCourseContent = courseContents - removedCourseContents.toSet()
+
+                        courseContentDao.upsert(remainingCourseContent)
+
+                        courseContentDao.delete(removedCourseContents)
+
+                        removedCourseContents.forEach {
+                            attachmentStorage.deleteFromLocal(it.id)
+                        }
+
+                        coursePreference.setTimestampContentsOfCourse(
+                            courseId,
+                            courseContents.maxOf { it.timestamp }.time
+                        )
                     }
                 }
             }
+        }
 
         return sectionDao.getByCourseUuid(courseId)
             .combine(courseContentDao.getByCourseUuid(courseId)) { sectionEntities, courseContentEntities ->
@@ -573,7 +594,31 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateTask(task: Task) {
-        addTask(task)
+        val attachments = attachmentStorage.update(task.uuid, task.attachments)
+        val cacheTask = courseContentMapper.entityToTask(courseContentDao.getSync(task.uuid))
+        val updatedFields = MembersComparator.mapOfDifference(cacheTask, task)
+        updatedFields["attachments"] = attachments
+        updatedFields["timestamp"] = Date()
+        coursesRef.document(task.courseId)
+            .collection("Contents")
+            .document(task.uuid)
+            .update(updatedFields)
+            .await()
+    }
+
+    suspend fun removeCourseContent(courseContent: CourseContent) {
+        attachmentStorage.deleteFilesByContentId(courseContent.uuid)
+        coursesRef.document(courseContent.courseId)
+            .collection("Contents")
+            .document(courseContent.uuid)
+            .set(
+                mapOf(
+                    "id" to courseContent.uuid,
+                    "timestamp" to Date(),
+                    "deleted" to true
+                )
+            )
+            .await()
     }
 }
 

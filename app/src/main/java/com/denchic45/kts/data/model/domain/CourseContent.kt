@@ -8,6 +8,7 @@ abstract class CourseContent : DomainModel() {
     abstract val sectionId: String
     abstract val name: String
     abstract val description: String
+    abstract val attachments: List<Attachment>
     abstract val commentsEnabled: Boolean
     abstract val createdDate: Date
     abstract val timestamp: Date

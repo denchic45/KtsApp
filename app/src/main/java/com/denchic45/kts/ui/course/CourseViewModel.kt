@@ -1,12 +1,14 @@
 package com.denchic45.kts.ui.course
 
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.model.domain.CourseContent
 import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.RemoveCourseContentUseCase
 import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
+import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UIPermissions
 import kotlinx.coroutines.flow.collect
@@ -17,9 +19,10 @@ import javax.inject.Named
 class CourseViewModel @Inject constructor(
     @Named(CourseFragment.COURSE_UUID) private val courseId: String,
     findCourseUseCase: FindCourseUseCase,
+    private val removeCourseContentUseCase: RemoveCourseContentUseCase,
     private val findCourseContentUseCase: FindCourseContentUseCase,
     findSelfUserUseCase: FindSelfUserUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     val openTaskEditor: SingleLiveData<Triple<String?, String, String>> = SingleLiveData()
     val courseName: MutableLiveData<String> = MutableLiveData()
@@ -59,8 +62,19 @@ class CourseViewModel @Inject constructor(
         )
     }
 
+    fun onTaskItemLongClick(position: Int) {
+        viewModelScope.launch {
+            removeCourseContentUseCase(showContents.value!![position] as CourseContent)
+        }
+    }
+
     private val uiPermissions: UIPermissions = UIPermissions(findSelfUserUseCase()).apply {
 
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        findCourseContentUseCase.removeListeners()
     }
 
     companion object {

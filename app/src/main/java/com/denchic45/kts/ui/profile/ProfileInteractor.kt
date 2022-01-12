@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.profile
 
-import android.content.Context
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.User
@@ -12,11 +11,11 @@ import io.reactivex.rxjava3.core.Observable
 import javax.inject.Inject
 
 class ProfileInteractor @Inject constructor(
-    context: Context, private val userRepository: UserRepository,
+    private val userRepository: UserRepository,
     private val studentRepository: StudentRepository,
     private val teacherRepository: TeacherRepository,
     private val groupInfoRepository: GroupInfoRepository
-) : Interactor() {
+) : Interactor {
 
     fun find(uuid: String): Observable<User> {
         return userRepository.findByUuid(uuid)
@@ -39,16 +38,16 @@ class ProfileInteractor @Inject constructor(
         groupInfoRepository.removeListeners()
     }
 
-   suspend fun updateAvatar(user: User, imageBytes: ByteArray) {
-       val photoUrl = userRepository.loadAvatar(imageBytes, user.uuid)
-       val updatedUser = user.copy(photoUrl = photoUrl, generatedAvatar = false)
-            when {
-                updatedUser.isStudent -> {
-                    studentRepository.update(updatedUser)
-                }
-                updatedUser.isTeacher -> {
-                    teacherRepository.update(updatedUser)
-                }
+    suspend fun updateAvatar(user: User, imageBytes: ByteArray) {
+        val photoUrl = userRepository.loadAvatar(imageBytes, user.uuid)
+        val updatedUser = user.copy(photoUrl = photoUrl, generatedAvatar = false)
+        when {
+            updatedUser.isStudent -> {
+                studentRepository.update(updatedUser)
             }
+            updatedUser.isTeacher -> {
+                teacherRepository.update(updatedUser)
+            }
+        }
     }
 }

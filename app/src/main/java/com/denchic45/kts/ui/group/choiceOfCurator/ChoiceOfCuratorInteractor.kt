@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.group.choiceOfCurator
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.TeacherRepository
@@ -12,7 +11,7 @@ import javax.inject.Inject
 
 class ChoiceOfCuratorInteractor @Inject constructor(
     private val teacherRepository: TeacherRepository
-) : Interactor() {
+) : Interactor {
 
     private var selectTeacher = PublishSubject.create<User>()
 

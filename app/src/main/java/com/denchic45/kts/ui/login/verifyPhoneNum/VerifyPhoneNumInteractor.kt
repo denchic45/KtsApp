@@ -9,14 +9,14 @@ import io.reactivex.rxjava3.core.ObservableEmitter
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
-class VerifyPhoneNumInteractor @Inject constructor (
+class VerifyPhoneNumInteractor @Inject constructor(
     private val authRepository: AuthRepository,
     private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository,
     private val userRepository: UserRepository,
     private val eventRepository: EventRepository,
     private val groupInfoRepository: GroupInfoRepository
-) : Interactor() {
+) : Interactor {
 
     fun sendUserPhoneNumber(phoneNum: String): Observable<Resource<String>> {
         return Observable.create { emitter: ObservableEmitter<Resource<String>> ->

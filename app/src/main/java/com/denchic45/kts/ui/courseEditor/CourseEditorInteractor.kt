@@ -22,7 +22,7 @@ class CourseEditorInteractor @Inject constructor(
     private val groupInfoRepository: GroupInfoRepository,
     private val courseRepository: CourseRepository,
     private val groupPreference: GroupPreference
-) : Interactor() {
+) : Interactor  {
 
     fun findSubject(subjectUuid: String): Subject {
         return subjectRepository.getByUuid(subjectUuid)

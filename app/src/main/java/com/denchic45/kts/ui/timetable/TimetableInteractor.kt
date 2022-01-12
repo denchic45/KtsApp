@@ -19,10 +19,11 @@ class TimetableInteractor @Inject constructor(
     private val subjectRepository: SubjectRepository,
     private val groupPreference: GroupPreference,
     private val userPreference: UserPreference
-) : Interactor() {
+) : Interactor {
 
     fun findEventsOfYourGroupByDate(date: Date): LiveData<List<Event>> {
-        return eventRepository.findLessonOfYourGroupByDate(date, groupPreference.groupUuid).asLiveData()
+        return eventRepository.findLessonOfYourGroupByDate(date, groupPreference.groupUuid)
+            .asLiveData()
     }
 
     fun findEventsOfGroupByDate(date: Date, groupUuid: String): LiveData<List<Event>> {
@@ -31,7 +32,8 @@ class TimetableInteractor @Inject constructor(
 
     fun findEventsForTeacherByDate(date: Date): LiveData<List<Event>> {
         return Transformations.map(
-            eventRepository.findLessonsForTeacherByDate(DateFormatUtil.convertDateToDateUTC(date)).asLiveData()
+            eventRepository.findLessonsForTeacherByDate(DateFormatUtil.convertDateToDateUTC(date))
+                .asLiveData()
         ) { addMissingEmptyEvents(it.toMutableList()) }
     }
 

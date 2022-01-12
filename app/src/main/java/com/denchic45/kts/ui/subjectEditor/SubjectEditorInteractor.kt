@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class SubjectEditorInteractor @Inject constructor(
     private val subjectRepository: SubjectRepository
-) : Interactor() {
+) : Interactor {
 
     suspend fun add(subject: Subject) {
         return subjectRepository.add(subject)

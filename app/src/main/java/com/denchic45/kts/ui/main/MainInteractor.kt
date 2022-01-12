@@ -33,7 +33,7 @@ class MainInteractor @Inject constructor(
     private val timestampPreference: TimestampPreference,
     private val courseRepository: CourseRepository,
     private val dataBase: DataBase
-) : Interactor() {
+) : Interactor {
 
     val listenAuthState: Flow<Boolean> = authRepository.listenAuthState
 
@@ -110,12 +110,12 @@ class MainInteractor @Inject constructor(
                 authRepository.signOut()
             } else {
                 val user = optionalUser.get()
-                    if (user.isTeacher) {
-                        groupInfoRepository.listenYouGroupByCurator()
-                        groupInfoRepository.listenGroupsWhereThisUserIsTeacher(user)
-                    } else if (user.isStudent) {
-                        groupInfoRepository.listenYourGroup()
-                    }
+                if (user.isTeacher) {
+                    groupInfoRepository.listenYouGroupByCurator()
+                    groupInfoRepository.listenGroupsWhereThisUserIsTeacher(user)
+                } else if (user.isStudent) {
+                    groupInfoRepository.listenYourGroup()
+                }
                 courseRepository.observeByYouGroup()
             }
         }.collect {

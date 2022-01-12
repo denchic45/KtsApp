@@ -5,19 +5,16 @@ import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.EventDetails
 import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import javax.inject.Inject
 
-class EventEditorInteractor : Interactor() {
+class EventEditorInteractor : Interactor {
     private var editedEvent = PublishSubject.create<Resource<Event>>()
     var oldEvent: MutableStateFlow<Event?> = MutableStateFlow(null)
     var isNew = false
         private set
-    lateinit var validateEventDetails: (()->Boolean)
+    lateinit var validateEventDetails: (() -> Boolean)
     fun setEditedEvent(editedEvent: Event, isNew: Boolean) {
         this.oldEvent.value = editedEvent.copy()
         this.isNew = isNew

@@ -11,7 +11,6 @@ import com.denchic45.kts.data.repository.GroupInfoRepository
 import com.denchic45.kts.data.repository.SpecialtyRepository
 import com.denchic45.kts.data.repository.UserRepository
 import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.ObservableSource
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -20,7 +19,7 @@ class GroupEditorInteractor @Inject constructor(
     private val groupInfoRepository: GroupInfoRepository,
     private val specialtyRepository: SpecialtyRepository,
     private val courseRepository: CourseRepository
-) : Interactor() {
+) : Interactor {
 
     fun findGroup(groupName: String?): LiveData<Group> {
         return groupInfoRepository.find(groupName!!)

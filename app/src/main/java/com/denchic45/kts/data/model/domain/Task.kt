@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.model.domain
 
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.getExtension
 import java.io.File
 import java.time.LocalDateTime
@@ -16,7 +15,7 @@ data class Task(
     override val description: String,
     val completionDate: LocalDateTime,
     val disabledSendAfterDate: Boolean,
-    val attachments: List<Attachment>,
+    override val attachments: List<Attachment>,
     val answerType: AnswerType,
     val markType: MarkType,
     override val commentsEnabled: Boolean,
@@ -52,11 +51,12 @@ data class Task(
 }
 
 data class Attachment(
-    override var uuid: String = UUIDS.createShort(),
     val file: File
 ) : DomainModel() {
 
     val name: String = file.name
+
+    override var uuid: String = name
 
     val extension: String = file.getExtension()
 }

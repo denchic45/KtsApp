@@ -12,7 +12,7 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 class ChoiceOfGroupInteractor constructor (
     private val groupRepository: GroupRepository,
     private val groupInfoRepository: GroupInfoRepository
-) : Interactor() {
+) : Interactor  {
 
     private var selectedGroup = PublishSubject.create<Group>()
     fun findGroupsBySpecialtyUuid(uuid: String?): LiveData<List<Group>> {

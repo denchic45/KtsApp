@@ -86,7 +86,7 @@ public interface CourseContentMapper {
         if (filePaths == null)
             return Collections.emptyList();
         return filePaths.stream()
-                .map(path -> new Attachment("Здесь должен быть реальный uuid!!", new File(path)))
+                .map(path -> new Attachment(new File(path)))
                 .collect(Collectors.toList());
     }
 

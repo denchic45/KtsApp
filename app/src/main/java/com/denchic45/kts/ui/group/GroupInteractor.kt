@@ -14,7 +14,7 @@ class GroupInteractor @Inject constructor(
     private val groupRepository: GroupRepository,
     private val groupInfoRepository: GroupInfoRepository,
     private val userRepository: UserRepository
-) : Interactor() {
+) : Interactor {
 
     val yourGroupUuid: String
         get() = groupRepository.yourGroupUuid
@@ -22,6 +22,7 @@ class GroupInteractor @Inject constructor(
     override fun removeListeners() {}
     val yourGroupName: String
         get() = groupRepository.yourGroupName
+
     fun getNameByGroupUuid(groupUuid: String): Flow<String> {
         return groupInfoRepository.getNameByGroupUuid(groupUuid)
     }

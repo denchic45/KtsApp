@@ -14,7 +14,7 @@ class GroupCoursesInteractor @Inject constructor(
     private val courseRepository: CourseRepository,
     private val userRepository: UserRepository,
     private val groupRepository: GroupRepository
-) : Interactor() {
+) : Interactor {
 
     fun findCoursesByGroupUuid(groupUuid: String): Flow<List<CourseInfo>> {
         return courseRepository.findByGroupUuid(groupUuid)
@@ -22,7 +22,7 @@ class GroupCoursesInteractor @Inject constructor(
 
     override fun removeListeners() {}
 
-   suspend fun removeCourse(course: Course) {
+    suspend fun removeCourse(course: Course) {
         courseRepository.remove(course)
     }
 

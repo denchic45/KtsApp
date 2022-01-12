@@ -15,7 +15,7 @@ class GroupUsersInteractor @Inject constructor(
     private val groupRepository: GroupRepository,
     private val groupInfoRepository: GroupInfoRepository,
     private val studentRepository: StudentRepository
-) : Interactor() {
+) : Interactor {
 
     val yourGroupUuid: String
         get() = groupRepository.yourGroupUuid

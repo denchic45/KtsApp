@@ -19,7 +19,7 @@ class FinderInteractor @Inject constructor(
     private val studentRepository: StudentRepository,
     private val teacherRepository: TeacherRepository,
     private val specialtyRepository: SpecialtyRepository
-) : Interactor() {
+) : Interactor {
 
 
     private val currentRepository: Repository? = null
@@ -59,7 +59,7 @@ class FinderInteractor @Inject constructor(
         throw IllegalStateException()
     }
 
-   suspend fun removeSubject(subject: Subject) {
+    suspend fun removeSubject(subject: Subject) {
         return subjectRepository.remove(subject)
     }
 

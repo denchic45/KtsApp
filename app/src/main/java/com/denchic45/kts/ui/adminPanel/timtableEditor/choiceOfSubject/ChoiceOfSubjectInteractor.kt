@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class ChoiceOfSubjectInteractor @Inject constructor(
     private val subjectRepository: SubjectRepository,
-) : Interactor() {
+) : Interactor {
 
     var groupName: String = ""
     var groupUuid: String = ""

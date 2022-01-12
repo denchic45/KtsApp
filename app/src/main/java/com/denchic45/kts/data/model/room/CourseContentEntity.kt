@@ -1,15 +1,13 @@
 package com.denchic45.kts.data.model.room
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import androidx.room.*
 import com.denchic45.kts.data.model.EntityModel
 import com.denchic45.kts.data.model.domain.ContentType
+import com.denchic45.kts.data.model.mapper.Default
 import java.util.*
 
 @Entity(tableName = "course_content")
-data class CourseContentEntity(
+data class CourseContentEntity @Default @JvmOverloads constructor(
     @field:PrimaryKey
     @field:ColumnInfo(name = "content_id")
     var id: String,
@@ -28,5 +26,6 @@ data class CourseContentEntity(
     val timestamp: Date,
     @field:TypeConverters(TimestampConverter::class)
     @field:ColumnInfo(name = "date_completion")
-    val completionDate: Date
+    val completionDate: Date,
+    @Ignore var deleted: Boolean = false
 ) : EntityModel

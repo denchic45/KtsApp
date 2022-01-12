@@ -21,7 +21,8 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
     @get:PropertyName("details")
     val contentDetails: ContentDetails,
     val contentType: ContentType,
-    val completions: List<CompletionTask>? = emptyList()
+    val completions: List<CompletionTask>? = emptyList(),
+    @field:JvmField val deleted: Boolean = false
 ) : DocModel {
     private constructor() : this(
         "", "", "", "", "",

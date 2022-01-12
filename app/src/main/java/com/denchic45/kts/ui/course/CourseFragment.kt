@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.course
 
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
@@ -52,9 +53,7 @@ class CourseFragment :
                 }
             }
 
-//            (activity as AppCompatActivity).setSupportActionBar(courseCollapsingToolbarLayout!!.findViewById(R.id.toolbar) as Toolbar)
             setLiftOnScroll(true)
-//            (activity as AppCompatActivity).supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         }
 
         requireActivity().findViewById<FloatingActionButton>(R.id.fab_main).setOnClickListener {
@@ -68,6 +67,10 @@ class CourseFragment :
                     click<TaskHolder> {
                         onClick = {
                             viewModel.onTaskItemClick(it)
+                        }
+                        onLongClick = {
+                            viewModel.onTaskItemLongClick(it)
+                            true
                         }
                     }
                 }
@@ -90,12 +93,15 @@ class CourseFragment :
                 )
             )
         }
+
+        viewModel.showMessage.observe(viewLifecycleOwner) {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         appBarController.removeView(collapsingToolbarLayout!!)
         appBarController.addView(mainToolbar)
-//        (activity as AppCompatActivity).setSupportActionBar(mainToolbar!!)
     }
 }

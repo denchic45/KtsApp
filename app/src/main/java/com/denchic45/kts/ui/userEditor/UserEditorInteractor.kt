@@ -28,7 +28,7 @@ class UserEditorInteractor @Inject constructor(
     private val teacherRepository: TeacherRepository,
     private val authRepository: AuthRepository,
     val networkService: NetworkService
-) : Interactor() {
+) : Interactor {
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
     fun getGroupsByTypedName(name: String): Flow<Resource<List<Group>>> {
