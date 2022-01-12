@@ -61,4 +61,32 @@ class AttachmentStorage @Inject constructor(
             }
         }
     }
+
+    suspend fun update(id: String, attachments: List<Attachment>): List<String> {
+        val currentFiles = contentAttachmentsRef.child(id).listAll().await().items
+        val currentFileNames = currentFiles.map { it.name }.toSet()
+        val updatedFileNames = attachments.map { it.name }.toSet()
+
+        val added = attachments.filterNot { currentFileNames.contains(it.name) }
+        val removed = currentFiles.filterNot { updatedFileNames.contains(it.name) }
+
+        removed.forEach { it.delete().await() }
+        val uploaded = addContentAttachments(id, added)
+
+        return currentFiles.minus(removed.toSet())
+            .map { it.downloadUrl.await().toString() } + uploaded
+    }
+
+    suspend fun deleteFilesByContentId(id: String) {
+        contentAttachmentsRef.child(id).listAll().await()
+            .items.forEach { it.delete().await() }
+    }
+
+    fun deleteFromLocal(contentId: String) {
+        val contentDir = File(contentPath.path + '/' + contentId)
+        contentDir.listFiles()?.forEach {
+            it.delete()
+        }
+        contentDir.delete()
+    }
 }
