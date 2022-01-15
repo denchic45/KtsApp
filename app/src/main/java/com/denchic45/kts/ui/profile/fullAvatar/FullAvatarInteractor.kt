@@ -27,7 +27,7 @@ class FullAvatarInteractor @Inject constructor(
         val photoUrl = userRepository.loadAvatar(
             avatarGenerator.name(user.firstName)
                 .initFrom(AvatarBuilderTemplate())
-                .generateBytes(), user.uuid
+                .generateBytes(), user.id
         )
         val updatedUser = user.copy(photoUrl = photoUrl, generatedAvatar = true)
         when {
