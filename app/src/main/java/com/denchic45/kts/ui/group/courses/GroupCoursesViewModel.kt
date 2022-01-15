@@ -19,7 +19,7 @@ import javax.inject.Named
 
 class GroupCoursesViewModel @Inject constructor(
     interactor: GroupCoursesInteractor,
-    @Named("GroupCourses ${GroupPreference.GROUP_UUID}") groupUuid: String?
+    @Named("GroupCourses ${GroupPreference.GROUP_ID}") groupUuid: String?
 ) : BaseViewModel() {
     val clearItemsSelection = SingleLiveData<Set<Int>>()
     val selectItem = MutableLiveData<Pair<Int, Boolean>>()

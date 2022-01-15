@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ListItem(
     @SerializedName("id")
-    override var uuid: String = "",
+    override var id: String = "",
     var title: String = "",
     var icon: EitherResource = emptyIcon,
     var color: EitherResource = emptyColor,

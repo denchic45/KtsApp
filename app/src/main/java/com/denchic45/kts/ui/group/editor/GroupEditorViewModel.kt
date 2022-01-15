@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Specialty
@@ -32,7 +32,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class GroupEditorViewModel @Inject constructor(
-    @Named("GroupEditor ${GroupPreference.GROUP_UUID}") uuid: String?,
+    @Named("GroupEditor ${GroupPreference.GROUP_ID}") uuid: String?,
     private val choiceOfCuratorInteractor: ChoiceOfCuratorInteractor,
     private val interactor: GroupEditorInteractor,
     @Named("courses") val courseList: List<ListItem>
@@ -62,12 +62,12 @@ class GroupEditorViewModel @Inject constructor(
         viewModelScope.launch {
             typedSpecialtyByName.flatMapLatest { specialtyName: String ->
                 interactor.getSpecialtyByTypedName(specialtyName)
-            }.collect { resource: Resource<List<Specialty>> ->
-                foundSpecialties = resource.data
+            }.collect { resource ->
+                foundSpecialties = (resource as Resource2.Success).data
                 showSpecialties.postValue(
                     resource.data.stream()
                         .map { specialty: Specialty ->
-                            ListItem(uuid = specialty.uuid, title = specialty.name)
+                            ListItem(id = specialty.id, title = specialty.name)
                         }
                         .collect(Collectors.toList())
                 )

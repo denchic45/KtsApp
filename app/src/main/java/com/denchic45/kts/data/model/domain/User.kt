@@ -5,11 +5,11 @@ import com.denchic45.kts.data.model.DomainModel
 import java.util.*
 
 data class User(
-    override var uuid: String = UUID.randomUUID().toString(),
+    override var id: String = UUID.randomUUID().toString(),
     val firstName: String,
     val surname: String,
     val patronymic: String?,
-    val groupUuid: String?,
+    val groupId: String?,
     val role: String,
     val phoneNum: String,
     val email: String?,
@@ -44,7 +44,7 @@ data class User(
 
 
     fun hasGroup(): Boolean {
-        return groupUuid != null && groupUuid != ""
+        return groupId != null && groupId != ""
     }
 
     val fullName: String
@@ -53,7 +53,7 @@ data class User(
         get() = isTeacher && hasGroup()
 
     fun isIt(user: User): Boolean {
-        return user.uuid == uuid
+        return user.id == id
     }
 
     @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
@@ -62,11 +62,11 @@ data class User(
 
     override fun copy(): User {
         return User(
-            uuid,
+            id,
             firstName,
             surname,
             patronymic,
-            groupUuid,
+            groupId,
             role,
             phoneNum,
             email,

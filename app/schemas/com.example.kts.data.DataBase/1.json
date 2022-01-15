@@ -166,7 +166,7 @@
         "fields": [
           {
             "fieldPath": "uuid",
-            "columnName": "uuid_user",
+            "columnName": "user_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -184,7 +184,7 @@
           },
           {
             "fieldPath": "group_id",
-            "columnName": "uuid_user_group",
+            "columnName": "user_group_id",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -233,7 +233,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "uuid_user"
+            "user_id"
           ],
           "autoGenerate": false
         },
@@ -379,7 +379,7 @@
               "teacherUuid"
             ],
             "referencedColumns": [
-              "uuid_user"
+              "user_id"
             ]
           }
         ]

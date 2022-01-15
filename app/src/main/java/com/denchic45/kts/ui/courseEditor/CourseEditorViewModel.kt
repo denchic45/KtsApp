@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
@@ -31,7 +30,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class CourseEditorViewModel @Inject constructor(
-    @Named(CourseEditorActivity.COURSE_UUID)
+    @Named(CourseEditorActivity.COURSE_ID)
     courseUuid: String?,
     private val interactor: CourseEditorInteractor,
     var choiceOfGroupInteractor: ChoiceOfGroupInteractor
@@ -95,7 +94,7 @@ class CourseEditorViewModel @Inject constructor(
                             resource.data.stream()
                                 .map { user: User ->
                                     ListItem(
-                                        uuid = user.uuid,
+                                        id = user.id,
                                         title = user.fullName,
                                         icon = EitherResource.String(user.photoUrl),
                                         type = ListPopupWindowAdapter.TYPE_AVATAR
@@ -116,12 +115,12 @@ class CourseEditorViewModel @Inject constructor(
             try {
                 typedSubjectName
                     .flatMapLatest { name: String -> interactor.findSubjectByTypedName(name) }
-                    .map { resource: Resource<List<Subject>> ->
-                        foundSubjects = resource.data
+                    .map { resource ->
+                        foundSubjects = (resource as Resource2.Success).data
                         resource.data.stream()
                             .map { (uuid, name, iconUrl) ->
                                 ListItem(
-                                    uuid = uuid,
+                                    id = uuid,
                                     title = name,
                                     icon = EitherResource.String(iconUrl)
                                 )
@@ -163,8 +162,8 @@ class CourseEditorViewModel @Inject constructor(
         }
 
     private fun addAdderGroupItem(groups: List<Group> = emptyList()): List<DomainModel> =
-        groups.map { ListItem(uuid = it.uuid, title = it.name, type = 1) } + ListItem(
-            uuid = "ADD_GROUP",
+        groups.map { ListItem(id = it.id, title = it.name, type = 1) } + ListItem(
+            id = "ADD_GROUP",
             title = "Добавить",
             icon = EitherResource.Id(R.drawable.ic_add)
         )
@@ -210,9 +209,9 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private fun enablePositiveBtn() {
-       viewModelScope.launch(Dispatchers.Main) {
-           setSaveOptionVisibility(uiValidator.runValidates() && uiEditor.hasBeenChanged())
-       }
+        viewModelScope.launch(Dispatchers.Main) {
+            setSaveOptionVisibility(uiValidator.runValidates() && uiEditor.hasBeenChanged())
+        }
     }
 
     private fun setSaveOptionVisibility(visible: Boolean) {

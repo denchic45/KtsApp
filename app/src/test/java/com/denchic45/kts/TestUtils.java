@@ -18,11 +18,11 @@ public class TestUtils {
     @NonNull
     @Contract(" -> new")
     public static GroupEntity createGroupEntity() {
-        return new GroupEntity("uuidOfGroup", "PKS", 2, "uuidOfSpecialty", new Date());
+        return new GroupEntity("uuidOfGroup", "PKS", "",0, "uuidOfSpecialty", new Date());
     }
 
     public static UserEntity createCuratorEntity() {
-        return new UserEntity("", "Мария", "Ивановна", "", User.TEACHER, "+79510832144", "", 0, new Date(), false, true);
+        return new UserEntity("", "Мария", "Ивановна", "", User.TEACHER, "+79510832144", "", "", 0,false, "", false, new Date());
     }
 
     public static User createCurator() {

@@ -21,7 +21,7 @@ class ReflectionTest {
         admin = false,
         email = "",
         generatedAvatar = true,
-        groupUuid = "",
+        groupId = "",
         phoneNum = ""
     )
 
@@ -33,10 +33,11 @@ class ReflectionTest {
     )
 
     val task1 = Task(
-        uuid = "uuid",
+        id = "uuid",
         courseId = "",
         timestamp = Date(),
         name = "",
+        order = 0,
         answerType = AnswerType(
             textAvailable = true,
             charsLimit = 1,
@@ -67,7 +68,8 @@ class ReflectionTest {
             Attachment(
                 file = File("sample.png")
             )
-        )
+        ),
+        timestamp = Date()
     )
 
 
@@ -80,6 +82,8 @@ class ReflectionTest {
 
     @Test
     fun test2() {
-        println(MembersComparator.mapOfDifference(task1.markType, task2.markType))
+        val hashmap = MembersComparator.mapOfDifference(task1, task2)
+        println(hashmap)
+        println(hashmap["timestamp"]!!.javaClass)
     }
 }

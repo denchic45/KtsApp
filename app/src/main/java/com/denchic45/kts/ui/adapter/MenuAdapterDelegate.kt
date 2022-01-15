@@ -168,7 +168,7 @@ data class NavTextItem(
     var checked: Boolean = false,
     val visible: Boolean = true,
     val checkable: Boolean = true,
-    override var uuid: String = "",
+    override var id: String = "",
     val iconType: IconType = IconType.NONE,
     val color: EitherResource = EitherResource.Id(0),
 ) : NavItem() {
@@ -229,6 +229,6 @@ class DividerItemHolder(itemNavDividerBinding: ItemNavDividerBinding) :
     override fun onBind(item: DividerItem) {}
 }
 
-data class DividerItem(override var uuid: String = "") : NavItem()
+data class DividerItem(override var id: String = "") : NavItem()
 
 abstract class NavItem : DomainModel()

@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.EventDetails
 import io.reactivex.rxjava3.core.Observable
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class EventEditorInteractor : Interactor {
-    private var editedEvent = PublishSubject.create<Resource<Event>>()
+    private var editedEvent = PublishSubject.create<Resource2<Pair<Event, String>>>()
     var oldEvent: MutableStateFlow<Event?> = MutableStateFlow(null)
     var isNew = false
         private set
@@ -23,14 +23,14 @@ class EventEditorInteractor : Interactor {
     lateinit var getDetails: (() -> EventDetails)
     override fun removeListeners() = editedEvent.onComplete()
 
-    fun observeEvent(): Observable<Resource<Event>> {
+    fun observeEvent(): Observable<Resource2<Pair<Event, String>>> {
         if (editedEvent.hasComplete()) editedEvent = PublishSubject.create()
         return editedEvent
     }
 
     fun observeOldEvent(): StateFlow<Event?> = oldEvent
 
-    fun postEvent(event: Resource<Event>) {
+    fun postEvent(event: Resource2.Success<Pair<Event, String>>) {
         editedEvent.onNext(event)
     }
 

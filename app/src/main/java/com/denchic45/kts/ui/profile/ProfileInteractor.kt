@@ -39,7 +39,7 @@ class ProfileInteractor @Inject constructor(
     }
 
     suspend fun updateAvatar(user: User, imageBytes: ByteArray) {
-        val photoUrl = userRepository.loadAvatar(imageBytes, user.uuid)
+        val photoUrl = userRepository.loadAvatar(imageBytes, user.id)
         val updatedUser = user.copy(photoUrl = photoUrl, generatedAvatar = false)
         when {
             updatedUser.isStudent -> {

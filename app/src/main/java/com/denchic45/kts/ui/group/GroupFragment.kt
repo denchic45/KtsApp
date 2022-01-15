@@ -114,14 +114,14 @@ class GroupFragment : Fragment() {
                 )
                 intent.putExtra(UserEditorActivity.USER_ROLE, userTypeWithGroupUuidPair.first)
                 intent.putExtra(
-                    UserEditorActivity.USER_GROUP_UUID,
+                    UserEditorActivity.USER_GROUP_ID,
                     userTypeWithGroupUuidPair.second
                 )
                 startActivity(intent)
             })
         viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupUuid: String? ->
             val intent = Intent(activity, GroupEditorActivity::class.java)
-            intent.putExtra(GroupEditorActivity.GROUP_UUID, groupUuid)
+            intent.putExtra(GroupEditorActivity.GROUP_ID, groupUuid)
             requireActivity().startActivity(intent)
         })
         viewModel.finish.observe(
@@ -177,6 +177,6 @@ class GroupFragment : Fragment() {
     }
 
     companion object {
-        const val GROUP_UUID = "GROUP_UUID"
+        const val GROUP_ID = "GROUP_UUID"
     }
 }

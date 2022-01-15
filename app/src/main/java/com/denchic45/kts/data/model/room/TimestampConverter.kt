@@ -1,21 +1,13 @@
-package com.denchic45.kts.data.model.room;
+package com.denchic45.kts.data.model.room
 
-import androidx.room.TypeConverter;
+import androidx.room.TypeConverter
+import java.util.*
 
-import java.util.Date;
-
-public class TimestampConverter {
+class TimestampConverter {
+    @TypeConverter
+    fun toLong(date: Date?): Long? = date?.time
 
     @TypeConverter
-    public long toLong(Date date) {
-        if (date == null)
-            return System.currentTimeMillis();
-        return date.getTime();
-    }
-
-    @TypeConverter
-    public Date toDate(long timestamp) {
-        return new Date(timestamp);
-    }
+    fun toDate(timestamp: Long?): Date? = timestamp?.let { Date(it) }
 
 }

@@ -5,8 +5,6 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
-import static com.denchic45.kts.data.prefs.GroupPreference.GROUP_UUID;
-
 public abstract class SharedPreferenceLiveData<T> extends LiveData<T> {
 
     public T defValue;

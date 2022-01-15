@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.EmptyEventDetails
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.Event.Companion.empty
@@ -23,21 +23,21 @@ import javax.inject.Inject
 class EventEditorViewModel @Inject constructor(
     private val interactor: EventEditorInteractor
 ) : BaseViewModel() {
-    
+
     val showErrorField = MutableLiveData<Pair<Int, Boolean>>()
 
     val showDetailEditor = SingleLiveData<Int>()
-    
+
     val dateField = MutableLiveData<String>()
-    
+
     val orderField = SingleLiveData("")
-    
+
     val roomField = SingleLiveData("")
-    
+
     val showListOfEventTypes = SingleLiveData<Pair<Array<CharSequence>, Int>>()
 
     val openDatePicker = SingleLiveData<Void>()
-    
+
     val title = MutableLiveData("Редактировать урок")
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Event> = UIEditor(interactor.isNew) {
@@ -68,11 +68,11 @@ class EventEditorViewModel @Inject constructor(
     }
 
     private fun saveChanges() {
-        if (uiEditor.isNew) uiEditor.item.uuid = UUID.randomUUID().toString()
+        if (uiEditor.isNew) uiEditor.item.id = UUID.randomUUID().toString()
         interactor.postEvent(
-            Resource(
-                uiEditor.item,
-                if (uiEditor.isNew) EventEditorInteractor.LESSON_CREATED else EventEditorInteractor.LESSON_EDITED
+            Resource2.Success(
+                uiEditor.item to
+                        if (uiEditor.isNew) EventEditorInteractor.LESSON_CREATED else EventEditorInteractor.LESSON_EDITED
             )
         )
         finish.call()
@@ -100,29 +100,29 @@ class EventEditorViewModel @Inject constructor(
             uiValidator.runValidates { saveChanges() }
             if (uiValidator.runValidates()) {
                 val duplicatedLesson = uiEditor.item.copy(
-                    uuid = UUID.randomUUID().toString(),
+                    id = UUID.randomUUID().toString(),
                     order = uiEditor.item.order + 1
                 )
                 interactor.postEvent(
-                    Resource(
-                        duplicatedLesson,
-                        EventEditorInteractor.LESSON_CREATED
+                    Resource2.Success(
+                        duplicatedLesson to
+                                EventEditorInteractor.LESSON_CREATED
                     )
                 )
             }
 //            finish.call() # может нужен
         } else if (itemId == R.id.option_delete_lesson) {
-            interactor.postEvent(Resource(uiEditor.item, EventEditorInteractor.LESSON_REMOVED))
+            interactor.postEvent(Resource2.Success(uiEditor.item to EventEditorInteractor.LESSON_REMOVED))
             finish.call()
         } else if (itemId == R.id.option_clear_lesson) {
             interactor.postEvent(
-                Resource(
+                Resource2.Success(
                     empty(
-                        uiEditor.item.uuid,
+                        uiEditor.item.id,
                         uiEditor.item.group,
                         uiEditor.item.order,
                         uiEditor.item.date
-                    ), EventEditorInteractor.LESSON_EDITED
+                    ) to EventEditorInteractor.LESSON_EDITED
                 )
             )
             finish.call()

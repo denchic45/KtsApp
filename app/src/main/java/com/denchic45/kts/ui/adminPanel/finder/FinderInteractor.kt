@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.adminPanel.finder
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
@@ -23,23 +23,23 @@ class FinderInteractor @Inject constructor(
 
 
     private val currentRepository: Repository? = null
-    fun findUserByTypedName(name: String): Flow<Resource<List<User>>> {
+    fun findUserByTypedName(name: String): Flow<Resource2<List<User>>> {
         return userRepository.getByTypedName(name)
     }
 
-    fun findGroupByTypedName(name: String): Flow<Resource<List<Group>>> {
+    fun findGroupByTypedName(name: String): Flow<Resource2<List<Group>>> {
         return groupInfoRepository.findByTypedName(name)
     }
 
-    fun findSubjectByTypedName(name: String): Flow<Resource<List<Subject>>> {
+    fun findSubjectByTypedName(name: String): Flow<Resource2<List<Subject>>> {
         return subjectRepository.findByTypedName(name)
     }
 
-    fun findSpecialtyByTypedName(name: String): Flow<Resource<List<Specialty>>> {
+    fun findSpecialtyByTypedName(name: String): Flow<Resource2<List<Specialty>>> {
         return specialtyRepository.findByTypedName(name)
     }
 
-    fun findCourseByTypedName(name: String): Flow<Resource<List<CourseInfo>>> {
+    fun findCourseByTypedName(name: String): Flow<Resource2<List<CourseInfo>>> {
         return courseRepository.findByTypedName(name)
     }
 

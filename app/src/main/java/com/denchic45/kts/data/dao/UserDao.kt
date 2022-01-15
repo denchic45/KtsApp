@@ -10,67 +10,67 @@ import io.reactivex.rxjava3.core.Observable
 @Dao
 abstract class UserDao : BaseDao<UserEntity>() {
 
-    @Query("SELECT * FROM user WHERE uuid_user_group =:groupUuid ORDER BY surname")
-    abstract fun getByGroupUuid(groupUuid: String?): LiveData<List<UserEntity>>
+    @Query("SELECT * FROM user WHERE user_group_id =:groupId ORDER BY surname")
+    abstract fun getByGroupId(groupId: String): LiveData<List<UserEntity>>
 
-    @Query("SELECT * FROM user WHERE uuid_user_group =:groupUuid ORDER BY surname")
-    abstract fun getByGroupUuidSync(groupUuid: String?): List<UserEntity>
+    @Query("SELECT * FROM user WHERE user_group_id =:groupId ORDER BY surname")
+    abstract fun getByGroupIdSync(groupId: String): List<UserEntity>
 
-    @Query("SELECT EXISTS(SELECT * FROM user WHERE uuid_user = :uuid)")
-    abstract fun isExist(uuid: String?): Boolean
+    @Query("SELECT EXISTS(SELECT * FROM user WHERE user_id = :id)")
+    abstract fun isExist(id: String): Boolean
 
     @Query("DELETE FROM user WHERE role = 'TEACHER'")
     abstract fun clearTeachers()
 
-    @Query("SELECT * FROM user WHERE role IN('STUDENT','DEPUTY_HEADMAN','HEADMAN') AND uuid_user_group=:groupUuid")
-    abstract fun getStudentsOfGroupByGroupUuid(groupUuid: String?): LiveData<List<UserEntity>>
+    @Query("SELECT * FROM user WHERE role IN('STUDENT','DEPUTY_HEADMAN','HEADMAN') AND user_group_id=:groupId")
+    abstract fun getStudentsOfGroupByGroupId(groupId: String): LiveData<List<UserEntity>>
 
-    @Query("SELECT * FROM user where uuid_user =:uuid")
-    abstract fun getByUuid(uuid: String): LiveData<UserEntity>
+    @Query("SELECT * FROM user where user_id =:id")
+    abstract fun get(id: String): LiveData<UserEntity>
 
-    @Query("SELECT * FROM user where uuid_user =:uuid")
-    abstract fun getByUuidSync(uuid: String?): UserEntity?
+    @Query("SELECT * FROM user where user_id =:id")
+    abstract fun getSync(id: String): UserEntity?
 
-    @Query("DELETE FROM user WHERE uuid_user IN(SELECT u.uuid_user FROM user u JOIN course c JOIN group_course gc ON c.uuid_teacher == u.uuid_user AND c.uuid_course == gc.uuid_course WHERE gc.group_id =:groupUuid AND u.uuid_user NOT IN (:availableUsers) )")
-    abstract fun deleteMissingTeachersByGroup(availableUsers: List<String>, groupUuid: String)
+    @Query("DELETE FROM user WHERE user_id IN(SELECT u.user_id FROM user u JOIN course c JOIN group_course gc ON c.teacher_id == u.user_id AND c.course_id == gc.course_id WHERE gc.group_id =:groupId AND u.user_id NOT IN (:availableUsers) )")
+    abstract fun deleteMissingTeachersByGroup(availableUsers: List<String>, groupId: String)
 
-    @Query("DELETE FROM user WHERE uuid_user=:uuid")
-    abstract fun deleteByUuid(uuid: String?)
+    @Query("DELETE FROM user WHERE user_id=:id")
+    abstract fun deleteById(id: String)
 
     @get:Query("SELECT * FROM user WHERE role IN ('TEACHER','HEAD_TEACHER')")
     abstract val allTeachers: LiveData<List<UserEntity>>
 
     @Transaction
-    open fun updateCuratorByGroupUuid(groupUuid: String, teacherUuid: String) {
-        val currentCurator = getCuratorSync(groupUuid)
-        updateGroupUuid(currentCurator.uuid, null)
-        updateGroupUuid(teacherUuid, groupUuid)
+    open fun updateCuratorByGroupId(groupId: String, teacherId: String) {
+        val currentCurator = getCuratorSync(groupId)
+        updateGroupId(currentCurator.id, null)
+        updateGroupId(teacherId, groupId)
     }
 
-    @Query("UPDATE user SET uuid_user_group =:groupUuid WHERE uuid_user =:userUuid")
-    abstract fun updateGroupUuid(userUuid: String, groupUuid: String?)
+    @Query("UPDATE user SET user_group_id =:groupId WHERE user_id =:userId")
+    abstract fun updateGroupId(userId: String, groupId: String?)
 
-    @Query("SELECT * FROM user u INNER JOIN `group` g ON u.uuid_user = g.uuid_curator WHERE g.group_id=:groupUuid")
-    abstract fun getCurator(groupUuid: String): LiveData<UserEntity>
+    @Query("SELECT * FROM user u INNER JOIN `group` g ON u.user_id = g.curator_id WHERE g.group_id=:groupId")
+    abstract fun getCurator(groupId: String): LiveData<UserEntity>
 
-    @Query("SELECT * FROM user u INNER JOIN `group` g ON u.uuid_user = g.uuid_curator WHERE g.group_id=:groupUuid")
-    abstract fun getCuratorSync(groupUuid: String): UserEntity
+    @Query("SELECT * FROM user u INNER JOIN `group` g ON u.user_id = g.curator_id WHERE g.group_id=:groupId")
+    abstract fun getCuratorSync(groupId: String): UserEntity
 
-    @Query("SELECT uuid_user_group FROM user where uuid_user_group =:groupUuid")
-    abstract fun getGroupUuidOfUser(groupUuid: String): String
+    @Query("SELECT user_group_id FROM user where user_group_id =:groupId")
+    abstract fun getUserGroupId(groupId: String): String
 
-    @Query("SELECT * FROM user where uuid_user =:uuid")
-    abstract fun getByUuidRx(uuid: String): Observable<UserEntity>
+    @Query("SELECT * FROM user where user_id =:id")
+    abstract fun getRx(id: String): Observable<UserEntity>
 
-    @Query("SELECT EXISTS(SELECT * FROM user where uuid_user =:uuid AND uuid_user_group =:groupUuid)")
-    abstract fun isExistByUuidAndGroupUuid(uuid: String, groupUuid: String?): Boolean
+    @Query("SELECT EXISTS(SELECT * FROM user where user_id =:id AND user_group_id =:groupId)")
+    abstract fun isExistByIdAndGroupId(id: String, groupId: String?): Boolean
 
-    @Query("DELETE FROM user WHERE uuid_user_group =:groupUuid AND uuid_user NOT IN(:availableStudents) ")
-    abstract fun deleteMissingStudentsByGroup(availableStudents: List<String>, groupUuid: String)
+    @Query("DELETE FROM user WHERE user_group_id =:groupId AND user_id NOT IN(:availableStudents) ")
+    abstract fun deleteMissingStudentsByGroup(availableStudents: List<String>, groupId: String)
 
-    @Query("SELECT * FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND uuid_user NOT IN(SELECT u.uuid_user FROM user u INNER JOIN course c INNER JOIN `group` g ON c.uuid_teacher == u.uuid_user OR g.uuid_curator = u.uuid_user)")
+    @Query("SELECT * FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u INNER JOIN course c INNER JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
     abstract fun findUnrelatedTeachersByCourseOrGroupAsCurator(): List<UserEntity>
 
-    @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND uuid_user NOT IN(SELECT u.uuid_user FROM user u LEFT JOIN course c LEFT JOIN `group` g ON c.uuid_teacher == u.uuid_user OR g.uuid_curator = u.uuid_user)")
+    @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u LEFT JOIN course c LEFT JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
     abstract fun deleteUnrelatedTeachersByCourseOrGroupAsCurator()
 }

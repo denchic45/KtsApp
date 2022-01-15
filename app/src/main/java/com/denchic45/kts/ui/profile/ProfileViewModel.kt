@@ -18,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class ProfileViewModel @Inject constructor(
-    @Named(ProfileFragment.USER_UUID) uuid: String,
+    @Named(ProfileFragment.USER_ID) uuid: String,
     private val interactor: ProfileInteractor
 ) : BaseViewModel() {
     val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
@@ -50,7 +50,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onGroupInfoClick() {
-        openGroup.value = group!!.uuid
+        openGroup.value = group!!.id
     }
 
     override fun onCleared() {
@@ -107,7 +107,7 @@ class ProfileViewModel @Inject constructor(
                             showGroupInfo.setValue("Куратор группы: " + group.name)
                         })
                 }
-                if (interactor.findThisUser().uuid != userOfProfile!!.uuid) {
+                if (interactor.findThisUser().id != userOfProfile!!.id) {
                     optionVisibility.value = Pair(R.id.menu_select_avatar, false)
                 }
             })

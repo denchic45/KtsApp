@@ -53,7 +53,7 @@ class GroupUsersViewModel @Inject constructor(
     fun onGroupUuidReceived(groupUuid: String?) {
         var groupUuid = groupUuid
         if (groupUuid == null) {
-            groupUuid = interactor.yourGroupUuid
+            groupUuid = interactor.yourGroupId
             this.groupUuid = groupUuid
         }
         val groupUsers = CombinedLiveData(
@@ -64,8 +64,8 @@ class GroupUsersViewModel @Inject constructor(
             students = studentsWithCurator.first
             val userList: MutableList<DomainModel> = ArrayList(students)
             userList.add(0, studentsWithCurator.second)
-            userList.add(0, ListItem(uuid = "", title = "Куратор", type = ItemAdapter.TYPE_HEADER))
-            userList.add(2, ListItem(uuid = "", title = "Студенты", type = ItemAdapter.TYPE_HEADER))
+            userList.add(0, ListItem(id = "", title = "Куратор", type = ItemAdapter.TYPE_HEADER))
+            userList.add(2, ListItem(id = "", title = "Студенты", type = ItemAdapter.TYPE_HEADER))
             userList
         }
     }
@@ -79,7 +79,7 @@ class GroupUsersViewModel @Inject constructor(
     }
 
     fun onUserItemClick(position: Int) {
-        openProfile.value = users!!.value!![position]!!.uuid
+        openProfile.value = users!!.value!![position]!!.id
     }
 
     fun onOptionUserClick(uuidOption: String) {
@@ -89,8 +89,8 @@ class GroupUsersViewModel @Inject constructor(
             OPTION_EDIT_USER -> {
                 val args: MutableMap<String, String> = HashMap()
                 args[UserEditorActivity.USER_ROLE] = selectedUser!!.role
-                args[UserEditorActivity.USER_UUID] = selectedUser!!.uuid
-                args[UserEditorActivity.USER_GROUP_UUID] = selectedUser!!.groupUuid!!
+                args[UserEditorActivity.USER_ID] = selectedUser!!.id
+                args[UserEditorActivity.USER_GROUP_ID] = selectedUser!!.groupId!!
                 openUserEditor.setValue(args)
             }
             OPTION_DELETE_USER -> interactor.removeStudent(selectedUser)

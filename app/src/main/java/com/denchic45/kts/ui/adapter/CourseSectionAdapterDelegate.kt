@@ -1,26 +1,26 @@
 package com.denchic45.kts.ui.adapter
 
 import android.view.ViewGroup
-import com.denchic45.kts.data.model.domain.CourseSection
+import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.databinding.ItemCourseSectionBinding
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 
-class CourseSectionAdapterDelegate : ListItemAdapterDelegate<CourseSection, CourseSectionHolder>() {
+class CourseSectionAdapterDelegate : ListItemAdapterDelegate<Section, SectionHolder>() {
 
-    override fun isForViewType(item: Any): Boolean = item is CourseSection
+    override fun isForViewType(item: Any): Boolean = item is Section
 
-    override fun onBindViewHolder(item: CourseSection, holder: CourseSectionHolder) =
+    override fun onBindViewHolder(item: Section, holder: SectionHolder) =
         holder.onBind(item)
 
-    override fun onCreateViewHolder(parent: ViewGroup): CourseSectionHolder {
-        return CourseSectionHolder(parent.viewBinding(ItemCourseSectionBinding::inflate))
+    override fun onCreateViewHolder(parent: ViewGroup): SectionHolder {
+        return SectionHolder(parent.viewBinding(ItemCourseSectionBinding::inflate))
     }
 }
 
-class CourseSectionHolder(courseSectionBinding: ItemCourseSectionBinding) :
-    BaseViewHolder<CourseSection, ItemCourseSectionBinding>(courseSectionBinding) {
-    override fun onBind(item: CourseSection) {
+class SectionHolder(SectionBinding: ItemCourseSectionBinding) :
+    BaseViewHolder<Section, ItemCourseSectionBinding>(SectionBinding) {
+    override fun onBind(item: Section) {
         with(binding) {
             tvName.text = item.name
         }

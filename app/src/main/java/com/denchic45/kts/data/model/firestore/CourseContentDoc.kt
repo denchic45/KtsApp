@@ -15,25 +15,26 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
     val description: String,
     val commentsEnabled: Boolean,
     var attachments: List<String>,
-    val completionDate: Date,
+    var order: Long,
     val createdDate: Date,
-    val timestamp: Date,
+    val completionDate: Date?,
     @get:PropertyName("details")
     val contentDetails: ContentDetails,
-    val contentType: ContentType,
-    val completions: List<CompletionTask>? = emptyList(),
-    @field:JvmField val deleted: Boolean = false
+    val timestamp: Date,
+    val completions: List<CompletionTaskDoc>? = emptyList(),
+    @field:JvmField val deleted: Boolean = false,
+    val contentType: ContentType
 ) : DocModel {
     private constructor() : this(
         "", "", "", "", "",
-        false, emptyList(), Date(), Date(), Date(), ContentDetails.Empty,
-        ContentType.TASK, emptyList()
+        false, emptyList(), 0, Date(), null, ContentDetails.Empty,
+        Date(), emptyList(), contentType = ContentType.TASK
     )
 }
 
-data class CompletionTask(
-    val studentUuid: String,
-    val teacherUuid: String,
+data class CompletionTaskDoc(
+    val studentId: String,
+    val teacherId: String,
     val completedDate: Date,
     val grade: Int,
     val assessmentDate: Date,

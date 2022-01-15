@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.Action
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.rx.bus.RxBusConfirm
@@ -121,7 +122,7 @@ class FinderViewModel @Inject constructor(
 
     fun onFinderItemClick(position: Int) {
         val item = foundEntities[currentSelectedEntity.value!!][position]
-        onFinderItemClickActions[currentSelectedEntity.value!!].accept(item.uuid)
+        onFinderItemClickActions[currentSelectedEntity.value!!].accept(item.id)
     }
 
     fun onFinderItemLongClick(position: Int) {
@@ -141,27 +142,27 @@ class FinderViewModel @Inject constructor(
     init {
         finderEntities.value = listOf(
             ListItem(
-                uuid = "ITEM_FIND_USER",
+                id = "ITEM_FIND_USER",
                 title = "Пользователи",
                 icon = EitherResource.Id(R.drawable.ic_user)
             ),
             ListItem(
-                uuid = "ITEM_FIND_GROUP",
+                id = "ITEM_FIND_GROUP",
                 title = "Группы",
                 icon = EitherResource.Id(R.drawable.ic_group)
             ),
             ListItem(
-                uuid = "ITEM_FIND_SUBJECT",
+                id = "ITEM_FIND_SUBJECT",
                 title = "Предметы",
                 icon = EitherResource.Id(R.drawable.ic_subject)
             ),
             ListItem(
-                uuid = "ITEM_FIND_SPECIALTY",
+                id = "ITEM_FIND_SPECIALTY",
                 title = "Специальности",
                 icon = EitherResource.Id(R.drawable.ic_specialty)
             ),
             ListItem(
-                uuid = "ITEM_FIND_COURSE",
+                id = "ITEM_FIND_COURSE",
                 title = "Курсы",
                 icon = EitherResource.Id(R.drawable.ic_course)
             ),
@@ -173,7 +174,7 @@ class FinderViewModel @Inject constructor(
                 findByTypedNameActions[currentSelectedEntity.value!!].invoke(name)
             }.collect { resource ->
                 showFoundItems.value = ArrayList(
-                    resource.data
+                    (resource as Resource2.Success).data
                 )
                 foundEntities[currentSelectedEntity.value!!] = ArrayList(
                     resource.data
@@ -184,15 +185,15 @@ class FinderViewModel @Inject constructor(
         onOptionItemClickActions = mapOf(
             "OPTION_SHOW_PROFILE" to Action {
                 openProfile.setValue(
-                    selectedEntity!!.uuid
+                    selectedEntity!!.id
                 )
             },
             "OPTION_EDIT_USER" to Action {
                 val selectedUser = selectedEntity as User
                 val args: MutableMap<String, String> = HashMap()
                 args[UserEditorActivity.USER_ROLE] = selectedUser.role
-                args[UserEditorActivity.USER_UUID] = selectedUser.uuid
-                args[UserEditorActivity.USER_GROUP_UUID] = selectedUser.groupUuid!!
+                args[UserEditorActivity.USER_ID] = selectedUser.id
+                args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId!!
                 openUserEditor.setValue(args)
             },
             "OPTION_DELETE_USER" to Action {
@@ -215,10 +216,10 @@ class FinderViewModel @Inject constructor(
                         subscribeConfirmation!!.dispose()
                     }
             },
-            "OPTION_SHOW_GROUP" to Action { openGroup.setValue(selectedEntity!!.uuid) },
+            "OPTION_SHOW_GROUP" to Action { openGroup.setValue(selectedEntity!!.id) },
             "OPTION_EDIT_GROUP" to Action {
                 openGroupEditor.setValue(
-                    selectedEntity!!.uuid
+                    selectedEntity!!.id
                 )
             },
             "OPTION_DELETE_GROUP" to Action {
@@ -242,7 +243,7 @@ class FinderViewModel @Inject constructor(
             "OPTION_SHOW_SUBJECT" to Action {},
             "OPTION_EDIT_SUBJECT" to Action {
                 openSubjectEditor.setValue(
-                    selectedEntity!!.uuid
+                    selectedEntity!!.id
                 )
             },
             "OPTION_DELETE_SUBJECT" to Action {

@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.specialtyEditor
 import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import com.denchic45.kts.R
-import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.repository.SpecialtyRepository
 import com.denchic45.kts.rx.bus.RxBusConfirm
@@ -20,7 +19,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class SpecialtyEditorViewModel @Inject constructor(
-    @Named(SpecialtyEditorDialog.SPECIALTY_UUID) uuid: String?,
+    @Named(SpecialtyEditorDialog.SPECIALTY_ID) uuid: String?,
     private val specialtyRepository: SpecialtyRepository
 ) :
     BaseViewModel() {

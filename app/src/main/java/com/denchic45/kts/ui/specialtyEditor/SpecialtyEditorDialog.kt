@@ -14,7 +14,6 @@ import com.denchic45.kts.databinding.FragmentSpecialtyEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseDialogFragment
 import com.denchic45.kts.ui.confirm.ConfirmDialog
-import com.denchic45.kts.utils.viewBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.jakewharton.rxbinding4.widget.textChanges
@@ -97,11 +96,11 @@ class SpecialtyEditorDialog :
     }
 
     companion object {
-        const val SPECIALTY_UUID = "SPECIALTY_UUID"
+        const val SPECIALTY_ID = "SPECIALTY_UUID"
         fun newInstance(specialtyUuid: String?): SpecialtyEditorDialog {
             val fragment = SpecialtyEditorDialog()
             val args = Bundle()
-            args.putString(SPECIALTY_UUID, specialtyUuid)
+            args.putString(SPECIALTY_ID, specialtyUuid)
             fragment.arguments = args
             return fragment
         }

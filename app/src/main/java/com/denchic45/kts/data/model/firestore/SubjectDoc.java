@@ -6,19 +6,19 @@ import java.util.List;
 
 public class SubjectDoc implements DocModel {
 
-    protected String uuid;
+    protected String id;
     private String name;
     private String iconUrl;
     private String colorName;
     private boolean special;
     private List<String> searchKeys;
 
-    public String getUuid() {
-        return uuid;
+    public String getId() {
+        return id;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {

@@ -95,10 +95,10 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
 
     companion object {
         @JvmStatic
-        fun newInstance(groupUuid: String?): GroupCoursesFragment {
+        fun newInstance(groupId: String?): GroupCoursesFragment {
             val fragment = GroupCoursesFragment()
             val args = Bundle()
-            args.putString(GroupPreference.GROUP_UUID, groupUuid)
+            args.putString(GroupPreference.GROUP_ID, groupId)
             fragment.arguments = args
             return fragment
         }

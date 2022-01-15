@@ -222,7 +222,7 @@ class SubjectAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel,*>>
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<out DomainModel> =
             object : DiffUtil.ItemCallback<Subject>() {
                 override fun areItemsTheSame(oldItem: Subject, newItem: Subject): Boolean {
-                    return oldItem.uuid == newItem.uuid
+                    return oldItem.id == newItem.id
                 }
 
                 override fun areContentsTheSame(oldItem: Subject, newItem: Subject): Boolean {

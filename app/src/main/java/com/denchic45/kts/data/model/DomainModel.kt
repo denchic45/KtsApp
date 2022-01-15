@@ -1,10 +1,10 @@
 package com.denchic45.kts.data.model
 
-abstract class DomainModel() : Equatable {
+abstract class DomainModel : Equatable {
 
-    open var uuid: String = ""
+    open var id: String = ""
 
-    open fun copy(): DomainModel? {
-        return null
+    open fun copy(): DomainModel {
+        throw IllegalStateException("You must override copy function")
     }
 }

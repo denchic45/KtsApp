@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -146,7 +145,7 @@ class MainActivity : AppCompatActivity() {
             binding.drawerLayout.close()
             navController.navigate(
                 R.id.action_global_courseFragment,
-                bundleOf(CourseFragment.COURSE_UUID to uuid)
+                bundleOf(CourseFragment.COURSE_ID to uuid)
             )
         }
 
@@ -157,7 +156,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.openProfile.observe(this, { uuid: String ->
             binding.drawerLayout.close()
             val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_UUID, uuid)
+            bundle.putString(ProfileFragment.USER_ID, uuid)
             drawerLayout.close()
             navController.navigate(R.id.action_global_profileFragment, bundle)
         })

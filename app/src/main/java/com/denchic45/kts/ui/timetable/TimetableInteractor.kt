@@ -22,7 +22,7 @@ class TimetableInteractor @Inject constructor(
 ) : Interactor {
 
     fun findEventsOfYourGroupByDate(date: Date): LiveData<List<Event>> {
-        return eventRepository.findLessonOfYourGroupByDate(date, groupPreference.groupUuid)
+        return eventRepository.findLessonOfYourGroupByDate(date, groupPreference.groupId)
             .asLiveData()
     }
 
@@ -41,7 +41,7 @@ class TimetableInteractor @Inject constructor(
         eventRepository.updateHomeworkCompletion(checked)
     }
 
-    fun hasGroup() = groupPreference.groupUuid.isNotEmpty()
+    fun hasGroup() = groupPreference.groupId.isNotEmpty()
 
     val lessonTime: Int get() = eventRepository.lessonTime
 
@@ -50,7 +50,7 @@ class TimetableInteractor @Inject constructor(
         subjectRepository.removeListeners()
     }
 
-    fun yourGroupUuid(): String = groupPreference.groupUuid
+    fun yourGroupId(): String = groupPreference.groupId
 
 
     val role: String

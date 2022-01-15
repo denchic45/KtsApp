@@ -6,7 +6,7 @@ import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
 data class GroupDoc(
-    var uuid: String,
+    var id: String,
     var course: Int,
     var name: String,
     var curator: UserDoc? = null,
@@ -39,8 +39,8 @@ data class GroupDoc(
 }
 
 data class SubjectTeacherPair(
-    var subjectUuid: String,
-    var teacherUuid: String
+    var subjectId: String,
+    var teacherId: String
 ) {
     private constructor() : this("", "")
 }

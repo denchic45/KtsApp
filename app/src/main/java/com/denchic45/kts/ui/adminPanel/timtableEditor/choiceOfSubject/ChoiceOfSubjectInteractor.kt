@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.adminPanel.timtableEditor.choiceOfSubject
 
 import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.repository.SubjectRepository
 import io.reactivex.rxjava3.core.Observable
@@ -25,14 +25,14 @@ class ChoiceOfSubjectInteractor @Inject constructor(
     }
 
 
-    val subjectsOfGroup: LiveData<Resource<List<Subject>>>
+    val subjectsOfGroup: LiveData<Resource2<List<Subject>>>
         get() = subjectRepository.findByGroup(groupUuid)
 
     fun postSelectedSubject(subject: Subject) {
         selectedSubject.onNext(subject)
     }
 
-    fun findSubjectByTypedName(name: String): Flow<Resource<List<Subject>>> {
+    fun findSubjectByTypedName(name: String): Flow<Resource2<List<Subject>>> {
         return subjectRepository.findByTypedName(name)
     }
 }

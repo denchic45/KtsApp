@@ -40,7 +40,7 @@ class TeacherRepository @Inject constructor(
     suspend fun add(teacher: User): User {
         batch = firestore.batch()
         val teacherDoc = userMapper.domainToDoc(teacher)
-        batch!![usersRef.document(teacherDoc.uuid)] = teacherDoc
+        batch!![usersRef.document(teacherDoc.id)] = teacherDoc
         batch!!.commit().await()
         return teacher
     }
@@ -49,8 +49,8 @@ class TeacherRepository @Inject constructor(
         batch = firestore.batch()
         val teacherDoc = userMapper.domainToDoc(teacher)
         val tasks = Tasks.whenAllComplete(
-            findGroupsWithTeacherQuery(teacher.uuid),
-            findGroupWithCuratorQuery(teacher.uuid)
+            findGroupsWithTeacherQuery(teacher.id),
+            findGroupWithCuratorQuery(teacher.id)
         ).await()
         val groupsWithThisTeacherSnapshot = tasks[0].result as QuerySnapshot?
         val groupWithThisCuratorSnapshot = tasks[1].result as QuerySnapshot?
@@ -60,7 +60,7 @@ class TeacherRepository @Inject constructor(
             )
             for ((uuid) in groupsWithThisTeacher) {
                 val updateGroupMap: MutableMap<String, Any> = HashMap()
-                updateGroupMap["teachers." + teacher.uuid] = teacherDoc
+                updateGroupMap["teachers." + teacher.id] = teacherDoc
                 updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
                 batch!!.update(groupsRef.document(uuid), updateGroupMap)
             }
@@ -74,7 +74,7 @@ class TeacherRepository @Inject constructor(
             updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
             batch!!.update(groupsRef.document(uuid), updateGroupMap)
         }
-        batch!![usersRef.document(teacherDoc.uuid)] = teacherDoc
+        batch!![usersRef.document(teacherDoc.id)] = teacherDoc
         batch!!.commit().await()
         return teacher
     }
@@ -84,7 +84,7 @@ class TeacherRepository @Inject constructor(
     }
 
     fun findGroupWithCuratorQuery(teacherUuid: String?): Task<QuerySnapshot> {
-        return groupsRef.whereEqualTo("curator.uuid", teacherUuid).get()
+        return groupsRef.whereEqualTo("curator.id", teacherUuid).get()
     }
 
     fun findByTypedName(teacherName: String): Flow<Resource2<List<User>>> = callbackFlow {
@@ -115,11 +115,11 @@ class TeacherRepository @Inject constructor(
                 return@create
             }
             batch = firestore.batch()
-            batch!!.delete(usersRef.document(teacher.uuid))
+            batch!!.delete(usersRef.document(teacher.id))
             batch!!.commit()
                 .addOnSuccessListener { command: Void? -> emitter.onComplete() }
                 .addOnFailureListener { t: Exception? -> emitter.onError(t) }
-            deleteAvatar(teacher.uuid)
+            deleteAvatar(teacher.id)
         }
     }
 

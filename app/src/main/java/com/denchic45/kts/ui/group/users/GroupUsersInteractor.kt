@@ -17,11 +17,11 @@ class GroupUsersInteractor @Inject constructor(
     private val studentRepository: StudentRepository
 ) : Interactor {
 
-    val yourGroupUuid: String
-        get() = groupRepository.yourGroupUuid
+    val yourGroupId: String
+        get() = groupRepository.yourGroupId
 
-    fun getUsersByGroupUuid(groupUuid: String?): LiveData<List<User>> {
-        return userRepository.getByGroupUuid(groupUuid)
+    fun getUsersByGroupUuid(groupId: String): LiveData<List<User>> {
+        return userRepository.getByGroupUuid(groupId)
     }
 
     fun removeStudent(student: User?): Completable {

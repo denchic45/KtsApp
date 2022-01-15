@@ -3,19 +3,19 @@ package com.denchic45.kts.data.model.domain
 import com.denchic45.kts.data.model.DomainModel
 
 data class Subject(
-    override var uuid: String,
+    override var id: String,
     val name: String,
     val iconUrl: String,
     val colorName: String
 ) : DomainModel() {
 
     val isEmpty: Boolean
-    get() = uuid.isEmpty()
+    get() = id.isEmpty()
 
     private constructor():this("","","","")
 
     override fun copy(): Subject {
-        return Subject(uuid, name, iconUrl, colorName)
+        return Subject(id, name, iconUrl, colorName)
     }
 
     companion object {

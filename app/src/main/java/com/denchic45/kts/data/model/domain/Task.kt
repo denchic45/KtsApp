@@ -8,12 +8,13 @@ import java.util.*
 
 
 data class Task(
-    override var uuid: String,
+    override var id: String,
     override val courseId: String,
     override val sectionId: String,
     override val name: String,
     override val description: String,
-    val completionDate: LocalDateTime,
+    override val order: Long,
+    val completionDate: LocalDateTime?,
     val disabledSendAfterDate: Boolean,
     override val attachments: List<Attachment>,
     val answerType: AnswerType,
@@ -29,6 +30,7 @@ data class Task(
         "",
         "",
         "",
+        0,
         LocalDateTime.now(),
         false,
         emptyList(),
@@ -56,7 +58,7 @@ data class Attachment(
 
     val name: String = file.name
 
-    override var uuid: String = name
+    override var id: String = name
 
     val extension: String = file.getExtension()
 }

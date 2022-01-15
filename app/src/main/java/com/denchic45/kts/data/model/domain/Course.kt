@@ -7,9 +7,9 @@ data class Course(
     var groups: List<Group>,
 ):DomainModel() {
 
-    override var uuid: String
-        get() = info.uuid
-        set(value) {info.uuid = value}
+    override var id: String
+        get() = info.id
+        set(value) {info.id = value}
 
     private constructor():this(CourseInfo("","", Subject.createEmpty(), User.createEmpty()), mutableListOf())
 
@@ -22,7 +22,7 @@ data class Course(
 }
 
 data class CourseInfo(
-    override var uuid: String,
+    override var id: String,
     val name: String,
     var subject: Subject,
     var teacher: User

@@ -17,7 +17,7 @@ class GroupInteractor @Inject constructor(
 ) : Interactor {
 
     val yourGroupUuid: String
-        get() = groupRepository.yourGroupUuid
+        get() = groupRepository.yourGroupId
 
     override fun removeListeners() {}
     val yourGroupName: String

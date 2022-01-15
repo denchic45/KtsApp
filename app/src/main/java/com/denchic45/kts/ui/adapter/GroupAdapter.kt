@@ -132,7 +132,7 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<DomainModel> =
             object : DiffUtil.ItemCallback<DomainModel>() {
                 override fun areItemsTheSame(oldItem: DomainModel, newItem: DomainModel): Boolean {
-                    return oldItem.uuid == newItem.uuid
+                    return oldItem.id == newItem.id
                 }
 
                 @SuppressLint("DiffUtilEquals")

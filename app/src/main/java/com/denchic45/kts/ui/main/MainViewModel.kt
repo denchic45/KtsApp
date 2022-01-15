@@ -86,7 +86,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onProfileClick() {
-        openProfile.value = userInfo.value!!.uuid
+        openProfile.value = userInfo.value!!.id
     }
 
     fun onNavItemClick(position: Int) {
@@ -135,7 +135,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             interactor.findOwnCourses()
                 .combine(interactor.observeHasGroup()) { courses, hasGroup ->
-                    courseUuids = courses.map { it.name to it.uuid }.toMap()
+                    courseUuids = courses.map { it.name to it.id }.toMap()
                     NavMenuState.NavMenu(
                         courses,
                         interactor.findThisUser(),
@@ -204,7 +204,7 @@ class MainViewModel @Inject constructor(
                     list.addAll(visibleCourses.map {
                         NavTextItem(
                             EitherResource.String(it.name),
-                            uuid = it.uuid,
+                            id = it.id,
                             iconType = NavTextItem.IconType.CIRCLE,
                             color = EitherResource.String(it.subject.colorName)
                         )

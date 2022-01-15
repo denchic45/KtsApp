@@ -1,11 +1,10 @@
 package com.denchic45.kts.ui.login.verifyPhoneNum
 
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -39,11 +38,19 @@ class VerifyPhoneNumViewModel @Inject constructor(
     fun onVerifyClick(phoneNum: String) {
         val subscribe = interactor.sendUserPhoneNumber(phoneNum).subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ event: Resource<String> ->
-                when (event.status) {
-                    Resource.SUCCESSFUL -> {
+            .subscribe({ event ->
+                when (event) {
+                    is Resource2.Success -> {
                         authSuccessful.value = event.data
                     }
+                    is Resource2.Error -> {
+                        if (event.error is FirebaseTooManyRequestsException) {
+                            errorToManyRequest.call()
+                        } else if (event.error is FirebaseAuthInvalidCredentialsException) {
+                            errorInvalidRequest.call()
+                        }
+                    }
+
                 }
             }, { throwable: Throwable ->
                 if (throwable is FirebaseTooManyRequestsException) {

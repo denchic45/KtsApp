@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.prefs
 
 import android.content.Context
-import android.util.Log
 import com.denchic45.kts.data.model.room.GroupEntity
 import javax.inject.Inject
 
@@ -17,29 +16,28 @@ class GroupPreference @Inject constructor(context: Context) :
         set(groupName) {
             setValue(GROUP_NAME, groupName)
         }
-    var groupUuid: String
-        get() = getValue(GROUP_UUID, "")
-        set(groupUuid) {
-            Log.d("lol", "setValue: $groupUuid")
-            setValue(GROUP_UUID, groupUuid)
+    var groupId: String
+        get() = getValue(GROUP_ID, "")
+        set(groupId) {
+            setValue(GROUP_ID, groupId)
         }
-    var groupSpecialtyUuid: String
-        get() = getValue(GROUP_SPECIALTY_UUID, "")
-        set(groupSpecialtyUuid) {
-            setValue(GROUP_SPECIALTY_UUID, groupSpecialtyUuid)
+    var groupSpecialtyId: String
+        get() = getValue(GROUP_SPECIALTY_ID, "")
+        set(groupSpecialtyId) {
+            setValue(GROUP_SPECIALTY_ID, groupSpecialtyId)
         }
 
     fun saveGroupInfo(group: GroupEntity) {
         groupName = group.name
         groupCourse = group.course
-        groupSpecialtyUuid = group.specialtyUuid
-        groupUuid = group.id
+        groupSpecialtyId = group.specialtyId
+        groupId = group.id
     }
 
     companion object {
         const val GROUP_COURSE = "GROUP_COURSE"
         const val GROUP_NAME = "GROUP_NAME"
-        const val GROUP_UUID = "GROUP_UUID"
-        const val GROUP_SPECIALTY_UUID = "GROUP_SPECIALTY_UUID"
+        const val GROUP_ID = "GROUP_UUID"
+        const val GROUP_SPECIALTY_ID = "GROUP_SPECIALTY_UUID"
     }
 }

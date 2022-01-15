@@ -4,14 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.AnswerType
-import com.denchic45.kts.data.model.domain.Attachment
-import com.denchic45.kts.data.model.domain.MarkType
-import com.denchic45.kts.data.model.domain.Task
-import com.denchic45.kts.domain.AddTaskUseCase
-import com.denchic45.kts.domain.FindAttachmentsUseCase
-import com.denchic45.kts.domain.FindTaskUseCase
-import com.denchic45.kts.domain.UpdateTaskUseCase
+import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uieditor.UIEditor
@@ -37,16 +31,21 @@ class TaskEditorViewModel @Inject constructor(
     @Named(TaskEditorFragment.SECTION_ID) sectionId: String?,
     private val findTaskUseCase: FindTaskUseCase,
     private val findAttachmentsUseCase: FindAttachmentsUseCase,
+    private val findSectionUseCase: FindSectionUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase
 ) : BaseViewModel() {
+
+
     val nameField = MutableLiveData<String>()
     val descriptionField = MutableLiveData<String>()
     val showCompletionDate = MutableLiveData<String?>()
     val disabledSendAfterDate = MutableLiveData<Boolean>()
+    val sectionField = MutableLiveData<String>()
 
     val availabilityDateRemoveVisibility = MutableLiveData<Boolean>()
     val showAttachments = MutableLiveData<List<Attachment>>()
+    val openCourseSections = SingleLiveData<Pair<String, Section>>()
     val filesVisibility = MutableLiveData(false)
     val commentsEnabled = MutableLiveData<Boolean>()
 
@@ -67,24 +66,28 @@ class TaskEditorViewModel @Inject constructor(
     val openTimePicker: SingleLiveData<Pair<Int, Int>> = SingleLiveData()
     val showErrorMessage = SingleLiveData<Pair<Int, String?>>()
 
-    var completionDate: LocalDateTime? = null
+    private var completionDate: LocalDateTime? = null
     private val attachments: MutableList<Attachment> = mutableListOf()
     private val taskId: String = taskId ?: UUIDS.createShort()
-    private val sectionId: String = sectionId ?: ""
+    private var section: Section = Section.createEmpty()
+
     private var createdDate: Date = Date()
     private var timestamp: Date = Date()
+
+    private var order: Long = 0
 
     private val uiEditor: UIEditor<Task> = UIEditor(taskId == null) {
         Task(
             this.taskId,
             courseId,
-            this.sectionId,
+            this.section.id,
             nameField.value ?: "",
             descriptionField.value ?: "",
+            order,
             if (showCompletionDate.value != null) LocalDateTime.parse(
                 showCompletionDate.value,
                 DateTimeFormatter.ofPattern("EE, dd LLLL yyyy, HH:mm")
-            ) else LocalDateTime.now(),
+            ) else null,
             disabledSendAfterDate.value ?: false,
             attachments,
             with(answerType.value) {
@@ -168,6 +171,9 @@ class TaskEditorViewModel @Inject constructor(
         } else setupForExist()
 
         availabilityDateRemoveVisibility.postValue(completionDate != null)
+        sectionId?.let {
+
+        }
     }
 
 
@@ -177,33 +183,41 @@ class TaskEditorViewModel @Inject constructor(
 
     private fun setupForExist() {
         viewModelScope.launch {
-            findTaskUseCase(taskId).collect {
-                uiEditor.oldItem = it
-                nameField.value = it.name
-                descriptionField.value = it.description
-                completionDate = it.completionDate
-                createdDate = it.createdDate
-                timestamp = it.timestamp
-                postCompletionDate()
-                disabledSendAfterDate.value = it.disabledSendAfterDate
-                answerType.value = with(it.answerType) {
-                    AnswerTypeState(
-                        textAvailable,
-                        charsLimit.toString(),
-                        attachmentsAvailable,
-                        attachmentsLimit.toString(),
-                        attachmentsSizeLimit.toString()
-                    )
-                }
-                markType.value = with(it.markType) {
-                    when (this) {
-                        is MarkType.Score -> MarkTypeState.Score(maxScore.toString())
-                        is MarkType.Binary -> MarkTypeState.Binary
+            findTaskUseCase(taskId)
+                .collect {
+                    uiEditor.oldItem = it
+                    nameField.value = it.name
+                    descriptionField.value = it.description
+                    completionDate = it.completionDate
+                    createdDate = it.createdDate
+                    timestamp = it.timestamp
+                    postCompletionDate()
+                    disabledSendAfterDate.value = it.disabledSendAfterDate
+                    answerType.value = with(it.answerType) {
+                        AnswerTypeState(
+                            textAvailable,
+                            charsLimit.toString(),
+                            attachmentsAvailable,
+                            attachmentsLimit.toString(),
+                            attachmentsSizeLimit.toString()
+                        )
                     }
+                    markType.value = with(it.markType) {
+                        when (this) {
+                            is MarkType.Score -> MarkTypeState.Score(maxScore.toString())
+                            is MarkType.Binary -> MarkTypeState.Binary
+                        }
+                    }
+                    commentsEnabled.value = it.commentsEnabled
+                    section = findSectionUseCase(it.sectionId)
+                    postSelection()
+                    observeAttachments()
                 }
-                commentsEnabled.value = it.commentsEnabled
-            }
         }
+
+    }
+
+    private fun observeAttachments() {
         viewModelScope.launch {
             findAttachmentsUseCase(taskId).collect {
                 attachments.clear()
@@ -368,6 +382,19 @@ class TaskEditorViewModel @Inject constructor(
                 finish.call()
             }
         }
+    }
+
+    fun onSectionClick() {
+        openCourseSections.value = courseId to section
+    }
+
+    fun onSectionSelected(section: Section) {
+        this.section = section
+        postSelection()
+    }
+
+    private fun postSelection() {
+        sectionField.value = section.name
     }
 
     data class AnswerTypeState(

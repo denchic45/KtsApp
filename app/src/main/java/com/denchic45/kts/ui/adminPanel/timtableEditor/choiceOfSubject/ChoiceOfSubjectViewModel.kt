@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.adminPanel.timtableEditor.choiceOfSubject
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,7 +15,7 @@ import javax.inject.Inject
 class ChoiceOfSubjectViewModel @Inject constructor(
     private val interactor: ChoiceOfSubjectInteractor
 ) : BaseViewModel() {
-    val showFoundSubjects = MutableLiveData<Resource<List<Subject>>>()
+    val showFoundSubjects = MutableLiveData<Resource2<List<Subject>>>()
     private val querySubjectsByName = MutableSharedFlow<String>()
 
     fun onSubjectNameType(name: String) {
@@ -25,7 +25,7 @@ class ChoiceOfSubjectViewModel @Inject constructor(
     }
 
     fun onSubjectClick(position: Int) {
-        interactor.postSelectedSubject(showFoundSubjects.value!!.data[position])
+        interactor.postSelectedSubject((showFoundSubjects.value!! as Resource2.Success).data[position])
         finish.call()
     }
 
@@ -33,7 +33,7 @@ class ChoiceOfSubjectViewModel @Inject constructor(
         viewModelScope.launch {
             querySubjectsByName.filter { s: String -> s.length > 2 }
                 .flatMapLatest { name: String -> interactor.findSubjectByTypedName(name) }
-                .collect { value: Resource<List<Subject>> -> showFoundSubjects.setValue(value) }
+                .collect { value: Resource2<List<Subject>> -> showFoundSubjects.setValue(value) }
         }
     }
 }

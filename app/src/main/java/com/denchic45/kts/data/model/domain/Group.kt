@@ -6,7 +6,7 @@ import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
 data class Group @Default constructor (
-    override var uuid: String,
+    override var id: String,
     var name: String,
     var course: Int,
     var specialty: Specialty,
@@ -18,7 +18,7 @@ data class Group @Default constructor (
     var timestamp: Date? = null
 
     constructor(group: Group) : this() {
-        uuid = group.uuid
+        id = group.id
         name = group.name
         course = group.course
         specialty = group.specialty.copy()

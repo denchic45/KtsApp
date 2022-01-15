@@ -27,7 +27,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class SubjectEditorViewModel @Inject constructor(
-    @Named(SubjectEditorDialog.SUBJECT_UUID) subjectUuid: String?,
+    @Named(SubjectEditorDialog.SUBJECT_ID) subjectUuid: String?,
     private val interactor: SubjectEditorInteractor,
     private var iconPickerInteractor: IconPickerInteractor
 ) : BaseViewModel() {

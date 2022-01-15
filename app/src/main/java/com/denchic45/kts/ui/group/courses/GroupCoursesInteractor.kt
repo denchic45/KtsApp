@@ -27,7 +27,7 @@ class GroupCoursesInteractor @Inject constructor(
     }
 
     val yourGroupUuid: String
-        get() = groupRepository.yourGroupUuid
+        get() = groupRepository.yourGroupId
 
     fun findThisUser(): User {
         return userRepository.findSelf()

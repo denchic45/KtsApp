@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.adminPanel.timtableEditor.finder
 import androidx.lifecycle.*
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.ui.adapter.EventAdapter
@@ -101,19 +101,19 @@ class TimetableFinderViewModel @Inject constructor(
         eventEditorInteractor.setEditedEvent(editingEvents[position], false)
         openEventEditor.call()
         eventEditorInteractor.observeEvent()
-            .subscribe { resource: Resource<Event> ->
-                when (resource.status) {
+            .subscribe { resource ->
+                when ((resource as Resource2.Success).data.second) {
                     EventEditorInteractor.LESSON_CREATED -> Events.add(
                         editingEvents,
-                        resource.data
+                        resource.data.first
                     )
                     EventEditorInteractor.LESSON_EDITED -> Events.update(
                         editingEvents,
-                        resource.data
+                        resource.data.first
                     )
                     EventEditorInteractor.LESSON_REMOVED -> Events.remove(
                         editingEvents,
-                        resource.data
+                        resource.data.first
                     )
                 }
                 postUpdateLessonsOfGroup()
@@ -156,7 +156,7 @@ class TimetableFinderViewModel @Inject constructor(
 
     private fun postUpdateLessonsOfGroup() {
         showEditedLessons.value = editingEvents + ListItem(
-            uuid = "",
+            id = "",
             title = "",
             content = selectedDate,
             type = EventAdapter.TYPE_CREATE
@@ -176,9 +176,9 @@ class TimetableFinderViewModel @Inject constructor(
         eventEditorInteractor.setEditedEvent(createdLesson, true)
         openEventEditor.call()
         eventEditorInteractor.observeEvent()
-            .subscribe { resource: Resource<Event> ->
-                if (resource.status == EventEditorInteractor.LESSON_CREATED) {
-                    val event = resource.data
+            .subscribe { resource ->
+                if ((resource as Resource2.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
+                    val event = resource.data.first
                     Events.add(editingEvents, event)
                     postUpdateLessonsOfGroup()
                 }
@@ -190,7 +190,7 @@ class TimetableFinderViewModel @Inject constructor(
             Transformations.map(Transformations.switchMap(selectedGroup) { groupItem: Group? ->
                 interactor.findLessonsOfGroupByDate(
                     selectedDate,
-                    groupItem!!.uuid
+                    groupItem!!.id
                 ).asLiveData()
             }) { input: List<Event> ->
                 if (editingEvents.isNotEmpty()) {
@@ -202,12 +202,12 @@ class TimetableFinderViewModel @Inject constructor(
         viewModelScope.launch {
             typedGroupName.filter { s -> s.length > 1 }
                 .flatMapLatest { groupName -> interactor.findGroupByTypedName(groupName) }
-                .map { resource: Resource<List<Group>> ->
-                    foundGroups = resource.data
+                .map { resource ->
+                    foundGroups = (resource as Resource2.Success).data
                     resource.data.stream()
                         .map { (uuid, name) ->
                             ListItem(
-                                uuid = uuid,
+                                id = uuid,
                                 title = name,
                                 icon = EitherResource.Id(R.drawable.ic_group)
                             )

@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.courseEditor
 
 import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.Group
@@ -22,7 +21,7 @@ class CourseEditorInteractor @Inject constructor(
     private val groupInfoRepository: GroupInfoRepository,
     private val courseRepository: CourseRepository,
     private val groupPreference: GroupPreference
-) : Interactor  {
+) : Interactor {
 
     fun findSubject(subjectUuid: String): Subject {
         return subjectRepository.getByUuid(subjectUuid)
@@ -32,7 +31,7 @@ class CourseEditorInteractor @Inject constructor(
         return teacherRepository.findByTypedName(name)
     }
 
-    fun findSubjectByTypedName(name: String): Flow<Resource<List<Subject>>> {
+    fun findSubjectByTypedName(name: String): Flow<Resource2<List<Subject>>> {
         return subjectRepository.findByTypedName(name)
     }
 
@@ -53,7 +52,7 @@ class CourseEditorInteractor @Inject constructor(
     }
 
     val yourGroupUuid: String
-        get() = groupPreference.groupUuid
+        get() = groupPreference.groupId
 
     override fun removeListeners() {
         courseRepository.removeListeners()

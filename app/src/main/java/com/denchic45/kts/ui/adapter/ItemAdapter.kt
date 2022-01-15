@@ -213,7 +213,7 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<ListItem> =
             object : DiffUtil.ItemCallback<ListItem>() {
                 override fun areItemsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {
-                    return oldItem.uuid == newItem.uuid
+                    return oldItem.id == newItem.id
                 }
 
                 override fun areContentsTheSame(oldItem: ListItem, newItem: ListItem): Boolean {

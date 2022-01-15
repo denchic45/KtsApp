@@ -108,7 +108,7 @@ class CourseAdapter(
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<CourseInfo> =
             object : DiffUtil.ItemCallback<CourseInfo>() {
                 override fun areItemsTheSame(oldItem: CourseInfo, newItem: CourseInfo): Boolean {
-                    return oldItem.subject.uuid == newItem.subject.uuid
+                    return oldItem.subject.id == newItem.subject.id
                 }
 
                 override fun areContentsTheSame(oldItem: CourseInfo, newItem: CourseInfo): Boolean {

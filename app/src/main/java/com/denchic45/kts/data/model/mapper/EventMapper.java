@@ -43,8 +43,8 @@ public interface EventMapper extends
     default void mapDetails(@Context EventEntity eventEntity, @NonNull Event event) {
         if (event.getType().equals(EventEntity.TYPE.LESSON)) {
             Lesson lesson = (Lesson) event.getDetails();
-            eventEntity.setSubjectUuid(lesson.getSubject().getUuid());
-            eventEntity.setTeacherUuidList(mapTeacherList(lesson.getTeachers()));
+            eventEntity.setSubjectId(lesson.getSubject().getId());
+            eventEntity.setTeacherIds(mapTeacherList(lesson.getTeachers()));
         } else if (event.getType().equals(EventEntity.TYPE.SIMPLE)) {
             SimpleEventDetails simpleEventDetails = (SimpleEventDetails) event.getDetails();
             eventEntity.setName(simpleEventDetails.getName());
@@ -78,7 +78,7 @@ public interface EventMapper extends
 
     EmptyEventDetails eventEntityToEmpty(EventTaskSubjectTeachersEntities entities);
 
-    @Mapping(source = "group.uuid", target = "groupId")
+    @Mapping(source = "group.id", target = "groupId")
     @Mapping(source = "details", target = ".", qualifiedByName = "mapDetails")
     EventEntity eventToEventEntity(Event domain);
 
@@ -99,7 +99,7 @@ public interface EventMapper extends
     @Named("mapTeacherList")
     default List<String> mapTeacherList(@NotNull List<User> teachers) {
         return teachers.stream()
-                .map(User::getUuid)
+                .map(User::getId)
                 .collect(Collectors.toList());
     }
 
@@ -115,7 +115,7 @@ public interface EventMapper extends
         return eventDoc;
     }
 
-    @Mapping(source = "group.uuid", target = "groupId")
+    @Mapping(source = "group.id", target = "groupId")
     EventDoc eventToEventDoc(Event domain);
 
     default List<EventDoc> domainToDoc(@NonNull List<Event> docs) {
@@ -134,8 +134,8 @@ public interface EventMapper extends
         throw new IllegalArgumentException();
     }
 
-    @Mapping(source = "teachers", target = "teacherUuidList", qualifiedByName = "mapTeacherList")
-    @Mapping(source = "subject.uuid", target = "subjectId")
+    @Mapping(source = "teachers", target = "teacherIds", qualifiedByName = "mapTeacherList")
+    @Mapping(source = "subject.id", target = "subjectId")
     EventDetailsDoc lessonToDetailsDoc(Lesson eventDetails);
 
     EventDetailsDoc simpleToDetailsDoc(SimpleEventDetails eventDetails);
@@ -157,9 +157,9 @@ public interface EventMapper extends
 
     default List<TeacherEventCrossRef> lessonEntitiesToTeacherLessonCrossRefEntities(@NotNull List<EventEntity> lessonEntities) {
         return lessonEntities.stream()
-                .flatMap((Function<EventEntity, Stream<TeacherEventCrossRef>>) lessonEntity -> lessonEntity.getTeacherUuidList()
+                .flatMap((Function<EventEntity, Stream<TeacherEventCrossRef>>) lessonEntity -> lessonEntity.getTeacherIds()
                         .stream()
-                        .map(uuid -> new TeacherEventCrossRef(lessonEntity.getUuid(), uuid)))
+                        .map(uuid -> new TeacherEventCrossRef(lessonEntity.getId(), uuid)))
                 .collect(Collectors.toList());
     }
 }

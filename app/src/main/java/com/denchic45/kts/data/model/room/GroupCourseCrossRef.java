@@ -7,7 +7,7 @@ import androidx.room.ForeignKey;
 
 import com.denchic45.kts.data.model.EntityModel;
 
-@Entity(tableName = "group_course", primaryKeys = {"group_id","uuid_course"},
+@Entity(tableName = "group_course", primaryKeys = {"group_id","course_id"},
         foreignKeys = {
                 @ForeignKey(entity = GroupEntity.class,
                         parentColumns = "group_id",
@@ -16,8 +16,8 @@ import com.denchic45.kts.data.model.EntityModel;
                         onUpdate = ForeignKey.CASCADE,
                         deferred = true),
                 @ForeignKey(entity = CourseEntity.class,
-                        parentColumns = "uuid_course",
-                        childColumns = "uuid_course",
+                        parentColumns = "course_id",
+                        childColumns = "course_id",
                         onDelete = ForeignKey.CASCADE,
                         onUpdate = ForeignKey.CASCADE,
                         deferred = true)
@@ -31,7 +31,7 @@ public class GroupCourseCrossRef implements EntityModel {
     @ColumnInfo(index = true, name = "group_id")
     @NonNull
     public String groupId;
-    @ColumnInfo(index = true, name = "uuid_course")
+    @ColumnInfo(index = true, name = "course_id")
     @NonNull
     public String courseUuid;
 }

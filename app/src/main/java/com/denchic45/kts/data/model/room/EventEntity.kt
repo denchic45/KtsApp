@@ -10,28 +10,26 @@ import java.util.*
 @Entity(tableName = "event")
 data class EventEntity(
     @PrimaryKey
-    @ColumnInfo(name = "eventUuid")
-    var uuid: String = UUID.randomUUID().toString(),
-
+    @ColumnInfo(name = "event_id")
+    var id: String,
     @field:TypeConverters(TimestampConverter::class)
-    var timestamp: Date? = null,
+    var timestamp: Date,
     var order: Int = 0,
-
     @field:TypeConverters(DateConverter::class)
-    var date: Date? = null,
-    var room: String? = null,
-
+    var date: Date,
+    var room: String,
     @ColumnInfo(name = "subject_id")
-    var subjectUuid: String? = null,
-
+    var subjectId: String,
     @field:TypeConverters(ListConverter::class)
-    var teacherUuidList: List<String>? = null,
+    @ColumnInfo(name = "teacher_ids")
+    var teacherIds: List<String>,
     @ColumnInfo(name = "group_id")
-    var groupId: String? = null,
-    var type: TYPE? = null,
-    var name: String? = null,
-    var iconUrl: String? = null,
-    var color: String? = null,
+    var groupId: String,
+    var type: TYPE,
+    var name: String,
+    @ColumnInfo(name = "icon_url")
+    var iconUrl: String,
+    var color: String,
 ) : EntityModel {
     enum class TYPE {
         LESSON, SIMPLE, EMPTY

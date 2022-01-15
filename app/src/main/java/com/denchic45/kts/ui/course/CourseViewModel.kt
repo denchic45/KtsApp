@@ -4,9 +4,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.CourseContent
 import com.denchic45.kts.data.model.domain.Task
-import com.denchic45.kts.domain.RemoveCourseContentUseCase
+import com.denchic45.kts.domain.usecase.RemoveCourseContentUseCase
 import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
@@ -17,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class CourseViewModel @Inject constructor(
-    @Named(CourseFragment.COURSE_UUID) private val courseId: String,
+    @Named(CourseFragment.COURSE_ID) private val courseId: String,
     findCourseUseCase: FindCourseUseCase,
     private val removeCourseContentUseCase: RemoveCourseContentUseCase,
     private val findCourseContentUseCase: FindCourseContentUseCase,
@@ -29,17 +28,19 @@ class CourseViewModel @Inject constructor(
     val showContents: MutableLiveData<List<DomainModel>> = MutableLiveData()
     private val findCourseFlow = findCourseUseCase(courseId)
 
+    private val uiPermissions: UIPermissions = UIPermissions(findSelfUserUseCase())
+
     init {
         viewModelScope.launch {
             findCourseFlow.collect { course ->
                 courseName.value = course.info.name
-                uiPermissions.addPermissions(Permission(
+                uiPermissions.addPermissions(
+                    Permission(
                     PERMISSION_EDIT,
                     { it == course.info.teacher },
                     { it.admin }
                 )
                 )
-
             }
         }
         viewModelScope.launch {
@@ -56,21 +57,19 @@ class CourseViewModel @Inject constructor(
 
     fun onTaskItemClick(position: Int) {
         openTaskEditor.value = Triple(
-            showContents.value!![position].uuid,
+            showContents.value!![position].id,
             courseId,
             (showContents.value!![position] as Task).sectionId
         )
     }
 
     fun onTaskItemLongClick(position: Int) {
-        viewModelScope.launch {
-            removeCourseContentUseCase(showContents.value!![position] as CourseContent)
-        }
+//        viewModelScope.launch {
+//            removeCourseContentUseCase(showContents.value!![position] as CourseContent)
+//        }
     }
 
-    private val uiPermissions: UIPermissions = UIPermissions(findSelfUserUseCase()).apply {
 
-    }
 
     override fun onCleared() {
         super.onCleared()

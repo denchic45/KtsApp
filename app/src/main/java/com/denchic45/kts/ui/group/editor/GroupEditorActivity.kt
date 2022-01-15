@@ -64,6 +64,6 @@ class GroupEditorActivity :
     }
 
     companion object {
-        const val GROUP_UUID = "GROUP_UUID"
+        const val GROUP_ID = "GROUP_UUID"
     }
 }

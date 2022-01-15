@@ -30,7 +30,7 @@ class AdapterDelegatesManger(
         }
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].uuid == newList[newItemPosition].uuid
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

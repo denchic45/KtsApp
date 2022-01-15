@@ -28,10 +28,13 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.databinding.FragmentTaskEditorBinding
 import com.denchic45.kts.databinding.ItemAttachmentBinding
+import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.confirm.ConfirmDialog
+import com.denchic45.kts.ui.course.sectionPicker.SectionPickerFragment
+import com.denchic45.kts.ui.course.sectionPicker.SectionPickerViewModel
 import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
@@ -46,6 +49,7 @@ import com.google.android.material.timepicker.TimeFormat.CLOCK_24H
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
 import java.io.File
+import javax.inject.Inject
 
 
 class TaskEditorFragment :
@@ -72,7 +76,7 @@ class TaskEditorFragment :
         }
     }
 
-    private val arrayAdapter by lazy {
+    private val markAdapter by lazy {
         object : ArrayAdapter<String>(
             requireContext(),
             R.layout.item_content,
@@ -85,7 +89,6 @@ class TaskEditorFragment :
             ): View {
                 val view1 = super.getView(position, convertView, parent)
                 view1.isEnabled = position != 2
-
                 return view1
             }
 
@@ -107,6 +110,13 @@ class TaskEditorFragment :
 
     override val viewModel: TaskEditorViewModel by viewModels { viewModelFactory }
 
+    @Inject
+    lateinit var sectionPickerViewModelFactory: ViewModelFactory<SectionPickerViewModel>
+
+    private val sectionPickerViewModel: SectionPickerViewModel by viewModels(
+        ownerProducer = { this }, factoryProducer = {sectionPickerViewModelFactory}
+    )
+
     override val binding: FragmentTaskEditorBinding by viewBinding(FragmentTaskEditorBinding::bind)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,9 +130,7 @@ class TaskEditorFragment :
                         viewModel.onAttachmentsSelect(
                             List(clipData.itemCount) { position ->
                                 File(
-                                    requireContext().path(
-                                        clipData.getItemAt(position).uri
-                                    )
+                                    requireContext().path(clipData.getItemAt(position).uri)
                                 )
                             }
                         )
@@ -174,10 +182,16 @@ class TaskEditorFragment :
             etAttachmentsSizeLimit.filters =
                 arrayOf(ValueFilter(0, 999), InputFilter.LengthFilter(3))
 
-            actMarkType.setAdapter(arrayAdapter)
+            actMarkType.setAdapter(markAdapter)
 
             actMarkType.setOnItemClickListener { _, _, position, _ ->
                 viewModel.onMarkTypeSelect(position)
+            }
+
+            actSection.setOnTouchListener { v, event ->
+                if (MotionEvent.ACTION_DOWN == event.action)
+                    viewModel.onSectionClick()
+                false
             }
 
             llAvailabilityDate.setOnClickListener { viewModel.onAvailabilityDateClick() }
@@ -260,7 +274,19 @@ class TaskEditorFragment :
                 )
             }
 
+            viewModel.sectionField.observe(viewLifecycleOwner, actSection::setText)
 
+            viewModel.openCourseSections.observe(viewLifecycleOwner) { (courseId, selectedSection) ->
+                sectionPickerViewModel.currentSelectedSection = selectedSection
+                SectionPickerFragment.newInstance(courseId)
+                    .show(childFragmentManager, null)
+            }
+
+            lifecycleScope.launchWhenStarted {
+                sectionPickerViewModel.selectedSectionId.collect {
+                    viewModel.onSectionSelected(it)
+                }
+            }
 
             viewModel.openAttachment.observe(viewLifecycleOwner, this@TaskEditorFragment::openFile)
 
@@ -311,7 +337,7 @@ class TaskEditorFragment :
 
             viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
                 ConfirmDialog.newInstance(title, subtitle)
-                    .show(parentFragmentManager, null)
+                    .show(childFragmentManager, null)
             }
 
             viewModel.disabledSendAfterDate.observe(viewLifecycleOwner) {
@@ -359,8 +385,8 @@ class TaskEditorFragment :
                             vfMarkType.displayedChild = 1
                         }
                     }
-                    if (actMarkType.text.toString() != arrayAdapter.getItem(it.position)) {
-                        actMarkType.setText(arrayAdapter.getItem(it.position) as String)
+                    if (actMarkType.text.toString() != markAdapter.getItem(it.position)) {
+                        actMarkType.setText(markAdapter.getItem(it.position) as String)
                     }
                 }
             }

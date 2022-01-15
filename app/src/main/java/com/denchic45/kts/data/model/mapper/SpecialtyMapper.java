@@ -14,9 +14,7 @@ import org.mapstruct.MappingTarget;
 import java.util.List;
 
 @Mapper
-public interface SpecialtyMapper extends DomainDocMapper<Specialty, SpecialtyDoc>,
-        DomainEntityMapper<Specialty, SpecialtyEntity>,
-        DocEntityMapper<SpecialtyDoc, SpecialtyEntity> {
+public interface SpecialtyMapper {
     @AfterMapping
     default void addSearchKeys(@MappingTarget @NotNull SpecialtyDoc specialtyDoc) {
         SearchKeysGenerator generator = new SearchKeysGenerator();
@@ -24,10 +22,26 @@ public interface SpecialtyMapper extends DomainDocMapper<Specialty, SpecialtyDoc
     }
 
     @Mapping(target = "searchKeys", ignore = true)
-    @Override
     SpecialtyDoc entityToDoc(SpecialtyEntity entity);
 
     @Mapping(target = "searchKeys", ignore = true)
-    @Override
     List<SpecialtyDoc> entityToDoc(List<SpecialtyEntity> entity);
+    
+    SpecialtyEntity docToEntity(SpecialtyDoc doc);
+
+    List<SpecialtyEntity> docToEntity(List<SpecialtyDoc> doc);
+
+    SpecialtyDoc domainToDoc(Specialty domain);
+
+    Specialty docToDomain(SpecialtyDoc doc);
+
+    List<Specialty> docToDomain(List<SpecialtyDoc> doc);
+
+    List<SpecialtyDoc> domainToDoc(List<Specialty> domain);
+
+    SpecialtyEntity domainToEntity(Specialty domain);
+
+    Specialty entityToDomain(SpecialtyEntity entity);
+
+    List<SpecialtyEntity> domainToEntity(List<Specialty> domain);
 }

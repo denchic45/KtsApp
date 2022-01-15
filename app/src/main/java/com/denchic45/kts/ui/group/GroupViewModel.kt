@@ -18,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class GroupViewModel @Inject constructor(
-    @Named("Group ${GroupPreference.GROUP_UUID}") groupUuid: String?,
+    @Named("Group ${GroupPreference.GROUP_ID}") groupId: String?,
     private val interactor: GroupInteractor
 ) : BaseViewModel() {
     
@@ -33,7 +33,7 @@ class GroupViewModel @Inject constructor(
     val openGroupEditor = SingleLiveData<String>()
     private val isExistGroup: LiveData<Boolean>
 
-    val groupUuid: String = groupUuid ?: interactor.yourGroupUuid
+    val groupUuid: String = groupId ?: interactor.yourGroupUuid
     private val isExistGroupObserver: Observer<Boolean>
     private val uiPermissions: UIPermissions
     private val groupNameByGroupUuid: StateFlow<String> =
@@ -99,7 +99,7 @@ class GroupViewModel @Inject constructor(
                 ALLOW_EDIT_GROUP,
                 Predicate { (_, _, _, _, groupUuid1, role, _, _, _, _, _, _, admin) ->
                     (role == User.HEAD_TEACHER || admin
-                            || groupUuid1 == groupUuid)
+                            || groupUuid1 == groupId)
                 })
         )
         if (uiPermissions.isAllowed(ALLOW_EDIT_GROUP)) {

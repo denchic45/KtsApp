@@ -130,11 +130,11 @@ class SubjectEditorDialog :
     }
 
     companion object {
-        const val SUBJECT_UUID = "SUBJECT_UUID"
+        const val SUBJECT_ID = "SUBJECT_UUID"
         fun newInstance(subjectUuid: String?): SubjectEditorDialog {
             val fragment = SubjectEditorDialog()
             val args = Bundle()
-            args.putString(SUBJECT_UUID, subjectUuid)
+            args.putString(SUBJECT_ID, subjectUuid)
             fragment.arguments = args
             return fragment
         }

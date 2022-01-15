@@ -1,4 +1,4 @@
-package com.denchic45.kts.domain
+package com.denchic45.kts.domain.usecase
 
 import com.denchic45.kts.data.model.domain.CourseContent
 import com.denchic45.kts.data.repository.CourseRepository

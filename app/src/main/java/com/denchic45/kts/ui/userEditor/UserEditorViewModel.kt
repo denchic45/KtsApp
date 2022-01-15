@@ -5,10 +5,8 @@ import android.text.TextUtils
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
@@ -34,9 +32,9 @@ import javax.inject.Inject
 import javax.inject.Named
 
 open class UserEditorViewModel @Inject constructor(
-    @Named("UserEditor ${UserEditorActivity.USER_UUID}") userUuid: String?,
+    @Named("UserEditor ${UserEditorActivity.USER_ID}") userUuid: String?,
     @Named(UserEditorActivity.USER_ROLE) role: String,
-    @Named(UserEditorActivity.USER_GROUP_UUID) private var groupUuid: String?,
+    @Named(UserEditorActivity.USER_GROUP_ID) private var groupId: String?,
     @Named("genders") genderList: List<ListItem>,
     private val interactor: UserEditorInteractor
 ) : BaseViewModel() {
@@ -124,7 +122,7 @@ open class UserEditorViewModel @Inject constructor(
             Validation(Rule({
                 isTeacher(
                     role!!
-                ) || isStudent(role!!) && !groupUuid.isNullOrEmpty()
+                ) || isStudent(role!!) && !groupId.isNullOrEmpty()
             }, "Группа отсутствует"))
                 .sendMessageResult(R.id.til_group, fieldErrorMessage),
             Validation(
@@ -156,7 +154,7 @@ open class UserEditorViewModel @Inject constructor(
                 fieldFirstName.value ?: "",
                 fieldSurname.value ?: "",
                 fieldPatronymic.value,
-                groupUuid,
+                groupId,
                 role,
                 PhoneNumberUtils.normalizeNumber(fieldPhoneNum.value ?: ""),
                 fieldEmail.value,
@@ -181,9 +179,9 @@ open class UserEditorViewModel @Inject constructor(
         fieldGenders.value = genderList
         viewModelScope.launch {
             typedNameGroup.flatMapLatest { name: String -> interactor.getGroupsByTypedName(name) }
-                .map { resource: Resource<List<Group>> ->
-                    resource.data.stream()
-                        .map { group: Group -> ListItem(uuid = group.uuid, title = group.name) }
+                .map { resource ->
+                    (resource as Resource2.Success).data.stream()
+                        .map { group: Group -> ListItem(id = group.id, title = group.name) }
                         .collect(Collectors.toList())
                 }
                 .collect { value: List<ListItem> -> groupList.setValue(value) }
@@ -215,9 +213,9 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     private fun setGroupView() {
-        if (groupUuid != null) {
-            groupName = interactor.getGroupNameByUuid(groupUuid!!)
-            LiveDataUtil.observeOnce(interactor.getGroupNameByUuid(groupUuid!!)) { value: String ->
+        if (groupId != null) {
+            groupName = interactor.getGroupNameByUuid(groupId!!)
+            LiveDataUtil.observeOnce(interactor.getGroupNameByUuid(groupId!!)) { value: String ->
                 fieldGroup.value = value
             }
         }
@@ -265,7 +263,7 @@ open class UserEditorViewModel @Inject constructor(
 
     fun onGroupSelect(position: Int) {
         val item = groupList.value!![position]
-        groupUuid = item.uuid
+        groupId = item.id
         fieldGroup.value = item.title
     }
 
@@ -309,7 +307,8 @@ open class UserEditorViewModel @Inject constructor(
                 when (resource) {
                     is Resource2.Success -> finish.call()
                     is Resource2.Next -> {
-                        if (resource.status == "LOAD_AVATAR") avatarUser.value = resource.data.photoUrl
+                        if (resource.status == "LOAD_AVATAR") avatarUser.value =
+                            resource.data.photoUrl
                     }
                     is Resource2.Error -> if (resource.error is NetworkException) {
                         showMessage.value = "Отсутствует интернет-соединение"

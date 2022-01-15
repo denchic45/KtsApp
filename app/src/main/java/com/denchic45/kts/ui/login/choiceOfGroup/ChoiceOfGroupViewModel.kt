@@ -32,9 +32,9 @@ class ChoiceOfGroupViewModel @Inject constructor(
 
     private fun getSpecialtyUuid(o: Any): String {
         if (o is Specialty) {
-            return o.uuid
+            return o.id
         } else if (o is Group) {
-            return o.specialty.uuid
+            return o.specialty.id
         }
         throw IllegalStateException()
     }
@@ -51,8 +51,8 @@ class ChoiceOfGroupViewModel @Inject constructor(
     }
 
     fun onGroupItemClick(position: Int) {
-        val groupUuid = groupAndSpecialtyList.value!![position].uuid
-        interactor.findGroupInfoByUuid(groupUuid)
+        val groupId = groupAndSpecialtyList.value!![position].id
+        interactor.findGroupInfoByUuid(groupId)
         interactor.postSelectGroupEvent((groupAndSpecialtyList.value!![position] as Group))
         finish.call()
     }
@@ -61,7 +61,7 @@ class ChoiceOfGroupViewModel @Inject constructor(
         val groupListBySpecialty: MutableList<Group> = ArrayList()
         for (o in groupAndSpecialtyList.value!!) {
             if (o is Group) {
-                if (o.specialty.uuid == specialtyUuid) {
+                if (o.specialty.id == specialtyUuid) {
                     groupListBySpecialty.add(o)
                 }
             }
@@ -91,7 +91,7 @@ class ChoiceOfGroupViewModel @Inject constructor(
             groupAndSpecialtyList.setValue(
                 sortedList(
                     groupAndSpecialtyList.value!!.stream()
-                        .filter(PredicateUtil.distinctByKey(DomainModel::uuid))
+                        .filter(PredicateUtil.distinctByKey(DomainModel::id))
                         .collect(Collectors.toList())
                 )
             )

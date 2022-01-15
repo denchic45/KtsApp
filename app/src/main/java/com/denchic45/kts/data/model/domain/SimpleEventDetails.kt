@@ -5,7 +5,7 @@ import com.denchic45.kts.data.model.room.EventEntity.TYPE
 import java.util.*
 
 data class SimpleEventDetails @Default constructor (
-    override var uuid: String,
+    override var id: String,
     val name: String,
     val iconUrl: String,
     val color: String
@@ -20,7 +20,7 @@ data class SimpleEventDetails @Default constructor (
     )
 
     override fun copy(): SimpleEventDetails {
-        return SimpleEventDetails(uuid, name, iconUrl, color)
+        return SimpleEventDetails(id, name, iconUrl, color)
     }
 
     override val type: TYPE

@@ -8,7 +8,19 @@ import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.room.*
 
 @Database(
-    entities = [SubjectEntity::class, EventEntity::class, CourseContentEntity::class, UserEntity::class, DayEntity::class, GroupEntity::class, SpecialtyEntity::class, CourseEntity::class, TeacherEventCrossRef::class, GroupCourseCrossRef::class, SectionEntity::class],
+    entities = [
+        SubjectEntity::class,
+        EventEntity::class,
+        CourseContentEntity::class,
+        UserEntity::class,
+        DayEntity::class,
+        GroupEntity::class,
+        SpecialtyEntity::class,
+        CourseEntity::class,
+        TeacherEventCrossRef::class,
+        GroupCourseCrossRef::class,
+        SectionEntity::class,
+    ],
     version = 1
 )
 abstract class DataBase : RoomDatabase() {
@@ -26,6 +38,7 @@ abstract class DataBase : RoomDatabase() {
 
     companion object {
         private var instance: DataBase? = null
+
         @Synchronized
         fun getInstance(context: Context): DataBase? {
             if (instance == null) {

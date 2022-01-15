@@ -20,7 +20,7 @@ class CourseEditorActivity : AppCompatActivity(R.layout.activity_course_editor) 
     private var menu: Menu? = null
 
     companion object {
-        const val COURSE_UUID = "CourseEditorFragment COURSE_UUID"
+        const val COURSE_ID = "CourseEditorFragment COURSE_UUID"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -10,13 +10,6 @@ object MembersComparator {
             .forEach { (property1, property2) ->
                 if (property1.get(oldObj) != property2.get(newObj)) {
                     map[property2.name] = property2.get(newObj) as Any
-                    println(
-                        "prop dif: ${property2.name} ${property1.get(oldObj)} ${
-                            property2.get(
-                                newObj
-                            )
-                        }"
-                    )
                 }
             }
         return map

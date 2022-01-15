@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
 @Mapper
 public interface CourseContentMapper {
 
-    @Mapping(source = "courseEntity.id", target = "uuid")
+    @Mapping(source = "courseEntity.id", target = "id")
     Task courseContentEntityWithDetailsToTask(CourseContentEntity courseEntity, ContentDetails.Task taskDetails);
 
-    @Mapping(source = "task.uuid", target = "id")
+    @Mapping(source = "task.id", target = "id")
     @Mapping(target = "completions", ignore = true)
     CourseContentDoc taskWithDetailsToTaskDoc(Task task, ContentDetails.Task contentDetails, ContentType contentType);
 
@@ -69,7 +69,7 @@ public interface CourseContentMapper {
 
     ContentDetails.Task taskToTaskDetails(Task task);
 
-    default Task entityToTask(CourseContentEntity entity) {
+    default Task entityToTaskDomain(CourseContentEntity entity) {
         return courseContentEntityWithDetailsToTask(entity,
                 new GsonBuilder().registerTypeAdapter(MarkType.class,
                         new CourseContentMapper.MarkTypeDeserializer())
@@ -94,7 +94,7 @@ public interface CourseContentMapper {
     default CourseContent entityToDomain(@NonNull CourseContentEntity entity) {
         switch (entity.getContentType()) {
             case TASK:
-                return entityToTask(entity);
+                return entityToTaskDomain(entity);
             default:
                 throw new IllegalStateException();
         }

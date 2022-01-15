@@ -6,7 +6,7 @@ import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
 data class UserDoc(
-    var uuid: String = UUID.randomUUID().toString(),
+    var id: String = UUID.randomUUID().toString(),
     var firstName: String,
     var surname: String,
     var role: String,
@@ -19,16 +19,16 @@ data class UserDoc(
     val timestamp: Date? = null,
     var searchKeys: List<String>,
     var generatedAvatar: Boolean,
-    var groupUuid: String? = null,
+    var groupId: String? = null,
     var patronymic: String?=null
 
 ) : DocModel {
 
     private constructor():this("", "","","","","", "",0,false, null, emptyList(), true, "", "")
 
-    //    public void setTimestamp(Date timestamp) {
-    //        this.timestamp = timestamp;
-    //    }
+    companion object {
+        fun createEmpty() = UserDoc()
+    }
     val isTeacher: Boolean
         get() = role == User.TEACHER || role == User.HEAD_TEACHER
     val isStudent: Boolean

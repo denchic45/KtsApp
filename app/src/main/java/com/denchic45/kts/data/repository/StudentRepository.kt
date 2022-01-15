@@ -39,22 +39,22 @@ class StudentRepository @Inject constructor(
     suspend fun add(student: User): Unit = withContext(dispatcher) {
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
-        batch[userRef.document(student.uuid)] = studentDoc
-        updateStudentFromGroup(studentDoc, student.groupUuid!!, batch)
+        batch[userRef.document(student.id)] = studentDoc
+        updateStudentFromGroup(studentDoc, student.groupId!!, batch)
         batch.commit().await()
     }
 
     suspend fun update(student: User): Unit = withContext(dispatcher) {
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
-        val cacheStudent = userMapper.entityToDomain(userDao.getByUuidSync(student.uuid))
+        val cacheStudent = userMapper.entityToDomain(userDao.getSync(student.id))
         if (changePersonalData(student, cacheStudent)) {
-            batch[userRef.document(student.uuid)] = studentDoc
+            batch[userRef.document(student.id)] = studentDoc
         }
         if (changeGroup(student, cacheStudent)) {
-            deleteStudentFromGroup(studentDoc, cacheStudent.groupUuid!!, batch)
+            deleteStudentFromGroup(studentDoc, cacheStudent.groupId!!, batch)
         }
-        updateStudentFromGroup(studentDoc, student.groupUuid!!, batch)
+        updateStudentFromGroup(studentDoc, student.groupId!!, batch)
         batch.commit().await()
     }
 
@@ -68,7 +68,7 @@ class StudentRepository @Inject constructor(
     }
 
     private fun changeGroup(student: User, cacheStudent: User): Boolean {
-        return student.groupUuid != cacheStudent.groupUuid
+        return student.groupId != cacheStudent.groupId
     }
 
     fun remove(student: User): Completable {
@@ -79,17 +79,17 @@ class StudentRepository @Inject constructor(
             }
             val batch = firestore.batch()
             val studentDoc = userMapper.domainToDoc(student)
-            batch.delete(userRef.document(student.uuid))
-            deleteStudentFromGroup(studentDoc, student.groupUuid!!, batch)
+            batch.delete(userRef.document(student.id))
+            deleteStudentFromGroup(studentDoc, student.groupId!!, batch)
             batch.commit()
                 .addOnSuccessListener { emitter.onComplete() }
                 .addOnFailureListener { t: Exception -> emitter.onError(t) }
-            deleteAvatar(student.uuid)
+            deleteAvatar(student.id)
         }
     }
 
-    private fun deleteAvatar(uuid_user: String) {
-        val reference = avatarRef.child(uuid_user)
+    private fun deleteAvatar(userId: String) {
+        val reference = avatarRef.child(userId)
         reference.delete()
             .addOnSuccessListener { Log.d("lol", "onSuccess: ") }
             .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: ", e) }
@@ -97,14 +97,14 @@ class StudentRepository @Inject constructor(
 
     private fun updateStudentFromGroup(studentDoc: UserDoc, groupUuid: String, batch: WriteBatch) {
         val updateGroupMap: MutableMap<String, Any> = HashMap()
-        updateGroupMap["students." + studentDoc.uuid] = studentDoc
+        updateGroupMap["students." + studentDoc.id] = studentDoc
         updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
         batch.update(groupRef.document(groupUuid), updateGroupMap)
     }
 
     private fun deleteStudentFromGroup(studentDoc: UserDoc, groupUuid: String, batch: WriteBatch) {
         val updateGroupMap: MutableMap<String, Any> = HashMap()
-        updateGroupMap["students." + studentDoc.uuid] = FieldValue.delete()
+        updateGroupMap["students." + studentDoc.id] = FieldValue.delete()
         updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
         batch.update(groupRef.document(groupUuid), updateGroupMap)
     }

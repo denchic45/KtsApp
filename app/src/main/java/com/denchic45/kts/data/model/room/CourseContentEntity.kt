@@ -11,7 +11,9 @@ data class CourseContentEntity @Default @JvmOverloads constructor(
     @field:PrimaryKey
     @field:ColumnInfo(name = "content_id")
     var id: String,
+    @field:ColumnInfo(name = "course_id")
     var courseId: String,
+    @field:ColumnInfo(name = "section_id")
     val sectionId: String,
     val name: String,
     @field:TypeConverters(ListConverter::class) val attachments: List<String>,
@@ -20,12 +22,12 @@ data class CourseContentEntity @Default @JvmOverloads constructor(
     val commentsEnabled: Boolean,
     val contentType: ContentType,
     @field:TypeConverters(DateConverter::class)
-    @field:ColumnInfo(name = "date_created")
+    @field:ColumnInfo(name = "created_date")
     val createdDate: Date,
     @field:TypeConverters(TimestampConverter::class)
     val timestamp: Date,
     @field:TypeConverters(TimestampConverter::class)
-    @field:ColumnInfo(name = "date_completion")
-    val completionDate: Date,
+    @field:ColumnInfo(name = "completion_date")
+    val completionDate: Date?,
     @Ignore var deleted: Boolean = false
 ) : EntityModel

@@ -37,9 +37,9 @@ class UserPreference @Inject constructor(context: Context) : BaseSharedPreferenc
             setValue(PHONE_NUM, phoneNum)
         }
     var id: String
-        get() = getValue(UUID, "")
-        set(uuid) {
-            setValue(UUID, uuid)
+        get() = getValue(ID, "")
+        set(id) {
+            setValue(ID, id)
         }
     var isAdmin: Boolean
         get() = getValue(ADMIN, false)
@@ -76,7 +76,7 @@ class UserPreference @Inject constructor(context: Context) : BaseSharedPreferenc
         const val PHONE_NUM = "PHONE_NUM"
         const val EMAIL = "EMAIL"
         const val GENDER = "GENDER"
-        const val UUID = "UUID"
+        const val ID = "ID"
         const val ADMIN = "ADMIN"
         private const val TIMESTAMP = "TIMESTAMP"
         private const val GENERATED_AVATAR = "GENERATED_AVATAR"

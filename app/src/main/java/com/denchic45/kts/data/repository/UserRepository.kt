@@ -6,9 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.dao.UserDao
 import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.UserEntity
 import com.denchic45.kts.data.prefs.GroupPreference
@@ -69,17 +70,15 @@ open class UserRepository @Inject constructor(
             }
     }
 
-    fun getByGroupUuid(groupUuid: String?): LiveData<List<User>> {
+    fun getByGroupUuid(groupUuid: String): LiveData<List<User>> {
         //todo check null and get group in fireStore
-        return Transformations.map(userDao.getByGroupUuid(groupUuid)) { entity: List<UserEntity?> ->
-            userMapper.entityToDomain(
-                entity
-            )
+        return Transformations.map(userDao.getByGroupId(groupUuid)) { entity: List<UserEntity?> ->
+            userMapper.entityToDomain(entity)
         }
     }
 
     private fun loadUserPreference(user: User) {
-        userPreference.id = user.uuid
+        userPreference.id = user.id
         userPreference.firstName = user.firstName
         userPreference.patronymic = user.patronymic ?: ""
         userPreference.setSurname(user.surname)
@@ -91,7 +90,7 @@ open class UserRepository @Inject constructor(
         userPreference.isAdmin = user.admin
         userPreference.timestamp = user.timestamp!!.time
         userPreference.isGeneratedAvatar = user.generatedAvatar
-        user.groupUuid?.let { groupPreference.groupUuid = it }
+        user.groupId?.let { groupPreference.groupId = it }
     }
 
     fun findSelf(): User {
@@ -100,7 +99,7 @@ open class UserRepository @Inject constructor(
             userPreference.firstName,
             userPreference.surName,
             userPreference.patronymic,
-            groupPreference.groupUuid,
+            groupPreference.groupId,
             userPreference.role,
             userPreference.phoneNum,
             userPreference.email,
@@ -111,13 +110,13 @@ open class UserRepository @Inject constructor(
     }
 
     fun saveGroupUuid(groupUuid: String) {
-        groupPreference.groupUuid = groupUuid
+        groupPreference.groupId = groupUuid
     }
 
     fun getByUuid(uuid: String): LiveData<User> {
-        if (userDao.getByUuid(uuid) == null) {
-            addListenerRegistration("byUuid") {
-                usersRef.whereEqualTo("uuid", uuid)
+        if (userDao.get(uuid) == null) {
+            addListenerRegistration("byId") {
+                usersRef.whereEqualTo("id", uuid)
                     .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
                         if (error != null) {
                             Log.d("lol", "error: ", error)
@@ -129,7 +128,7 @@ open class UserRepository @Inject constructor(
                     }
             }
         }
-        return Transformations.map(userDao.getByUuid(uuid)) { entity: UserEntity ->
+        return Transformations.map(userDao.get(uuid)) { entity: UserEntity ->
             userMapper.entityToDomain(
                 entity
             )
@@ -144,14 +143,13 @@ open class UserRepository @Inject constructor(
 
     fun add(user: User): Completable {
         return Completable.create { emitter: CompletableEmitter ->
-            val userEntity = userMapper.domainToEntity(user)
-            val userDoc = userMapper.entityToDoc(userEntity)
+            val userDoc = userMapper.domainToDoc(user)
             val generator = SearchKeysGenerator()
             userDoc.searchKeys =
                 generator.generateKeys(user.fullName) { predicate: String -> predicate.length > 2 }
-            usersRef.document(user.uuid).set(userDoc)
-                .addOnSuccessListener { aVoid: Void? -> emitter.onComplete() }
-                .addOnFailureListener { t: Exception? -> emitter.onError(t) }
+            usersRef.document(user.id).set(userDoc)
+                .addOnSuccessListener { emitter.onComplete() }
+                .addOnFailureListener(emitter::onError)
         }
     }
 
@@ -160,18 +158,16 @@ open class UserRepository @Inject constructor(
             userDao.update(user)
             val userDoc = userMapper.entityToDoc(user)
             userDoc.searchKeys = searchKeys
-            usersRef.document(user.uuid).set(userDoc)
-                .addOnSuccessListener { aVoid: Void -> emitter.onComplete() }
-                .addOnFailureListener { t: Exception? -> emitter.onError(t) }
+            usersRef.document(user.id).set(userDoc)
+                .addOnSuccessListener { emitter.onComplete() }
+                .addOnFailureListener(emitter::onError)
         }
     }
 
     open fun remove(user: User): Completable? {
-        val userEntity = userMapper.domainToEntity(user)
         return Completable.create { emitter: CompletableEmitter ->
-            userDao.delete(userEntity)
-            deleteAvatar(userEntity.uuid)
-            usersRef.document(userEntity.uuid)
+            deleteAvatar(user.id)
+            usersRef.document(user.id)
                 .delete()
                 .addOnSuccessListener { aVoid: Void -> emitter.onComplete() }
                 .addOnFailureListener { t: Exception -> emitter.onError(t) }
@@ -181,11 +177,11 @@ open class UserRepository @Inject constructor(
     private fun deleteAvatar(uuid_user: String) {
         val reference = avatarStorage.child(uuid_user)
         reference.delete()
-            .addOnSuccessListener { aVoid: Void? -> Log.d("lol", "onSuccess: ") }
-            .addOnFailureListener { e: Exception? -> Log.d("lol", "onFailure: ", e) }
+            .addOnSuccessListener { Log.d("lol", "onSuccess: ") }
+            .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: ", e) }
     }
 
-    fun getByTypedName(name: String): Flow<Resource<List<User>>> = callbackFlow {
+    fun getByTypedName(name: String): Flow<Resource2<List<User>>> = callbackFlow {
         addListenerRegistration("getByTypedName") {
             usersRef
                 .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
@@ -195,19 +191,19 @@ open class UserRepository @Inject constructor(
                         return@addSnapshotListener
                     }
                     val users = snapshots!!.toObjects(
-                        User::class.java
+                        UserDoc::class.java
                     )
                     launch(dispatcher) {
-                        userDao.upsert(userMapper.domainToEntity(users))
+                        userDao.upsert(userMapper.docToEntity(users))
                     }
-                    trySend(Resource.successful(users))
+                    trySend(Resource2.Success(userMapper.docToDomain(users)))
                 }
         }
         awaitClose { }
     }
 
 
-    fun isExist(uuid: String?): Boolean {
+    fun isExist(uuid: String): Boolean {
         return userDao.isExist(uuid)
     }
 
@@ -256,7 +252,7 @@ open class UserRepository @Inject constructor(
     }
 
     val thisUserObserver: Flow<Optional<User>> = callbackFlow {
-        usersRef.whereEqualTo("uuid", userPreference.id)
+        usersRef.whereEqualTo("id", userPreference.id)
             .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if (error != null) {
                     close(error)
@@ -283,7 +279,7 @@ open class UserRepository @Inject constructor(
 
     fun findByUuid(uuid: String): Observable<User> {
         return Observable.create { emitter: ObservableEmitter<User> ->
-            if (!userDao.isExistByUuidAndGroupUuid(uuid, groupPreference.groupUuid)) {
+            if (!userDao.isExistByIdAndGroupId(uuid, groupPreference.groupId)) {
                 usersRef.document(uuid)
                     .addSnapshotListener { value: DocumentSnapshot?, error: FirebaseFirestoreException? ->
                         if (error != null) {
@@ -295,8 +291,8 @@ open class UserRepository @Inject constructor(
                         }
                     }
             }
-            addListenerDisposable("USER_BY_UUID") {
-                userDao.getByUuidRx(uuid)
+            addListenerDisposable("USER_BY_ID") {
+                userDao.getRx(uuid)
                     .map { entity: UserEntity -> userMapper.entityToDomain(entity) }
                     .subscribe { value: User -> emitter.onNext(value) }
             }

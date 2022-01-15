@@ -10,7 +10,6 @@ import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.GroupMapper
-import com.denchic45.kts.data.model.room.GroupEntity
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.google.android.gms.tasks.Task
@@ -64,7 +63,7 @@ class GroupRepository @Inject constructor(
 
     fun loadGroupPreference(groupUuid: String?): Completable {
         return Completable.create { emitter: CompletableEmitter ->
-            groupsRef.whereEqualTo("uuid", groupUuid).get()
+            groupsRef.whereEqualTo("id", groupUuid).get()
                 .addOnCompleteListener { task: Task<QuerySnapshot> ->
                     if (task.isSuccessful) {
                         for (snapshot in task.result!!) {
@@ -78,8 +77,8 @@ class GroupRepository @Inject constructor(
         }
     }
 
-    val yourGroupUuid: String
-        get() = groupPreference.groupUuid
+    val yourGroupId: String
+        get() = groupPreference.groupId
     val yourGroupName: String
         get() = groupPreference.groupName
 }

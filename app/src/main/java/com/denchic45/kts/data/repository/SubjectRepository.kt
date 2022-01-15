@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.dao.SubjectDao
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -67,7 +67,7 @@ class SubjectRepository @Inject constructor(
     suspend fun add(subject: Subject) {
         checkInternetConnection()
         isExistWithSameIconAndColor(subject)
-        subjectsRef.document(subject.uuid)
+        subjectsRef.document(subject.id)
             .set(subjectMapper.domainToDoc(subject))
             .await()
     }
@@ -76,8 +76,8 @@ class SubjectRepository @Inject constructor(
         checkInternetConnection()
         isExistWithSameIconAndColor(subject)
         val subjectDoc = subjectMapper.domainToDoc(subject)
-        val uuid = subject.uuid
-        val queryDocumentSnapshots = groupsRef.whereEqualTo("subjects.$uuid.uuid", uuid)
+        val uuid = subject.id
+        val queryDocumentSnapshots = groupsRef.whereEqualTo("subjects.$uuid.id", uuid)
             .get()
             .await()
         val batch = firestore.batch()
@@ -108,7 +108,7 @@ class SubjectRepository @Inject constructor(
 
     suspend fun remove(subject: Subject) {
         checkInternetConnection()
-        subjectsRef.document(subject.uuid).delete().await()
+        subjectsRef.document(subject.id).delete().await()
     }
 
     fun find(uuid: String?): LiveData<Subject> {
@@ -117,9 +117,7 @@ class SubjectRepository @Inject constructor(
             .addOnSuccessListener { value: DocumentSnapshot ->
                 coroutineScope.launch(dispatcher) {
                     subjectDao.upsert(
-                        value.toObject(
-                            SubjectEntity::class.java
-                        )
+                        value.toObject(SubjectEntity::class.java)!!
                     )
                 }
             }
@@ -131,13 +129,13 @@ class SubjectRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(subjectName: String): Flow<Resource<List<Subject>>> = callbackFlow {
+    fun findByTypedName(subjectName: String): Flow<Resource2<List<Subject>>> = callbackFlow {
         subjectsRef.whereArrayContains("searchKeys", subjectName.lowercase(Locale.getDefault()))
             .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
                 val subjects = value!!.toObjects(
                     Subject::class.java
                 )
-                trySend(Resource.successful(subjects))
+                trySend(Resource2.Success(subjects))
                 coroutineScope.launch(dispatcher) {
                     subjectDao.upsert(subjectMapper.domainToEntity(subjects))
                 }
@@ -146,22 +144,20 @@ class SubjectRepository @Inject constructor(
     }
 
 
-    fun getByUuid(subjectUuid: String?): Subject {
-        if (subjectDao.getByUuidSync(subjectUuid) == null) {
-            subjectsRef.whereEqualTo("uuid", subjectUuid)
+    fun getByUuid(subjectId: String): Subject {
+        if (subjectDao.getByUuidSync(subjectId) == null) {
+            subjectsRef.whereEqualTo("id", subjectId)
                 .get()
                 .addOnSuccessListener { snapshot: QuerySnapshot ->
                     coroutineScope.launch(dispatcher) {
                         subjectDao.insert(
-                            snapshot.documents[0].toObject(
-                                SubjectEntity::class.java
-                            )
+                            snapshot.documents[0].toObject(SubjectEntity::class.java)!!
                         )
                     }
                 }
                 .addOnFailureListener { e: Exception? -> Log.d("lol", "onFailure: ", e) }
         }
-        return subjectMapper.entityToDomain(subjectDao.getByUuidSync(subjectUuid))
+        return subjectMapper.entityToDomain(subjectDao.getByUuidSync(subjectId))
     }
 
     fun findAllRefsOfSubjectIcons(): Single<List<Uri>> {
@@ -189,11 +185,11 @@ class SubjectRepository @Inject constructor(
         }
     }
 
-    fun findByGroup(groupUuid: String): LiveData<Resource<List<Subject>>> {
+    fun findByGroup(groupUuid: String): LiveData<Resource2<List<Subject>>> {
         return if (!networkService.isNetworkAvailable) {
-            MutableLiveData(Resource.error(emptyList(), NetworkException()))
+            MutableLiveData(Resource2.Error(NetworkException()))
         } else Transformations.map(subjectDao.getByGroupUuid(groupUuid)) { input: List<SubjectEntity?> ->
-            Resource.successful(
+            Resource2.Success(
                 subjectMapper.entityToDomain(input)
             )
         }

@@ -24,7 +24,7 @@ import javax.inject.Inject
 class MainInteractor @Inject constructor(
     private val context: Context,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val groupInfoRepository: GroupInfoRepository,
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
@@ -39,11 +39,9 @@ class MainInteractor @Inject constructor(
 
     init {
         coroutineScope.launch(dispatcher) {
-            coroutineScope.launch(dispatcher) {
-                listenAuthState.collect {
-                    if (!it) {
-                        clearAllData(context)
-                    }
+            listenAuthState.collect {
+                if (!it) {
+                    clearAllData(context)
                 }
             }
         }

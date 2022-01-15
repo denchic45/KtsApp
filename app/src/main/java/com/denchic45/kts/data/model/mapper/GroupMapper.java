@@ -2,14 +2,13 @@ package com.denchic45.kts.data.model.mapper;
 
 import com.denchic45.kts.data.model.domain.Group;
 import com.denchic45.kts.data.model.firestore.GroupDoc;
-import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity;
 import com.denchic45.kts.data.model.room.GroupEntity;
+import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity;
 import com.denchic45.kts.utils.SearchKeysGenerator;
 import com.google.firebase.firestore.FieldValue;
 
 import org.jetbrains.annotations.NotNull;
 import org.mapstruct.AfterMapping;
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -29,14 +28,10 @@ public interface GroupMapper extends
     @Override
     GroupDoc domainToDoc(Group domain);
 
-    @Mapping(source = "specialty", target = "specialtyEntity")
-    @Mapping(source = ".", target = "groupEntity")
-    @Mapping(source = "curator", target = "curatorEntity")
-    @Mapping(source = "uuid", target = "groupEntity.id")
-    GroupWithCuratorAndSpecialtyEntity domainToEntity(Group domain);
-
     @DoIgnore
-    @InheritInverseConfiguration(name = "domainToEntity")
+    @Mapping(target = "specialty", source = "specialtyEntity")
+    @Mapping(target = ".", source = "groupEntity")
+    @Mapping(target = "curator", source = "curatorEntity")
     Group groupWithCuratorAndSpecialtyEntityToGroup(GroupWithCuratorAndSpecialtyEntity entity);
 
     default Group entityToDomain(GroupWithCuratorAndSpecialtyEntity entity) {
@@ -46,41 +41,23 @@ public interface GroupMapper extends
             return groupWithCuratorAndSpecialtyEntityToGroup(entity);
     }
 
-//    @Mapping(target = "specialtyUuid", source = "specialty.uuid")
-//    @Mapping(target = "curatorUuid", source = "curator.uuid")
-//    @Override
-//    GroupEntity domainToEntity(Group group);
-//
-//    @Mapping(target = "specialty", ignore = true)
-//    @Mapping(target = "curator", ignore = true)
-//    @Override
-//    Group entityToDomain(GroupEntity entity);
-
     default Map<String, Object> domainToMap(@NotNull Group group) {
         Map<String, Object> map = new HashMap<>();
-        map.put("uuid", group.getUuid());
+        map.put("id", group.getId());
         map.put("name", group.getName());
         map.put("course", group.getCourse());
-        map.put("specialtyUuid", group.getSpecialty());
+        map.put("specialtyId", group.getSpecialty());
         map.put("timestamp", FieldValue.serverTimestamp());
         map.put("specialty", group.getSpecialty());
         map.put("curator", group.getCurator());
         return map;
     }
 
-//    @AfterMapping
-//    default void setEmptiesValueInDoc(@MappingTarget @NotNull GroupDoc groupDoc) {
-//        groupDoc.setStudents(Collections.emptyMap());
-//        groupDoc.setTeachers(Collections.emptyMap());
-//        groupDoc.setSubjects(Collections.emptyMap());
-//    }
-
     @Override
     Group docToDomain(GroupDoc doc);
 
-    @Mapping(source = "curator.uuid", target = "curatorUuid")
-    @Mapping(source = "specialty.uuid", target = "specialtyUuid")
-    @Mapping(source = "uuid", target = "id")
+    @Mapping(source = "curator.id", target = "curatorId")
+    @Mapping(source = "specialty.id", target = "specialtyId")
     @Override
     GroupEntity docToEntity(GroupDoc doc);
 

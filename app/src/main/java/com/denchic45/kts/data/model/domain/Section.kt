@@ -3,7 +3,12 @@ package com.denchic45.kts.data.model.domain
 import com.denchic45.kts.data.model.DomainModel
 
 data class Section(
-    override var uuid: String,
+    override var id: String,
+    val courseId: String,
     val name: String,
-    val courseUuid: String
-):DomainModel()
+    val order: Int
+) : DomainModel() {
+    companion object {
+        fun createEmpty() = Section("", "", "", -1)
+    }
+}

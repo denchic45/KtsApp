@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.adminPanel.timtableEditor.loader
 import androidx.lifecycle.MutableLiveData
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.rx.AsyncTransformer
@@ -39,7 +39,7 @@ class TimetableLoaderViewModel @Inject constructor(
         ArrayList(
             listOf(
                 ListItem(
-                    uuid = ITEM_PUBLISH,
+                    id = ITEM_PUBLISH,
                     title = "Опубликовать",
                     content = ItemAdapter.PAYLOAD.SHOW_LOADING,
                     type = ItemAdapter.TYPE_PROGRESS,
@@ -109,7 +109,7 @@ class TimetableLoaderViewModel @Inject constructor(
     private fun postAllowEditTimetable() {
         preferenceList.add(
             ListItem(
-                uuid = ITEM_EDIT_MODE,
+                id = ITEM_EDIT_MODE,
                 title = "Режим редактирования",
                 type = ItemAdapter.TYPE_SWITCH
             )
@@ -124,7 +124,7 @@ class TimetableLoaderViewModel @Inject constructor(
             val eventsOfTheDay = groupWeekLessons.weekLessons[i]
             timetable.add(
                 ListItem(
-                    uuid = "",
+                    id = "",
                     title = weekDays[i],
                     content = eventsOfTheDay.date,
                     type = EventAdapter.TYPE_HEADER
@@ -149,7 +149,7 @@ class TimetableLoaderViewModel @Inject constructor(
                     if (lastItem is Event) lastItem.date else ((lastItem as ListItem).content as Date?)!!
                 timetable.add(
                     i,
-                    ListItem(uuid = "", title = "", content = date, type = EventAdapter.TYPE_CREATE)
+                    ListItem(id = "", title = "", content = date, type = EventAdapter.TYPE_CREATE)
                 )
                 i++
             }
@@ -160,7 +160,7 @@ class TimetableLoaderViewModel @Inject constructor(
             if (lastItem is Event) lastItem.date else ((lastItem as ListItem).content as Date?)!!
         timetable.add(
             timetable.size,
-            ListItem(uuid = "", title = "", content = date, type = EventAdapter.TYPE_CREATE)
+            ListItem(id = "", title = "", content = date, type = EventAdapter.TYPE_CREATE)
         )
     }
 
@@ -176,7 +176,7 @@ class TimetableLoaderViewModel @Inject constructor(
                     .subscribe({
                         showPreferenceList.value = mutableListOf(
                             ListItem(
-                                uuid = ITEM_BACK,
+                                id = ITEM_BACK,
                                 title = "Вернуться обратно",
                                 type = ItemAdapter.TYPE_VIEW,
                                 icon = EitherResource.Id(R.drawable.ic_back)
@@ -210,27 +210,27 @@ class TimetableLoaderViewModel @Inject constructor(
         eventEditorInteractor.setEditedEvent(event, false)
         openLessonEditor.call()
         eventEditorInteractor.observeEvent()
-            .subscribe { resource: Resource<Event> ->
-                when (resource.status) {
+            .subscribe { resource ->
+                when ((resource as Resource2.Success).data.second) {
                     EventEditorInteractor.LESSON_CREATED -> {
-                        findLessonOfDay(resource.data, positionOfGroup)
+                        findLessonOfDay(resource.data.first, positionOfGroup)
                             .ifPresent { eventsOfTheDay: EventsOfTheDay ->
-                                Events.add(eventsOfTheDay.events, resource.data)
+                                Events.add(eventsOfTheDay.events, resource.data.first)
                                 postUpdateLessonsOfGroup(positionOfGroup)
                             }
-                        updateLessonOfGroup(positionGroup, resource.data)
+                        updateLessonOfGroup(positionGroup, resource.data.first)
                         postUpdateLessonsOfGroup(positionGroup)
                     }
                     EventEditorInteractor.LESSON_EDITED -> {
-                        updateLessonOfGroup(positionGroup, resource.data)
+                        updateLessonOfGroup(positionGroup, resource.data.first)
                         postUpdateLessonsOfGroup(positionGroup)
                     }
                     EventEditorInteractor.LESSON_REMOVED -> {
-                        findLessonOfDay(resource.data, positionGroup)
+                        findLessonOfDay(resource.data.first, positionGroup)
                             .ifPresent { eventsOfTheDay: EventsOfTheDay ->
                                 Events.remove(
                                     eventsOfTheDay.events,
-                                    resource.data
+                                    resource.data.first
                                 )
                             }
                         postUpdateLessonsOfGroup(positionGroup)
@@ -243,7 +243,7 @@ class TimetableLoaderViewModel @Inject constructor(
         findLessonOfDay(editedLesson, positionGroup)
             .ifPresent { eventsOfTheDay: EventsOfTheDay ->
                 eventsOfTheDay.events.stream()
-                    .filter { oldLesson: Event -> oldLesson.uuid == editedLesson.uuid }
+                    .filter { oldLesson: Event -> oldLesson.id == editedLesson.id }
                     .findFirst()
                     .ifPresent { oldLesson: Event? ->
                         Events.update(
@@ -263,9 +263,9 @@ class TimetableLoaderViewModel @Inject constructor(
         eventEditorInteractor.setEditedEvent(createdLesson, true)
         openLessonEditor.call()
         eventEditorInteractor.observeEvent()
-            .subscribe { event: Resource<Event> ->
-                if (event.status == EventEditorInteractor.LESSON_CREATED) {
-                    val event1 = event.data
+            .subscribe { event ->
+                if ((event as Resource2.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
+                    val event1 = event.data.first
                     findLessonOfDay(event1, positionOfGroup)
                         .ifPresent { eventsOfTheDay: EventsOfTheDay ->
                             Events.add(eventsOfTheDay.events, event1)

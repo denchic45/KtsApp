@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.dao.SpecialtyDao
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -51,29 +51,29 @@ class SpecialtyRepository @Inject constructor(
                 }
             }
             .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: $e") }
-        return Transformations.map(specialtyDao.getByUuid(uuid)) { entity: SpecialtyEntity ->
+        return Transformations.map(specialtyDao.get(uuid)) { entity: SpecialtyEntity ->
             specialtyMapper.entityToDomain(
                 entity
             )
         }
     }
 
-    fun findByTypedName(name: String): Flow<Resource<List<Specialty>>> = callbackFlow {
-            addListenerRegistration("name") {
-                specialtyRef
-                    .whereArrayContains("searchKeys", name.lowercase(Locale.getDefault()))
-                    .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                        val specialties = value!!.toObjects(
-                            Specialty::class.java
-                        )
-                        coroutineScope.launch(dispatcher) {
-                            specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
-                            trySend(Resource.successful(specialties))
-                        }
+    fun findByTypedName(name: String): Flow<Resource2<List<Specialty>>> = callbackFlow {
+        addListenerRegistration("name") {
+            specialtyRef
+                .whereArrayContains("searchKeys", name.lowercase(Locale.getDefault()))
+                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                    val specialties = value!!.toObjects(
+                        Specialty::class.java
+                    )
+                    coroutineScope.launch(dispatcher) {
+                        specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
+                        trySend(Resource2.Success(specialties))
                     }
-            }
-        awaitClose {  }
+                }
         }
+        awaitClose { }
+    }
 
 
     fun add(specialty: Specialty): Completable {
@@ -83,7 +83,7 @@ class SpecialtyRepository @Inject constructor(
                 return@create
             }
             val data = specialtyMapper.domainToDoc(specialty)
-            specialtyRef.document(specialty.uuid).set(data)
+            specialtyRef.document(specialty.id).set(data)
                 .addOnSuccessListener { emitter.onComplete() }
                 .addOnFailureListener(emitter::onError)
         }
@@ -96,7 +96,7 @@ class SpecialtyRepository @Inject constructor(
                 return@create
             }
             val specialtyDoc = specialtyMapper.domainToDoc(specialty)
-            val uuid = specialty.uuid
+            val uuid = specialty.id
             groupsRef.whereEqualTo("specialty.uuid", uuid)
                 .get()
                 .addOnSuccessListener { queryDocumentSnapshots: QuerySnapshot ->
@@ -125,7 +125,7 @@ class SpecialtyRepository @Inject constructor(
                 emitter.onError(NetworkException())
                 return@create
             }
-            specialtyRef.document(specialty.uuid).delete()
+            specialtyRef.document(specialty.id).delete()
                 .addOnSuccessListener { emitter.onComplete() }
                 .addOnFailureListener(emitter::onError)
         }

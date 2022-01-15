@@ -29,7 +29,6 @@ import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.android.support.AndroidSupportInjection
 import java.io.ByteArrayOutputStream
 import java.io.IOException
@@ -166,7 +165,7 @@ class ProfileFragment : Fragment() {
 
             findNavController(view).navigate(
                 R.id.action_profileFragment_to_group,
-                Bundle().apply { putString(GroupFragment.GROUP_UUID, uuid) }
+                Bundle().apply { putString(GroupFragment.GROUP_ID, uuid) }
             )
         })
         viewModel.optionVisibility.observe(
@@ -226,6 +225,6 @@ override fun onAttach(context: Context) {
     }
 
     companion object {
-        const val USER_UUID = "USER_UUID"
+        const val USER_ID = "USER_UUID"
     }
 }

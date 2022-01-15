@@ -421,17 +421,6 @@ class EventAdapter(
             binding.llLessonHeader.ivLessonExpand.rotation = 0f
             lessonExpandableContentBinding.root.visibility = View.GONE
         }
-
-        init {
-//            tvGroupName = itemView.findViewById(R.id.`@+id/tv_group_name`)
-//            llGroup = itemView.findViewById<LinearLayout>(R.id.`@+id/ll_group`)
-//            rvTeachers = itemView.findViewById(R.id.rv_teachers)
-//            rlHomework = itemView.findViewById<RelativeLayout>(R.id.rl_homework)
-//            cbCompletedHomework = itemView.findViewById(R.id.`@+id/cb_homework_completed`)
-//            tvHomework = itemView.findViewById<TextView>(R.id.tv_homework_content)
-//            tvRoom = itemView.findViewById<TextView>(R.id.tv_lesson_room)
-        }
-
     }
 
     class LessonCreateHolder(
@@ -499,7 +488,7 @@ class EventAdapter(
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<DomainModel> =
             object : DiffUtil.ItemCallback<DomainModel>() {
                 override fun areItemsTheSame(oldItem: DomainModel, newItem: DomainModel): Boolean {
-                    return oldItem.uuid == newItem.uuid
+                    return oldItem.id == newItem.id
                 }
 
                 override fun areContentsTheSame(

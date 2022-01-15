@@ -8,24 +8,26 @@ import java.util.*
 import java.util.stream.Collectors
 
 data class DayDoc(
-    val uuid: String = UUIDS.createShort(),
-    var date: Date? = null,
-    private var _events: List<EventDoc> = emptyList(),
+    val id: String = UUIDS.createShort(),
+    var date: Date,
+    private var _events: List<EventDoc>,
     var homework: List<CourseContentEntity> = emptyList(),
     var teacherIds: List<String> = emptyList(),
     var subjectIds: List<String> = emptyList(),
     @ServerTimestamp
     var timestamp: Date? = null,
-    var groupUuid: String = ""
+    var groupId: String
 
 ) : DocModel {
+
+    private constructor(): this("", Date(), emptyList(), emptyList(), emptyList(), emptyList(), Date(), "")
 
     var events: List<EventDoc>
         set(value) {
             _events = value
             teacherIds = events.stream()
                 .filter { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.type == "LESSON" }
-                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.teacherUuidList }
+                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.teacherIds }
                 .flatMap { obj: List<String> -> obj.stream() }
                 .collect(Collectors.toList())
             subjectIds = events.stream()

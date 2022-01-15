@@ -5,11 +5,12 @@ import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
 data class CourseDoc(
-    var uuid: String,
-    var name: String? = null,
-    var subject: SubjectDoc? = null,
-    var teacher: UserDoc? = null,
-    var groupUuids: List<String>? = null
+    var id: String,
+    var name: String,
+    val sections: List<SectionDoc>,
+    var subject: SubjectDoc,
+    var teacher: UserDoc,
+    var groupIds: List<String>
 ) : DocModel {
     fun equalSubjectsAndTeachers(oldCourseDoc: CourseDoc) =
         oldCourseDoc.subject != subject
@@ -19,5 +20,18 @@ data class CourseDoc(
 
     @ServerTimestamp
     val timestamp: Date? = null
-    private constructor(): this("", null, null)
+
+    private constructor() : this(
+        "", "", emptyList(),
+        SubjectDoc(), UserDoc.createEmpty(), emptyList()
+    )
+}
+
+data class SectionDoc(
+    val id: String,
+    val courseId: String,
+    val name: String,
+    val order: Int
+) : DocModel {
+    private constructor() : this("", "", "", 0)
 }

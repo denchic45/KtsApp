@@ -4,16 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.Resource
+import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.databinding.FragmentChoiceOfSubjectBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.SubjectAdapter
@@ -23,13 +21,16 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
 import java.util.*
 
-class ChoiceOfSubjectFragment : BaseFragment<ChoiceOfSubjectViewModel,FragmentChoiceOfSubjectBinding>() {
+class ChoiceOfSubjectFragment :
+    BaseFragment<ChoiceOfSubjectViewModel, FragmentChoiceOfSubjectBinding>() {
     private var appBarController: AppBarController? = null
     private var searchBar: SearchBar? = null
     private var navController: NavController? = null
     private lateinit var listStateLayout: ListStateLayout
-    override val binding: FragmentChoiceOfSubjectBinding by viewBinding(FragmentChoiceOfSubjectBinding::bind)
-    override val viewModel: ChoiceOfSubjectViewModel by viewModels {viewModelFactory}
+    override val binding: FragmentChoiceOfSubjectBinding by viewBinding(
+        FragmentChoiceOfSubjectBinding::bind
+    )
+    override val viewModel: ChoiceOfSubjectViewModel by viewModels { viewModelFactory }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,11 +56,11 @@ class ChoiceOfSubjectFragment : BaseFragment<ChoiceOfSubjectViewModel,FragmentCh
         })
         viewModel.showFoundSubjects.observe(
             viewLifecycleOwner,
-            { resource: Resource<List<Subject>> ->
-                if (resource.isSuccessful) {
+            { resource ->
+                if (resource is Resource2.Success) {
                     listStateLayout.showList()
                     adapter.submitList(ArrayList<DomainModel?>(resource.data))
-                } else if (resource.isError) {
+                } else if (resource is Resource2.Error) {
                     if (resource.error is NetworkException) {
                         listStateLayout.showView(ListStateLayout.NETWORK_VIEW)
                     }

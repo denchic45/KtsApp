@@ -136,7 +136,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             })
         viewModel.openGroup.observe(viewLifecycleOwner, { groupUuid: String? ->
             val bundle = Bundle()
-            bundle.putString(GroupFragment.GROUP_UUID, groupUuid)
+            bundle.putString(GroupFragment.GROUP_ID, groupUuid)
             navController.navigate(R.id.action_finderFragment_to_group_editor, bundle)
         })
         viewModel.showMessage.observe(viewLifecycleOwner, { message: String? ->
@@ -153,7 +153,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             })
         viewModel.openProfile.observe(viewLifecycleOwner, { userUuid: String? ->
             val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_UUID, userUuid)
+            bundle.putString(ProfileFragment.USER_ID, userUuid)
             navController.navigate(R.id.action_global_profileFragment, bundle)
         })
         viewModel.openSubjectEditor.observe(viewLifecycleOwner, { subjectUuid: String? ->
@@ -163,7 +163,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         })
         viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupUuid: String? ->
             val intent = Intent(activity, GroupEditorActivity::class.java)
-            intent.putExtra(GroupEditorActivity.GROUP_UUID, groupUuid)
+            intent.putExtra(GroupEditorActivity.GROUP_ID, groupUuid)
             requireActivity().startActivity(intent)
         })
         viewModel.openSpecialtyEditor.observe(viewLifecycleOwner, { uuid: String? ->
@@ -180,7 +180,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         viewModel.openCourse.observe(viewLifecycleOwner) {
             navController.navigate(
                 R.id.action_global_courseEditorFragment,
-                bundleOf(CourseEditorActivity.COURSE_UUID to it)
+                bundleOf(CourseEditorActivity.COURSE_ID to it)
             )
         }
         viewModel.showOptions.observe(viewLifecycleOwner, { (first, second) ->
@@ -191,7 +191,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             popupWindow.anchorView = layoutManager.findViewByPosition(first)
             popupWindow.setOnItemClickListener { parent: AdapterView<*>?, view1: View?, position: Int, id: Long ->
                 popupWindow.dismiss()
-                viewModel.onOptionClick(second[position].uuid)
+                viewModel.onOptionClick(second[position].id)
             }
             popupWindow.width = ViewUtils.measureAdapter(popupAdapter, activity)
             popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())

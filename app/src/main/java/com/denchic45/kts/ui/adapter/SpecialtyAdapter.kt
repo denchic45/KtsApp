@@ -59,7 +59,7 @@ class SpecialtyAdapter(itemClickListener: OnItemClickListener) :
         private val DIFF_CALLBACK: DiffUtil.ItemCallback<Specialty> =
             object : DiffUtil.ItemCallback<Specialty>() {
                 override fun areItemsTheSame(oldItem: Specialty, newItem: Specialty): Boolean {
-                    return oldItem.uuid == newItem.uuid
+                    return oldItem.id == newItem.id
                 }
 
                 @SuppressLint("DiffUtilEquals")

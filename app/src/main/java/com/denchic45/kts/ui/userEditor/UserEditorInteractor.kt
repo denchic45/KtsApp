@@ -7,7 +7,6 @@ import com.denchic45.avatarGenerator.AvatarGenerator
 import com.denchic45.kts.AvatarBuilderTemplate
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.User
@@ -31,7 +30,8 @@ class UserEditorInteractor @Inject constructor(
 ) : Interactor {
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
-    fun getGroupsByTypedName(name: String): Flow<Resource<List<Group>>> {
+
+    fun getGroupsByTypedName(name: String): Flow<Resource2<List<Group>>> {
         return groupInfoRepository.findByTypedName(name)
     }
 
@@ -82,7 +82,7 @@ class UserEditorInteractor @Inject constructor(
             val avatarBytes = avatarGenerator.name(user.firstName)
                 .initFrom(AvatarBuilderTemplate())
                 .generateBytes()
-            loadAvatar(avatarBytes, user.uuid)
+            loadAvatar(avatarBytes, user.id)
         } else {
             return user.photoUrl
         }

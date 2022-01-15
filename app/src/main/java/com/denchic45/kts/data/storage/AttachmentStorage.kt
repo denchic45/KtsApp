@@ -5,7 +5,9 @@ import android.net.Uri
 import com.denchic45.kts.data.DownloadByUrlApi
 import com.denchic45.kts.data.model.domain.Attachment
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import java.io.File
 import java.io.FileOutputStream
@@ -37,27 +39,29 @@ class AttachmentStorage @Inject constructor(
     }
 
     suspend fun get(contentId: String, urls: List<String>): List<Attachment> {
-        return if (urls.isEmpty())
-            emptyList()
-        else urls.map { url ->
-            val timestamp = url.substring(url.lastIndexOf("/o/"), url.indexOf('_'))
-            val itContentDir = File(contentPath.path + '/' + contentId)
-            val listFiles = itContentDir.listFiles { _, name -> name.startsWith(timestamp) }
-            if (listFiles.isNullOrEmpty()) {
-                val invoke = retrofit.create(DownloadByUrlApi::class.java)
-                    .invoke(url)
+        return withContext(Dispatchers.IO) {
+            if (urls.isEmpty())
+                emptyList()
+            else urls.map { url ->
+                val timestamp = url.substring(url.lastIndexOf("/o/"), url.indexOf('_'))
+                val itContentDir = File(contentPath.path + '/' + contentId)
+                val listFiles = itContentDir.listFiles { _, name -> name.startsWith(timestamp) }
+                if (listFiles.isNullOrEmpty()) {
+                    val invoke = retrofit.create(DownloadByUrlApi::class.java)
+                        .invoke(url)
 
-                val name = firebaseStorage.getReferenceFromUrl(url).name
+                    val name = firebaseStorage.getReferenceFromUrl(url).name
 
-                File(contentPath.path + '/' + contentId).mkdirs()
-                val contentDir = File(contentPath.path + '/' + contentId, name)
-                contentDir.createNewFile()
-                val fileOutputStream = FileOutputStream(contentDir)
-                fileOutputStream.write(invoke.body()!!.bytes())
-                fileOutputStream.close()
-                Attachment(file = contentDir)
-            } else {
-                Attachment(file = listFiles[0])
+                    File(contentPath.path + '/' + contentId).mkdirs()
+                    val contentDir = File(contentPath.path + '/' + contentId, name)
+                    contentDir.createNewFile()
+                    val fileOutputStream = FileOutputStream(contentDir)
+                    fileOutputStream.write(invoke.body()!!.bytes())
+                    fileOutputStream.close()
+                    Attachment(file = contentDir)
+                } else {
+                    Attachment(file = listFiles[0])
+                }
             }
         }
     }

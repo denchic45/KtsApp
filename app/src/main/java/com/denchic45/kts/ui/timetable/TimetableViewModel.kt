@@ -17,7 +17,7 @@ import javax.inject.Named
 
 class TimetableViewModel @Inject constructor(
     application: Application,
-    @Named(TimetableFragment.GROUP_UUID) groupUuid: String?,
+    @Named(TimetableFragment.GROUP_ID) groupId: String?,
     private val interactor: TimetableInteractor
 ) : AndroidViewModel(application) {
     val showLessonsOfDay: LiveData<List<Event>>
@@ -25,7 +25,7 @@ class TimetableViewModel @Inject constructor(
     val showListState = MutableLiveData<String?>()
     private val lessonsDate = MutableLiveData<Date>()
     val initTimetable = MutableLiveData<Boolean>()
-    private var groupUuid: String
+    private var groupId: String
 
     private var findEventsByDate: Function<Date, LiveData<List<Event>>>
     fun onWeekSelect(week: Week) {
@@ -68,20 +68,20 @@ class TimetableViewModel @Inject constructor(
 
         val role = interactor.role
 
-        if (groupUuid == null) {
-            this.groupUuid = interactor.yourGroupUuid()
+        if (groupId == null) {
+            this.groupId = interactor.yourGroupId()
             if (interactor.hasGroup()) {
-                this.groupUuid = interactor.yourGroupUuid()
+                this.groupId = interactor.yourGroupId()
             } else if(User.isStudent(role)) {
                 throw Exception("Navigation state problem. No group")
             }
         } else {
-            this.groupUuid = groupUuid
+            this.groupId = groupId
         }
 
         findEventsByDate = if (User.isStudent(role)) {
             initTimetable.value = false
-            Function { date: Date -> interactor.findEventsOfGroupByDate(date, this.groupUuid) }
+            Function { date: Date -> interactor.findEventsOfGroupByDate(date, this.groupId) }
         } else {
             initTimetable.value = true
             Function { date -> interactor.findEventsForTeacherByDate(date) }

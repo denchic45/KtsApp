@@ -66,7 +66,7 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
                     popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
                     popupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                         popupWindow.dismiss()
-                        viewModel.onOptionUserClick(it.second[position].uuid)
+                        viewModel.onOptionUserClick(it.second[position].id)
                     }
                     popupWindow.show()
                 })
@@ -91,7 +91,7 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
             })
         viewModel.openProfile.observe(viewLifecycleOwner, { userUuid: String ->
             val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_UUID, userUuid)
+            bundle.putString(ProfileFragment.USER_ID, userUuid)
             navController!!.navigate(R.id.action_global_profileFragment, bundle)
         })
         viewModel.showMessageRes.observe(viewLifecycleOwner, { resId: Int ->

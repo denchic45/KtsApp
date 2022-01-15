@@ -21,10 +21,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         android:overScrollMode="never"
         android:paddingTop="@dimen/list_item_spacing_half"
         android:paddingBottom="@dimen/list_item_spacing_half"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="3"
         tools:context=".ui.creater.CreatorDialog"
         tools:listitem="@layout/item_entity" />

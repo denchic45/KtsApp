@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
+import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.databinding.FragmentCourseBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
@@ -31,7 +32,7 @@ class CourseFragment :
     private var mainToolbar: Toolbar? = null
 
     companion object {
-        const val COURSE_UUID = "CourseFragment COURSE_UUID"
+        const val COURSE_ID = "CourseFragment COURSE_UUID"
     }
 
     private lateinit var appBarController: AppBarController
@@ -77,7 +78,14 @@ class CourseFragment :
             }
             rvCourseItems.adapter = adapter
             viewModel.showContents.observe(viewLifecycleOwner) {
-                adapter.submit(it)
+                adapter.submit(
+                    it
+//                    it.toMutableList().apply {
+//                    add(0, Section("", "", "Qwerty", 0))
+//                    add(2, Section("", "", "Тема", 0))
+//                    add(4, Section("", "", "Раздел для экзаменов", 0))
+//                }
+                )
             }
             viewModel.courseName.observe(viewLifecycleOwner) {
                 collapsingToolbarLayout!!.title = it
