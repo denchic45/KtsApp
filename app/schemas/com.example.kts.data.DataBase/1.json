@@ -6,11 +6,11 @@
     "entities": [
       {
         "tableName": "subjects",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subjectUuid` TEXT NOT NULL, `name` TEXT, `iconUrl` TEXT, `colorName` TEXT, `def` INTEGER NOT NULL, PRIMARY KEY(`subjectUuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subjectId` TEXT NOT NULL, `name` TEXT, `iconUrl` TEXT, `colorName` TEXT, `def` INTEGER NOT NULL, PRIMARY KEY(`subjectId`))",
         "fields": [
           {
             "fieldPath": "uuid",
-            "columnName": "subjectUuid",
+            "columnName": "subjectId",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -41,7 +41,7 @@
         ],
         "primaryKey": {
           "columnNames": [
-            "subjectUuid"
+            "subjectId"
           ],
           "autoGenerate": false
         },
@@ -50,7 +50,7 @@
       },
       {
         "tableName": "lessons",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`timestamp` INTEGER, `order` INTEGER NOT NULL, `date` TEXT, `room` TEXT, `subjectUuid` TEXT, `homeworkUuid` TEXT, `teacherUserUuidList` TEXT, `groupUuid` TEXT, `lessonUuid` TEXT NOT NULL, PRIMARY KEY(`lessonUuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`timestamp` INTEGER, `order` INTEGER NOT NULL, `date` TEXT, `room` TEXT, `subjectId` TEXT, `homeworkUuid` TEXT, `teacherUserUuidList` TEXT, `groupId` TEXT, `lessonUuid` TEXT NOT NULL, PRIMARY KEY(`lessonUuid`))",
         "fields": [
           {
             "fieldPath": "timestamp",
@@ -77,8 +77,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "subjectUuid",
-            "columnName": "subjectUuid",
+            "fieldPath": "subjectId",
+            "columnName": "subjectId",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -318,7 +318,7 @@
       },
       {
         "tableName": "course",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupUuid` TEXT NOT NULL, `subjectUuid` TEXT NOT NULL, `teacherUuid` TEXT NOT NULL, PRIMARY KEY(`groupUuid`, `subjectUuid`, `teacherUuid`), FOREIGN KEY(`groupUuid`) REFERENCES `groups`(`group_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subjectUuid`) REFERENCES `subjects`(`subjectUuid`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`teacherUuid`) REFERENCES `users`(`uuid_user`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupId` TEXT NOT NULL, `subjectId` TEXT NOT NULL, `teacherId` TEXT NOT NULL, PRIMARY KEY(`groupId`, `subjectId`, `teacherId`), FOREIGN KEY(`groupId`) REFERENCES `groups`(`group_id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subjectId`) REFERENCES `subjects`(`subjectId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`teacherId`) REFERENCES `users`(`uuid_user`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "group_id",
@@ -327,14 +327,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "subjectUuid",
-            "columnName": "subjectUuid",
+            "fieldPath": "subjectId",
+            "columnName": "subjectId",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "teacherUuid",
-            "columnName": "teacherUuid",
+            "fieldPath": "teacherId",
+            "columnName": "teacherId",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -342,8 +342,8 @@
         "primaryKey": {
           "columnNames": [
             "group_id",
-            "subjectUuid",
-            "teacherUuid"
+            "subjectId",
+            "teacherId"
           ],
           "autoGenerate": false
         },
@@ -365,10 +365,10 @@
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "subjectUuid"
+              "subjectId"
             ],
             "referencedColumns": [
-              "subjectUuid"
+              "subjectId"
             ]
           },
           {
@@ -376,7 +376,7 @@
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "teacherUuid"
+              "teacherId"
             ],
             "referencedColumns": [
               "user_id"

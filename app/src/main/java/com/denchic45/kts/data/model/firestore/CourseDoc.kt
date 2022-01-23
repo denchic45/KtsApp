@@ -7,7 +7,7 @@ import java.util.*
 data class CourseDoc(
     var id: String,
     var name: String,
-    val sections: List<SectionDoc>,
+    val sections: List<SectionDoc>?,
     var subject: SubjectDoc,
     var teacher: UserDoc,
     var groupIds: List<String>

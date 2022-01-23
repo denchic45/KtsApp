@@ -15,7 +15,7 @@ class ChoiceOfSubjectInteractor @Inject constructor(
 ) : Interactor {
 
     var groupName: String = ""
-    var groupUuid: String = ""
+    var groupId: String = ""
 
     private val selectedSubject = PublishSubject.create<Subject>()
 
@@ -26,7 +26,7 @@ class ChoiceOfSubjectInteractor @Inject constructor(
 
 
     val subjectsOfGroup: LiveData<Resource2<List<Subject>>>
-        get() = subjectRepository.findByGroup(groupUuid)
+        get() = subjectRepository.findByGroup(groupId)
 
     fun postSelectedSubject(subject: Subject) {
         selectedSubject.onNext(subject)

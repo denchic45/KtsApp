@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.login.choiceOfGroup
 
 import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
+import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.repository.GroupInfoRepository
@@ -14,33 +15,33 @@ class ChoiceOfGroupInteractor constructor (
     private val groupInfoRepository: GroupInfoRepository
 ) : Interactor  {
 
-    private var selectedGroup = PublishSubject.create<Group>()
-    fun findGroupsBySpecialtyUuid(uuid: String?): LiveData<List<Group>> {
-        return groupRepository.findBySpecialtyUuid(uuid)
+    private var selectedGroup: PublishSubject<CourseGroup>? = PublishSubject.create()
+    fun findGroupsBySpecialtyId(id: String): LiveData<List<CourseGroup>> {
+        return groupRepository.findBySpecialtyId(id)
     }
 
     val allSpecialties: LiveData<List<Specialty>>
         get() = groupRepository.allSpecialties
 
-    fun findGroupInfoByUuid(groupUuid: String?) {
-        groupInfoRepository.findGroupInfoByUuid(groupUuid)
+    fun findGroupInfoById(groupId: String) {
+        groupInfoRepository.findGroupInfoById(groupId)
     }
 
     override fun removeListeners() {
-        selectedGroup.onComplete()
+        selectedGroup!!.onComplete()
         selectedGroup = null
         groupInfoRepository.removeListeners()
         groupRepository.removeListeners()
     }
 
-    fun observeSelectedGroup(): Observable<Group> {
+    fun observeSelectedGroup(): Observable<CourseGroup> {
         if (selectedGroup == null) {
             selectedGroup = PublishSubject.create()
         }
-        return selectedGroup
+        return selectedGroup!!
     }
 
-    fun postSelectGroupEvent(group: Group) {
-        selectedGroup.onNext(group)
+    fun postSelectGroupEvent(group: CourseGroup) {
+        selectedGroup!!.onNext(group)
     }
 }

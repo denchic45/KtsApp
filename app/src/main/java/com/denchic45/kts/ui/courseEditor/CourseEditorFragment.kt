@@ -32,6 +32,7 @@ import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.click
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.textChanges
 import io.reactivex.rxjava3.internal.util.AppendOnlyLinkedArrayList.NonThrowingPredicate
 
@@ -228,6 +229,16 @@ class CourseEditorFragment :
                 findNavController().navigate(R.id.action_global_choiceOfGroupFragment)
             }
 
+            viewModel.finish.observe(viewLifecycleOwner) { findNavController().popBackStack() }
+
+            viewModel.optionVisibility.observe(viewLifecycleOwner) { (id, visibility) ->
+                menu.findItem(id)?.isVisible = visibility
+            }
+
+            viewModel.showMessage.observe(viewLifecycleOwner) {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+            }
+
             etSubjectName.textChanges()
                 .compose(EditTextTransformer())
                 .filter(NonThrowingPredicate { charSequence: CharSequence -> charSequence.length > 1 && etSubjectName.hasFocus() } as NonThrowingPredicate<CharSequence>)
@@ -243,6 +254,9 @@ class CourseEditorFragment :
         }
     }
 
+    companion object {
+        const val COURSE_ID = "CourseEditorFragment COURSE_UUID"
+    }
 }
 
 class CourseGroupsAdapterDelegate :
@@ -268,6 +282,4 @@ class CourseGroupsAdapterDelegate :
     override fun onCreateViewHolder(parent: ViewGroup): GroupHolder {
         return GroupHolder(parent.viewBinding(ItemGroupInCourseBinding::inflate))
     }
-
-
 }

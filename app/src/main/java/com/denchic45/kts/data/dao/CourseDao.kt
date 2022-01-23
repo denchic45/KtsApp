@@ -5,8 +5,8 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import com.denchic45.kts.data.model.room.CourseEntity
-import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacher
-import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups
+import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacherEntities
+import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroupsEntities
 import kotlinx.coroutines.flow.Flow
 import java.util.stream.Collectors
 
@@ -17,16 +17,16 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     abstract fun clearByGroupId(groupId: String)
 
     @Query("SELECT * FROM course WHERE course_id =:id")
-    abstract fun get(id: String): Flow<CourseWithSubjectWithTeacherAndGroups>
+    abstract fun get(id: String): Flow<CourseWithSubjectWithTeacherAndGroupsEntities>
 
     @Query("SELECT * FROM course WHERE course_id =:id")
-    abstract fun getSync(id: String): CourseWithSubjectWithTeacherAndGroups
+    abstract fun getSync(id: String): CourseWithSubjectWithTeacherAndGroupsEntities
 
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
-    abstract fun getCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectWithTeacherAndGroups>>
+    abstract fun getCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectWithTeacherAndGroupsEntities>>
 
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
-    abstract fun getCoursesByGroupIdSync(groupId: String): List<CourseWithSubjectWithTeacherAndGroups>
+    abstract fun getCoursesByGroupIdSync(groupId: String): List<CourseWithSubjectWithTeacherAndGroupsEntities>
 
     @Query("SELECT EXISTS(SELECT * FROM course c JOIN group_course gc ON gc.group_id =:groupId WHERE c.teacher_id= :teacherId)")
     abstract fun isGroupHasSuchTeacher(teacherId: String, groupId: String): Boolean
@@ -71,7 +71,7 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     abstract fun deleteMissingByTeacher(availableCourseIds: List<String>, teacherId: String)
 
     @Query("SELECT * FROM course WHERE teacher_id=:id")
-    abstract fun getByTeacherId(id: String): Flow<List<CourseWithSubjectAndTeacher>>
+    abstract fun getByTeacherId(id: String): Flow<List<CourseWithSubjectAndTeacherEntities>>
 
     @Query("DELETE FROM course WHERE course_id =:courseId")
     abstract fun deleteById(courseId: String)

@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-class AttachmentStorage @Inject constructor(
+class ContentAttachmentStorage @Inject constructor(
     context: Context,
     private val firebaseStorage: FirebaseStorage,
     private val retrofit: Retrofit
@@ -44,7 +44,8 @@ class AttachmentStorage @Inject constructor(
                 emptyList()
             else urls.map { url ->
                 val timestamp = url.substring(url.lastIndexOf("/o/"), url.indexOf('_'))
-                val itContentDir = File(contentPath.path + '/' + contentId)
+                val attachmentPath = contentPath.path + '/' + contentId
+                val itContentDir = File(attachmentPath)
                 val listFiles = itContentDir.listFiles { _, name -> name.startsWith(timestamp) }
                 if (listFiles.isNullOrEmpty()) {
                     val invoke = retrofit.create(DownloadByUrlApi::class.java)
@@ -52,8 +53,8 @@ class AttachmentStorage @Inject constructor(
 
                     val name = firebaseStorage.getReferenceFromUrl(url).name
 
-                    File(contentPath.path + '/' + contentId).mkdirs()
-                    val contentDir = File(contentPath.path + '/' + contentId, name)
+                    File(attachmentPath).mkdirs()
+                    val contentDir = File(attachmentPath, name)
                     contentDir.createNewFile()
                     val fileOutputStream = FileOutputStream(contentDir)
                     fileOutputStream.write(invoke.body()!!.bytes())
@@ -88,9 +89,7 @@ class AttachmentStorage @Inject constructor(
 
     fun deleteFromLocal(contentId: String) {
         val contentDir = File(contentPath.path + '/' + contentId)
-        contentDir.listFiles()?.forEach {
-            it.delete()
-        }
+        contentDir.listFiles()?.forEach { it.delete() }
         contentDir.delete()
     }
 }

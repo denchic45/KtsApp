@@ -54,7 +54,6 @@
         <activity
             android:name=".ui.login.LoginActivity"
             android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.courseEditor.CourseEditorActivity" />
         <activity
             android:name=".ui.splash.SplashActivity"
             android:exported="true"

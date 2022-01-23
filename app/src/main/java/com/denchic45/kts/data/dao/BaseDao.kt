@@ -10,19 +10,19 @@ abstract class BaseDao<T> {
     abstract suspend fun insert(obj: T): Long
     @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun insert(obj: List<T>?): List<Long>
+    abstract suspend fun insert(obj: List<T>): List<Long>
     @Transaction
     @Update
     abstract fun update(obj: T)
     @Transaction
     @Update
-    abstract fun update(obj: List<T>?)
+    abstract fun update(obj: List<T>)
     @Transaction
     @Delete
     abstract fun delete(obj: T)
     @Transaction
     @Delete
-    abstract fun delete(obj: List<T>?)
+    abstract fun delete(obj: List<T>)
     @Transaction
     open suspend fun upsert(obj: T) {
         val id = insert(obj)
