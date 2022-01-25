@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tv_submission_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16sp"
+        android:layout_marginTop="12dp"
+        android:textAppearance="@style/TextAppearance.Kts.Headline6"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text='Оценено: 5/5' />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16sp"
+        android:textAppearance="@style/TextAppearance.Kts.Chip"
+        app:cornerRadius="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:textEndPadding="8dp"
+        app:textStartPadding="4dp"
+        tools:text="Добавить" />
+
+    <!--    <com.google.android.material.chip.Chip-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginEnd="16sp"-->
+    <!--        app:chipEndPadding="4dp"-->
+    <!--        app:chipIcon="@drawable/ic_done_all"-->
+    <!--        app:chipStartPadding="14dp"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="@id/v_line_swipe"-->
+    <!--        app:textEndPadding="8dp"-->
+    <!--        app:textStartPadding="4dp" />-->
+
+    <TextView
+        android:id="@+id/tv_submission_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16sp"
+        android:layout_marginTop="4dp"
+        android:textAppearance="@style/TextAppearance.Kts.Body2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_submission_state"
+        tools:text="Проверено вчера, 18:34" />
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/chp_comment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16sp"
+        android:layout_marginTop="16sp"
+        android:layout_marginBottom="16sp"
+        android:text="0"
+        android:textAppearance="@style/TextAppearance.Kts.Chip"
+        android:textColor="?colorControlNormal"
+        app:chipIcon="@drawable/ic_comment"
+        app:chipIconSize="14dp"
+        app:iconStartPadding="6dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_submission_description" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
