@@ -1,8 +1,5 @@
 package com.denchic45.kts.ui.adapter
 
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
@@ -103,8 +100,6 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
                                     }) as Int
                             )
                             item.name.onString { name -> name(name) }
-//                            font(ResourcesCompat.getFont(context, R.font.gilroy_medium))
-                            size(120)
                         }.generateBitmapDrawable()
                     )
             }
