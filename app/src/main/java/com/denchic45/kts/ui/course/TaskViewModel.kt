@@ -3,14 +3,17 @@ package com.denchic45.kts.ui.course
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.data.model.domain.SubmissionSettings
+import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.usecase.FindAttachmentsUseCase
 import com.denchic45.kts.domain.usecase.FindSelfTaskSubmissionUseCase
 import com.denchic45.kts.domain.usecase.FindTaskUseCase
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
@@ -22,6 +25,7 @@ import javax.inject.Named
 class TaskViewModel @Inject constructor(
     @Named(TaskFragment.TASK_ID) val taskId: String,
     findTaskUseCase: FindTaskUseCase,
+    findTaskAttachmentsUseCase: FindAttachmentsUseCase,
     findSelfTaskSubmissionUseCase: FindSelfTaskSubmissionUseCase
 ) : ViewModel() {
 
@@ -30,6 +34,7 @@ class TaskViewModel @Inject constructor(
         replay = 1,
         started = SharingStarted.WhileSubscribed()
     )
+    val taskAttachments = findTaskAttachmentsUseCase(taskId)
     val taskViewState = taskFlow.map { task ->
         TaskViewState(
             name = task.name,
@@ -50,16 +55,30 @@ class TaskViewModel @Inject constructor(
                             )
                         }"
             },
-            attachments = emptyList(),
             submissionSettings = task.submissionSettings
         )
     }
 
-    val showSubmissionToolbar = MutableLiveData<Boolean>()
 
+    val showSubmissionToolbar = MutableLiveData<Boolean>()
     val expandBottomSheet = MutableLiveData(BottomSheetBehavior.STATE_COLLAPSED)
 
-    val submissionViewState = findSelfTaskSubmissionUseCase(taskId)
+    private var oldContent = Task.Submission.Content("", emptyList())
+
+    private var content = oldContent
+
+    private val _submissionViewState = MutableSharedFlow<Task.Submission>(replay = 1)
+    val submissionViewState = _submissionViewState.asSharedFlow()
+
+    init {
+        viewModelScope.launch {
+            _submissionViewState.emitAll(findSelfTaskSubmissionUseCase(taskId))
+        }
+    }
+
+
+    val openFilePicker = SingleLiveData<Unit>()
+    val openAttachment = SingleLiveData<File>()
 
     fun onBottomSheetStateChanged(newState: Int) {
         expandBottomSheet.value = newState
@@ -71,11 +90,31 @@ class TaskViewModel @Inject constructor(
         }
     }
 
+    fun onSubmissionAttachmentClick(position: Int) {
+        viewModelScope.launch { openAttachment.value = submissionViewState.first().content.attachments[position].file }
+    }
+
+    fun onAddAttachmentClick() {
+        openFilePicker.call()
+    }
+
+    fun onSelectedFile(file: File) {
+        viewModelScope.launch {
+            content = content.copy(attachments = content.attachments + Attachment(file))
+            _submissionViewState.emit(submissionViewState.first().copy(content = content))
+        }
+    }
+
+    fun onTaskFileClick(position: Int) {
+        viewModelScope.launch {
+            openAttachment.value = taskFlow.first().attachments[position].file
+        }
+    }
+
     data class TaskViewState(
         val name: String,
         val description: String,
         val dateWithTimeLeft: Pair<String, String>?,
-        val attachments: List<Attachment>,
         val submissionSettings: SubmissionSettings
     )
 

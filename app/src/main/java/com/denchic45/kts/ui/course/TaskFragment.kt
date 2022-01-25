@@ -1,11 +1,14 @@
 package com.denchic45.kts.ui.course
 
+import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -19,15 +22,14 @@ import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentTaskBinding
 import com.denchic45.kts.ui.BaseFragment
-import com.denchic45.kts.ui.course.taskEditor.AddAttachmentAdapterDelegate
-import com.denchic45.kts.ui.course.taskEditor.AddAttachmentItem
-import com.denchic45.kts.ui.course.taskEditor.AttachmentAdapterDelegate
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.dpToPx
+import com.denchic45.kts.ui.course.taskEditor.*
+import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.adapter
+import com.denchic45.widget.extendedAdapter.extension.click
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.flow.collect
+import java.io.File
 
 class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.fragment_task) {
 
@@ -43,16 +45,52 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
     private val adapter =
         adapter {
             delegates(AttachmentAdapterDelegate())
+            extensions {
+                click<AttachmentHolder> { onClick = { viewModel.onTaskFileClick(it) } }
+            }
         }
 
     private val submissionAttachmentsAdapter =
         adapter {
             delegates(AttachmentAdapterDelegate(), AddAttachmentAdapterDelegate())
+            extensions {
+                click<AttachmentHolder> {
+                    onClick = {
+                        viewModel.onSubmissionAttachmentClick(it)
+                    }
+                }
+                click<AddAttachmentHolder> {
+                    onClick = {
+                        viewModel.onAddAttachmentClick()
+                    }
+                }
+            }
         }
+
+    private val fileChooser by lazy {
+        FileViewer(requireActivity()) {
+            Toast.makeText(
+                requireContext(),
+                "Невозможно открыть файл на данном устройстве",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private val filePicker by lazy {
+        FilePicker(requireActivity() as AppCompatActivity, this, {
+            with(it) {
+                if (resultCode == Activity.RESULT_OK && data!!.data != null) {
+                    viewModel.onSelectedFile(File(requireContext().path(data!!.data!!)))
+                }
+            }
+        })
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val bsBehavior = BottomSheetBehavior.from(binding.bsSubmission)
+
 
         appBarController.toolbar.title = ""
 
@@ -139,14 +177,19 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
                         chpDate.visibility = View.GONE
                         tvTimeLeft.visibility = View.GONE
                     }
-                    tvAttachmentsHeader.visibility =
-                        if (it.attachments.isEmpty()) View.GONE else View.VISIBLE
-                    adapter.submit(it.attachments)
                     tvComments.text = "Написать комментарий"
                 }
                 setSubmissionContentVisibility(it.submissionSettings)
             }
         }
+
+          lifecycleScope.launchWhenStarted {
+                viewModel.taskAttachments.collect {
+                    binding.submissionExpanded.tvAttachmentsHeader.visibility =
+                        if (it.isEmpty()) View.GONE else View.VISIBLE
+                    adapter.submit(it)
+                }
+            }
 
         binding.apply {
             lifecycleScope.launchWhenCreated {
@@ -160,8 +203,8 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
                         submissionExpanded.grpTeacher.visibility = View.VISIBLE
                     }
 
-                    when (submission) {
-                        is Task.Submission.Nothing -> {
+                    when (submission.status) {
+                        is Task.SubmissionStatus.Nothing -> {
                             submissionCollapsed.tvSubmissionState.text = "Не сдано"
 
                             submissionCollapsed.tvSubmissionDescription.text = ""
@@ -184,7 +227,7 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
                             submissionExpanded.grpTeacher.visibility = View.GONE
                             submissionAttachmentsAdapter.submit(listOf(AddAttachmentItem))
                         }
-                        is Task.Submission.Draft -> {
+                        is Task.SubmissionStatus.Draft -> {
                             submissionCollapsed.tvSubmissionState.text = "Черновик"
                             applyActionButtonProperties {
                                 text = "Отправить"
@@ -199,19 +242,19 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
 
                             setSubmissionContent(submission.content)
                         }
-                        is Task.Submission.Done -> {
+                        is Task.SubmissionStatus.Done -> {
 
                             submissionExpanded.grpTeacher.visibility = View.GONE
                             setSubmissionContent(submission.content)
                         }
-                        is Task.Submission.Graded -> {
+                        is Task.SubmissionStatus.Graded -> {
 
-                            setTeacherData(submission.teacher)
+                            setTeacherData(submission.status.teacher)
                             setSubmissionContent(submission.content)
                         }
-                        is Task.Submission.Rejected -> {
+                        is Task.SubmissionStatus.Rejected -> {
 
-                            setTeacherData(submission.teacher)
+                            setTeacherData(submission.status.teacher)
                             setSubmissionContent(submission.content)
                         }
                     }
@@ -220,6 +263,10 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
                 }
             }
         }
+
+        viewModel.openAttachment.observe(viewLifecycleOwner) { fileChooser.openFile(it) }
+
+        viewModel.openFilePicker.observe(viewLifecycleOwner) { filePicker.selectFiles() }
     }
 
     private fun setSubmissionContent(content: Task.Submission.Content) {
@@ -249,8 +296,7 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
         binding.submissionCollapsed.root.post {
             bsBehavior.setPeekHeight(
                 binding.submissionCollapsed.clRoot.height + Dimensions.dpToPx(
-                    24,
-                    requireContext()
+                    24, requireContext()
                 )
             )
         }

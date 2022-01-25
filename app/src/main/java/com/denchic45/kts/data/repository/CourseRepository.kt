@@ -79,7 +79,7 @@ class CourseRepository @Inject constructor(
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
                         database.runInTransaction {
                             launch {
-                                groupCourseDao.deleteByCourse(courseDoc.id)
+//                                groupCourseDao.deleteByCourse(courseDoc.id)
 
                                 subjectDao.upsert(
                                     subjectMapper.docToEntity(courseDoc.subject)
@@ -90,24 +90,25 @@ class CourseRepository @Inject constructor(
 
                                 sectionDao.upsert(sectionMapper.docToEntity(courseDoc.sections))
 
-                                courseDoc.groupIds.let { groupIds ->
-                                    if (groupIds.isNotEmpty()) {
-                                        val groupDocs = groupsRef.whereIn("id", groupIds)
-                                            .get()
-                                            .await().toObjects(GroupDoc::class.java)
-                                        groupDao.upsert(groupMapper.docToEntity(groupDocs))
-                                        specialtyDao.upsert(
-                                            specialtyMapper.docToEntity(
-                                                groupDocs.map(GroupDoc::specialty)
-                                            )
-                                        )
-                                        groupCourseDao.upsert(
-                                            groupIds.map { groupId ->
-                                                GroupCourseCrossRef(groupId, courseDoc.id)
-                                            }
-                                        )
-                                    }
-                                }
+                                //Saving groups of course
+//                                courseDoc.groupIds.let { groupIds ->
+//                                    if (groupIds.isNotEmpty()) {
+//                                        val groupDocs = groupsRef.whereIn("id", groupIds)
+//                                            .get()
+//                                            .await().toObjects(GroupDoc::class.java)
+//                                        groupDao.upsert(groupMapper.docToEntity(groupDocs))
+//                                        specialtyDao.upsert(
+//                                            specialtyMapper.docToEntity(
+//                                                groupDocs.map(GroupDoc::specialty)
+//                                            )
+//                                        )
+//                                        groupCourseDao.upsert(
+//                                            groupIds.map { groupId ->
+//                                                GroupCourseCrossRef(groupId, courseDoc.id)
+//                                            }
+//                                        )
+//                                    }
+//                                }
                             }
                         }
                     }
@@ -273,7 +274,6 @@ class CourseRepository @Inject constructor(
             saveCourses(courseDocs)
             deleteMissingCoursesOfGroup(courseDocs, groupId)
         }
-//        }
     }
 
     private fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
@@ -707,7 +707,12 @@ class CourseRepository @Inject constructor(
                         it.submissionEntity.attachments
                     )
                     submissionMapper.entityToDomain(it, attachments)
-                } ?: Task.Submission.Nothing(userMapper.entityToDomain(userDao.getSync(userId)))
+                } ?: Task.Submission(
+                    userMapper.entityToDomain(userDao.getSync(userId)),
+                    Task.Submission.Content("", emptyList()),
+                    emptyList(),
+                    Task.SubmissionStatus.Nothing
+                )
             }
     }
 }

@@ -38,17 +38,11 @@ class FilePicker(
             { callback(it) })
 
     fun selectFiles() {
-//        if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.DESTROYED)) {
-//            return
-//        }
-
         if (Permissions.checkExternalStorageManager(activity)) {
             chooseFile()
         } else {
             requestPermissions()
         }
-
-//        requestPermissions()
     }
 
     private fun requestPermissions() {
@@ -81,7 +75,7 @@ class FilePicker(
         var chooserIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "*/*"
             if (multipleSelect) {
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
             }
         }
 

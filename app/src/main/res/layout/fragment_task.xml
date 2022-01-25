@@ -146,6 +146,7 @@
         android:id="@+id/bs_submission"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:behavior_peekHeight="0dp"
         android:background="@drawable/shape_bottomsheet"
         android:elevation="24dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">

@@ -349,17 +349,9 @@ class TaskEditorFragment :
             )
             val extensionFromMimeType = MimeTypeMap
                 .getSingleton()
-                .getExtensionFromMimeType(
-                    file.toURI()
-                        .toURL()
-                        .toString()
-                )
-            setDataAndType(
-                apkURI,
-                extensionFromMimeType
-            )
+                .getExtensionFromMimeType(file.toURI().toURL().toString())
+            setDataAndType(apkURI, extensionFromMimeType)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
         }
         try {
             requireActivity().startActivity(intent)

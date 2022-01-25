@@ -70,7 +70,7 @@ public interface CourseContentMapper {
 
     default Task entityToTaskDomain(CourseContentEntity entity) {
         return courseContentEntityWithDetailsToTask(entity,
-                new GsonBuilder().create().fromJson(entity.getDetails(), ContentDetails.Task.class));
+                new GsonBuilder().create().fromJson(entity.getDetails(), ContentDetails.Task.class) );
     }
 
     default List<String> mapAttachmentsToFilePaths(@NonNull List<Attachment> attachments) {

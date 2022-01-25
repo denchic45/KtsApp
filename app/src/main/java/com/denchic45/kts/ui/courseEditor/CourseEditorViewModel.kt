@@ -51,7 +51,7 @@ class CourseEditorViewModel @Inject constructor(
 
     private var subscribeConfirmation: Disposable? = null
 
-    private val courseUuid: String = courseId ?: UUID.randomUUID().toString()
+    private val courseId: String = courseId ?: UUID.randomUUID().toString()
     var foundTeachers: List<User>? = null
     var foundSubjects: List<Subject>? = null
     private val subjectId: String? = null
@@ -62,7 +62,7 @@ class CourseEditorViewModel @Inject constructor(
     private var groups: MutableList<CourseGroup> = mutableListOf()
     private val uiEditor: UIEditor<Course> = UIEditor(courseId == null) {
         Course(
-            this.courseUuid,
+            this.courseId,
             nameField.value ?: "",
             selectSubject.value ?: Subject.createEmpty(),
             selectTeacher.value ?: User.createEmpty(),
@@ -147,7 +147,7 @@ class CourseEditorViewModel @Inject constructor(
     private val existCourse: Unit
         get() {
             viewModelScope.launch {
-                interactor.findCourse(courseUuid).collect { course: Course ->
+                interactor.findCourse(courseId).collect { course: Course ->
                     uiEditor.oldItem = course
                     nameField.value = course.name
                     selectTeacher.value = course.teacher

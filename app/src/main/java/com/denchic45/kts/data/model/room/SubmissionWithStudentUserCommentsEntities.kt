@@ -7,7 +7,9 @@ data class SubmissionWithStudentUserCommentsEntities(
     @Embedded
     val submissionEntity: SubmissionEntity,
     @Relation(parentColumn = "submission_id", entityColumn = "submission_id")
-    val submissionCommentEntity: SubmissionCommentEntity,
+    val submissionCommentEntities: List<SubmissionCommentEntity>,
     @Relation(parentColumn = "student_id", entityColumn = "user_id")
-    val userEntity: UserEntity
+    val studentEntity: UserEntity,
+    @Relation(parentColumn = "grading_teacher_id", entityColumn = "user_id")
+    val teacherEntity: UserEntity
 )

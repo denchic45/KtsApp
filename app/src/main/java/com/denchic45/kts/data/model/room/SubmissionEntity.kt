@@ -38,6 +38,7 @@ data class SubmissionEntity(
     val attachments: List<String>,
     @ColumnInfo(name = "grading_teacher_id")
     val teacherId: String,
+    val cause: String,
     val grade: Int,
     @field:TypeConverters(TimestampConverter::class)
     val gradedDate: Date,
