@@ -9,9 +9,7 @@ import android.os.Bundle
 import android.text.InputFilter
 import android.view.*
 import android.webkit.MimeTypeMap
-import android.widget.ArrayAdapter
 import android.widget.EditText
-import android.widget.Filter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -56,7 +54,7 @@ class TaskEditorFragment :
     BaseFragment<TaskEditorViewModel, FragmentTaskEditorBinding>(R.layout.fragment_task_editor) {
 
     companion object {
-        const val TASK_ID = "TASK_ID"
+        const val TASK_ID = "TaskEditor TASK_ID"
         const val COURSE_ID = "COURSE_ID"
         const val SECTION_ID = "SECTION_ID"
     }
@@ -72,36 +70,6 @@ class TaskEditorFragment :
             }
             click<AttachmentHolder> {
                 onClick = { position: Int -> viewModel.onAttachmentClick(position) }
-            }
-        }
-    }
-
-    private val markAdapter by lazy {
-        object : ArrayAdapter<String>(
-            requireContext(),
-            R.layout.item_content,
-            arrayOf("Балльная", "Бинарная", "По категориям")
-        ) {
-            override fun getView(
-                position: Int,
-                convertView: View?,
-                parent: ViewGroup
-            ): View {
-                val view1 = super.getView(position, convertView, parent)
-                view1.isEnabled = position != 2
-                return view1
-            }
-
-            override fun getFilter(): Filter {
-                return object : Filter() {
-                    override fun performFiltering(p0: CharSequence?): FilterResults {
-                        return FilterResults()
-                    }
-
-                    override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
-                    }
-
-                }
             }
         }
     }
@@ -171,22 +139,12 @@ class TaskEditorFragment :
                 .compose(EditTextTransformer())
                 .subscribe(viewModel::onAttachmentsSizeLimitType)
 
-            etMaxScore.textChanges()
-                .compose(EditTextTransformer())
-                .subscribe(viewModel::onMaxScoreType)
-
             etCharsLimit.filters = arrayOf(ValueFilter(0, 2000), InputFilter.LengthFilter(4))
 
             etAttachmentsLimit.filters = arrayOf(ValueFilter(0, 99), InputFilter.LengthFilter(2))
 
             etAttachmentsSizeLimit.filters =
                 arrayOf(ValueFilter(0, 999), InputFilter.LengthFilter(3))
-
-            actMarkType.setAdapter(markAdapter)
-
-            actMarkType.setOnItemClickListener { _, _, position, _ ->
-                viewModel.onMarkTypeSelect(position)
-            }
 
             actSection.setOnTouchListener { v, event ->
                 if (MotionEvent.ACTION_DOWN == event.action)
@@ -353,7 +311,7 @@ class TaskEditorFragment :
             viewModel.finish.observe(viewLifecycleOwner) { findNavController().popBackStack() }
 
             lifecycleScope.launchWhenStarted {
-                viewModel.answerType.collect {
+                viewModel.submissionSettings.collect {
                     swText.isChecked = it.textAvailable
                     tvCharsLimit.isEnabled = it.textAvailable
                     etCharsLimit.isEnabled = it.textAvailable
@@ -373,24 +331,6 @@ class TaskEditorFragment :
                         etAttachmentsSizeLimit.setText(it.attachmentsSizeLimit)
                 }
             }
-
-            lifecycleScope.launchWhenStarted {
-                viewModel.markType.collect {
-                    when (it) {
-                        is TaskEditorViewModel.MarkTypeState.Score -> {
-                            vfMarkType.displayedChild = 0
-                            etMaxScore.setText(it.maxScore)
-                        }
-                        is TaskEditorViewModel.MarkTypeState.Binary -> {
-                            vfMarkType.displayedChild = 1
-                        }
-                    }
-                    if (actMarkType.text.toString() != markAdapter.getItem(it.position)) {
-                        actMarkType.setText(markAdapter.getItem(it.position) as String)
-                    }
-                }
-            }
-
         }
     }
 

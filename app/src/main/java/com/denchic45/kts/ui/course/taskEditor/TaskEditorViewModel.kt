@@ -4,7 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.domain.Attachment
+import com.denchic45.kts.data.model.domain.Section
+import com.denchic45.kts.data.model.domain.SubmissionSettings
+import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
@@ -49,8 +52,8 @@ class TaskEditorViewModel @Inject constructor(
     val filesVisibility = MutableLiveData(false)
     val commentsEnabled = MutableLiveData<Boolean>()
 
-    val answerType = MutableStateFlow(
-        AnswerTypeState(
+    val submissionSettings = MutableStateFlow(
+        SubmissionSettingsState(
             true,
             "500",
             false,
@@ -58,8 +61,6 @@ class TaskEditorViewModel @Inject constructor(
             "200"
         )
     )
-    val markType = MutableStateFlow<MarkTypeState>(MarkTypeState.Score("5"))
-
     val openFileChooser = SingleLiveData<Unit>()
     val openAttachment = SingleLiveData<File>()
     val openDatePicker: SingleLiveData<Long> = SingleLiveData()
@@ -90,20 +91,14 @@ class TaskEditorViewModel @Inject constructor(
             ) else null,
             disabledSendAfterDate.value ?: false,
             attachments,
-            with(answerType.value) {
-                AnswerType(
+            with(submissionSettings.value) {
+                SubmissionSettings(
                     textAvailable,
                     charsLimit.toInt(),
                     attachmentsAvailable,
                     attachmentsLimit.toInt(),
                     attachmentsSizeLimit.toInt()
                 )
-            },
-            with(markType.value) {
-                when (this) {
-                    is MarkTypeState.Score -> MarkType.Score(maxScore.toInt())
-                    is MarkTypeState.Binary -> MarkType.Binary
-                }
             },
             commentsEnabled.value ?: false,
             createdDate,
@@ -117,7 +112,7 @@ class TaskEditorViewModel @Inject constructor(
         ).sendMessageResult(R.id.til_name, showErrorMessage),
         Validation(
             Rule({
-                with(answerType.value) {
+                with(submissionSettings.value) {
                     attachmentsAvailable || textAvailable
                 }
             }, "Должен быть выбран хотя бы один вариант ответа")
@@ -125,7 +120,7 @@ class TaskEditorViewModel @Inject constructor(
         Validation(
             Rule(
                 {
-                    with(answerType.value) {
+                    with(submissionSettings.value) {
                         if (textAvailable) {
                             charsLimit.isNotEmpty() && charsLimit != "0"
                         } else true
@@ -135,7 +130,7 @@ class TaskEditorViewModel @Inject constructor(
         ).sendMessageResult(R.id.et_chars_limit, showErrorMessage),
         Validation(
             Rule({
-                with(answerType.value) {
+                with(submissionSettings.value) {
                     if (attachmentsAvailable) {
                         attachmentsLimit.isNotEmpty() && attachmentsLimit != "0"
                     } else true
@@ -145,24 +140,13 @@ class TaskEditorViewModel @Inject constructor(
         ).sendMessageResult(R.id.et_attachments_limit, showErrorMessage),
         Validation(
             Rule({
-                with(answerType.value) {
+                with(submissionSettings.value) {
                     if (attachmentsAvailable) {
                         attachmentsSizeLimit.isNotEmpty() && attachmentsSizeLimit != "0"
                     } else true
                 }
             }, "Недопустимый размер для файлов!")
-        ).sendMessageResult(R.id.et_attachments_size_limit, showErrorMessage),
-        Validation(
-            Rule(
-                {
-                    with(markType.value) {
-                        if (this is MarkTypeState.Score) {
-                            maxScore.isNotEmpty() && maxScore != "0"
-                        } else true
-                    }
-                }, "Недопустимая оценка!"
-            )
-        ).sendMessageResult(R.id.et_max_score, showErrorMessage)
+        ).sendMessageResult(R.id.et_attachments_size_limit, showErrorMessage)
     )
 
     init {
@@ -193,20 +177,14 @@ class TaskEditorViewModel @Inject constructor(
                     timestamp = it.timestamp
                     postCompletionDate()
                     disabledSendAfterDate.value = it.disabledSendAfterDate
-                    answerType.value = with(it.answerType) {
-                        AnswerTypeState(
+                    submissionSettings.value = with(it.submissionSettings) {
+                        SubmissionSettingsState(
                             textAvailable,
                             charsLimit.toString(),
                             attachmentsAvailable,
                             attachmentsLimit.toString(),
                             attachmentsSizeLimit.toString()
                         )
-                    }
-                    markType.value = with(it.markType) {
-                        when (this) {
-                            is MarkType.Score -> MarkTypeState.Score(maxScore.toString())
-                            is MarkType.Binary -> MarkTypeState.Binary
-                        }
                     }
                     commentsEnabled.value = it.commentsEnabled
                     section = findSectionUseCase(it.sectionId)
@@ -310,10 +288,10 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     fun onTextAvailableAnswerCheck(check: Boolean) {
-        answerType.value.apply {
+        submissionSettings.value.apply {
             val availableAttachmentsIfAllOptionsDisabled =
                 !check && !attachmentsAvailable || attachmentsAvailable
-            answerType.value = copy(
+            submissionSettings.value = copy(
                 textAvailable = check,
                 attachmentsAvailable = availableAttachmentsIfAllOptionsDisabled
             )
@@ -321,10 +299,10 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     fun onAttachmentsAvailableAnswerCheck(check: Boolean) {
-        answerType.value.apply {
+        submissionSettings.value.apply {
             val availableTextIfAllOptionsDisabled =
                 !check && !textAvailable || textAvailable
-            answerType.value = copy(
+            submissionSettings.value = copy(
                 attachmentsAvailable = check,
                 textAvailable = availableTextIfAllOptionsDisabled
             )
@@ -338,33 +316,17 @@ class TaskEditorViewModel @Inject constructor(
 
 
     fun onCharsLimitType(charsLimit: String) {
-        answerType.value = answerType.value.copy(charsLimit = charsLimit)
+        submissionSettings.value = submissionSettings.value.copy(charsLimit = charsLimit)
     }
 
     fun onAttachmentsLimitType(attachmentsLimit: String) {
-        answerType.value = answerType.value.copy(attachmentsLimit = attachmentsLimit)
+        submissionSettings.value =
+            submissionSettings.value.copy(attachmentsLimit = attachmentsLimit)
     }
 
     fun onAttachmentsSizeLimitType(attachmentsSizeLimit: String) {
-        answerType.value = answerType.value.copy(attachmentsSizeLimit = attachmentsSizeLimit)
-    }
-
-    fun onMaxScoreType(maxScore: String) {
-        markType.value.apply {
-            if (this is MarkTypeState.Score)
-                markType.value = copy(maxScore = maxScore)
-        }
-    }
-
-    fun onMarkTypeSelect(position: Int) {
-        when (position) {
-            0 -> {
-                if (markType.value.position != 0) {
-                    markType.value = MarkTypeState.Score("5")
-                }
-            }
-            1 -> markType.value = MarkTypeState.Binary
-        }
+        submissionSettings.value =
+            submissionSettings.value.copy(attachmentsSizeLimit = attachmentsSizeLimit)
     }
 
     fun onCommentsEnableCheck(check: Boolean) {
@@ -397,23 +359,11 @@ class TaskEditorViewModel @Inject constructor(
         sectionField.value = section.name
     }
 
-    data class AnswerTypeState(
+    data class SubmissionSettingsState(
         val textAvailable: Boolean,
         val charsLimit: String,
         val attachmentsAvailable: Boolean,
         val attachmentsLimit: String,
         val attachmentsSizeLimit: String
     )
-
-    sealed class MarkTypeState {
-        abstract val position: Int
-
-        data class Score(val maxScore: String) : MarkTypeState() {
-            override val position: Int get() = 0
-        }
-
-        object Binary : MarkTypeState() {
-            override val position: Int get() = 1
-        }
-    }
 }
