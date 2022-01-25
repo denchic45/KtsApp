@@ -17,8 +17,7 @@ object MapperModule {
     fun provideGroupMapper(): GroupMapper = GroupMapperImpl()
 
     @Provides
-    fun provideTaskMapper(): CourseContentMapper =
-        CourseContentMapperImpl()
+    fun provideTaskMapper(): CourseContentMapper = CourseContentMapperImpl()
 
     @Provides
     fun provideUserMapper(): UserMapper = UserMapperImpl()
@@ -31,4 +30,7 @@ object MapperModule {
 
     @Provides
     fun provideSectionMapper(): SectionMapper = SectionMapperImpl()
+
+    @Provides
+    fun provideSubmissionMapper(): SubmissionMapper = SubmissionMapperImpl()
 }
