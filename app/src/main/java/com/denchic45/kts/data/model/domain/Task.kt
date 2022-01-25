@@ -78,6 +78,7 @@ data class Task(
 
         data class Rejected(
             override val student: User,
+            val content: Content,
             val teacher: User,
             val comments: List<Comment>,
             val cause: String
