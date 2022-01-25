@@ -23,8 +23,10 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.denchic45.kts.R
+import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.databinding.FragmentTaskEditorBinding
+import com.denchic45.kts.databinding.ItemAddAttachmentBinding
 import com.denchic45.kts.databinding.ItemAttachmentBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.rx.EditTextTransformer
@@ -82,7 +84,7 @@ class TaskEditorFragment :
     lateinit var sectionPickerViewModelFactory: ViewModelFactory<SectionPickerViewModel>
 
     private val sectionPickerViewModel: SectionPickerViewModel by viewModels(
-        ownerProducer = { this }, factoryProducer = {sectionPickerViewModelFactory}
+        ownerProducer = { this }, factoryProducer = { sectionPickerViewModelFactory }
     )
 
     override val binding: FragmentTaskEditorBinding by viewBinding(FragmentTaskEditorBinding::bind)
@@ -384,7 +386,29 @@ class AttachmentAdapterDelegate : ListItemAdapterDelegate<Attachment, Attachment
     override fun onCreateViewHolder(parent: ViewGroup): AttachmentHolder {
         return AttachmentHolder(parent.viewBinding(ItemAttachmentBinding::inflate))
     }
+}
 
+class AddAttachmentAdapterDelegate :
+    ListItemAdapterDelegate<AddAttachmentItem, AddAttachmentHolder>() {
+    override fun isForViewType(item: Any): Boolean = item is AddAttachmentItem
+
+    override fun onBindViewHolder(item: AddAttachmentItem, holder: AddAttachmentHolder) {
+        holder.onBind(item)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup): AddAttachmentHolder {
+        return AddAttachmentHolder(parent.viewBinding(ItemAddAttachmentBinding::inflate))
+    }
+
+}
+
+object AddAttachmentItem : DomainModel()
+
+class AddAttachmentHolder(itemAddAttachmentBinding: ItemAddAttachmentBinding) :
+    BaseViewHolder<AddAttachmentItem, ItemAddAttachmentBinding>(itemAddAttachmentBinding) {
+    override fun onBind(item: AddAttachmentItem) {
+
+    }
 }
 
 class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding) :
