@@ -96,10 +96,13 @@
         android:id="@+id/courseFragment"
         android:name="com.denchic45.kts.ui.course.CourseFragment"
         android:label="fragment_course"
-        tools:layout="@layout/fragment_course" >
+        tools:layout="@layout/fragment_course">
         <action
             android:id="@+id/action_courseFragment_to_taskEditorFragment"
             app:destination="@id/taskEditorFragment" />
+        <action
+            android:id="@+id/action_courseFragment_to_taskFragment"
+            app:destination="@id/taskFragment" />
     </fragment>
     <action
         android:id="@+id/action_global_courseFragment"
@@ -108,13 +111,21 @@
 
     <fragment
         android:id="@+id/courseEditorFragment"
-        tools:layout="@layout/fragment_course_editor"
         android:name="com.denchic45.kts.ui.courseEditor.CourseEditorFragment"
-        android:label="CourseEditorFragment" />
+        android:label="CourseEditorFragment"
+        tools:layout="@layout/fragment_course_editor" />
     <fragment
         android:id="@+id/taskEditorFragment"
         android:name="com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment"
         android:label="fragment_task_editor"
-        tools:layout="@layout/fragment_task_editor" /><action android:id="@+id/action_global_courseEditorFragment" app:destination="@id/courseEditorFragment"/>
+        tools:layout="@layout/fragment_task_editor" />
+    <action
+        android:id="@+id/action_global_courseEditorFragment"
+        app:destination="@id/courseEditorFragment" />
+    <fragment
+        android:id="@+id/taskFragment"
+        android:name="com.denchic45.kts.ui.course.TaskFragment"
+        android:label="fragment_task"
+        tools:layout="@layout/fragment_task" />
 
 </navigation>
