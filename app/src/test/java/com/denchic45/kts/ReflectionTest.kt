@@ -1,7 +1,7 @@
 package com.denchic45.kts
 
 import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.utils.MembersComparator
+import com.denchic45.kts.utils.FieldsComparator
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.time.LocalDateTime
@@ -33,12 +33,12 @@ class ReflectionTest {
     )
 
     val task1 = Task(
-        id = "uuid",
+        id = "id",
         courseId = "",
         timestamp = Date(),
         name = "",
         order = 0,
-        answerType = AnswerType(
+        submissionSettings = SubmissionSettings(
             textAvailable = true,
             charsLimit = 1,
             attachmentsAvailable = true,
@@ -51,19 +51,17 @@ class ReflectionTest {
         createdDate = Date(),
         description = "",
         disabledSendAfterDate = false,
-        markType = MarkType.Binary,
         sectionId = ""
     )
 
     val task2 = task1.copy(
-        answerType = AnswerType(
+        submissionSettings = SubmissionSettings(
             textAvailable = true,
             charsLimit = 2,
             attachmentsAvailable = false,
             attachmentsLimit = 2,
             attachmentsSizeLimit = 1
         ),
-        markType = MarkType.Binary,
         attachments = listOf(
             Attachment(
                 file = File("sample.png")
@@ -82,7 +80,7 @@ class ReflectionTest {
 
     @Test
     fun test2() {
-        val hashmap = MembersComparator.mapOfDifference(task1, task2)
+        val hashmap = FieldsComparator.mapOfDifference(task1, task2)
         println(hashmap)
         println(hashmap["timestamp"]!!.javaClass)
     }

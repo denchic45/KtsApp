@@ -48,7 +48,7 @@ class SortContentsTest {
     }
 
 
-    private fun createContent(name: String, sectionId: String, order: Int) =
+    private fun createContent(name: String, sectionId: String, order: Long) =
         Task(
             "",
             courseId,
@@ -59,8 +59,7 @@ class SortContentsTest {
             LocalDateTime.now(),
             false,
             emptyList(),
-            AnswerType(false, 0, false, 0, 0),
-            MarkType.Binary,
+            SubmissionSettings(false, 0, false, 0, 0),
             false,
             Date(),
             Date()
