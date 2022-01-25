@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.data.model.domain.Attachment
+import com.denchic45.kts.data.model.domain.SubmissionSettings
 import com.denchic45.kts.domain.usecase.FindSelfTaskSubmissionUseCase
 import com.denchic45.kts.domain.usecase.FindTaskUseCase
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -35,7 +36,6 @@ class TaskViewModel @Inject constructor(
             description = task.description,
             dateWithTimeLeft = task.completionDate?.let {
                 val pattern = DateTimeFormatter.ofPattern("dd MMM HH:mm")
-
                 task.completionDate.format(pattern) to
                         "Осталось ${
                             DateTimeFormatter.ofPattern("d дней H час. m мин.").format(
@@ -50,7 +50,8 @@ class TaskViewModel @Inject constructor(
                             )
                         }"
             },
-            attachments = emptyList()
+            attachments = emptyList(),
+            submissionSettings = task.submissionSettings
         )
     }
 
@@ -74,7 +75,8 @@ class TaskViewModel @Inject constructor(
         val name: String,
         val description: String,
         val dateWithTimeLeft: Pair<String, String>?,
-        val attachments: List<Attachment>
+        val attachments: List<Attachment>,
+        val submissionSettings: SubmissionSettings
     )
 
 }
