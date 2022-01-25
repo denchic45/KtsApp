@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="false"
+
     android:orientation="vertical"
+
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.course.taskEditor.TaskEditorFragment">
 
@@ -49,9 +52,9 @@
             android:id="@+id/til_section"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
-            android:hint="Раздел"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16sp">
+            android:layout_marginHorizontal="16sp"
+            android:hint="Раздел">
 
             <AutoCompleteTextView
                 android:id="@+id/act_section"
@@ -317,8 +320,8 @@
                 android:hint="999"
                 android:inputType="number"
                 android:maxLines="1"
-                android:textAlignment="textEnd"
                 android:text="200"
+                android:textAlignment="textEnd"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:textColor="@color/text_selector"
                 android:textSize="16sp" />
@@ -336,70 +339,6 @@
                 android:textColor="@color/text_selector"
                 android:textSize="16sp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tv_header_grade"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:fontFamily="@font/gilroy_semibold"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
-            android:text="Тип оценки"
-            android:textSize="16sp" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_mark_type"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16sp">
-
-            <AutoCompleteTextView
-                android:id="@+id/act_mark_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-            <ViewFlipper
-                android:id="@+id/vf_mark_type"
-                android:layout_width="match_parent"
-                android:measureAllChildren="false"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginHorizontal="16dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Максимальный балл"
-                        android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
-                        android:textSize="16sp" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_max_score"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:hint="5"
-                        android:inputType="number"
-                        android:maxLines="1"
-                        android:text="5"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp" />
-
-            </ViewFlipper>
 
         <LinearLayout
             android:layout_width="match_parent"
