@@ -20,6 +20,9 @@ import com.denchic45.kts.data.model.room.*
         TeacherEventCrossRef::class,
         GroupCourseCrossRef::class,
         SectionEntity::class,
+        ContentCommentEntity::class,
+        SubmissionCommentEntity::class,
+        SubmissionEntity::class
     ],
     version = 1
 )
@@ -35,6 +38,9 @@ abstract class DataBase : RoomDatabase() {
     abstract fun teacherEventDao(): TeacherEventDao
     abstract fun groupCourseDao(): GroupCourseDao
     abstract fun sectionDao(): SectionDao
+    abstract fun submissionDao(): SubmissionDao
+    abstract fun submissionCommentDao(): SubmissionCommentDao
+    abstract fun contentCommentDao(): ContentCommentDao
 
     companion object {
         private var instance: DataBase? = null
