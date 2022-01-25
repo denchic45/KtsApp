@@ -1,6 +1,7 @@
 package com.denchic45.kts.data.model.domain
 
 import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.model.room.SubmissionCommentEntity
 import com.denchic45.kts.utils.getExtension
 import java.io.File
 import java.time.LocalDateTime
@@ -17,8 +18,7 @@ data class Task(
     val completionDate: LocalDateTime?,
     val disabledSendAfterDate: Boolean,
     override val attachments: List<Attachment>,
-    val answerType: AnswerType,
-    val markType: MarkType,
+    val submissionSettings: SubmissionSettings,
     override val commentsEnabled: Boolean,
     override val createdDate: Date,
     override val timestamp: Date,
@@ -34,14 +34,13 @@ data class Task(
         LocalDateTime.now(),
         false,
         emptyList(),
-        AnswerType(
+        SubmissionSettings(
             true,
             100,
             false,
             16,
             200
         ),
-        MarkType.Score(5),
         false,
         Date(),
         Date()
@@ -50,6 +49,53 @@ data class Task(
     companion object {
         fun createEmpty() = Task()
     }
+
+    sealed class Submission() : DomainModel() {
+        abstract val student: User
+        data class Nothing(
+            override val student: User
+        ) : Submission()
+
+        data class Draft(
+            override val student: User,
+            val content: Content
+        ) : Submission()
+
+        data class Done(
+            override val student: User,
+            val content: Content,
+            val comments: List<Comment>,
+            val doneDate: LocalDateTime
+        ) : Submission()
+
+        data class Graded(
+            override val student: User,
+            val content: Content,
+            val comments: List<Comment>,
+            val teacher: User,
+            val gradeDate: LocalDateTime
+        ) : Submission()
+
+        data class Rejected(
+            override val student: User,
+            val teacher: User,
+            val comments: List<Comment>,
+            val cause: String
+        ) : Submission()
+
+        data class Content(
+            val text: String,
+            val attachments: List<Attachment>
+        )
+        enum class Status { NOTHING, DRAFT, DONE, GRADED, REJECTED }
+    }
+
+    data class Comment(
+        override var id: String,
+        val content: String,
+        val author: User,
+        val createdDate: LocalDateTime
+    ) : DomainModel()
 }
 
 data class Attachment(
@@ -63,7 +109,7 @@ data class Attachment(
     val extension: String = file.getExtension()
 }
 
-data class AnswerType(
+data class SubmissionSettings(
     val textAvailable: Boolean,
     val charsLimit: Int,
     val attachmentsAvailable: Boolean,
@@ -71,14 +117,14 @@ data class AnswerType(
     val attachmentsSizeLimit: Int
 )
 
-sealed class MarkType {
-    abstract val position: Int
-
-    data class Score(val maxScore: Int) : MarkType() {
-        override val position: Int get() = 0
-    }
-
-    object Binary : MarkType() {
-        override val position: Int get() = 1
-    }
-}
+//sealed class GradeType {
+//    abstract val position: Int
+//
+//    data class Score(val maxScore: Int) : GradeType() {
+//        override val position: Int get() = 0
+//    }
+//
+//    object Binary : GradeType() {
+//        override val position: Int get() = 1
+//    }
+//}

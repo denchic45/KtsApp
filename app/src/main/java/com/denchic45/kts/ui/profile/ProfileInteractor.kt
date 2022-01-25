@@ -17,8 +17,8 @@ class ProfileInteractor @Inject constructor(
     private val groupInfoRepository: GroupInfoRepository
 ) : Interactor {
 
-    fun find(uuid: String): Observable<User> {
-        return userRepository.findByUuid(uuid)
+    fun find(id: String): Observable<User> {
+        return userRepository.findById(id)
     }
 
     fun findThisUser(): User {

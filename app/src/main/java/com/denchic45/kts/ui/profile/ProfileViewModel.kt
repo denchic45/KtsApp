@@ -18,7 +18,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class ProfileViewModel @Inject constructor(
-    @Named(ProfileFragment.USER_ID) uuid: String,
+    @Named(ProfileFragment.USER_ID) id: String,
     private val interactor: ProfileInteractor
 ) : BaseViewModel() {
     val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
@@ -80,7 +80,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     init {
-        compositeDisposable.addAll(interactor.find(uuid)
+        compositeDisposable.addAll(interactor.find(id)
             .compose(AsyncTransformer())
             .subscribe { user: User ->
                 userOfProfile = user
@@ -117,7 +117,7 @@ class ProfileViewModel @Inject constructor(
                 PERMISSION_USER_NFO,
                 User::admin,
                 User::isTeacher,
-                Predicate { (uuid1) -> uuid1 == uuid })
+                Predicate { (userId) -> userId == id })
         )
         infoVisibility.value = uiPermissions.isAllowed(PERMISSION_USER_NFO)
     }

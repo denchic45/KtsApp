@@ -51,8 +51,6 @@ class ProfileFragment : Fragment() {
     private lateinit var menu: Menu
     private var actionBar: ActionBar? = null
 
-//    private lateinit var bnv: BottomNavigationView
-
     private var galleryResult = registerForActivityResult(PickImageContract()) {
         cropImage.launch(
             options(it) {
@@ -67,7 +65,6 @@ class ProfileFragment : Fragment() {
                 setShowCropOverlay(true)
                 setAllowFlipping(true)
                 setOutputCompressFormat(Bitmap.CompressFormat.PNG)
-//                setFixAspectRatio(true)
             }
         )
     }
@@ -161,11 +158,11 @@ class ProfileFragment : Fragment() {
             { visible: Boolean ->
                 llGroupInfo!!.visibility = if (visible) View.VISIBLE else View.GONE
             })
-        viewModel.openGroup.observe(viewLifecycleOwner, { uuid: String ->
+        viewModel.openGroup.observe(viewLifecycleOwner, { id ->
 
             findNavController(view).navigate(
                 R.id.action_profileFragment_to_group,
-                Bundle().apply { putString(GroupFragment.GROUP_ID, uuid) }
+                Bundle().apply { putString(GroupFragment.GROUP_ID, id) }
             )
         })
         viewModel.optionVisibility.observe(
@@ -197,7 +194,7 @@ class ProfileFragment : Fragment() {
         })
     }
 
-//    private fun createViewModelFactory(): ViewModelProvider.Factory {
+    //    private fun createViewModelFactory(): ViewModelProvider.Factory {
 //        return object : ViewModelProvider.Factory {
 //            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
 //                return ProfileViewModel(
@@ -207,21 +204,17 @@ class ProfileFragment : Fragment() {
 //            }
 //        }
 //    }
-override fun onAttach(context: Context) {
-    super.onAttach(context)
-    AndroidSupportInjection.inject(this)
-}
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        AndroidSupportInjection.inject(this)
+    }
+
     override fun onResume() {
         super.onResume()
         actionBar = (activity as AppCompatActivity?)!!.supportActionBar
         actionBar?.title = null
 //        bnv = requireActivity().findViewById(R.id.bottom_nav_view)
 //        bnv.visibility = View.GONE
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-//        bnv.visibility = View.VISIBLE
     }
 
     companion object {
