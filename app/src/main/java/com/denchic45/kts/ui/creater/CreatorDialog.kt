@@ -1,5 +1,6 @@
 package com.denchic45.kts.ui.creater
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,17 +22,20 @@ import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.HasViewModel
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.adapter.OnItemClickListener
-import com.denchic45.kts.ui.courseEditor.CourseEditorActivity
+import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorActivity
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.viewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
 
 class CreatorDialog : BottomSheetDialogFragment(), HasViewModel<CreatorViewModel> {
     private var adapter: ItemAdapter? = null
 
+    @Inject
     override lateinit var viewModelFactory: ViewModelFactory<CreatorViewModel>
     override val viewModel: CreatorViewModel by viewModels { viewModelFactory }
 
@@ -63,20 +67,24 @@ class CreatorDialog : BottomSheetDialogFragment(), HasViewModel<CreatorViewModel
         })
         viewModel.openSpecialtyEditor.observe(viewLifecycleOwner, {
             SpecialtyEditorDialog.newInstance(null).show(
-               parentFragmentManager, null
+                parentFragmentManager, null
             )
         })
         viewModel.openCourseEditor.observe(viewLifecycleOwner, {
             findNavController().navigate(
                 R.id.action_global_courseEditorFragment,
-                bundleOf(CourseEditorActivity.COURSE_ID to it)
+                bundleOf(CourseEditorFragment.COURSE_ID to it)
             )
         })
         viewModel.finish.observe(viewLifecycleOwner, { dismiss() })
     }
 
     override fun getTheme(): Int = R.style.BaseBottomSheetMenu
-    
+
+    override fun onAttach(context: Context) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+    }
 
     private class ItemAdapter : RecyclerView.Adapter<EntityHolder>() {
         private var listItems: List<ListItem> = emptyList()

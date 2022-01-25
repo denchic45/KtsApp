@@ -86,7 +86,6 @@ public class AvatarGenerator {
 
         public Builder(Context context) {
             this.context = context;
-            this.name = name;
         }
 
         public Builder initFrom(@NotNull AvatarBuilderInitializer initializer) {
