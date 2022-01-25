@@ -70,4 +70,15 @@ object DatabaseModule {
 
     @Provides
     fun provideSectionDao(dataBase: DataBase): SectionDao = dataBase.sectionDao()
+
+    @Provides
+    fun provideSubmissionDao(dataBase: DataBase): SubmissionDao = dataBase.submissionDao()
+
+    @Provides
+    fun provideSubmissionCommentDao(dataBase: DataBase): SubmissionCommentDao =
+        dataBase.submissionCommentDao()
+
+    @Provides
+    fun provideContentCommentDao(dataBase: DataBase): ContentCommentDao =
+        dataBase.contentCommentDao()
 }
