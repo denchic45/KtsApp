@@ -95,18 +95,18 @@ class StudentRepository @Inject constructor(
             .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: ", e) }
     }
 
-    private fun updateStudentFromGroup(studentDoc: UserDoc, groupUuid: String, batch: WriteBatch) {
+    private fun updateStudentFromGroup(studentDoc: UserDoc, groupId: String, batch: WriteBatch) {
         val updateGroupMap: MutableMap<String, Any> = HashMap()
         updateGroupMap["students." + studentDoc.id] = studentDoc
         updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
-        batch.update(groupRef.document(groupUuid), updateGroupMap)
+        batch.update(groupRef.document(groupId), updateGroupMap)
     }
 
-    private fun deleteStudentFromGroup(studentDoc: UserDoc, groupUuid: String, batch: WriteBatch) {
+    private fun deleteStudentFromGroup(studentDoc: UserDoc, groupId: String, batch: WriteBatch) {
         val updateGroupMap: MutableMap<String, Any> = HashMap()
         updateGroupMap["students." + studentDoc.id] = FieldValue.delete()
         updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
-        batch.update(groupRef.document(groupUuid), updateGroupMap)
+        batch.update(groupRef.document(groupId), updateGroupMap)
     }
 
 }

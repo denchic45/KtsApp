@@ -32,11 +32,11 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
     private lateinit var table: XWPFTable
     private var currentRow = 0
     private var currentDayOfWeek = 0
-    private var currentGroup: GroupWithCourses? = null
+    private var currentGroup: GroupCourses? = null
     private lateinit var emitter: SingleEmitter<List<GroupWeekLessons>>
     fun parseDoc(
         docFile: File,
-        callbackGroupInfo: Function<Int, Single<List<GroupWithCourses>>>
+        callbackGroupInfo: Function<Int, Single<List<GroupCourses>>>
     ): Single<List<GroupWeekLessons>> {
         return Single.create { emitter: SingleEmitter<List<GroupWeekLessons>> ->
             this@TimetableParser.emitter = emitter
@@ -53,9 +53,9 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
             cellsInGroups.addAll(table.getRow(2).tableCells)
             val groupWeekLessonsList: MutableList<GroupWeekLessons> = ArrayList()
             callbackGroupInfo.apply(findCourseNumber())
-                .subscribe { groupWithCourses: List<GroupWithCourses> ->
+                .subscribe { groupCours: List<GroupCourses> ->
                     val cellsCount = table.getRow(1).tableCells.size
-                    for (group in groupWithCourses) {
+                    for (group in groupCours) {
                         if (emitter.isDisposed) return@subscribe
                         currentGroup = group
                         cellOfGroupPos = cellsInGroups.indexOf(
@@ -197,12 +197,12 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
         return currentGroup!!.courses
             .stream()
             .filter { course: Course ->
-                resetFormatting(course.info.subject.name).contains(
+                resetFormatting(course.subject.name).contains(
                     resetFormatting(subjectName)
                 )
             }
             .findFirst()
-            .map { it.info.subject }
+            .map { it.subject }
     }
 
     private fun createEventDetails(eventName: String): EventDetails {
@@ -215,8 +215,8 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
 
     private fun findTeachersBySubject(subject: Subject): List<User> {
         return currentGroup!!.courses.stream()
-            .filter { it.info.subject == subject }
-            .map { it.info.teacher }
+            .filter { it.subject == subject }
+            .map { it.teacher }
             .collect(Collectors.toList())
     }
 

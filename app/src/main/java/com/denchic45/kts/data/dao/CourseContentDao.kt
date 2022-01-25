@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 abstract class CourseContentDao : BaseDao<CourseContentEntity>() {
 
     @Query("SELECT * FROM course_content WHERE course_id =:courseId")
-    abstract fun getByCourseUuid(courseId: String): Flow<List<CourseContentEntity>>
+    abstract fun getByCourseId(courseId: String): Flow<List<CourseContentEntity>>
 
     @Query("SELECT * FROM course_content WHERE content_id=:id")
     abstract fun get(id: String): Flow<CourseContentEntity>

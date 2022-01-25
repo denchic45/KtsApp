@@ -23,11 +23,12 @@ class FinderInteractor @Inject constructor(
 
 
     private val currentRepository: Repository? = null
+
     fun findUserByTypedName(name: String): Flow<Resource2<List<User>>> {
         return userRepository.getByTypedName(name)
     }
 
-    fun findGroupByTypedName(name: String): Flow<Resource2<List<Group>>> {
+    fun findGroupByTypedName(name: String): Flow<Resource2<List<CourseGroup>>> {
         return groupInfoRepository.findByTypedName(name)
     }
 
@@ -39,7 +40,7 @@ class FinderInteractor @Inject constructor(
         return specialtyRepository.findByTypedName(name)
     }
 
-    fun findCourseByTypedName(name: String): Flow<Resource2<List<CourseInfo>>> {
+    fun findCourseByTypedName(name: String): Flow<Resource2<List<Course>>> {
         return courseRepository.findByTypedName(name)
     }
 

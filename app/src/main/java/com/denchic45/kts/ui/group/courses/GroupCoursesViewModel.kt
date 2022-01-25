@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.group.courses
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.CourseInfo
+import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.base.BaseViewModel
@@ -19,15 +19,15 @@ import javax.inject.Named
 
 class GroupCoursesViewModel @Inject constructor(
     interactor: GroupCoursesInteractor,
-    @Named("GroupCourses ${GroupPreference.GROUP_ID}") groupUuid: String?
+    @Named("GroupCourses ${GroupPreference.GROUP_ID}") groupId: String?
 ) : BaseViewModel() {
     val clearItemsSelection = SingleLiveData<Set<Int>>()
     val selectItem = MutableLiveData<Pair<Int, Boolean>>()
-    private val groupUuid: String = groupUuid ?: interactor.yourGroupUuid
+    private val groupId: String = groupId ?: interactor.yourGroupId
     private val uiPermissions: UIPermissions = UIPermissions(interactor.findThisUser())
-    var openCourseEditorDialog = SingleLiveData<CourseInfo>()
-    var courses: StateFlow<List<CourseInfo>> =
-        interactor.findCoursesByGroupUuid(this.groupUuid).stateIn(
+    var openCourseEditorDialog = SingleLiveData<Course>()
+    var courses: StateFlow<List<Course>> =
+        interactor.findCoursesByGroupId(this.groupId).stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000), emptyList()
         )

@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource2
-import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
@@ -32,7 +31,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 open class UserEditorViewModel @Inject constructor(
-    @Named("UserEditor ${UserEditorActivity.USER_ID}") userUuid: String?,
+    @Named("UserEditor ${UserEditorActivity.USER_ID}") userId: String?,
     @Named(UserEditorActivity.USER_ROLE) role: String,
     @Named(UserEditorActivity.USER_GROUP_ID) private var groupId: String?,
     @Named("genders") genderList: List<ListItem>,
@@ -81,7 +80,7 @@ open class UserEditorViewModel @Inject constructor(
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<User>
     var groupName: LiveData<String>? = null
-    private var userUuid: String
+    private var userId: String
     private var role: String?
     private var gender = 0
     private var admin = false
@@ -146,11 +145,11 @@ open class UserEditorViewModel @Inject constructor(
 
     init {
         this.role = role
-        this.userUuid = userUuid ?: UUIDS.createShort()
+        this.userId = userId ?: UUIDS.createShort()
         this.genderList = genderList
-        uiEditor = UIEditor(userUuid == null) {
+        uiEditor = UIEditor(userId == null) {
             User(
-                this.userUuid,
+                this.userId,
                 fieldFirstName.value ?: "",
                 fieldSurname.value ?: "",
                 fieldPatronymic.value,
@@ -181,7 +180,7 @@ open class UserEditorViewModel @Inject constructor(
             typedNameGroup.flatMapLatest { name: String -> interactor.getGroupsByTypedName(name) }
                 .map { resource ->
                     (resource as Resource2.Success).data.stream()
-                        .map { group: Group -> ListItem(id = group.id, title = group.name) }
+                        .map { group -> ListItem(id = group.id, title = group.name) }
                         .collect(Collectors.toList())
                 }
                 .collect { value: List<ListItem> -> groupList.setValue(value) }
@@ -214,8 +213,8 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun setGroupView() {
         if (groupId != null) {
-            groupName = interactor.getGroupNameByUuid(groupId!!)
-            LiveDataUtil.observeOnce(interactor.getGroupNameByUuid(groupId!!)) { value: String ->
+            groupName = interactor.getGroupNameById(groupId!!)
+            LiveDataUtil.observeOnce(interactor.getGroupNameById(groupId!!)) { value: String ->
                 fieldGroup.value = value
             }
         }
@@ -233,7 +232,7 @@ open class UserEditorViewModel @Inject constructor(
 
     private val existUser: Unit
         get() {
-            LiveDataUtil.observeOnce(interactor.getUserByUuid(userUuid)) { user: User ->
+            LiveDataUtil.observeOnce(interactor.getUserById(userId)) { user: User ->
                 uiEditor.oldItem = user
                 role = user.role
                 gender = user.gender

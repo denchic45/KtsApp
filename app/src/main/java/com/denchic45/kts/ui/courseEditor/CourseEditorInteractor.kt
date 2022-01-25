@@ -23,8 +23,8 @@ class CourseEditorInteractor @Inject constructor(
     private val groupPreference: GroupPreference
 ) : Interactor {
 
-    fun findSubject(subjectUuid: String): Subject {
-        return subjectRepository.getByUuid(subjectUuid)
+    fun findSubject(subjectId: String): Subject {
+        return subjectRepository.findLazy(subjectId)
     }
 
     fun findTeacherByTypedName(name: String): Flow<Resource2<List<User>>> {
@@ -51,7 +51,7 @@ class CourseEditorInteractor @Inject constructor(
         return courseRepository.remove(course)
     }
 
-    val yourGroupUuid: String
+    val yourGroupId: String
         get() = groupPreference.groupId
 
     override fun removeListeners() {
@@ -61,7 +61,7 @@ class CourseEditorInteractor @Inject constructor(
         subjectRepository.removeListeners()
     }
 
-    fun findGroup(groupUuid: String): LiveData<Group> {
-        return groupInfoRepository.find(groupUuid)
+    fun findGroup(groupId: String): LiveData<Group> {
+        return groupInfoRepository.find(groupId)
     }
 }

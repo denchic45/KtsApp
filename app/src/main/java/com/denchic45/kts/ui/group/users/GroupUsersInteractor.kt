@@ -20,16 +20,16 @@ class GroupUsersInteractor @Inject constructor(
     val yourGroupId: String
         get() = groupRepository.yourGroupId
 
-    fun getUsersByGroupUuid(groupId: String): LiveData<List<User>> {
-        return userRepository.getByGroupUuid(groupId)
+    fun getUsersByGroupId(groupId: String): LiveData<List<User>> {
+        return userRepository.getByGroupId(groupId)
     }
 
-    fun removeStudent(student: User?): Completable {
-        return studentRepository.remove(student!!)
+    fun removeStudent(student: User): Completable {
+        return studentRepository.remove(student)
     }
 
-    fun updateGroupCurator(groupUuid: String?, teacherUuid: User?): Completable {
-        return groupInfoRepository.updateGroupCurator(groupUuid, teacherUuid)
+    fun updateGroupCurator(groupId: String, teacherId: User): Completable {
+        return groupInfoRepository.updateGroupCurator(groupId, teacherId)
     }
 
     override fun removeListeners() {
@@ -39,8 +39,8 @@ class GroupUsersInteractor @Inject constructor(
         groupInfoRepository.removeListeners()
     }
 
-    fun getCurator(groupUuid: String): LiveData<User> {
-        return groupInfoRepository.findCurator(groupUuid)
+    fun getCurator(groupId: String): LiveData<User> {
+        return groupInfoRepository.findCurator(groupId)
     }
 
     fun findThisUser(): User {

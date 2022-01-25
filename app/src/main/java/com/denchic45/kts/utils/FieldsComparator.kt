@@ -2,7 +2,7 @@ package com.denchic45.kts.utils
 
 import kotlin.reflect.full.memberProperties
 
-object MembersComparator {
+object FieldsComparator {
 
     fun mapOfDifference(oldObj: Any, newObj: Any): MutableMap<String, Any> {
         val map = mutableMapOf<String, Any>()

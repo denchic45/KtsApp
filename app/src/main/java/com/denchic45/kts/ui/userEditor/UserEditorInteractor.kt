@@ -8,7 +8,7 @@ import com.denchic45.kts.AvatarBuilderTemplate
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Resource2
-import com.denchic45.kts.data.model.domain.Group
+import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
@@ -31,16 +31,16 @@ class UserEditorInteractor @Inject constructor(
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 
-    fun getGroupsByTypedName(name: String): Flow<Resource2<List<Group>>> {
+    fun getGroupsByTypedName(name: String): Flow<Resource2<List<CourseGroup>>> {
         return groupInfoRepository.findByTypedName(name)
     }
 
-    fun getGroupNameByUuid(groupUuid: String): LiveData<String> {
-        return groupInfoRepository.getNameByGroupUuid(groupUuid).asLiveData()
+    fun getGroupNameById(groupId: String): LiveData<String> {
+        return groupInfoRepository.getNameByGroupId(groupId).asLiveData()
     }
 
-    private suspend fun loadAvatar(avatarBytes: ByteArray, uuid: String): String {
-        return userRepository.loadAvatar(avatarBytes, uuid)
+    private suspend fun loadAvatar(avatarBytes: ByteArray, id: String): String {
+        return userRepository.loadAvatar(avatarBytes, id)
     }
 
     fun addUser(user: User): Flow<Resource2<User>> {
@@ -97,8 +97,8 @@ class UserEditorInteractor @Inject constructor(
         return teacherRepository.remove(teacher)
     }
 
-    fun getUserByUuid(userUuid: String): LiveData<User> {
-        return userRepository.getByUuid(userUuid)
+    fun getUserById(userId: String): LiveData<User> {
+        return userRepository.getById(userId)
     }
 
     override fun removeListeners() {

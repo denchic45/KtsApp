@@ -3,17 +3,19 @@ package com.denchic45.kts.data.model.mapper;
 import androidx.annotation.NonNull;
 
 import com.denchic45.kts.data.model.domain.Course;
-import com.denchic45.kts.data.model.domain.CourseInfo;
-import com.denchic45.kts.data.model.domain.Group;
+import com.denchic45.kts.data.model.domain.CourseGroup;
 import com.denchic45.kts.data.model.firestore.CourseDoc;
 import com.denchic45.kts.data.model.room.CourseEntity;
-import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacher;
-import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroups;
+import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacherEntities;
+import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroupsEntities;
+import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity;
 import com.denchic45.kts.utils.SearchKeysGenerator;
 
 import org.jetbrains.annotations.NotNull;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -22,27 +24,33 @@ import org.mapstruct.Named;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(uses = {GroupMapper.class, UserMapper.class, SubjectMapper.class})
+@Mapper(uses = {GroupMapper.class, UserMapper.class, SubjectMapper.class, SpecialtyMapper.class})
 public interface CourseMapper {
 
-    @Mapping(source = "info.teacher", target = "teacher")
-    @Mapping(source = "info.subject", target = "subject")
-    @Mapping(source = "info.name", target = "name")
+//    @Mapping(source = "info.teacher", target = "teacher")
+//    @Mapping(source = "info.subject", target = "subject")
+//    @Mapping(source = "info.name", target = "name")
     @Mapping(qualifiedByName = "addGroupId", source = "groups", target = "groupIds")
     CourseDoc domainToDoc(Course course);
 
-    CourseInfo docToDomain(CourseDoc doc);
+    Course docToDomain(CourseDoc doc);
 
-    List<CourseInfo> docToDomain(List<CourseDoc> docs);
+    List<Course> docToDomain(List<CourseDoc> docs);
 
     @Mapping(source = "groupEntities", target = "groups")
 
-//    @Mapping(source = "courseEntity.name", target = "info.name")
-//    @Mapping(source = "courseEntity.uuid", target = "info.uuid")
-//    @Mapping(source = "subjectEntity", target = "info.subject")
-//    @Mapping(source = "teacherEntity", target = "info.teacher")
-    @Mapping(source = ".", target = "info", qualifiedByName = "entityToDomainInfo")
-    Course entityToDomain(CourseWithSubjectWithTeacherAndGroups entity);
+    @Mapping(source = "courseEntity.name", target = "name")
+    @Mapping(source = "courseEntity.id", target = "id")
+    @Mapping(source = "subjectEntity", target = "subject")
+    @Mapping(source = "teacherEntity", target = "teacher")
+    @Named("entityToDomain2")
+    Course entityToDomain2(CourseWithSubjectWithTeacherAndGroupsEntities entity);
+
+    @IterableMapping(qualifiedByName = "entityToDomain2")
+    List<Course> entityToDomain2(List<CourseWithSubjectWithTeacherAndGroupsEntities> entity);
+
+    @InheritConfiguration(name = "entityToDomain")
+    Course entityToDomain(CourseWithSubjectAndTeacherEntities entity);
 
     @Mapping(source = "subject.id", target = "subjectId")
     @Mapping(source = "teacher.id", target = "teacherId")
@@ -53,31 +61,39 @@ public interface CourseMapper {
     @InheritInverseConfiguration(name = "docToEntity")
     CourseDoc entityToDoc(CourseEntity entity);
 
-    List<Course> entityToDomain(List<CourseWithSubjectWithTeacherAndGroups> entities);
+//    List<Course> entityToDomain(List<CourseWithSubjectWithTeacherAndGroupsEntities> entities);
 
-    @Mapping(source = "courseEntity", target = ".")
-    @Named("entityToDomainInfo")
-    @Mapping(source = "subjectEntity", target = "subject")
+    List<Course> entityToDomain(List<CourseWithSubjectAndTeacherEntities> entities);
+
+    @Mapping(source = "groupEntity.id", target = "id")
+    @Mapping(source = "groupEntity.name", target = "name")
+    CourseGroup entityToCourseGroup(GroupWithCuratorAndSpecialtyEntity groupWithCuratorAndSpecialtyEntity);
+
+//    @InheritConfiguration(name = "entityToDomain")
+//    Course entityToDomainInfo(CourseWithSubjectWithTeacherAndGroupsEntities entity);
+
+//    @Mapping(source = "courseEntity", target = ".")
+//
+//    @Mapping(source = "subjectEntity", target = "subject")
+//    @Mapping(source = "teacherEntity", target = "teacher")
+//    Course entityToDomainInfo(CourseWithSubjectAndTeacherEntities entity);
+
+//    default List<Course> entityToDomainInfo(@NonNull List<CourseWithSubjectWithTeacherAndGroups> entities) {
+//        return entities.stream().map(this::entityToDomainInfo).collect(Collectors.toList());
+//    }
+//
+//    default List<Course> entityToDomainInfo2(@NonNull List<CourseWithSubjectAndTeacherEntities> entities) {
+//        return entities.stream().map(this::entityToDomain).collect(Collectors.toList());
+//    }
+
     @Mapping(source = "teacherEntity", target = "teacher")
-    CourseInfo entityToDomainInfo(CourseWithSubjectWithTeacherAndGroups entity);
-
-    @Mapping(source = "courseEntity", target = ".")
-    @Named("entityToDomainInfo")
     @Mapping(source = "subjectEntity", target = "subject")
-    @Mapping(source = "teacherEntity", target = "teacher")
-    CourseInfo entityToDomainInfo(CourseWithSubjectAndTeacher entity);
-
-    default List<CourseInfo> entityToDomainInfo(@NonNull List<CourseWithSubjectWithTeacherAndGroups> entities) {
-        return entities.stream().map(this::entityToDomainInfo).collect(Collectors.toList());
-    }
-
-    default List<CourseInfo> entityToDomainInfo2(@NonNull List<CourseWithSubjectAndTeacher> entities) {
-        return entities.stream().map(this::entityToDomainInfo).collect(Collectors.toList());
-    }
+    @Mapping(source = "courseEntity", target = ".")
+    CourseDoc entityToDoc(CourseWithSubjectAndTeacherEntities entities);
 
     @Named("addGroupId")
-    default List<String> addGroupId(@NonNull List<Group> groups) {
-        return groups.stream().map(Group::getId).collect(Collectors.toList());
+    default List<String> addGroupId(@NonNull List<CourseGroup> groups) {
+        return groups.stream().map(CourseGroup::getId).collect(Collectors.toList());
     }
 
     @AfterMapping

@@ -76,22 +76,22 @@ class SubjectRepository @Inject constructor(
         checkInternetConnection()
         isExistWithSameIconAndColor(subject)
         val subjectDoc = subjectMapper.domainToDoc(subject)
-        val uuid = subject.id
-        val queryDocumentSnapshots = groupsRef.whereEqualTo("subjects.$uuid.id", uuid)
+        val id = subject.id
+        val queryDocumentSnapshots = groupsRef.whereEqualTo("subjects.$id.id", id)
             .get()
             .await()
         val batch = firestore.batch()
-        if (!queryDocumentSnapshots.isEmpty) for ((uuid1) in queryDocumentSnapshots.toObjects(
+        if (!queryDocumentSnapshots.isEmpty) for ((id) in queryDocumentSnapshots.toObjects(
             GroupDoc::class.java
         )) {
             batch.update(
-                groupsRef.document(uuid1), mapOf(
-                    "subjects.$uuid" to subjectDoc,
+                groupsRef.document(id), mapOf(
+                    "subjects.$id" to subjectDoc,
                     "timestamp" to FieldValue.serverTimestamp()
                 )
             )
         }
-        batch[subjectsRef.document(uuid)] = subjectDoc
+        batch[subjectsRef.document(id)] = subjectDoc
         batch.commit().await()
     }
 
@@ -111,8 +111,8 @@ class SubjectRepository @Inject constructor(
         subjectsRef.document(subject.id).delete().await()
     }
 
-    fun find(uuid: String?): LiveData<Subject> {
-        subjectsRef.document(uuid!!)
+    fun find(id: String): LiveData<Subject> {
+        subjectsRef.document(id)
             .get()
             .addOnSuccessListener { value: DocumentSnapshot ->
                 coroutineScope.launch(dispatcher) {
@@ -122,7 +122,7 @@ class SubjectRepository @Inject constructor(
                 }
             }
             .addOnFailureListener { Log.d("lol", "onFailure: ") }
-        return Transformations.map(subjectDao.getByUuid(uuid)) { entity: SubjectEntity ->
+        return Transformations.map(subjectDao.get(id)) { entity: SubjectEntity ->
             subjectMapper.entityToDomain(
                 entity
             )
@@ -144,8 +144,8 @@ class SubjectRepository @Inject constructor(
     }
 
 
-    fun getByUuid(subjectId: String): Subject {
-        if (subjectDao.getByUuidSync(subjectId) == null) {
+    fun findLazy(subjectId: String): Subject {
+        if (subjectDao.getSync(subjectId) == null) {
             subjectsRef.whereEqualTo("id", subjectId)
                 .get()
                 .addOnSuccessListener { snapshot: QuerySnapshot ->
@@ -157,7 +157,7 @@ class SubjectRepository @Inject constructor(
                 }
                 .addOnFailureListener { e: Exception? -> Log.d("lol", "onFailure: ", e) }
         }
-        return subjectMapper.entityToDomain(subjectDao.getByUuidSync(subjectId))
+        return subjectMapper.entityToDomain(subjectDao.getSync(subjectId))
     }
 
     fun findAllRefsOfSubjectIcons(): Single<List<Uri>> {
@@ -178,24 +178,24 @@ class SubjectRepository @Inject constructor(
                             .collect(Collectors.toList())
                     }
                         .subscribe { t: List<Uri> -> emitter.onSuccess(t) }
-                }.addOnFailureListener { e: Exception? ->
+                }.addOnFailureListener { e: Exception ->
                     Log.d("lol", "onFailure: ", e)
                     Log.d("lol", "FAIL: ")
                 }
         }
     }
 
-    fun findByGroup(groupUuid: String): LiveData<Resource2<List<Subject>>> {
+    fun findByGroup(groupId: String): LiveData<Resource2<List<Subject>>> {
         return if (!networkService.isNetworkAvailable) {
             MutableLiveData(Resource2.Error(NetworkException()))
-        } else Transformations.map(subjectDao.getByGroupUuid(groupUuid)) { input: List<SubjectEntity?> ->
+        } else Transformations.map(subjectDao.getByGroupId(groupId)) { input: List<SubjectEntity?> ->
             Resource2.Success(
                 subjectMapper.entityToDomain(input)
             )
         }
         //todo дописать!
-//        if (!groupDao.isExistSync(groupUuid)) {
-//            groupsRef.document(groupUuid)
+//        if (!groupDao.isExistSync(groupId)) {
+//            groupsRef.document(groupId)
 //                    .get()
 //                    .addOnSuccessListener(snapshot -> {
 //                        GroupDoc groupDoc = snapshot.toObject(GroupDoc.class);

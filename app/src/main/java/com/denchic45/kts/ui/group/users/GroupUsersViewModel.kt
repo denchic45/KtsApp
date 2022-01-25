@@ -46,19 +46,19 @@ class GroupUsersViewModel @Inject constructor(
     @JvmField
     @Inject
     var choiceOfCuratorInteractor: ChoiceOfCuratorInteractor? = null
-    private var groupUuid: String? = null
-    private var selectedUser: User? = null
+    private var groupId: String = ""
+    private lateinit var selectedUser: User
     private var subscribeChoiceOfCurator: Disposable? = null
     private var students: List<User> = emptyList()
-    fun onGroupUuidReceived(groupUuid: String?) {
-        var groupUuid = groupUuid
-        if (groupUuid == null) {
-            groupUuid = interactor.yourGroupId
-            this.groupUuid = groupUuid
+    fun onGroupIdReceived(groupId: String?) {
+        var groupId = groupId
+        if (groupId == null) {
+            groupId = interactor.yourGroupId
+            this.groupId = groupId
         }
         val groupUsers = CombinedLiveData(
-            interactor.getUsersByGroupUuid(groupUuid),
-            interactor.getCurator(groupUuid)
+            interactor.getUsersByGroupId(groupId),
+            interactor.getCurator(groupId)
         )
         users = Transformations.map(groupUsers) { studentsWithCurator: Pair<List<User>, User> ->
             students = studentsWithCurator.first
@@ -82,8 +82,8 @@ class GroupUsersViewModel @Inject constructor(
         openProfile.value = users!!.value!![position]!!.id
     }
 
-    fun onOptionUserClick(uuidOption: String) {
-        when (uuidOption) {
+    fun onOptionUserClick(optionId: String) {
+        when (optionId) {
             OPTION_SHOW_PROFILE -> {
             }
             OPTION_EDIT_USER -> {
@@ -105,7 +105,7 @@ class GroupUsersViewModel @Inject constructor(
                 openChoiceOfCurator.call()
                 subscribeChoiceOfCurator = choiceOfCuratorInteractor!!.observeSelectedCurator()
                     .subscribe { teacher: User ->
-                        interactor.updateGroupCurator(groupUuid, teacher)
+                        interactor.updateGroupCurator(groupId, teacher)
                             .subscribe(
                                 {}
                             ) { throwable: Throwable? ->

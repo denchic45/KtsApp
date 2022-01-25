@@ -30,8 +30,8 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class CourseEditorViewModel @Inject constructor(
-    @Named(CourseEditorActivity.COURSE_ID)
-    courseUuid: String?,
+    @Named(CourseEditorFragment.COURSE_ID)
+    courseId: String?,
     private val interactor: CourseEditorInteractor,
     var choiceOfGroupInteractor: ChoiceOfGroupInteractor
 ) :
@@ -42,7 +42,6 @@ class CourseEditorViewModel @Inject constructor(
     val showFoundTeachers = SingleLiveData<List<ListItem>>()
     val showFoundSubjects = SingleLiveData<List<ListItem>>()
 
-    //    val enablePositiveBtn = MutableLiveData(false)
     val subjectNameTypeEnable = MutableLiveData<Boolean>()
     val teacherNameTypeEnable = MutableLiveData<Boolean>()
     val groupList = MutableLiveData(addAdderGroupItem())
@@ -52,23 +51,21 @@ class CourseEditorViewModel @Inject constructor(
 
     private var subscribeConfirmation: Disposable? = null
 
-    private val courseUuid: String = courseUuid ?: UUID.randomUUID().toString()
+    private val courseUuid: String = courseId ?: UUID.randomUUID().toString()
     var foundTeachers: List<User>? = null
     var foundSubjects: List<Subject>? = null
-    private val subjectUuid: String? = null
-    private val teacherUuid: String? = null
+    private val subjectId: String? = null
+    private val teacherId: String? = null
 
     private val typedSubjectName = MutableSharedFlow<String>()
     private val typedTeacherName = MutableSharedFlow<String>()
-    private var groups: MutableList<Group> = mutableListOf()
-    private val uiEditor: UIEditor<Course> = UIEditor(courseUuid == null) {
+    private var groups: MutableList<CourseGroup> = mutableListOf()
+    private val uiEditor: UIEditor<Course> = UIEditor(courseId == null) {
         Course(
-            CourseInfo(
-                this.courseUuid,
-                nameField.value ?: "",
-                selectSubject.value ?: Subject.createEmpty(),
-                selectTeacher.value ?: User.createEmpty()
-            ),
+            this.courseUuid,
+            nameField.value ?: "",
+            selectSubject.value ?: Subject.createEmpty(),
+            selectTeacher.value ?: User.createEmpty(),
             groups
         )
     }
@@ -78,8 +75,8 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private val uiValidator: UIValidator = UIValidator.of(
-        Validation(Rule({ subjectUuid.isNullOrEmpty() }, "Предмет отсутствует")),
-        Validation(Rule({ teacherUuid.isNullOrEmpty() }, "Преподаватель отсутствует"))
+        Validation(Rule({ subjectId.isNullOrEmpty() }, "Предмет отсутствует")),
+        Validation(Rule({ teacherId.isNullOrEmpty() }, "Преподаватель отсутствует"))
     )
 
     private fun setup() {
@@ -118,9 +115,9 @@ class CourseEditorViewModel @Inject constructor(
                     .map { resource ->
                         foundSubjects = (resource as Resource2.Success).data
                         resource.data.stream()
-                            .map { (uuid, name, iconUrl) ->
+                            .map { (id, name, iconUrl) ->
                                 ListItem(
-                                    id = uuid,
+                                    id = id,
                                     title = name,
                                     icon = EitherResource.String(iconUrl)
                                 )
@@ -152,16 +149,16 @@ class CourseEditorViewModel @Inject constructor(
             viewModelScope.launch {
                 interactor.findCourse(courseUuid).collect { course: Course ->
                     uiEditor.oldItem = course
-                    nameField.value = course.info.name
-                    selectTeacher.value = course.info.teacher
-                    selectSubject.value = course.info.subject
+                    nameField.value = course.name
+                    selectTeacher.value = course.teacher
+                    selectSubject.value = course.subject
                     groups = course.groups.toMutableList()
                     groupList.value = addAdderGroupItem(groups)
                 }
             }
         }
 
-    private fun addAdderGroupItem(groups: List<Group> = emptyList()): List<DomainModel> =
+    private fun addAdderGroupItem(groups: List<CourseGroup> = emptyList()): List<DomainModel> =
         groups.map { ListItem(id = it.id, title = it.name, type = 1) } + ListItem(
             id = "ADD_GROUP",
             title = "Добавить",

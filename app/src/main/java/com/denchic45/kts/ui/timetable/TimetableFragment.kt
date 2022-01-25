@@ -163,13 +163,13 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable), WeekCalendarLis
 
     companion object {
         const val DAY_OFF_VIEW = "DAY_OFF_VIEW"
-        const val GROUP_ID = "GROUP_UUID"
+        const val GROUP_ID = "GROUP_ID"
 
         @JvmStatic
-        fun newInstance(groupUuid: String): TimetableFragment {
+        fun newInstance(groupId: String): TimetableFragment {
             val fragment = TimetableFragment()
             val args = Bundle()
-            args.putString(GROUP_ID, groupUuid)
+            args.putString(GROUP_ID, groupId)
             fragment.arguments = args
             return fragment
         }

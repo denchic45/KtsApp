@@ -41,12 +41,12 @@ class TimetableFinderViewModel @Inject constructor(
 
     val enableEditMode = MutableLiveData<Boolean>()
     private val typedGroupName = MutableSharedFlow<String>()
-    private val selectedGroup = MutableLiveData<Group?>()
+    private val selectedGroup = MutableLiveData<CourseGroup>()
     private val lastEvents: MutableList<Event> = ArrayList()
     private val editingEvents: MutableList<Event> = ArrayList()
 
     private var saveEditedLessons = false
-    private var foundGroups: List<Group>? = null
+    private var foundGroups: List<CourseGroup>? = null
     private var selectedDate = DateUtils.truncate(Date(), Calendar.DAY_OF_MONTH)
     fun onGroupNameType(groupName: String) {
         viewModelScope.launch {
@@ -187,7 +187,7 @@ class TimetableFinderViewModel @Inject constructor(
 
     init {
         showLessonsOfGroupByDate =
-            Transformations.map(Transformations.switchMap(selectedGroup) { groupItem: Group? ->
+            Transformations.map(Transformations.switchMap(selectedGroup) { groupItem ->
                 interactor.findLessonsOfGroupByDate(
                     selectedDate,
                     groupItem!!.id
@@ -205,9 +205,9 @@ class TimetableFinderViewModel @Inject constructor(
                 .map { resource ->
                     foundGroups = (resource as Resource2.Success).data
                     resource.data.stream()
-                        .map { (uuid, name) ->
+                        .map { (id, name) ->
                             ListItem(
-                                id = uuid,
+                                id = id,
                                 title = name,
                                 icon = EitherResource.Id(R.drawable.ic_group)
                             )

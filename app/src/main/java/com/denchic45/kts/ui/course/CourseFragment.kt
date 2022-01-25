@@ -9,13 +9,13 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.databinding.FragmentCourseBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskHolder
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
+import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.click
 import com.example.appbarcontroller.appbarcontroller.AppBarController
@@ -52,6 +52,10 @@ class CourseFragment :
                 setNavigationOnClickListener {
                     requireActivity().onBackPressed()
                 }
+                setOnMenuItemClickListener {
+                    viewModel.onOptionClick(it.itemId)
+                    false
+                }
             }
 
             setLiftOnScroll(true)
@@ -78,19 +82,20 @@ class CourseFragment :
             }
             rvCourseItems.adapter = adapter
             viewModel.showContents.observe(viewLifecycleOwner) {
-                adapter.submit(
-                    it
-//                    it.toMutableList().apply {
-//                    add(0, Section("", "", "Qwerty", 0))
-//                    add(2, Section("", "", "Тема", 0))
-//                    add(4, Section("", "", "Раздел для экзаменов", 0))
-//                }
-                )
+                adapter.submit(it)
             }
             viewModel.courseName.observe(viewLifecycleOwner) {
                 collapsingToolbarLayout!!.title = it
             }
         }
+
+        viewModel.openTask.observe(viewLifecycleOwner) {
+            findNavController().navigate(
+                R.id.action_courseFragment_to_taskFragment,
+                bundleOf(TaskFragment.TASK_ID to it)
+            )
+        }
+
         viewModel.openTaskEditor.observe(viewLifecycleOwner) { (taskId, courseId, sectionId) ->
             findNavController().navigate(
                 R.id.action_courseFragment_to_taskEditorFragment,
@@ -99,6 +104,13 @@ class CourseFragment :
                     TaskEditorFragment.COURSE_ID to courseId,
                     TaskEditorFragment.SECTION_ID to sectionId
                 )
+            )
+        }
+
+        viewModel.openCourseEditor.observe(viewLifecycleOwner) {
+            findNavController().navigate(
+                R.id.action_global_courseEditorFragment,
+                bundleOf(CourseEditorFragment.COURSE_ID to it)
             )
         }
 

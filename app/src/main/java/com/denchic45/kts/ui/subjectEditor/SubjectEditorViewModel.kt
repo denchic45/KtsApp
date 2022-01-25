@@ -27,7 +27,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class SubjectEditorViewModel @Inject constructor(
-    @Named(SubjectEditorDialog.SUBJECT_ID) subjectUuid: String?,
+    @Named(SubjectEditorDialog.SUBJECT_ID) subjectId: String?,
     private val interactor: SubjectEditorInteractor,
     private var iconPickerInteractor: IconPickerInteractor
 ) : BaseViewModel() {
@@ -52,7 +52,7 @@ class SubjectEditorViewModel @Inject constructor(
     val showColors = MutableLiveData<Pair<List<ListItem>, Int>>()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Subject>
-    private val uuid: String = subjectUuid ?: UUIDS.createShort()
+    private val id: String = subjectId ?: UUIDS.createShort()
     private var colorName = ""
 
     private var subscribe: Disposable? = null
@@ -93,7 +93,7 @@ class SubjectEditorViewModel @Inject constructor(
 
     private fun setupForExistItem() {
         title.value = "Редактировать предмет"
-        LiveDataUtil.observeOnce(interactor.find(uuid)) { subject: Subject ->
+        LiveDataUtil.observeOnce(interactor.find(id)) { subject: Subject ->
             uiEditor.oldItem = subject
             nameField.value = subject.name
             colorIcon.value = findColorId(subject.colorName)
@@ -163,9 +163,9 @@ class SubjectEditorViewModel @Inject constructor(
     }
 
     init {
-        uiEditor = UIEditor(subjectUuid == null) {
+        uiEditor = UIEditor(subjectId == null) {
             Subject(
-                uuid,
+                id,
                 nameField.value ?: "",
                 icon.value ?: "",
                 colorName

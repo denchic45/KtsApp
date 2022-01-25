@@ -44,7 +44,7 @@ abstract class GroupDao : BaseDao<GroupEntity>() {
     abstract fun getByStudentId(userId: String): Observable<GroupWithCuratorAndSpecialtyEntity>
 
     @Query("SELECT * FROM `group` WHERE curator_id =:userId")
-    abstract fun getByCuratorUuid(userId: String): Observable<GroupWithCuratorAndSpecialtyEntity>
+    abstract fun getByCuratorId(userId: String): Observable<GroupWithCuratorAndSpecialtyEntity>
 
     @Query("DELETE FROM `group` WHERE group_id NOT IN(SELECT g.group_id FROM `group` g INNER JOIN group_course gc ON gc.group_id == g.group_id)")
     abstract fun deleteUnrelatedByCourse()

@@ -56,7 +56,7 @@ class LessonEditorViewModel @Inject constructor(
 
     fun onSubjectClick() {
         choiceOfSubjectInteractor.groupName = interactor.oldEvent.value!!.group.name
-        choiceOfSubjectInteractor.groupUuid = interactor.oldEvent.value!!.group.id
+        choiceOfSubjectInteractor.groupId = interactor.oldEvent.value!!.group.id
         selectedSubjectSubscribe =
             choiceOfSubjectInteractor.observeSelectedSubject().subscribe { subject: Subject ->
                 selectedSubjectSubscribe!!.dispose()

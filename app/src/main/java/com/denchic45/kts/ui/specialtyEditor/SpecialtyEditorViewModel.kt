@@ -19,7 +19,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class SpecialtyEditorViewModel @Inject constructor(
-    @Named(SpecialtyEditorDialog.SPECIALTY_ID) uuid: String?,
+    @Named(SpecialtyEditorDialog.SPECIALTY_ID) id: String?,
     private val specialtyRepository: SpecialtyRepository
 ) :
     BaseViewModel() {
@@ -35,10 +35,10 @@ class SpecialtyEditorViewModel @Inject constructor(
     @JvmField
     val deleteBtnVisibility = MutableLiveData(true)
 
-    private val uuid = uuid ?: UUID.randomUUID().toString()
+    private val id = id ?: UUID.randomUUID().toString()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Specialty> =
-        UIEditor(uuid == null) { Specialty(this.uuid, nameField.value ?: "") }
+        UIEditor(id == null) { Specialty(this.id, nameField.value ?: "") }
 
     private fun setupForNewItem() {
         deleteBtnVisibility.value = false
@@ -47,7 +47,7 @@ class SpecialtyEditorViewModel @Inject constructor(
 
     private fun setupForExistItem() {
         title.value = "Редактировать специальность"
-        LiveDataUtil.observeOnce(specialtyRepository.find(uuid)) { specialty: Specialty ->
+        LiveDataUtil.observeOnce(specialtyRepository.find(id)) { specialty: Specialty ->
             uiEditor.oldItem = specialty
             nameField.setValue(specialty.name)
         }

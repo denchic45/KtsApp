@@ -5,7 +5,7 @@ import androidx.room.Junction
 import androidx.room.Relation
 import com.denchic45.kts.data.model.EntityModel
 
-data class CourseWithSubjectWithTeacherAndGroups(
+data class CourseWithSubjectWithTeacherAndGroupsEntities(
     @Embedded
     var courseEntity: CourseEntity,
 
@@ -26,7 +26,7 @@ data class CourseWithSubjectWithTeacherAndGroups(
     var teacherEntity: UserEntity
 ) : EntityModel
 
-data class CourseWithSubjectAndTeacher(
+data class CourseWithSubjectAndTeacherEntities(
     @Embedded
     var courseEntity: CourseEntity,
 

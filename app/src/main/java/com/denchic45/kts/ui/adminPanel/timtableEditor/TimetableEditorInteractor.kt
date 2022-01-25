@@ -7,8 +7,8 @@ import java.util.*
 
 class TimetableEditorInteractor : Interactor {
     private val showLessonsSubject = PublishSubject.create<Pair<Date, String>>()
-    fun postShowLessons(dateWithGroupUuidPair: Pair<Date, String>) {
-        showLessonsSubject.onNext(dateWithGroupUuidPair)
+    fun postShowLessons(dateWithGroupIdPair: Pair<Date, String>) {
+        showLessonsSubject.onNext(dateWithGroupIdPair)
     }
 
     val showLessons: Observable<Pair<Date, String>>

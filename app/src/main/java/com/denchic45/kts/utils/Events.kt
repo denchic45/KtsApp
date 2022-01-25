@@ -161,9 +161,9 @@ object Events {
             .orElse(null)
     }
 
-    private fun findByUuid(events: List<Event>, uuid: String): Event {
+    private fun findByUuid(events: List<Event>, id: String): Event {
         return events.stream()
-            .filter { event: Event -> event.id == uuid }
+            .filter { event: Event -> event.id == id }
             .findFirst()
             .orElse(null)
     }

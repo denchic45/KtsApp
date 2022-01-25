@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 
 data class ListItem(
-    @SerializedName("id")
+    @SerializedName("_id")
     override var id: String = "",
     var title: String = "",
     var icon: EitherResource = emptyIcon,

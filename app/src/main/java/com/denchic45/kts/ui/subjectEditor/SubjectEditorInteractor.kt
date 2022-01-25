@@ -23,7 +23,7 @@ class SubjectEditorInteractor @Inject constructor(
     }
 
     override fun removeListeners() {}
-    fun find(uuid: String?): LiveData<Subject> {
-        return subjectRepository.find(uuid)
+    fun find(id: String): LiveData<Subject> {
+        return subjectRepository.find(id)
     }
 }

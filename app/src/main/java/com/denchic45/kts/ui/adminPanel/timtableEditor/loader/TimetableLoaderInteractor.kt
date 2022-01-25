@@ -26,7 +26,7 @@ class TimetableLoaderInteractor @Inject constructor(
             groupInfoRepository.findGroupsWithCoursesByCourse(course)
         }
             .compose(AsyncTransformer())
-            .subscribe { groupWeekLessons: List<GroupWeekLessons>?, throwable: Throwable? ->
+            .subscribe { groupWeekLessons: List<GroupWeekLessons>, throwable: Throwable? ->
                 if (throwable != null) {
                     throwable.printStackTrace()
                     listPublishSubject.onError(throwable)

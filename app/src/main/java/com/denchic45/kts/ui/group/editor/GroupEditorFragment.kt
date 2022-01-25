@@ -23,8 +23,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
 import java.util.*
 
-class GroupEditorFragment :
-    Fragment(R.layout.fragment_group_editor) {
+class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
 
     val binding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
     val viewModel: GroupEditorViewModel by activityViewModels()
@@ -103,7 +102,7 @@ class GroupEditorFragment :
                 )
                 dialog.show(childFragmentManager, null)
             })
-        viewModel.fieldErrorMessage.observe(this, { idWithMessagePair: Pair<Int, String> ->
+        viewModel.fieldErrorMessage.observe(this, { idWithMessagePair: Pair<Int, String?> ->
             val textInputLayout: TextInputLayout = requireActivity().findViewById(
                 idWithMessagePair.first
             )
@@ -123,5 +122,9 @@ class GroupEditorFragment :
         viewModel.showSpecialties.observe(
             viewLifecycleOwner,
             { listItems: List<ListItem> -> specialtyAdapter!!.updateList(listItems) })
+    }
+
+    companion object {
+        const val GROUP_ID = "GROUP_UUID"
     }
 }

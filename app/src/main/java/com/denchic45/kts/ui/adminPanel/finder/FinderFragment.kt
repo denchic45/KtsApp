@@ -24,9 +24,10 @@ import com.denchic45.kts.databinding.FragmentFinderBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.confirm.ConfirmDialog
-import com.denchic45.kts.ui.courseEditor.CourseEditorActivity
+import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorActivity
+import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
@@ -134,9 +135,9 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
                     listStateLayout.getCommitCallback(currentAdapter)
                 )
             })
-        viewModel.openGroup.observe(viewLifecycleOwner, { groupUuid: String? ->
+        viewModel.openGroup.observe(viewLifecycleOwner, { groupId: String? ->
             val bundle = Bundle()
-            bundle.putString(GroupFragment.GROUP_ID, groupUuid)
+            bundle.putString(GroupFragment.GROUP_ID, groupId)
             navController.navigate(R.id.action_finderFragment_to_group_editor, bundle)
         })
         viewModel.showMessage.observe(viewLifecycleOwner, { message: String? ->
@@ -151,23 +152,23 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
                 args.forEach { (name: String?, value: String?) -> intent.putExtra(name, value) }
                 startActivity(intent)
             })
-        viewModel.openProfile.observe(viewLifecycleOwner, { userUuid: String? ->
+        viewModel.openProfile.observe(viewLifecycleOwner, { userId: String? ->
             val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_ID, userUuid)
+            bundle.putString(ProfileFragment.USER_ID, userId)
             navController.navigate(R.id.action_global_profileFragment, bundle)
         })
-        viewModel.openSubjectEditor.observe(viewLifecycleOwner, { subjectUuid: String? ->
-            SubjectEditorDialog.newInstance(subjectUuid).show(
+        viewModel.openSubjectEditor.observe(viewLifecycleOwner, { subjectId: String? ->
+            SubjectEditorDialog.newInstance(subjectId).show(
                 childFragmentManager, null
             )
         })
-        viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupUuid: String? ->
+        viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupId: String? ->
             val intent = Intent(activity, GroupEditorActivity::class.java)
-            intent.putExtra(GroupEditorActivity.GROUP_ID, groupUuid)
+            intent.putExtra(GroupEditorFragment.GROUP_ID, groupId)
             requireActivity().startActivity(intent)
         })
-        viewModel.openSpecialtyEditor.observe(viewLifecycleOwner, { uuid: String? ->
-            SpecialtyEditorDialog.newInstance(uuid).show(
+        viewModel.openSpecialtyEditor.observe(viewLifecycleOwner, { id ->
+            SpecialtyEditorDialog.newInstance(id).show(
                 childFragmentManager, null
             )
         })
@@ -180,7 +181,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         viewModel.openCourse.observe(viewLifecycleOwner) {
             navController.navigate(
                 R.id.action_global_courseEditorFragment,
-                bundleOf(CourseEditorActivity.COURSE_ID to it)
+                bundleOf(CourseEditorFragment.COURSE_ID to it)
             )
         }
         viewModel.showOptions.observe(viewLifecycleOwner, { (first, second) ->

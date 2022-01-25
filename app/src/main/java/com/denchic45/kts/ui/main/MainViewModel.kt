@@ -178,7 +178,7 @@ class MainViewModel @Inject constructor(
 
     sealed class NavMenuState {
         data class NavMenu(
-            private val courses: List<CourseInfo>,
+            private val cours: List<Course>,
             private val user: User,
             private val hasGroup: Boolean,
             val expandAllCourse: Boolean = false
@@ -191,15 +191,15 @@ class MainViewModel @Inject constructor(
             private fun generate(): MutableList<NavItem> {
                 val list: MutableList<NavItem> = mainTextItems.toMutableList()
                 list.add(DividerItem())
-                if (courses.isNotEmpty()) {
+                if (cours.isNotEmpty()) {
                     val nameOfDropdownCoursesNavItem: Int
                     list.add(NavSubHeaderItem(EitherResource.Id(R.string.nav_courses_my)))
                     val visibleCourses = if (expandAllCourse) {
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_hide
-                        courses
+                        cours
                     } else {
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_show_all
-                        courses.take(5)
+                        cours.take(5)
                     }
                     list.addAll(visibleCourses.map {
                         NavTextItem(
@@ -209,7 +209,7 @@ class MainViewModel @Inject constructor(
                             color = EitherResource.String(it.subject.colorName)
                         )
                     })
-                    if (courses.size > 5)
+                    if (cours.size > 5)
                         list.add(
                             NavDropdownItem(
                                 EitherResource.Id(nameOfDropdownCoursesNavItem),

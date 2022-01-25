@@ -70,9 +70,9 @@ open class UserRepository @Inject constructor(
             }
     }
 
-    fun getByGroupUuid(groupUuid: String): LiveData<List<User>> {
+    fun getByGroupId(groupId: String): LiveData<List<User>> {
         //todo check null and get group in fireStore
-        return Transformations.map(userDao.getByGroupId(groupUuid)) { entity: List<UserEntity?> ->
+        return Transformations.map(userDao.getByGroupId(groupId)) { entity: List<UserEntity?> ->
             userMapper.entityToDomain(entity)
         }
     }
@@ -109,34 +109,9 @@ open class UserRepository @Inject constructor(
         )
     }
 
-    fun saveGroupUuid(groupUuid: String) {
-        groupPreference.groupId = groupUuid
-    }
 
-    fun getByUuid(uuid: String): LiveData<User> {
-        if (userDao.get(uuid) == null) {
-            addListenerRegistration("byId") {
-                usersRef.whereEqualTo("id", uuid)
-                    .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                        if (error != null) {
-                            Log.d("lol", "error: ", error)
-                            return@addSnapshotListener
-                        }
-                        coroutineScope.launch(dispatcher) {
-                            userDao.insert(snapshot!!.documents[0].toObject(UserEntity::class.java)!!)
-                        }
-                    }
-            }
-        }
-        return Transformations.map(userDao.get(uuid)) { entity: UserEntity ->
-            userMapper.entityToDomain(
-                entity
-            )
-        }
-    }
-
-    suspend fun loadAvatar(avatarBytes: ByteArray, userUuid: String): String {
-        val reference = avatarStorage.child(userUuid)
+    suspend fun loadAvatar(avatarBytes: ByteArray, userId: String): String {
+        val reference = avatarStorage.child(userId)
         reference.putBytes(avatarBytes).await()
         return reference.downloadUrl.await().toString()
     }
@@ -164,7 +139,7 @@ open class UserRepository @Inject constructor(
         }
     }
 
-    open fun remove(user: User): Completable? {
+    open fun remove(user: User): Completable {
         return Completable.create { emitter: CompletableEmitter ->
             deleteAvatar(user.id)
             usersRef.document(user.id)
@@ -174,8 +149,8 @@ open class UserRepository @Inject constructor(
         }
     }
 
-    private fun deleteAvatar(uuid_user: String) {
-        val reference = avatarStorage.child(uuid_user)
+    private fun deleteAvatar(userId: String) {
+        val reference = avatarStorage.child(userId)
         reference.delete()
             .addOnSuccessListener { Log.d("lol", "onSuccess: ") }
             .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: ", e) }
@@ -200,11 +175,6 @@ open class UserRepository @Inject constructor(
                 }
         }
         awaitClose { }
-    }
-
-
-    fun isExist(uuid: String): Boolean {
-        return userDao.isExist(uuid)
     }
 
     fun findByPhoneNum(phoneNum: String?): Completable {
@@ -277,10 +247,10 @@ open class UserRepository @Inject constructor(
     val roleOfThisUser: String
         get() = userPreference.role
 
-    fun findByUuid(uuid: String): Observable<User> {
+    fun findById(userId: String): Observable<User> {
         return Observable.create { emitter: ObservableEmitter<User> ->
-            if (!userDao.isExistByIdAndGroupId(uuid, groupPreference.groupId)) {
-                usersRef.document(uuid)
+            if (!userDao.isExistByIdAndGroupId(userId, groupPreference.groupId)) {
+                usersRef.document(userId)
                     .addSnapshotListener { value: DocumentSnapshot?, error: FirebaseFirestoreException? ->
                         if (error != null) {
                             emitter.onError(error)
@@ -292,10 +262,30 @@ open class UserRepository @Inject constructor(
                     }
             }
             addListenerDisposable("USER_BY_ID") {
-                userDao.getRx(uuid)
+                userDao.getRx(userId)
                     .map { entity: UserEntity -> userMapper.entityToDomain(entity) }
                     .subscribe { value: User -> emitter.onNext(value) }
             }
+        }
+    }
+
+    fun getById(id: String): LiveData<User> {
+        if (userDao.get(id) == null) {
+            addListenerRegistration("byId") {
+                usersRef.whereEqualTo("id", id)
+                    .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                        if (error != null) {
+                            Log.d("lol", "error: ", error)
+                            return@addSnapshotListener
+                        }
+                        coroutineScope.launch(dispatcher) {
+                            userDao.upsert(snapshot!!.documents[0].toObject(UserEntity::class.java)!!)
+                        }
+                    }
+            }
+        }
+        return Transformations.map(userDao.get(id)!!) { entity: UserEntity ->
+            userMapper.entityToDomain(entity)
         }
     }
 }

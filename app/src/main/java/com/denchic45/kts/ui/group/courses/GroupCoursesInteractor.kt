@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.group.courses
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Course
-import com.denchic45.kts.data.model.domain.CourseInfo
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.CourseRepository
 import com.denchic45.kts.data.repository.GroupRepository
@@ -16,8 +15,8 @@ class GroupCoursesInteractor @Inject constructor(
     private val groupRepository: GroupRepository
 ) : Interactor {
 
-    fun findCoursesByGroupUuid(groupUuid: String): Flow<List<CourseInfo>> {
-        return courseRepository.findByGroupUuid(groupUuid)
+    fun findCoursesByGroupId(groupId: String): Flow<List<Course>> {
+        return courseRepository.findByGroupId(groupId)
     }
 
     override fun removeListeners() {}
@@ -26,7 +25,7 @@ class GroupCoursesInteractor @Inject constructor(
         courseRepository.remove(course)
     }
 
-    val yourGroupUuid: String
+    val yourGroupId: String
         get() = groupRepository.yourGroupId
 
     fun findThisUser(): User {

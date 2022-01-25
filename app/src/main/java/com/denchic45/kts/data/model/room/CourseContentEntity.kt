@@ -16,7 +16,8 @@ data class CourseContentEntity @Default @JvmOverloads constructor(
     @field:ColumnInfo(name = "section_id")
     val sectionId: String,
     val name: String,
-    @field:TypeConverters(ListConverter::class) val attachments: List<String>,
+    @field:TypeConverters(ListConverter::class)
+    val attachments: List<String>,
     val description: String,
     val details: String,
     val commentsEnabled: Boolean,

@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.course
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.Task
@@ -23,7 +24,10 @@ class CourseViewModel @Inject constructor(
     findSelfUserUseCase: FindSelfUserUseCase
 ) : BaseViewModel() {
 
-    val openTaskEditor: SingleLiveData<Triple<String?, String, String>> = SingleLiveData()
+    val openTaskEditor = SingleLiveData<Triple<String?, String, String>>()
+    val openTask = SingleLiveData<String>()
+
+    val openCourseEditor = SingleLiveData<String>()
     val courseName: MutableLiveData<String> = MutableLiveData()
     val showContents: MutableLiveData<List<DomainModel>> = MutableLiveData()
     private val findCourseFlow = findCourseUseCase(courseId)
@@ -33,11 +37,11 @@ class CourseViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             findCourseFlow.collect { course ->
-                courseName.value = course.info.name
+                courseName.value = course.name
                 uiPermissions.addPermissions(
                     Permission(
                     PERMISSION_EDIT,
-                    { it == course.info.teacher },
+                    { it == course.teacher },
                     { it.admin }
                 )
                 )
@@ -56,11 +60,14 @@ class CourseViewModel @Inject constructor(
     }
 
     fun onTaskItemClick(position: Int) {
-        openTaskEditor.value = Triple(
-            showContents.value!![position].id,
-            courseId,
-            (showContents.value!![position] as Task).sectionId
-        )
+        openTask.value = (showContents.value!![position] as Task).id
+
+        //open task editor
+//        openTaskEditor.value = Triple(
+//            showContents.value!![position].id,
+//            courseId,
+//            (showContents.value!![position] as Task).sectionId
+//        )
     }
 
     fun onTaskItemLongClick(position: Int) {
@@ -74,6 +81,12 @@ class CourseViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         findCourseContentUseCase.removeListeners()
+    }
+
+    fun onOptionClick(itemId: Int) {
+        when (itemId) {
+            R.id.option_edit_course -> openCourseEditor.postValue(courseId)
+        }
     }
 
     companion object {

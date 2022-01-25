@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels { viewModelFactory }
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var toolbar: CustomToolbar
-    private lateinit var toggle:ActionBarDrawerToggle
+    private lateinit var toggle: ActionBarDrawerToggle
 
     //    private var params: AppBarLayout.LayoutParams? = null
     private lateinit var bnv: BottomNavigationView
@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity() {
                     R.string.navigation_drawer_close
                 )
 
-                when(it) {
+                when (it) {
                     MainViewModel.ToolbarNavigationState.MENU -> {
                         drawerLayout.addDrawerListener(toggle)
                         toggle.isDrawerIndicatorEnabled = true
@@ -153,10 +153,10 @@ class MainActivity : AppCompatActivity() {
             finish()
             startActivity(Intent(this, LoginActivity::class.java))
         })
-        viewModel.openProfile.observe(this, { uuid: String ->
+        viewModel.openProfile.observe(this, { id ->
             binding.drawerLayout.close()
             val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_ID, uuid)
+            bundle.putString(ProfileFragment.USER_ID, id)
             drawerLayout.close()
             navController.navigate(R.id.action_global_profileFragment, bundle)
         })
@@ -179,12 +179,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.onOptionItemSelect(item.itemId)
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
-
-    //    override fun onSupportNavigateUp(): Boolean {
-//        return navController.navigateUp()
-//    }
 
     override fun onResume() {
         super.onResume()

@@ -19,6 +19,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorActivity
+import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.group.users.GroupUsersFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
@@ -93,7 +94,7 @@ class GroupFragment : Fragment() {
         viewModel.initTabs.observe(viewLifecycleOwner, { size: Int ->
             val adapter = GroupFragmentAdapter(
                 childFragmentManager,
-                viewModel.groupUuid,
+                viewModel.groupId,
                 size,
                 requireContext()
             )
@@ -108,20 +109,15 @@ class GroupFragment : Fragment() {
         })
         viewModel.openUserEditor.observe(
             viewLifecycleOwner,
-            { userTypeWithGroupUuidPair: Pair<String, String> ->
-                val intent = Intent(
-                    context, UserEditorActivity::class.java
-                )
-                intent.putExtra(UserEditorActivity.USER_ROLE, userTypeWithGroupUuidPair.first)
-                intent.putExtra(
-                    UserEditorActivity.USER_GROUP_ID,
-                    userTypeWithGroupUuidPair.second
-                )
+            { (userType, groupId) ->
+                val intent = Intent(requireContext(), UserEditorActivity::class.java)
+                intent.putExtra(UserEditorActivity.USER_ROLE, userType)
+                intent.putExtra(UserEditorActivity.USER_GROUP_ID, groupId)
                 startActivity(intent)
             })
-        viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupUuid: String? ->
+        viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupId: String? ->
             val intent = Intent(activity, GroupEditorActivity::class.java)
-            intent.putExtra(GroupEditorActivity.GROUP_ID, groupUuid)
+            intent.putExtra(GroupEditorFragment.GROUP_ID, groupId)
             requireActivity().startActivity(intent)
         })
         viewModel.finish.observe(
@@ -144,7 +140,7 @@ class GroupFragment : Fragment() {
 
     class GroupFragmentAdapter(
         fm: FragmentManager,
-        private val groupUuid: String,
+        private val groupId: String,
         private val size: Int,
         private val context: Context
     ) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
@@ -159,9 +155,9 @@ class GroupFragment : Fragment() {
 
         override fun getItem(position: Int): Fragment {
             return when (position) {
-                0 -> GroupUsersFragment.newInstance(groupUuid)
-                1 -> GroupCoursesFragment.newInstance(groupUuid)
-                2 -> TimetableFragment.newInstance(groupUuid)
+                0 -> GroupUsersFragment.newInstance(groupId)
+                1 -> GroupCoursesFragment.newInstance(groupId)
+                2 -> TimetableFragment.newInstance(groupId)
                 else -> throw IllegalStateException()
             }
         }

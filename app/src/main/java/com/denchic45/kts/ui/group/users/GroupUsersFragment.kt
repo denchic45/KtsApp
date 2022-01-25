@@ -72,7 +72,7 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
                 })
         }
         navController = findNavController(navHostFragment!!.requireView())
-        viewModel.onGroupUuidReceived(requireArguments().getString(GROUP_UUID))
+        viewModel.onGroupIdReceived(requireArguments().getString(GROUP_UUID))
         viewModel.users!!.observe(
             viewLifecycleOwner,
             { users: List<DomainModel?> -> adapter!!.submitList(users) })
@@ -89,9 +89,9 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
                 args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
                 startActivity(intent)
             })
-        viewModel.openProfile.observe(viewLifecycleOwner, { userUuid: String ->
+        viewModel.openProfile.observe(viewLifecycleOwner, { userId: String ->
             val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_ID, userUuid)
+            bundle.putString(ProfileFragment.USER_ID, userId)
             navController!!.navigate(R.id.action_global_profileFragment, bundle)
         })
         viewModel.showMessageRes.observe(viewLifecycleOwner, { resId: Int ->
@@ -117,10 +117,10 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
         private const val GROUP_UUID = "GROUP_UUID"
 
         @JvmStatic
-        fun newInstance(groupUuid: String?): GroupUsersFragment {
+        fun newInstance(groupId: String?): GroupUsersFragment {
             val fragment = GroupUsersFragment()
             val args = Bundle()
-            args.putString(GROUP_UUID, groupUuid)
+            args.putString(GROUP_UUID, groupId)
             fragment.arguments = args
             return fragment
         }

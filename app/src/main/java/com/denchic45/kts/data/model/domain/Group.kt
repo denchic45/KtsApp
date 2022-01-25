@@ -5,15 +5,13 @@ import com.denchic45.kts.data.model.mapper.Default
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
-data class Group @Default constructor (
+data class Group @Default constructor(
     override var id: String,
     var name: String,
     var course: Int,
     var specialty: Specialty,
     var curator: User
 ) : DomainModel() {
-
-
     @ServerTimestamp
     var timestamp: Date? = null
 
@@ -37,9 +35,15 @@ data class Group @Default constructor (
         fun createEmpty(): Group {
             return Group()
         }
+
         @JvmStatic
         fun deleted(): Group {
-            return Group("","DELETED",0, Specialty.createEmpty(), User.createEmpty())
+            return Group("", "DELETED", 0, Specialty.createEmpty(), User.createEmpty())
         }
     }
 }
+
+data class CourseGroup(
+    override var id: String,
+    val name: String
+) : DomainModel()

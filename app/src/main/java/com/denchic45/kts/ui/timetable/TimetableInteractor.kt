@@ -26,8 +26,8 @@ class TimetableInteractor @Inject constructor(
             .asLiveData()
     }
 
-    fun findEventsOfGroupByDate(date: Date, groupUuid: String): LiveData<List<Event>> {
-        return eventRepository.findLessonOfYourGroupByDate(date, groupUuid).asLiveData()
+    fun findEventsOfGroupByDate(date: Date, groupId: String): LiveData<List<Event>> {
+        return eventRepository.findLessonOfYourGroupByDate(date, groupId).asLiveData()
     }
 
     fun findEventsForTeacherByDate(date: Date): LiveData<List<Event>> {

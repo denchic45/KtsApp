@@ -6,7 +6,7 @@ import java.util.*
 
 data class Event(
     override var id: String = UUID.randomUUID().toString(),
-    val group: Group,
+    val group: CourseGroup,
     val date: Date,
     val order: Int = 0,
     val timestamp: Date? = null,
@@ -26,7 +26,7 @@ data class Event(
 
     companion object {
         @JvmStatic
-        fun empty(id: String = UUID.randomUUID().toString(), group: Group, order: Int, date: Date, details: EventDetails = EmptyEventDetails()): Event {
+        fun empty(id: String = UUID.randomUUID().toString(), group: CourseGroup, order: Int, date: Date, details: EventDetails = EmptyEventDetails()): Event {
             return Event(id, group, date, order, details = details)
         }
     }

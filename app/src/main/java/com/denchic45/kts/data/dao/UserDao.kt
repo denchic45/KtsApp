@@ -26,10 +26,10 @@ abstract class UserDao : BaseDao<UserEntity>() {
     abstract fun getStudentsOfGroupByGroupId(groupId: String): LiveData<List<UserEntity>>
 
     @Query("SELECT * FROM user where user_id =:id")
-    abstract fun get(id: String): LiveData<UserEntity>
+    abstract fun get(id: String): LiveData<UserEntity>?
 
     @Query("SELECT * FROM user where user_id =:id")
-    abstract fun getSync(id: String): UserEntity?
+    abstract suspend fun getSync(id: String): UserEntity?
 
     @Query("DELETE FROM user WHERE user_id IN(SELECT u.user_id FROM user u JOIN course c JOIN group_course gc ON c.teacher_id == u.user_id AND c.course_id == gc.course_id WHERE gc.group_id =:groupId AND u.user_id NOT IN (:availableUsers) )")
     abstract fun deleteMissingTeachersByGroup(availableUsers: List<String>, groupId: String)

@@ -38,8 +38,8 @@ class SpecialtyRepository @Inject constructor(
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val specialtyRef: CollectionReference = firestore.collection("Specialties")
 
-    fun find(uuid: String?): LiveData<Specialty> {
-        specialtyRef.document(uuid!!)
+    fun find(id: String): LiveData<Specialty> {
+        specialtyRef.document(id)
             .get()
             .addOnSuccessListener { value: DocumentSnapshot ->
                 coroutineScope.launch(dispatcher) {
@@ -51,10 +51,8 @@ class SpecialtyRepository @Inject constructor(
                 }
             }
             .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: $e") }
-        return Transformations.map(specialtyDao.get(uuid)) { entity: SpecialtyEntity ->
-            specialtyMapper.entityToDomain(
-                entity
-            )
+        return Transformations.map(specialtyDao.get(id)) { entity: SpecialtyEntity ->
+            specialtyMapper.entityToDomain(entity)
         }
     }
 
@@ -96,22 +94,22 @@ class SpecialtyRepository @Inject constructor(
                 return@create
             }
             val specialtyDoc = specialtyMapper.domainToDoc(specialty)
-            val uuid = specialty.id
-            groupsRef.whereEqualTo("specialty.uuid", uuid)
+            val id = specialty.id
+            groupsRef.whereEqualTo("specialty.id", id)
                 .get()
                 .addOnSuccessListener { queryDocumentSnapshots: QuerySnapshot ->
                     val batch = firestore.batch()
-                    if (!queryDocumentSnapshots.isEmpty) for ((uuid1) in queryDocumentSnapshots.toObjects(
+                    if (!queryDocumentSnapshots.isEmpty) for ((id1) in queryDocumentSnapshots.toObjects(
                         GroupDoc::class.java
                     )) {
                         batch.update(
-                            groupsRef.document(uuid1), mapOf(
-                                "specialty.$uuid" to specialtyDoc,
+                            groupsRef.document(id1), mapOf(
+                                "specialty.$id" to specialtyDoc,
                                 "timestamp" to FieldValue.serverTimestamp()
                             )
                         )
                     }
-                    batch[specialtyRef.document(uuid)] = specialtyDoc
+                    batch[specialtyRef.document(id)] = specialtyDoc
                     batch.commit()
                         .addOnSuccessListener { emitter.onComplete() }
                         .addOnFailureListener(emitter::onError)

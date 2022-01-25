@@ -32,7 +32,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class GroupEditorViewModel @Inject constructor(
-    @Named("GroupEditor ${GroupPreference.GROUP_ID}") uuid: String?,
+    @Named("GroupEditor ${GroupPreference.GROUP_ID}") id: String?,
     private val choiceOfCuratorInteractor: ChoiceOfCuratorInteractor,
     private val interactor: GroupEditorInteractor,
     @Named("courses") val courseList: List<ListItem>
@@ -51,7 +51,7 @@ class GroupEditorViewModel @Inject constructor(
     private val typedSpecialtyByName = MutableSharedFlow<String>()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Group>
-    private val uuid: String = uuid ?: UUID.randomUUID().toString()
+    private val id: String = id ?: UUID.randomUUID().toString()
     private var course: Int = 0
 
     private var subscribeConfirmation: Disposable? = null
@@ -73,9 +73,9 @@ class GroupEditorViewModel @Inject constructor(
                 )
             }
         }
-        uiEditor = UIEditor(uuid == null) {
+        uiEditor = UIEditor(id == null) {
             Group(
-                this.uuid,
+                this.id,
                 nameField.value ?: "",
                 course,
                 specialty ?: Specialty.createEmpty(),
@@ -119,7 +119,7 @@ class GroupEditorViewModel @Inject constructor(
 
     private val existGroup: Unit
         get() {
-            LiveDataUtil.observeOnce(interactor.findGroup(uuid)) { group: Group ->
+            LiveDataUtil.observeOnce(interactor.findGroup(id)) { group: Group ->
                 uiEditor.oldItem = group
                 curatorField.value = group.curator
                 nameField.value = group.name

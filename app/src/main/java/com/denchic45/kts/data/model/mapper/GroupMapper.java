@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.model.mapper;
 
+import com.denchic45.kts.data.model.domain.CourseGroup;
 import com.denchic45.kts.data.model.domain.Group;
 import com.denchic45.kts.data.model.firestore.GroupDoc;
 import com.denchic45.kts.data.model.room.GroupEntity;
@@ -14,6 +15,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Mapper(uses = {UserMapper.class, SpecialtyMapper.class})
@@ -55,6 +57,10 @@ public interface GroupMapper extends
 
     @Override
     Group docToDomain(GroupDoc doc);
+
+    CourseGroup docToCourseGroupDomain(GroupDoc groupDoc);
+
+    List<CourseGroup> docToCourseGroupDomain(List<GroupDoc> groupDocs);
 
     @Mapping(source = "curator.id", target = "curatorId")
     @Mapping(source = "specialty.id", target = "specialtyId")

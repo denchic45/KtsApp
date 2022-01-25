@@ -8,7 +8,7 @@ import com.denchic45.kts.data.model.room.DayEntity
 import java.util.*
 
 @Dao
-abstract class DayDao : BaseDao<DayEntity?>() {
+abstract class DayDao : BaseDao<DayEntity>() {
     @Query("SELECT * FROM day WHERE day_id=:id")
     abstract operator fun get(id: String?): DayEntity
 
@@ -16,5 +16,5 @@ abstract class DayDao : BaseDao<DayEntity?>() {
     abstract suspend fun getIdByDateAndGroupId(
         @TypeConverters(DateConverter::class) date: Date,
         groupId: String
-    ): String
+    ): String?
 }

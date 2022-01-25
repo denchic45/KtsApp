@@ -3,13 +3,13 @@ package com.denchic45.kts.di.modules
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.course.CourseFragment
-import com.denchic45.kts.ui.course.sectionPicker.SectionPickerFragment
+import com.denchic45.kts.ui.course.TaskFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
-import com.denchic45.kts.ui.courseEditor.CourseEditorActivity
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorActivity
+import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
@@ -23,10 +23,10 @@ import javax.inject.Named
 @Module
 object IntentModule {
 
-    @Named(CourseEditorActivity.COURSE_ID)
+    @Named(CourseEditorFragment.COURSE_ID)
     @Provides
     fun provideCourseIdToCourseEditor(fragment: CourseEditorFragment): String? {
-        return fragment.requireArguments().getString(CourseEditorActivity.COURSE_ID)
+        return fragment.requireArguments().getString(CourseEditorFragment.COURSE_ID)
     }
 
     @Named("GroupCourses ${GroupFragment.GROUP_ID}")
@@ -35,10 +35,10 @@ object IntentModule {
         return groupCoursesFragment.requireArguments().getString(GroupFragment.GROUP_ID)!!
     }
 
-    @Named("GroupEditor ${GroupEditorActivity.GROUP_ID}")
+    @Named("GroupEditor ${GroupEditorFragment.GROUP_ID}")
     @Provides
     fun provideGroupIdFromGroupEditorActivity(activity: GroupEditorActivity): String? {
-        return activity.intent.getStringExtra(GroupEditorActivity.GROUP_ID)
+        return activity.intent.getStringExtra(GroupEditorFragment.GROUP_ID)
     }
 
     @Named(SubjectEditorDialog.SUBJECT_ID)
@@ -100,25 +100,33 @@ object IntentModule {
     @Named(CourseFragment.COURSE_ID)
     @Provides
     fun provideCourseIdFromCourseFragment(courseFragment: CourseFragment): String {
-        return courseFragment.requireArguments().getString(CourseFragment.COURSE_ID)!!
+        return courseFragment.requireArguments()
+            .getString(CourseFragment.COURSE_ID)!!
     }
 
     @Named(TaskEditorFragment.TASK_ID)
     @Provides
-    fun provideTaskId(taskEditorFragment: TaskEditorFragment): String? {
+    fun provideTaskIdToTaskEditor(taskEditorFragment: TaskEditorFragment): String? {
         return taskEditorFragment.requireArguments().getString(TaskEditorFragment.TASK_ID)
     }
 
     @Named(TaskEditorFragment.COURSE_ID)
     @Provides
     fun provideCourseIdToTaskEditor(taskEditorFragment: TaskEditorFragment): String {
-        return taskEditorFragment.requireArguments().getString(TaskEditorFragment.COURSE_ID)!!
+        return taskEditorFragment.requireArguments()
+            .getString(TaskEditorFragment.COURSE_ID)!!
     }
 
     @Named(TaskEditorFragment.SECTION_ID)
     @Provides
     fun provideSectionId(taskEditorFragment: TaskEditorFragment): String? {
         return taskEditorFragment.requireArguments().getString(TaskEditorFragment.SECTION_ID)
+    }
+
+    @Named(TaskFragment.TASK_ID)
+    @Provides
+    fun provideTaskId(taskFragment: TaskFragment): String {
+        return taskFragment.requireArguments().getString(TaskFragment.TASK_ID)!!
     }
 
 }

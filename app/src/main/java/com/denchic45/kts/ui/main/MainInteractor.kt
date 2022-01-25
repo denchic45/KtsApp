@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.CourseInfo
+import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.repository.*
@@ -121,7 +121,7 @@ class MainInteractor @Inject constructor(
         }
     }
 
-    fun findOwnCourses(): Flow<List<CourseInfo>> {
+    fun findOwnCourses(): Flow<List<Course>> {
         val thisUser = findThisUser()
         return when {
             thisUser.isTeacher -> courseRepository.findByYourAsTeacher()

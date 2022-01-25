@@ -9,7 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.CourseInfo
+import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.databinding.FragmentGroupCoursesBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
@@ -40,10 +40,10 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
             rvCourse.adapter = adapter
         }
 
-        viewModel.openCourseEditorDialog.observe(viewLifecycleOwner, { course: CourseInfo ->
+        viewModel.openCourseEditorDialog.observe(viewLifecycleOwner, { course: Course ->
         })
         lifecycleScope.launchWhenStarted {
-            viewModel.courses.collect { courses: List<CourseInfo> -> adapter!!.submitList(courses) }
+            viewModel.courses.collect { cours: List<Course> -> adapter!!.submitList(cours) }
         }
         viewModel.openConfirmation.observe(
             viewLifecycleOwner,

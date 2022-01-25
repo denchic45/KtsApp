@@ -33,11 +33,11 @@ class GroupViewModel @Inject constructor(
     val openGroupEditor = SingleLiveData<String>()
     private val isExistGroup: LiveData<Boolean>
 
-    val groupUuid: String = groupId ?: interactor.yourGroupUuid
+    val groupId: String = groupId ?: interactor.yourGroupId
     private val isExistGroupObserver: Observer<Boolean>
     private val uiPermissions: UIPermissions
-    private val groupNameByGroupUuid: StateFlow<String> =
-        interactor.getNameByGroupUuid(this.groupUuid)
+    private val groupNameByGroupId: StateFlow<String> =
+        interactor.getNameByGroupId(this.groupId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
 
     fun onPrepareOptions(currentItem: Int) {
@@ -59,8 +59,8 @@ class GroupViewModel @Inject constructor(
 
     fun onOptionSelect(itemId: Int) {
         when (itemId) {
-            R.id.option_edit_group -> openGroupEditor.setValue(groupUuid)
-            R.id.option_add_student -> openUserEditor.setValue(User.STUDENT to groupUuid)
+            R.id.option_edit_group -> openGroupEditor.setValue(groupId)
+            R.id.option_add_student -> openUserEditor.setValue(User.STUDENT to groupId)
         }
     }
 
@@ -84,9 +84,9 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            groupNameByGroupUuid.collect { title.value = it }
+            groupNameByGroupId.collect { title.value = it }
         }
-        isExistGroup = interactor.isExistGroup(this.groupUuid)
+        isExistGroup = interactor.isExistGroup(this.groupId)
         isExistGroupObserver = Observer { exist: Boolean ->
             if (!exist) {
                 finish.call()
@@ -97,9 +97,9 @@ class GroupViewModel @Inject constructor(
         uiPermissions.addPermissions(
             Permission(
                 ALLOW_EDIT_GROUP,
-                Predicate { (_, _, _, _, groupUuid1, role, _, _, _, _, _, _, admin) ->
+                Predicate { (_, _, _, _, groupId, role, _, _, _, _, _, _, admin) ->
                     (role == User.HEAD_TEACHER || admin
-                            || groupUuid1 == groupId)
+                            || groupId == groupId)
                 })
         )
         if (uiPermissions.isAllowed(ALLOW_EDIT_GROUP)) {

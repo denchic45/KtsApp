@@ -52,7 +52,7 @@ class TimetableLoaderViewModel @Inject constructor(
     val showPage = MutableLiveData<Int>()
     val showTimetable =
         MutableLiveData<Pair<MutableList<String>, MutableList<MutableList<DomainModel>>>>()
-    private val groups: MutableList<Group> = mutableListOf()
+    private val groups: MutableList<CourseGroup> = mutableListOf()
     var weekDays = arrayOf("Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота")
 
     @Inject
@@ -315,7 +315,7 @@ class TimetableLoaderViewModel @Inject constructor(
     fun onAddGroupClick() {
         openChoiceOfGroup.call()
         choiceOfGroupInteractor.observeSelectedGroup()
-            .subscribe { group: Group ->
+            .subscribe { group ->
                 groups.add(group)
                 showTimetable.value!!.first.add(group.name)
                 groupWeekLessonsList!!.add(

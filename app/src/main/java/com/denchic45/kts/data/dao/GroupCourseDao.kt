@@ -5,7 +5,7 @@ import androidx.room.Query
 import com.denchic45.kts.data.model.room.GroupCourseCrossRef
 
 @Dao
-abstract class GroupCourseDao : BaseDao<GroupCourseCrossRef?>() {
+abstract class GroupCourseDao : BaseDao<GroupCourseCrossRef>() {
 
     @Query("DELETE FROM group_course WHERE group_id =:groupId")
     abstract fun deleteByGroup(groupId: String)

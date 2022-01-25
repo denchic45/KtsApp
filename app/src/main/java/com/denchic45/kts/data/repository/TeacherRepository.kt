@@ -58,33 +58,33 @@ class TeacherRepository @Inject constructor(
             val groupsWithThisTeacher = groupsWithThisTeacherSnapshot.toObjects(
                 GroupDoc::class.java
             )
-            for ((uuid) in groupsWithThisTeacher) {
+            for ((id) in groupsWithThisTeacher) {
                 val updateGroupMap: MutableMap<String, Any> = HashMap()
                 updateGroupMap["teachers." + teacher.id] = teacherDoc
                 updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
-                batch!!.update(groupsRef.document(uuid), updateGroupMap)
+                batch!!.update(groupsRef.document(id), updateGroupMap)
             }
         }
         if (!groupWithThisCuratorSnapshot!!.isEmpty) {
-            val (uuid) = groupWithThisCuratorSnapshot.toObjects(
+            val (id) = groupWithThisCuratorSnapshot.toObjects(
                 GroupDoc::class.java
             )[0]
             val updateGroupMap: MutableMap<String, Any> = HashMap()
             updateGroupMap["curator"] = teacherDoc
             updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
-            batch!!.update(groupsRef.document(uuid), updateGroupMap)
+            batch!!.update(groupsRef.document(id), updateGroupMap)
         }
         batch!![usersRef.document(teacherDoc.id)] = teacherDoc
         batch!!.commit().await()
         return teacher
     }
 
-    fun findGroupsWithTeacherQuery(teacherUuid: String): Task<QuerySnapshot> {
-        return groupsRef.orderBy("teachers.$teacherUuid").get()
+    private fun findGroupsWithTeacherQuery(teacherId: String): Task<QuerySnapshot> {
+        return groupsRef.orderBy("teachers.$teacherId").get()
     }
 
-    fun findGroupWithCuratorQuery(teacherUuid: String?): Task<QuerySnapshot> {
-        return groupsRef.whereEqualTo("curator.id", teacherUuid).get()
+    private fun findGroupWithCuratorQuery(teacherId: String): Task<QuerySnapshot> {
+        return groupsRef.whereEqualTo("curator.id", teacherId).get()
     }
 
     fun findByTypedName(teacherName: String): Flow<Resource2<List<User>>> = callbackFlow {
@@ -123,8 +123,8 @@ class TeacherRepository @Inject constructor(
         }
     }
 
-    private fun deleteAvatar(uuid_user: String) {
-        val reference = avatarsRef.child(uuid_user)
+    private fun deleteAvatar(userId: String) {
+        val reference = avatarsRef.child(userId)
         reference.delete().addOnSuccessListener { aVoid: Void? -> Log.d("lol", "onSuccess: ") }
             .addOnFailureListener { e: Exception? -> Log.d("lol", "onFailure: ", e) }
     }

@@ -289,7 +289,7 @@ class EventAdapter(
         private var color = 0
         private var task: Task? = null
         private var subject: Subject? = null
-        private var group: Group? = null
+        private var group: CourseGroup? = null
         private lateinit var event: Event
         private val lessonExpandableContentBinding = binding.llLessonExpandableContent
 

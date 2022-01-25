@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
@@ -16,10 +14,9 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class GroupEditorActivity :
     BaseActivity<GroupEditorViewModel, ActivityGroupEditorBinding>(R.layout.activity_group_editor) {
-//    AppCompatActivity(R.layout.activity_group_editor) {
 
     override val binding: ActivityGroupEditorBinding by viewBinding(ActivityGroupEditorBinding::bind)
-    override val viewModel: GroupEditorViewModel by viewModels {viewModelFactory}
+    override val viewModel: GroupEditorViewModel by viewModels { viewModelFactory }
 
     private var menu: Menu? = null
     private var navController: NavController? = null
@@ -30,7 +27,8 @@ class GroupEditorActivity :
             setSupportActionBar(toolbar)
         }
         viewModel.finish.observe(this, { finish() })
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -61,9 +59,5 @@ class GroupEditorActivity :
 
     override fun onBackPressed() {
         if (!navController!!.navigateUp()) viewModel.onBackPress()
-    }
-
-    companion object {
-        const val GROUP_ID = "GROUP_UUID"
     }
 }

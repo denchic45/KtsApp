@@ -8,8 +8,9 @@ import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.Resource2
 import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Group
-import com.denchic45.kts.data.model.domain.GroupWithCourses
+import com.denchic45.kts.data.model.domain.GroupCourses
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -85,7 +86,7 @@ class GroupInfoRepository @Inject constructor(
     }
 
     fun listenYourGroup() {
-        addListenerRegistration("yourGroup") { yourGroupByUuidListener }
+        addListenerRegistration("yourGroup") { yourGroupByIdListener }
     }
 
     fun listenYouGroupByCurator() {
@@ -98,8 +99,8 @@ class GroupInfoRepository @Inject constructor(
 
     private fun getUpdatedGroupsByTeacherListener(teacher: User): ListenerRegistration {
         val timestampGroups = timestampPreference.lastUpdateGroupsTimestamp
-        val teacherUuid = teacher.id
-        return groupsRef.whereArrayContains("teacherIds", teacherUuid)
+        val teacherId = teacher.id
+        return groupsRef.whereArrayContains("teacherIds", teacherId)
             .whereGreaterThan("timestamp", Date(timestampGroups))
             .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if (error != null) {
@@ -111,7 +112,7 @@ class GroupInfoRepository @Inject constructor(
                         val groupDocs = snapshots.toObjects(
                             GroupDoc::class.java
                         )
-                        saveUsersAndGroupsAndSubjectsOfTeacher(groupDocs, teacherUuid)
+                        saveUsersAndGroupsAndSubjectsOfTeacher(groupDocs, teacherId)
                         timestampPreference.setTimestampGroups(System.currentTimeMillis())
                     }
                 }
@@ -134,11 +135,11 @@ class GroupInfoRepository @Inject constructor(
                     }
                 }
             }
-    private val yourGroupByUuidListener: ListenerRegistration
+    private val yourGroupByIdListener: ListenerRegistration
         get() {
             val queryGroup: Query = if (isStudent(userPreference.role)) {
                 val yourGroupId = groupPreference.groupId
-                getQueryOfGroupByUuid(yourGroupId)
+                getQueryOfGroupById(yourGroupId)
             } else {
                 queryOfYourGroupByCurator
             }
@@ -158,37 +159,24 @@ class GroupInfoRepository @Inject constructor(
             }
         }
 
-    private fun getQueryOfGroupByUuid(uuid: String): Query {
-        return groupsRef.whereEqualTo("id", uuid)
+    private fun getQueryOfGroupById(ud: String): Query {
+        return groupsRef.whereEqualTo("id", ud)
     }
 
     private val queryOfYourGroupByCurator: Query
         get() = groupsRef.whereEqualTo("curator.id", userPreference.id)
 
-    private fun getQueryOfGroupByCurator(curatorUuid: String): Query {
-        return groupsRef.whereEqualTo("curator.id", curatorUuid)
+    private fun getQueryOfGroupByCurator(curatorId: String): Query {
+        return groupsRef.whereEqualTo("curator.id", curatorId)
     }
 
-    private fun hasTimestamp(groupDoc: GroupDoc): Boolean {
-        // May be null due to @ServerTimestamp
-        return groupDoc.timestamp != null
-    }
+    private fun hasTimestamp(groupDoc: GroupDoc): Boolean = groupDoc.timestamp != null
 
-    fun getStudentsOfGroupByGroupUuid(groupUuid: String): LiveData<List<User?>> {
-        return Transformations.map(userDao.getStudentsOfGroupByGroupId(groupUuid)) { entities: List<UserEntity?> ->
-            ArrayList(
-                userMapper.entityToDomain(entities)
-            )
-        }
-    }
-
-    fun findGroupInfoByUuid(groupUuid: String?) {
-        groupsRef.document(groupUuid!!)
+    fun findGroupInfoById(groupId: String) {
+        groupsRef.document(groupId)
             .get()
             .addOnSuccessListener { snapshot: DocumentSnapshot ->
-                val groupDoc = snapshot.toObject(
-                    GroupDoc::class.java
-                )
+                val groupDoc = snapshot.toObject(GroupDoc::class.java)!!
                 coroutineScope.launch(dispatcher) {
                     upsertGroupInfo(groupDoc)
                 }
@@ -196,29 +184,26 @@ class GroupInfoRepository @Inject constructor(
             .addOnFailureListener { e: Exception? -> Log.d("lol", "loadGroupInfo: ", e) }
     }
 
-    private suspend fun upsertGroupInfo(groupDoc: GroupDoc?) {
+    private suspend fun upsertGroupInfo(groupDoc: GroupDoc) {
         groupDao.upsert(groupMapper.docToEntity(groupDoc))
         specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc!!.specialty))
         saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
     }
 
-    //    public boolean isGroupHasSuchTeacher(String uuid_user, String groupUuid) {
-    //        return courseDao.isGroupHasSuchTeacher(uuid_user, groupUuid);
-    //    }
     fun hasGroup(): Boolean {
         return groupPreference.groupId.isNotEmpty()
     }
 
-    fun find(groupUuid: String): LiveData<Group> {
-        getGroupByUuidRemotely(groupUuid)
-        return Transformations.map(groupDao.get(groupUuid)) { domain: GroupWithCuratorAndSpecialtyEntity ->
+    fun find(groupId: String): LiveData<Group> {
+        getGroupByIdRemotely(groupId)
+        return Transformations.map(groupDao.get(groupId)) { domain: GroupWithCuratorAndSpecialtyEntity ->
             groupMapper.entityToDomain(domain)
         }
     }
 
-    private fun getGroupByUuidRemotely(groupUuid: String) {
-        addListenerRegistration(groupUuid) {
-            groupsRef.document(groupUuid)
+    private fun getGroupByIdRemotely(groupId: String) {
+        addListenerRegistration(groupId) {
+            groupsRef.document(groupId)
                 .addSnapshotListener { snapshot: DocumentSnapshot?, error: FirebaseFirestoreException? ->
                     coroutineScope.launch(dispatcher) {
                         if (snapshot!!.exists()) {
@@ -227,14 +212,14 @@ class GroupInfoRepository @Inject constructor(
                                 upsertGroupInfo(groupDoc)
                             }
                         } else {
-                            groupDao.deleteById(groupUuid)
+                            groupDao.deleteById(groupId)
                         }
                     }
                 }
         }
     }
 
-    fun findByTypedName(name: String): Flow<Resource2<List<Group>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<Resource2<List<CourseGroup>>> = callbackFlow {
         val registration = groupsRef
             .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
             .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
@@ -246,7 +231,7 @@ class GroupInfoRepository @Inject constructor(
                     for (groupDoc in groupDocs) {
                         saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
                     }
-                    trySend(Resource2.Success(groupMapper.docToDomain(groupDocs)))
+                    trySend(Resource2.Success(groupMapper.docToCourseGroupDomain(groupDocs)))
                 }
             }
 
@@ -290,17 +275,13 @@ class GroupInfoRepository @Inject constructor(
             .await()
         batch.delete(groupsRef.document(group.id))
         task.toObject(GroupDoc::class.java)!!.students!!.values
-            .forEach(Consumer { (uuid) ->
-                batch.delete(
-                    usersRef.document(
-                        uuid
-                    )
-                )
+            .forEach(Consumer { (id) ->
+                batch.delete(usersRef.document(id))
             })
         batch.commit().await()
     }
 
-    fun updateGroupCurator(groupUuid: String?, teacher: User?): Completable {
+    fun updateGroupCurator(groupId: String, teacher: User): Completable {
         return Completable.create { emitter: CompletableEmitter ->
             if (!networkService.isNetworkAvailable) {
                 emitter.onError(NetworkException())
@@ -309,50 +290,48 @@ class GroupInfoRepository @Inject constructor(
             val updatedGroupMap: MutableMap<String, Any> = HashMap()
             updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
             updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
-            groupsRef.document(groupUuid!!).update(updatedGroupMap)
+            groupsRef.document(groupId!!).update(updatedGroupMap)
                 .addOnSuccessListener { emitter.onComplete() }
                 .addOnFailureListener { t: Exception -> emitter.onError(t) }
         }
     }
 
-    fun findCurator(groupUuid: String): LiveData<User> {
-        return Transformations.map(userDao.getCurator(groupUuid)) { entity: UserEntity? ->
+    fun findCurator(groupId: String): LiveData<User> {
+        return Transformations.map(userDao.getCurator(groupId)) { entity: UserEntity? ->
             userMapper.entityToDomain(entity)
         }
     }
 
-    fun getNameByGroupUuid(groupUuid: String): Flow<String> {
+    fun getNameByGroupId(groupId: String): Flow<String> {
         coroutineScope.launch(dispatcher) {
-            if (!groupDao.isExistSync(groupUuid)) {
-                getGroupByUuidRemotely(groupUuid)
+            if (!groupDao.isExistSync(groupId)) {
+                getGroupByIdRemotely(groupId)
             }
         }
-        return groupDao.getNameById(groupUuid)
+        return groupDao.getNameById(groupId)
     }
 
-    fun isExistGroup(groupUuid: String): Flow<Boolean> {
-        return groupDao.isExist(groupUuid)
+    fun isExistGroup(groupId: String): Flow<Boolean> {
+        return groupDao.isExist(groupId)
     }
 
-    fun findGroupsWithCoursesByCourse(course: Int): Single<List<GroupWithCourses>> {
-        return Single.create { emitter: SingleEmitter<List<GroupWithCourses>> ->
+    fun findGroupsWithCoursesByCourse(course: Int): Single<List<GroupCourses>> {
+        return Single.create { emitter: SingleEmitter<List<GroupCourses>> ->
             groupsRef
                 .whereEqualTo("course", course)
                 .get()
                 .addOnSuccessListener { snapshots: QuerySnapshot ->
                     val groupDocs = snapshots.toObjects(GroupDoc::class.java)
-                    val groupsInfo: MutableList<GroupWithCourses> = ArrayList()
+                    val groupsInfo: MutableList<GroupCourses> = ArrayList()
                     coroutineScope.launch(dispatcher) {
                         groupDocs.forEach(Consumer { groupDoc: GroupDoc ->
                             launch {
                                 upsertGroupInfo(groupDoc)
                                 groupsInfo.add(
-                                    GroupWithCourses(
-                                        groupMapper.docToDomain(groupDoc),
-                                        courseMapper.entityToDomain(
-                                            courseDao.getCoursesByGroupIdSync(
-                                                groupDoc.id
-                                            )
+                                    GroupCourses(
+                                        groupMapper.docToCourseGroupDomain(groupDoc),
+                                        courseMapper.entityToDomain2(
+                                            courseDao.getCoursesByGroupIdSync(groupDoc.id)
                                         )
                                     )
                                 )
@@ -366,15 +345,13 @@ class GroupInfoRepository @Inject constructor(
 
     fun observeHasGroup(): Flow<Boolean> {
         return groupPreference.observeValue(GroupPreference.GROUP_ID, "")
-            .map { groupUuid ->
-                groupUuid.isNotEmpty()
-            }
+            .map(String::isNotEmpty)
     }
 
     fun findGroupByStudent(user: User): Observable<Group> {
         return Observable.create { emitter: ObservableEmitter<Group> ->
-            if (!userDao.isExistByIdAndGroupId(user.id, user.groupId)) findGroupByUuid(
-                user,
+            if (!userDao.isExistByIdAndGroupId(user.id, user.groupId)) findGroupById(
+                user.groupId!!,
                 emitter
             )
             addListenerDisposable("GROUP_BY_STUDENT: " + user.id) {
@@ -406,7 +383,7 @@ class GroupInfoRepository @Inject constructor(
                         }
                 }
             addListenerDisposable("GROUP_BY_CURATOR: " + user.id) {
-                groupDao.getByCuratorUuid(user.id)
+                groupDao.getByCuratorId(user.id)
                     .map { domain: GroupWithCuratorAndSpecialtyEntity ->
                         groupMapper.entityToDomain(domain)
                     }
@@ -415,15 +392,13 @@ class GroupInfoRepository @Inject constructor(
         }
     }
 
-    private fun findGroupByUuid(user: User, emitter: ObservableEmitter<Group>) {
-        groupsRef.document(user.groupId!!)
+    private fun findGroupById(groupId: String, emitter: ObservableEmitter<Group>) {
+        groupsRef.document(groupId)
             .get()
             .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
                 coroutineScope.launch(dispatcher) {
                     saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
-                        documentSnapshot.toObject(
-                            GroupDoc::class.java
-                        )!!
+                        documentSnapshot.toObject(GroupDoc::class.java)!!
                     )
                 }
             }

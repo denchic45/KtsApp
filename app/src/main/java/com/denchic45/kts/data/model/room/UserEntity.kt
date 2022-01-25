@@ -12,7 +12,7 @@ data class UserEntity(
     var firstName: String,
     var surname: String,
     @ColumnInfo(name = "user_group_id")
-    var groupUuid: String? = null,
+    var groupId: String? = null,
     var role: String,
     var phoneNum: String,
     var email: String? = null,
