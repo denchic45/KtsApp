@@ -5,7 +5,6 @@
         <item name="fontFamily">@font/gilroy_semibold</item>
         <item name="android:fontFamily">@font/gilroy_semibold</item>
         <item name="android:textColor">?android:textColorPrimary</item>
-        <item name="android:letterSpacing">0</item>
     </style>
 
     <style name="TextAppearance.Kts.Subtitle2" parent="@style/TextAppearance.MaterialComponents.Subtitle2">
@@ -19,23 +18,47 @@
         <item name="fontFamily">@font/gilroy_medium</item>
         <item name="android:fontFamily">@font/gilroy_medium</item>
         <item name="android:textColor">?colorOnSurface</item>
-        <item name="android:letterSpacing">0</item>
+        <item name="lineHeight">24dp</item>
     </style>
 
     <style name="TextAppearance.Kts.Body2" parent="@style/TextAppearance.MaterialComponents.Body2">
-        <item name="fontFamily">sans-serif</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
         <item name="android:textColor">?colorControlNormal</item>
+        <item name="lineHeight">20dp</item>
+    </style>
+
+    <style name="TextAppearance.Kts.SubHeader" parent="TextAppearance.Kts.Subtitle2">
+        <item name="fontFamily">@font/gilroy_semibold</item>
+        <item name="android:fontFamily">@font/gilroy_semibold</item>
+        <item name="android:textColor">@color/dark</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.Kts.Headline5" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+        <item name="lineHeight">32dp</item>
+    </style>
+
+    <style name="TextAppearance.Kts.Headline6" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/gilroy_medium</item>
+        <item name="android:fontFamily">@font/gilroy_medium</item>
+        <item name="lineHeight">32dp</item>
     </style>
 
     <style name="TextAppearance.Kts.CollapsingToolbar" parent="">
         <item name="fontFamily">@font/gilroy_medium</item>
         <item name="android:fontFamily">@font/gilroy_medium</item>
     </style>
-    
+
     <style name="TextAppearance.Kts.CollapsingToolbar.Expanded" parent="TextAppearance.Design.CollapsingToolbar.Expanded">
         <item name="fontFamily">@font/gilroy_medium</item>
         <item name="android:fontFamily">@font/gilroy_medium</item>
+    </style>
+
+    <style name="TextAppearance.Kts.Chip" parent="TextAppearance.MaterialComponents.Chip">
+        <item name="android:fontFamily">@font/gilroy_semibold</item>
     </style>
 
 </resources>
