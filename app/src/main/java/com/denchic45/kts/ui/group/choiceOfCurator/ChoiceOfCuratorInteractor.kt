@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.group.choiceOfCurator
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.TeacherRepository
 import io.reactivex.rxjava3.core.Observable
@@ -28,7 +28,7 @@ class ChoiceOfCuratorInteractor @Inject constructor(
         selectTeacher.onComplete()
     }
 
-    fun findTeacherByTypedName(name: String): Flow<Resource2<List<User>>> {
+    fun findTeacherByTypedName(name: String): Flow<Resource<List<User>>> {
         return teacherRepository.findByTypedName(name)
     }
 }

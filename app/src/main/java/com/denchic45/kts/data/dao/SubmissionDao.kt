@@ -17,4 +17,10 @@ abstract class SubmissionDao : BaseDao<SubmissionEntity>() {
         contentId: String,
         studentId: String
     ): Flow<SubmissionWithStudentUserCommentsEntities?>
+
+    @Query("SELECT * FROM submission WHERE content_id=:contentId AND student_id=:studentId")
+    abstract suspend fun getByContentIdAndUserIdSync(
+        contentId: String,
+        studentId: String
+    ): SubmissionWithStudentUserCommentsEntities?
 }

@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.group.editor
 
 import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.repository.CourseRepository
@@ -24,7 +24,7 @@ class GroupEditorInteractor @Inject constructor(
 
     override fun removeListeners() {}
 
-    fun getSpecialtyByTypedName(specialtyName: String): Flow<Resource2<List<Specialty>>> {
+    fun getSpecialtyByTypedName(specialtyName: String): Flow<Resource<List<Specialty>>> {
         return specialtyRepository.findByTypedName(specialtyName)
     }
 

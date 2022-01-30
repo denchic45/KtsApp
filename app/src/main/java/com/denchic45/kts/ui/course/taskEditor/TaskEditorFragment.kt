@@ -394,7 +394,9 @@ class AddAttachmentAdapterDelegate :
 
 }
 
-object AddAttachmentItem : DomainModel()
+object AddAttachmentItem : DomainModel() {
+    override fun equals(other: Any?): Boolean = other is AddAttachmentItem
+}
 
 class AddAttachmentHolder(itemAddAttachmentBinding: ItemAddAttachmentBinding) :
     BaseViewHolder<AddAttachmentItem, ItemAddAttachmentBinding>(itemAddAttachmentBinding) {

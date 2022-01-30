@@ -10,7 +10,7 @@ import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentChoiceOfSubjectBinding
 import com.denchic45.kts.ui.BaseFragment
@@ -57,10 +57,10 @@ class ChoiceOfSubjectFragment :
         viewModel.showFoundSubjects.observe(
             viewLifecycleOwner,
             { resource ->
-                if (resource is Resource2.Success) {
+                if (resource is Resource.Success) {
                     listStateLayout.showList()
                     adapter.submitList(ArrayList<DomainModel?>(resource.data))
-                } else if (resource is Resource2.Error) {
+                } else if (resource is Resource.Error) {
                     if (resource.error is NetworkException) {
                         listStateLayout.showView(ListStateLayout.NETWORK_VIEW)
                     }

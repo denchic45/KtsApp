@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.UserDao
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.UserDoc
@@ -58,8 +58,8 @@ open class UserRepository @Inject constructor(
             }
         }
 
-    fun getUsersByRole(vararg roles: String?) {
-        usersRef.whereIn("role", Arrays.asList(*roles))
+    fun getUsersByRole(vararg roles: String) {
+        usersRef.whereIn("role", listOf(*roles))
             .get().addOnSuccessListener { snapshot: QuerySnapshot ->
                 val users = snapshot.toObjects(
                     UserEntity::class.java
@@ -156,7 +156,7 @@ open class UserRepository @Inject constructor(
             .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: ", e) }
     }
 
-    fun getByTypedName(name: String): Flow<Resource2<List<User>>> = callbackFlow {
+    fun getByTypedName(name: String): Flow<Resource<List<User>>> = callbackFlow {
         addListenerRegistration("getByTypedName") {
             usersRef
                 .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
@@ -171,7 +171,7 @@ open class UserRepository @Inject constructor(
                     launch(dispatcher) {
                         userDao.upsert(userMapper.docToEntity(users))
                     }
-                    trySend(Resource2.Success(userMapper.docToDomain(users)))
+                    trySend(Resource.Success(userMapper.docToDomain(users)))
                 }
         }
         awaitClose { }
@@ -195,7 +195,7 @@ open class UserRepository @Inject constructor(
                     loadUserPreference(user!!)
                     emitter.onComplete()
                 }
-                .addOnFailureListener { t: Exception? -> emitter.onError(t) }
+                .addOnFailureListener { t: Exception -> emitter.onError(t) }
         }
     }
 

@@ -4,7 +4,7 @@ import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -40,10 +40,10 @@ class VerifyPhoneNumViewModel @Inject constructor(
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ event ->
                 when (event) {
-                    is Resource2.Success -> {
+                    is Resource.Success -> {
                         authSuccessful.value = event.data
                     }
-                    is Resource2.Error -> {
+                    is Resource.Error -> {
                         if (event.error is FirebaseTooManyRequestsException) {
                             errorToManyRequest.call()
                         } else if (event.error is FirebaseAuthInvalidCredentialsException) {

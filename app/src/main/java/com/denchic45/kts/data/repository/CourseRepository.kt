@@ -1,10 +1,15 @@
 package com.denchic45.kts.data.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.asFlow
-import com.denchic45.kts.data.*
+import androidx.room.withTransaction
+import com.denchic45.kts.data.DataBase
+import com.denchic45.kts.data.NetworkService
+import com.denchic45.kts.data.Repository
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
@@ -22,9 +27,11 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.CourseContents
 import com.denchic45.kts.utils.FieldsComparator
 import com.google.firebase.firestore.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
@@ -77,20 +84,18 @@ class CourseRepository @Inject constructor(
                             return@launch
                         }
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
-                        database.runInTransaction {
-                            launch {
+                        database.withTransaction {
+
 //                                groupCourseDao.deleteByCourse(courseDoc.id)
 
-                                subjectDao.upsert(
-                                    subjectMapper.docToEntity(courseDoc.subject)
-                                )
-                                userDao.upsert(userMapper.docToEntity(courseDoc.teacher))
+                            subjectDao.upsert(subjectMapper.docToEntity(courseDoc.subject))
+                            userDao.upsert(userMapper.docToEntity(courseDoc.teacher))
 
-                                courseDao.upsert(courseMapper.docToEntity(courseDoc))
+                            courseDao.upsert(courseMapper.docToEntity(courseDoc))
 
-                                sectionDao.upsert(sectionMapper.docToEntity(courseDoc.sections))
+                            sectionDao.upsert(sectionMapper.docToEntity(courseDoc.sections))
 
-                                //Saving groups of course
+                            //Saving groups of course
 //                                courseDoc.groupIds.let { groupIds ->
 //                                    if (groupIds.isNotEmpty()) {
 //                                        val groupDocs = groupsRef.whereIn("id", groupIds)
@@ -109,7 +114,6 @@ class CourseRepository @Inject constructor(
 //                                        )
 //                                    }
 //                                }
-                            }
                         }
                     }
                 }
@@ -208,7 +212,7 @@ class CourseRepository @Inject constructor(
             }
     }
 
-    private fun saveCourseContentsLocal(
+    private suspend fun saveCourseContentsLocal(
         courseContents: Pair<MutableList<CourseContentEntity>, MutableList<CourseContentDoc>>
     ) {
 
@@ -217,49 +221,44 @@ class CourseRepository @Inject constructor(
 
         removedCourseContents.forEach {
             contentAttachmentStorage.deleteFromLocal(it.id)
+            submissionAttachmentStorage.deleteFromLocal(it.id)
         }
 
-        database.runInTransaction {
-            externalScope.launch(dispatcher) {
-                courseContentDao.upsert(remainingCourseContent)
-                courseContentDao.delete(removedCourseContents)
+        database.withTransaction {
 
-                val submissionEntities = mutableListOf<SubmissionEntity>()
-                val contentCommentEntities = mutableListOf<ContentCommentEntity>()
-                val submissionCommentEntities =
-                    mutableListOf<SubmissionCommentEntity>()
+            courseContentDao.upsert(remainingCourseContent)
+            courseContentDao.delete(removedCourseContents)
 
-                courseContents.second.forEach {
+            val submissionEntities = mutableListOf<SubmissionEntity>()
+            val contentCommentEntities = mutableListOf<ContentCommentEntity>()
+            val submissionCommentEntities =
+                mutableListOf<SubmissionCommentEntity>()
 
-                    submissionDao.deleteByContentId(it.id)
-                    contentCommentDao.deleteByContentId(it.id)
+            courseContents.second.forEach {
 
-                    it.submissions?.forEach { submissionDoc ->
-                        submissionEntities.add(
-                            submissionMapper.docToEntity(submissionDoc)
-                        )
-                        submissionCommentEntities.addAll(submissionDoc.comments)
-                        it.comments?.let { contentComments ->
-                            contentCommentEntities.addAll(
-                                contentComments
-                            )
-                        }
+                submissionDao.deleteByContentId(it.id)
+                contentCommentDao.deleteByContentId(it.id)
+
+                it.submissions?.forEach { submissionDoc ->
+                    submissionEntities.add(
+                        submissionMapper.docToEntity(submissionDoc.value)
+                    )
+                    submissionCommentEntities.addAll(submissionDoc.value.comments)
+                    it.comments?.let { contentComments ->
+                        contentCommentEntities.addAll(contentComments)
                     }
                 }
-                submissionDao.upsert(submissionEntities)
-                contentCommentDao.upsert(contentCommentEntities)
-                submissionCommentDao.upsert(submissionCommentEntities)
             }
+
+            submissionDao.upsert(submissionEntities)
+            contentCommentDao.upsert(contentCommentEntities)
+            submissionCommentDao.upsert(submissionCommentEntities)
         }
     }
 
-    private fun saveCourseOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
-//        database.runInTransaction {
-        externalScope.launch(dispatcher) {
-            saveCourses(courseDocs)
-            deleteMissingCoursesOfTeacher(courseDocs, teacherId)
-        }
-//        }
+    private suspend fun saveCourseOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
+        saveCourses(courseDocs)
+        deleteMissingCoursesOfTeacher(courseDocs, teacherId)
     }
 
     private fun deleteMissingCoursesOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
@@ -268,12 +267,9 @@ class CourseRepository @Inject constructor(
         groupDao.deleteUnrelatedByCourse()
     }
 
-    private fun saveCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
-//        database.runInTransaction {
-        externalScope.launch(dispatcher) {
-            saveCourses(courseDocs)
-            deleteMissingCoursesOfGroup(courseDocs, groupId)
-        }
+    private suspend fun saveCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
+        saveCourses(courseDocs)
+        deleteMissingCoursesOfGroup(courseDocs, groupId)
     }
 
     private fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
@@ -442,8 +438,7 @@ class CourseRepository @Inject constructor(
                 )
             }
         }
-        return map.map { it.first to it.second }
-            .toMap()
+        return map.associate { it.first to it.second }
     }
 
     private suspend fun updateCourseToGroup(
@@ -580,7 +575,7 @@ class CourseRepository @Inject constructor(
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
 
 
-    fun findByTypedName(name: String): Flow<Resource2<List<Course>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<Resource<List<Course>>> = callbackFlow {
         addListenerRegistration("name") {
             coursesRef
                 .whereArrayContains("searchKeys", name.lowercase())
@@ -589,7 +584,7 @@ class CourseRepository @Inject constructor(
                     externalScope.launch(dispatcher) { saveCourses(courseDocs) }
 
                     trySend(
-                        Resource2.Success(courseMapper.docToDomain(courseDocs))
+                        Resource.Success(courseMapper.docToDomain(courseDocs))
                     )
                 }
         }
@@ -678,6 +673,7 @@ class CourseRepository @Inject constructor(
 
     suspend fun removeCourseContent(courseContent: CourseContent) {
         contentAttachmentStorage.deleteFilesByContentId(courseContent.id)
+        submissionAttachmentStorage.deleteFilesByContentId(courseContent.id)
         coursesRef.document(courseContent.courseId)
             .collection("Contents")
             .document(courseContent.id)
@@ -697,9 +693,10 @@ class CourseRepository @Inject constructor(
     suspend fun findSection(sectionId: String) =
         sectionMapper.entityToDomain(sectionDao.get(sectionId))
 
-    fun findTaskSubmission(taskId: String, userId: String): Flow<Task.Submission> {
-        return submissionDao.getByTaskIdAndUserId(taskId, userId)
+    fun findTaskSubmission(courseContent: CourseContent, userId: String): Flow<Task.Submission> {
+        return submissionDao.getByTaskIdAndUserId(courseContent.id, userId)
             .map {
+                Log.d("lo;", "!!!123 map: ")
                 it?.let {
                     val attachments = submissionAttachmentStorage.get(
                         it.submissionEntity.contentId,
@@ -708,12 +705,61 @@ class CourseRepository @Inject constructor(
                     )
                     submissionMapper.entityToDomain(it, attachments)
                 } ?: Task.Submission(
+                    courseContent.id,
+                    courseContent.courseId,
                     userMapper.entityToDomain(userDao.getSync(userId)),
-                    Task.Submission.Content("", emptyList()),
+                    Task.Submission.Content("EMPTY REPOSITORY", emptyList()),
                     emptyList(),
-                    Task.SubmissionStatus.Nothing
+                    Task.SubmissionStatus.NotSubmitted
                 )
             }
+            .distinctUntilChanged()
+    }
+
+    suspend fun updateSubmissionFromStudent(submission: Task.Submission) {
+//        val submissionDoc = submissionMapper.domainToDoc(submission)
+
+        val studentId = submission.student.id
+        val contentId = submission.contentId
+
+//        val oldSubmission =
+//            submissionDao.getByContentIdAndUserIdSync(contentId, studentId)
+
+//        oldSubmission?.submissionEntity?.attachments?.let {
+//            val currentFileNames = submissionAttachmentStorage.getNames(it)
+//            val updatedFileNames = submission.content.attachments
+//                .map { Files.nameWithoutTimestamp(it.name) }
+//                .toSet()
+//            val removedFiles = currentFileNames.filterNot { currentFileName ->
+//                updatedFileNames.contains(Files.nameWithoutTimestamp(currentFileName))
+//            }
+//            submissionAttachmentStorage.deleteIfRemoved(contentId, studentId, removedFiles)
+//        }
+
+        val attachmentUrls = submissionAttachmentStorage.update(
+            contentId,
+            studentId,
+            attachments = submission.content.attachments
+        )
+
+        val submittedDate =
+            if (submission.status is Task.SubmissionStatus.Submitted) submission.status.submittedDate
+            else null
+        val updatedFields = mapOf(
+            "timestamp" to FieldValue.serverTimestamp(),
+            "submissions.$studentId.studentId" to studentId,
+            "submissions.$studentId.courseId" to submission.courseId,
+            "submissions.$studentId.contentId" to contentId,
+            "submissions.$studentId.text" to submission.content.text,
+            "submissions.$studentId.attachments" to attachmentUrls,
+            "submissions.$studentId.status" to submissionMapper.domainToStatus(submission),
+            "submissions.$studentId.submittedDate" to submittedDate
+        )
+        coursesRef.document(submission.courseId)
+            .collection("Contents")
+            .document(contentId)
+            .update(updatedFields)
+            .await()
     }
 }
 

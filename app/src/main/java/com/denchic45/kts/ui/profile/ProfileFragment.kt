@@ -127,12 +127,12 @@ class ProfileFragment : Fragment() {
 
         AppBarController.findController(requireActivity()).setExpanded(true, true)
 
-        viewModel.showAvatar.observe(viewLifecycleOwner, { s: String? ->
+        viewModel.showAvatar.observe(viewLifecycleOwner) { s: String? ->
             Glide.with(this) //                .load("https://previews.123rf.com/images/fantrazy/fantrazy1605/fantrazy160500001/58722210-square-grey-font-with-white-inside-path-geometric-typeface-minimal-typewriter-latin-alphabet-letters.jpg")
                 .load(s)
                 .transition(DrawableTransitionOptions.withCrossFade())
                 .into(ivAvatar!!)
-        })
+        }
         llGroupInfo!!.setOnClickListener { viewModel.onGroupInfoClick() }
         ivAvatar!!.setOnClickListener { viewModel.onAvatarClick() }
         viewModel.showFullName.observe(

@@ -82,32 +82,30 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable), WeekCalendarLis
             this@TimetableFragment.wcv = wcv
             val listStateLayout: ListStateLayout = view.findViewById(R.id.listStateLayout)
             listStateLayout.addView(R.layout.state_lessons_day_off, DAY_OFF_VIEW)
-            viewModel.initTimetable.observe(viewLifecycleOwner, { groupVisibility: Boolean? ->
+            viewModel.initTimetable.observe(viewLifecycleOwner) { groupVisibility: Boolean? ->
                 appBarController = AppBarController.findController(
                     requireActivity()
                 )
 
-                mainViewModel.selectedDate.observe(viewLifecycleOwner, { selectDate: Date? ->
-                    wcv.setSelectDate(
-                        selectDate!!
-                    )
-                })
+                mainViewModel.selectedDate.observe(viewLifecycleOwner) { selectDate ->
+                    wcv.setSelectDate(selectDate)
+                }
                 viewBinding.wcv.setListener(this@TimetableFragment)
                 adapter = EventAdapter(viewModel.lessonTime, groupVisibility!!,
 
                     onLessonItemClickListener = object : OnLessonItemClickListener() {
                         override fun onHomeworkChecked(checked: Boolean) {
-                            viewModel.onTaskChecked(checked)
+
                         }
                     })
                 rvLessons.adapter = adapter
                 viewModel.showLessonsOfDay.observe(
                     viewLifecycleOwner,
                     EventObserver { lessons: List<Event> ->
-                                adapter!!.submitList(
-                                    ArrayList<DomainModel>(lessons),
-                                    listStateLayout.getCommitCallback(adapter)
-                                )
+                        adapter!!.submitList(
+                            ArrayList<DomainModel>(lessons),
+                            listStateLayout.getCommitCallback(adapter)
+                        )
                         rvLessons.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                                 startLiftOnScrollElevationOverlayAnimation(
@@ -118,7 +116,7 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable), WeekCalendarLis
                             }
                         })
                     })
-            })
+            }
 
             viewModel.showListState.observe(
                 viewLifecycleOwner,

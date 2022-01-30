@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.Action
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.rx.bus.RxBusConfirm
@@ -174,7 +174,7 @@ class FinderViewModel @Inject constructor(
                 findByTypedNameActions[currentSelectedEntity.value!!].invoke(name)
             }.collect { resource ->
                 showFoundItems.value = ArrayList(
-                    (resource as Resource2.Success).data
+                    (resource as Resource.Success).data
                 )
                 foundEntities[currentSelectedEntity.value!!] = ArrayList(
                     resource.data

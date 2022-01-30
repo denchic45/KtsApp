@@ -25,20 +25,20 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
     val contentDetails: ContentDetails,
     val timestamp: Date,
     val comments: List<ContentCommentEntity>?,
-    val submissions: List<SubmissionDoc>?,
+    val submissions: Map<String, SubmissionDoc>?,
     @field:JvmField val deleted: Boolean = false,
     val contentType: ContentType
 ) : DocModel {
     private constructor() : this(
         "", "", "", "", "",
         false, emptyList(), 0, Date(), null, ContentDetails.Empty,
-        Date(), emptyList(), emptyList(), contentType = ContentType.TASK
+        Date(), emptyList(), emptyMap(), contentType = ContentType.TASK
     )
 }
 
 data class SubmissionDoc(
     val studentId: String,
-    val taskId: String,
+    val contentId: String,
     val courseId: String,
     val status: Task.Submission.Status,
     val text: String,
@@ -46,14 +46,20 @@ data class SubmissionDoc(
     val teacherId: String,
     val grade: Int,
     val gradedDate: Date,
+    val cause: String,
     val comments: List<SubmissionCommentEntity>,
-    val doneDate: Date,
+    val submittedDate: Date,
 ) {
     private constructor() : this(
         "", "",
-        "", Task.Submission.Status.NOTHING, "",
-        emptyList(), "", 0,
+        "",
+        Task.Submission.Status.NOT_SUBMITTED,
+        "",
+        emptyList(),
+        "",
+        0,
         Date(),
+        "",
         emptyList(), Date()
     )
 }

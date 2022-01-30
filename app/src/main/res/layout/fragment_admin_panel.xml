@@ -7,7 +7,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_preference"
-        android:name="com.example.kts.ui.adminPanel.AdminPanel"
+        android:name="com.denchic45.kts.ui.adminPanel.AdminPanel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="LinearLayoutManager"

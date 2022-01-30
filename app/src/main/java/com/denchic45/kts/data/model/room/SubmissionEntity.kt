@@ -5,24 +5,26 @@ import com.denchic45.kts.data.model.EntityModel
 import com.denchic45.kts.data.model.domain.Task
 import java.util.*
 
-@Entity(tableName = "submission", foreignKeys = [
-    ForeignKey(
-        entity = CourseContentEntity::class,
-        parentColumns = ["content_id"],
-        childColumns = ["content_id"],
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE,
-        deferred = true
-    ),
-ForeignKey(
-    entity = UserEntity::class,
-    parentColumns = ["user_id"],
-    childColumns = ["student_id"],
-    onDelete = ForeignKey.CASCADE,
-    onUpdate = ForeignKey.CASCADE,
-    deferred = true
+@Entity(
+    tableName = "submission", foreignKeys = [
+        ForeignKey(
+            entity = CourseContentEntity::class,
+            parentColumns = ["content_id"],
+            childColumns = ["content_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+            deferred = true
+        ),
+        ForeignKey(
+            entity = UserEntity::class,
+            parentColumns = ["user_id"],
+            childColumns = ["student_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
+            deferred = true
+        )
+    ]
 )
-])
 data class SubmissionEntity(
     @ColumnInfo(name = "submission_id")
     @PrimaryKey(autoGenerate = true)
@@ -33,15 +35,19 @@ data class SubmissionEntity(
     val contentId: String,
     val courseId: String,
     val status: Task.Submission.Status,
+    @ColumnInfo(defaultValue = "")
     val text: String,
     @field:TypeConverters(ListConverter::class)
     val attachments: List<String>,
     @ColumnInfo(name = "grading_teacher_id")
-    val teacherId: String,
+    val teacherId: String?,
+    @ColumnInfo(defaultValue = "")
     val cause: String,
-    val grade: Int,
+    val grade: Int?,
     @field:TypeConverters(TimestampConverter::class)
+    @ColumnInfo(defaultValue = "0")
     val gradedDate: Date,
     @field:TypeConverters(TimestampConverter::class)
-    val doneDate: Date,
+    @ColumnInfo(defaultValue = "0")
+    val submittedDate: Date?,
 ) : EntityModel

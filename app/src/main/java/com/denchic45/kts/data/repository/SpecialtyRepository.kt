@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.SpecialtyDao
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -56,7 +56,7 @@ class SpecialtyRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(name: String): Flow<Resource2<List<Specialty>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<Resource<List<Specialty>>> = callbackFlow {
         addListenerRegistration("name") {
             specialtyRef
                 .whereArrayContains("searchKeys", name.lowercase(Locale.getDefault()))
@@ -66,7 +66,7 @@ class SpecialtyRepository @Inject constructor(
                     )
                     coroutineScope.launch(dispatcher) {
                         specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
-                        trySend(Resource2.Success(specialties))
+                        trySend(Resource.Success(specialties))
                     }
                 }
         }

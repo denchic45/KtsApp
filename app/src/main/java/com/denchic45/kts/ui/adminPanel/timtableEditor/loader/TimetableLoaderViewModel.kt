@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.adminPanel.timtableEditor.loader
 import androidx.lifecycle.MutableLiveData
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.rx.AsyncTransformer
@@ -211,7 +211,7 @@ class TimetableLoaderViewModel @Inject constructor(
         openLessonEditor.call()
         eventEditorInteractor.observeEvent()
             .subscribe { resource ->
-                when ((resource as Resource2.Success).data.second) {
+                when ((resource as Resource.Success).data.second) {
                     EventEditorInteractor.LESSON_CREATED -> {
                         findLessonOfDay(resource.data.first, positionOfGroup)
                             .ifPresent { eventsOfTheDay: EventsOfTheDay ->
@@ -264,7 +264,7 @@ class TimetableLoaderViewModel @Inject constructor(
         openLessonEditor.call()
         eventEditorInteractor.observeEvent()
             .subscribe { event ->
-                if ((event as Resource2.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
+                if ((event as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
                     val event1 = event.data.first
                     findLessonOfDay(event1, positionOfGroup)
                         .ifPresent { eventsOfTheDay: EventsOfTheDay ->

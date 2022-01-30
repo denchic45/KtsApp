@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
@@ -179,7 +179,7 @@ open class UserEditorViewModel @Inject constructor(
         viewModelScope.launch {
             typedNameGroup.flatMapLatest { name: String -> interactor.getGroupsByTypedName(name) }
                 .map { resource ->
-                    (resource as Resource2.Success).data.stream()
+                    (resource as Resource.Success).data.stream()
                         .map { group -> ListItem(id = group.id, title = group.name) }
                         .collect(Collectors.toList())
                 }
@@ -296,20 +296,20 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun saveChanges() {
         viewModelScope.launch {
-            val saveUserObservable: Flow<Resource2<User>> = if (uiEditor.isNew) {
+            val saveUserObservable: Flow<Resource<User>> = if (uiEditor.isNew) {
                 interactor.signUpUser(fieldEmail.value, password)
                 interactor.addUser(uiEditor.item)
             } else {
                 interactor.updateUser(uiEditor.item)
             }
-            saveUserObservable.collect { resource: Resource2<User> ->
+            saveUserObservable.collect { resource: Resource<User> ->
                 when (resource) {
-                    is Resource2.Success -> finish.call()
-                    is Resource2.Next -> {
+                    is Resource.Success -> finish.call()
+                    is Resource.Next -> {
                         if (resource.status == "LOAD_AVATAR") avatarUser.value =
                             resource.data.photoUrl
                     }
-                    is Resource2.Error -> if (resource.error is NetworkException) {
+                    is Resource.Error -> if (resource.error is NetworkException) {
                         showMessage.value = "Отсутствует интернет-соединение"
                     }
                     else -> throw IllegalStateException()

@@ -27,8 +27,8 @@ class FilePicker(
         registry.register(
             PERMISSION_REGISTRY_KEY,
             owner,
-            ActivityResultContracts.StartActivityForResult(),
-            { chooseFile() })
+            ActivityResultContracts.StartActivityForResult()
+        ) { chooseFile() }
 
     private var getFile: ActivityResultLauncher<Intent> =
         registry.register(

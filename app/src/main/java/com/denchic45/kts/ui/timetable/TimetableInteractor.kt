@@ -37,10 +37,6 @@ class TimetableInteractor @Inject constructor(
         ) { addMissingEmptyEvents(it.toMutableList()) }
     }
 
-    fun updateHomeworkCompletion(checked: Boolean) {
-        eventRepository.updateHomeworkCompletion(checked)
-    }
-
     fun hasGroup() = groupPreference.groupId.isNotEmpty()
 
     val lessonTime: Int get() = eventRepository.lessonTime

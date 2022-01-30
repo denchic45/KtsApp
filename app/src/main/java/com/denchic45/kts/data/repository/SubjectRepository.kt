@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.SubjectDao
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -129,13 +129,13 @@ class SubjectRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(subjectName: String): Flow<Resource2<List<Subject>>> = callbackFlow {
+    fun findByTypedName(subjectName: String): Flow<Resource<List<Subject>>> = callbackFlow {
         subjectsRef.whereArrayContains("searchKeys", subjectName.lowercase(Locale.getDefault()))
             .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
                 val subjects = value!!.toObjects(
                     Subject::class.java
                 )
-                trySend(Resource2.Success(subjects))
+                trySend(Resource.Success(subjects))
                 coroutineScope.launch(dispatcher) {
                     subjectDao.upsert(subjectMapper.domainToEntity(subjects))
                 }
@@ -185,11 +185,11 @@ class SubjectRepository @Inject constructor(
         }
     }
 
-    fun findByGroup(groupId: String): LiveData<Resource2<List<Subject>>> {
+    fun findByGroup(groupId: String): LiveData<Resource<List<Subject>>> {
         return if (!networkService.isNetworkAvailable) {
-            MutableLiveData(Resource2.Error(NetworkException()))
+            MutableLiveData(Resource.Error(NetworkException()))
         } else Transformations.map(subjectDao.getByGroupId(groupId)) { input: List<SubjectEntity?> ->
-            Resource2.Success(
+            Resource.Success(
                 subjectMapper.entityToDomain(input)
             )
         }

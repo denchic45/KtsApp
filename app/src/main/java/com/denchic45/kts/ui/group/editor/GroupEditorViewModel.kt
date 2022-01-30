@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Specialty
@@ -63,7 +63,7 @@ class GroupEditorViewModel @Inject constructor(
             typedSpecialtyByName.flatMapLatest { specialtyName: String ->
                 interactor.getSpecialtyByTypedName(specialtyName)
             }.collect { resource ->
-                foundSpecialties = (resource as Resource2.Success).data
+                foundSpecialties = (resource as Resource.Success).data
                 showSpecialties.postValue(
                     resource.data.stream()
                         .map { specialty: Specialty ->

@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.courseEditor
 
 import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Subject
@@ -27,11 +27,11 @@ class CourseEditorInteractor @Inject constructor(
         return subjectRepository.findLazy(subjectId)
     }
 
-    fun findTeacherByTypedName(name: String): Flow<Resource2<List<User>>> {
+    fun findTeacherByTypedName(name: String): Flow<Resource<List<User>>> {
         return teacherRepository.findByTypedName(name)
     }
 
-    fun findSubjectByTypedName(name: String): Flow<Resource2<List<Subject>>> {
+    fun findSubjectByTypedName(name: String): Flow<Resource<List<Subject>>> {
         return subjectRepository.findByTypedName(name)
     }
 

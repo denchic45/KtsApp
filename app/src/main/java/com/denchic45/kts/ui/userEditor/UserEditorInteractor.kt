@@ -7,7 +7,7 @@ import com.denchic45.avatarGenerator.AvatarGenerator
 import com.denchic45.kts.AvatarBuilderTemplate
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
@@ -31,7 +31,7 @@ class UserEditorInteractor @Inject constructor(
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 
-    fun getGroupsByTypedName(name: String): Flow<Resource2<List<CourseGroup>>> {
+    fun getGroupsByTypedName(name: String): Flow<Resource<List<CourseGroup>>> {
         return groupInfoRepository.findByTypedName(name)
     }
 
@@ -43,36 +43,36 @@ class UserEditorInteractor @Inject constructor(
         return userRepository.loadAvatar(avatarBytes, id)
     }
 
-    fun addUser(user: User): Flow<Resource2<User>> {
+    fun addUser(user: User): Flow<Resource<User>> {
         return flow {
             if (!networkService.isNetworkAvailable) {
-                emit(Resource2.Error(NetworkException()))
+                emit(Resource.Error(NetworkException()))
             }
             val photoUrl = createAvatarLoadObservable(user)
             val updatedUser = user.copy(photoUrl = photoUrl)
-            emit(Resource2.Next(updatedUser, "LOAD_AVATAR"))
+            emit(Resource.Next(updatedUser, "LOAD_AVATAR"))
             when {
                 isStudent(updatedUser.role) -> studentRepository.add(updatedUser)
                 isTeacher(updatedUser.role) -> teacherRepository.add(updatedUser)
             }
-            emit(Resource2.Success(updatedUser))
+            emit(Resource.Success(updatedUser))
             return@flow
         }
     }
 
-    fun updateUser(user: User): Flow<Resource2<User>> = flow {
+    fun updateUser(user: User): Flow<Resource<User>> = flow {
         if (!networkService.isNetworkAvailable) {
-            emit(Resource2.Error(NetworkException()))
+            emit(Resource.Error(NetworkException()))
         } else {
             val photoUrl = createAvatarLoadObservable(user)
             val updatedUser = user.copy(photoUrl = photoUrl)
-            emit(Resource2.Next(updatedUser, "LOAD_AVATAR"))
+            emit(Resource.Next(updatedUser, "LOAD_AVATAR"))
             when {
                 isStudent(updatedUser.role) -> studentRepository.update(updatedUser)
                 isTeacher(updatedUser.role) -> teacherRepository.update(updatedUser)
                 else -> throw IllegalStateException()
             }
-            emit(Resource2.Success(updatedUser))
+            emit(Resource.Success(updatedUser))
             return@flow
         }
     }

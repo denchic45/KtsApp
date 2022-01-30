@@ -2,17 +2,21 @@ package com.denchic45.kts.data.repository
 
 import android.content.Context
 import android.util.Log
+import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
-import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.Event
+import com.denchic45.kts.data.model.domain.EventsOfTheDay
+import com.denchic45.kts.data.model.domain.GroupWeekLessons
 import com.denchic45.kts.data.model.firestore.DayDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SubjectDoc
 import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.*
-import com.denchic45.kts.data.model.room.*
+import com.denchic45.kts.data.model.room.DayEntity
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.UserPreference
@@ -25,10 +29,12 @@ import com.google.firebase.firestore.*
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -63,8 +69,10 @@ class EventRepository @Inject constructor(
     private val userPreference: UserPreference,
     private val appPreference: AppPreference
 ) : Repository(context), IGroupRepository {
+
     private val groupsRef = firestore.collection("Groups")
     private val daysRef: Query = firestore.collectionGroup("Days")
+
     fun findLessonsOfGroupByDate(date: Date, groupId: String): Flow<List<Event>> {
         addListenerRegistrationIfNotExist("$date of $groupId") {
             getQueryOfLessonsOfGroupByDate(
@@ -76,10 +84,8 @@ class EventRepository @Inject constructor(
                     return@addSnapshotListener
                 }
                 coroutineScope.launch(dispatcher) {
-                    dataBase.runInTransaction {
-                        if (!snapshots!!.isEmpty) {
-                            saveDay(snapshots.toObjects(DayDoc::class.java)[0])
-                        }
+                    if (!snapshots!!.isEmpty) {
+                        saveDay2(snapshots.toObjects(DayDoc::class.java)[0])
                     }
                 }
             }
@@ -102,21 +108,16 @@ class EventRepository @Inject constructor(
                     }
                     if (!snapshots!!.isEmpty) {
                         coroutineScope.launch(dispatcher) {
-                            saveDay(snapshots.toObjects(DayDoc::class.java)[0])
+                            saveDay2(snapshots.toObjects(DayDoc::class.java)[0])
                         }
                     }
                 }
             }
         }
 
-        return lessonDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(
-            date,
-            groupId
-        )
+        return lessonDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
             .distinctUntilChanged()
-            .map {
-                eventMapper.entityToDomain(it)
-            }
+            .map { eventMapper.entityToDomain(it) }
     }
 
     fun findLessonsForTeacherByDate(date: Date): Flow<List<Event>> {
@@ -137,79 +138,106 @@ class EventRepository @Inject constructor(
             .whereEqualTo("date", DateFormatUtil.convertDateToDateUTC(date))
     }
 
-    private fun saveDay(dayDoc: DayDoc) {
-        val completableList: MutableList<Completable> = ArrayList()
-        completableList.addAll(
-            courseDao.getNotRelatedTeacherIdsToGroup(dayDoc.teacherIds, dayDoc.groupId).stream()
-                .map { teacherId: String ->
-                    Completable.create { emitter: CompletableEmitter ->
-                        firestore.collection("Users").document(
-                            teacherId
-                        )
-                            .get()
-                            .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
-                                coroutineScope.launch(dispatcher) {
-                                    userDao.upsert(
-                                        userMapper.docToEntity(
-                                            documentSnapshot.toObject(UserDoc::class.java)!!
-                                        )
-                                    )
-                                    emitter.onComplete()
-                                }
-                            }.addOnFailureListener { t: Exception -> emitter.onError(t) }
-                    }
-                }
-                .collect(Collectors.toList()))
-        completableList.addAll(
-            courseDao.getNotRelatedSubjectIdsToGroup(dayDoc.subjectIds, dayDoc.groupId).stream()
-                .map { subjectId: String ->
-                    Completable.create { emitter: CompletableEmitter ->
-                        firestore.collection("Subjects").document(subjectId)
-                            .get()
-                            .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
-                                coroutineScope.launch(dispatcher) {
-                                    subjectDao.upsert(
-                                        subjectMapper.docToEntity(
-                                            documentSnapshot.toObject(
-                                                SubjectDoc::class.java
-                                            )
-                                        )
-                                    )
-                                    emitter.onComplete()
-                                }
-                            }.addOnFailureListener(emitter::onError)
-                    }
-                }
-                .collect(Collectors.toList())
-        )
-        Completable.concat(completableList)
-            .observeOn(Schedulers.io())
-            .subscribeOn(Schedulers.io())
-            .subscribe {
-                dataBase.runInTransaction {
-                    coroutineScope.launch(dispatcher) {
-//                        lessonDao.deleteByDateAndGroup(dayDoc.date, dayDoc.groupId)
-                        dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date, dayDoc.groupId))
-                        val eventEntities = eventMapper.docToEntity(dayDoc.events)
-                        lessonDao.replaceByDateAndGroup(
-                            eventEntities,
-                            dayDoc.date,
-                            dayDoc.groupId
-                        )
-                        val teacherEventCrossRefs =
-                            eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
-                        teacherEventDao.upsert(teacherEventCrossRefs)
+//    private fun saveDay(dayDoc: DayDoc) {
+//        val completableList: MutableList<Completable> = ArrayList()
+//        completableList.addAll(
+//            courseDao.getNotRelatedTeacherIdsToGroup(dayDoc.teacherIds, dayDoc.groupId).stream()
+//                .map { teacherId: String ->
+//                    Completable.create { emitter: CompletableEmitter ->
+//                        firestore.collection("Users").document(teacherId)
+//                            .get()
+//                            .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
+//                                coroutineScope.launch(dispatcher) {
+//                                    userDao.upsert(
+//                                        userMapper.docToEntity(
+//                                            documentSnapshot.toObject(UserDoc::class.java)!!
+//                                        )
+//                                    )
+//                                    emitter.onComplete()
+//                                }
+//                            }.addOnFailureListener { t: Exception -> emitter.onError(t) }
+//                    }
+//                }
+//                .collect(Collectors.toList()))
+//        completableList.addAll(
+//            courseDao.getNotRelatedSubjectIdsToGroup(dayDoc.subjectIds, dayDoc.groupId).stream()
+//                .map { subjectId: String ->
+//                    Completable.create { emitter: CompletableEmitter ->
+//                        firestore.collection("Subjects").document(subjectId)
+//                            .get()
+//                            .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
+//                                coroutineScope.launch(dispatcher) {
+//                                    subjectDao.upsert(
+//                                        subjectMapper.docToEntity(
+//                                            documentSnapshot.toObject(
+//                                                SubjectDoc::class.java
+//                                            )
+//                                        )
+//                                    )
+//                                    emitter.onComplete()
+//                                }
+//                            }.addOnFailureListener(emitter::onError)
+//                    }
+//                }
+//                .collect(Collectors.toList())
+//        )
+//        Completable.concat(completableList)
+//            .observeOn(Schedulers.io())
+//            .subscribeOn(Schedulers.io())
+//            .subscribe {
+//                dataBase.runInTransaction {
+//                    coroutineScope.launch(dispatcher) {
+//                        dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date, dayDoc.groupId))
+//                        val eventEntities = eventMapper.docToEntity(dayDoc.events)
+//                        lessonDao.replaceByDateAndGroup(
+//                            eventEntities,
+//                            dayDoc.date,
+//                            dayDoc.groupId
+//                        )
+//                        val teacherEventCrossRefs =
+//                            eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
+//                        teacherEventDao.upsert(teacherEventCrossRefs)
+//                        courseContentDao.upsert(dayDoc.homework)
+//                    }
+//                }
+//            }
+//    }
 
-//                    List<Subject> subjects = dayDoc.getLessons().stream()
-//                            .filter(eventDoc -> eventDoc.getSubject() != null)
-//                            .map(EventDoc::getSubject)
-//                            .distinct()
-//                            .collect(Collectors.toList());
-//                    subjectDao.upsert(subjectMapper.domainToEntity(subjects));
-                        courseContentDao.upsert(dayDoc.homework)
-                    }
+    private suspend fun saveDay2(dayDoc: DayDoc) {
+        courseDao.getNotRelatedTeacherIdsToGroup(dayDoc.teacherIds, dayDoc.groupId)
+            .map { teacherId: String ->
+                val documentSnapshot = firestore.collection("Users").document(teacherId)
+                    .get()
+                    .await()
+
+                coroutineScope.launch(dispatcher) {
+                    userDao.upsert(
+                        userMapper.docToEntity(documentSnapshot.toObject(UserDoc::class.java)!!)
+                    )
                 }
             }
+
+        courseDao.getNotRelatedSubjectIdsToGroup(dayDoc.subjectIds, dayDoc.groupId)
+            .map { subjectId: String ->
+                val documentSnapshot = firestore.collection("Subjects").document(subjectId)
+                    .get()
+                    .await()
+                coroutineScope.launch(dispatcher) {
+                    subjectDao.upsert(
+                        subjectMapper.docToEntity(documentSnapshot.toObject(SubjectDoc::class.java))
+                    )
+                }
+            }
+
+        dataBase.withTransaction {
+            dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date, dayDoc.groupId))
+            val eventEntities = eventMapper.docToEntity(dayDoc.events)
+            lessonDao.replaceByDateAndGroup(eventEntities, dayDoc.date, dayDoc.groupId)
+            val teacherEventCrossRefs =
+                eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
+            teacherEventDao.upsert(teacherEventCrossRefs)
+            courseContentDao.upsert(dayDoc.homework)
+        }
     }
 
     private fun getListenerOfLessonsOfTeacherByDate(
@@ -229,30 +257,18 @@ class EventRepository @Inject constructor(
                     for (dayDoc in dayDocs) {
                         coroutineScope.launch(dispatcher) {
                             if (groupDao.isExistSync(dayDoc.groupId)) {
-                                saveDay(dayDoc)
+                                saveDay2(dayDoc)
                             } else {
-                                groupsRef.document(dayDoc.groupId)
+                                val documentSnapshot = groupsRef.document(dayDoc.groupId)
                                     .get()
-                                    .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
-                                        coroutineScope.launch(dispatcher) {
-                                            dataBase.runInTransaction {
-                                                launch {
-                                                    if (documentSnapshot.exists())
-                                                        saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
-                                                            documentSnapshot.toObject(GroupDoc::class.java)!!
-                                                        )
-                                                    saveDay(dayDoc)
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .addOnFailureListener { e: Exception ->
-                                        Log.d(
-                                            "lol",
-                                            "getListenerOfLessonsOfTeacherByDate: ",
-                                            e
+                                    .await()
+                                dataBase.withTransaction {
+                                    if (documentSnapshot.exists())
+                                        saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
+                                            documentSnapshot.toObject(GroupDoc::class.java)!!
                                         )
-                                    }
+                                    saveDay2(dayDoc)
+                                }
                             }
                         }
                     }
@@ -265,10 +281,6 @@ class EventRepository @Inject constructor(
         set(lessonTime) {
             appPreference.lessonTime = lessonTime
         }
-
-    fun updateHomeworkCompletion(checked: Boolean) {
-//        homeworkDao.updateHomeworkCompletion(checked ? 1 : 0);
-    }
 
     fun listenLessonsOfYourGroup() {
         if (!hasListener("lessonsOfYouGroup")) addListenerRegistrationIfNotExist("lessonsOfYouGroup") {
@@ -283,7 +295,7 @@ class EventRepository @Inject constructor(
                     if (!querySnapshot!!.isEmpty) {
                         coroutineScope.launch(dispatcher) {
                             for (dayDoc in querySnapshot.toObjects(DayDoc::class.java)) {
-                                saveDay(dayDoc)
+                                saveDay2(dayDoc)
                             }
                         }
                     }

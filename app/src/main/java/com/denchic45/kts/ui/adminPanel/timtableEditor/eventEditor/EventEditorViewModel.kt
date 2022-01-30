@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.EmptyEventDetails
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.Event.Companion.empty
@@ -70,7 +70,7 @@ class EventEditorViewModel @Inject constructor(
     private fun saveChanges() {
         if (uiEditor.isNew) uiEditor.item.id = UUID.randomUUID().toString()
         interactor.postEvent(
-            Resource2.Success(
+            Resource.Success(
                 uiEditor.item to
                         if (uiEditor.isNew) EventEditorInteractor.LESSON_CREATED else EventEditorInteractor.LESSON_EDITED
             )
@@ -104,7 +104,7 @@ class EventEditorViewModel @Inject constructor(
                     order = uiEditor.item.order + 1
                 )
                 interactor.postEvent(
-                    Resource2.Success(
+                    Resource.Success(
                         duplicatedLesson to
                                 EventEditorInteractor.LESSON_CREATED
                     )
@@ -112,11 +112,11 @@ class EventEditorViewModel @Inject constructor(
             }
 //            finish.call() # может нужен
         } else if (itemId == R.id.option_delete_lesson) {
-            interactor.postEvent(Resource2.Success(uiEditor.item to EventEditorInteractor.LESSON_REMOVED))
+            interactor.postEvent(Resource.Success(uiEditor.item to EventEditorInteractor.LESSON_REMOVED))
             finish.call()
         } else if (itemId == R.id.option_clear_lesson) {
             interactor.postEvent(
-                Resource2.Success(
+                Resource.Success(
                     empty(
                         uiEditor.item.id,
                         uiEditor.item.group,

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.repository.SameCoursesException
@@ -85,8 +85,8 @@ class CourseEditorViewModel @Inject constructor(
             try {
                 typedTeacherName
                     .flatMapLatest { name -> interactor.findTeacherByTypedName(name) }
-                    .map { resource: Resource2<List<User>> ->
-                        if (resource is Resource2.Success) {
+                    .map { resource: Resource<List<User>> ->
+                        if (resource is Resource.Success) {
                             foundTeachers = resource.data
                             resource.data.stream()
                                 .map { user: User ->
@@ -113,7 +113,7 @@ class CourseEditorViewModel @Inject constructor(
                 typedSubjectName
                     .flatMapLatest { name: String -> interactor.findSubjectByTypedName(name) }
                     .map { resource ->
-                        foundSubjects = (resource as Resource2.Success).data
+                        foundSubjects = (resource as Resource.Success).data
                         resource.data.stream()
                             .map { (id, name, iconUrl) ->
                                 ListItem(

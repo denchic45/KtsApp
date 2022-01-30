@@ -4,9 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.room.withTransaction
+import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Group
@@ -55,7 +57,8 @@ class GroupInfoRepository @Inject constructor(
     override val groupMapper: GroupMapper,
     private val courseMapper: CourseMapper,
     override val specialtyMapper: SpecialtyMapper,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val dataBase: DataBase
 ) : Repository(context), IGroupRepository {
 
     private val compositeDisposable = CompositeDisposable()
@@ -78,10 +81,12 @@ class GroupInfoRepository @Inject constructor(
         groupDocs: List<GroupDoc>,
         teacherId: String
     ) {
-        for (groupDoc in groupDocs) {
-            upsertUsersOfGroup(groupDoc)
-            groupDao.upsert(groupMapper.docToEntity(groupDoc))
-            specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
+        dataBase.withTransaction {
+            for (groupDoc in groupDocs) {
+                upsertUsersOfGroup(groupDoc)
+                groupDao.upsert(groupMapper.docToEntity(groupDoc))
+                specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
+            }
         }
     }
 
@@ -219,7 +224,7 @@ class GroupInfoRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(name: String): Flow<Resource2<List<CourseGroup>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<Resource<List<CourseGroup>>> = callbackFlow {
         val registration = groupsRef
             .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
             .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
@@ -231,7 +236,7 @@ class GroupInfoRepository @Inject constructor(
                     for (groupDoc in groupDocs) {
                         saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
                     }
-                    trySend(Resource2.Success(groupMapper.docToCourseGroupDomain(groupDocs)))
+                    trySend(Resource.Success(groupMapper.docToCourseGroupDomain(groupDocs)))
                 }
             }
 

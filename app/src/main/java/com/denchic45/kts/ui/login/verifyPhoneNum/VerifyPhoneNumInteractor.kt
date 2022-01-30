@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.login.verifyPhoneNum
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.repository.*
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.annotations.NonNull
@@ -19,12 +19,12 @@ class VerifyPhoneNumInteractor @Inject constructor(
     private val groupInfoRepository: GroupInfoRepository
 ) : Interactor {
 
-    fun sendUserPhoneNumber(phoneNum: String): Observable<Resource2<String>> {
-        return Observable.create { emitter: ObservableEmitter<Resource2<String>> ->
+    fun sendUserPhoneNumber(phoneNum: String): Observable<Resource<String>> {
+        return Observable.create { emitter: ObservableEmitter<Resource<String>> ->
             authRepository.sendUserPhoneNumber(phoneNum).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ value ->
-                    emitter.onNext((value as @NonNull Resource2.Success))
+                    emitter.onNext((value as @NonNull Resource.Success))
                 }, { error: Throwable -> emitter.onError(error) })
         }
     }

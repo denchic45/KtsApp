@@ -55,10 +55,6 @@ class TimetableViewModel @Inject constructor(
     val lessonTime: Int
         get() = interactor.lessonTime
 
-    fun onTaskChecked(checked: Boolean) {
-        interactor.updateHomeworkCompletion(checked)
-    }
-
     override fun onCleared() {
         super.onCleared()
         interactor.removeListeners()

@@ -11,5 +11,5 @@ data class SubmissionWithStudentUserCommentsEntities(
     @Relation(parentColumn = "student_id", entityColumn = "user_id")
     val studentEntity: UserEntity,
     @Relation(parentColumn = "grading_teacher_id", entityColumn = "user_id")
-    val teacherEntity: UserEntity
+    val teacherEntity: UserEntity?
 )

@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.SubjectAdapter
@@ -82,11 +82,11 @@ class ChoiceOfGroupSubjectFragment : Fragment() {
             { navController!!.popBackStack() })
         viewModel.showSubjectsOfGroup.observe(
             viewLifecycleOwner,
-            { resource: Resource2<List<Subject>> ->
-                if (resource is Resource2.Success) {
+            { resource: Resource<List<Subject>> ->
+                if (resource is Resource.Success) {
                     listStateLayout!!.showList()
                     adapter!!.submitList(resource.data)
-                } else if (resource is Resource2.Error) {
+                } else if (resource is Resource.Error) {
                     if (resource.error is NetworkException) {
                         listStateLayout!!.showView(ListStateLayout.NETWORK_VIEW)
                     }

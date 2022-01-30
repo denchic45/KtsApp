@@ -37,6 +37,12 @@ fun File.getExtension(): String {
 
 object Files {
 
+    fun nameWithoutTimestamp(name: String): String {
+        val split = name.split("_")
+        return if (split.size == 2)
+            split[1]
+        else name
+    }
 
     fun getPath(context: Context, uri: Uri): String {
 

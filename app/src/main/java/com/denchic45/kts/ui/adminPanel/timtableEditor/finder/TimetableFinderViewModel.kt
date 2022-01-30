@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.adminPanel.timtableEditor.finder
 import androidx.lifecycle.*
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.ui.adapter.EventAdapter
@@ -102,7 +102,7 @@ class TimetableFinderViewModel @Inject constructor(
         openEventEditor.call()
         eventEditorInteractor.observeEvent()
             .subscribe { resource ->
-                when ((resource as Resource2.Success).data.second) {
+                when ((resource as Resource.Success).data.second) {
                     EventEditorInteractor.LESSON_CREATED -> Events.add(
                         editingEvents,
                         resource.data.first
@@ -177,7 +177,7 @@ class TimetableFinderViewModel @Inject constructor(
         openEventEditor.call()
         eventEditorInteractor.observeEvent()
             .subscribe { resource ->
-                if ((resource as Resource2.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
+                if ((resource as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
                     val event = resource.data.first
                     Events.add(editingEvents, event)
                     postUpdateLessonsOfGroup()
@@ -203,7 +203,7 @@ class TimetableFinderViewModel @Inject constructor(
             typedGroupName.filter { s -> s.length > 1 }
                 .flatMapLatest { groupName -> interactor.findGroupByTypedName(groupName) }
                 .map { resource ->
-                    foundGroups = (resource as Resource2.Success).data
+                    foundGroups = (resource as Resource.Success).data
                     resource.data.stream()
                         .map { (id, name) ->
                             ListItem(
