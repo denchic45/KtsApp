@@ -50,6 +50,8 @@ data class Task(
     }
 
     data class Submission(
+        val contentId: String,
+        val courseId: String,
         val student: User,
         val content: Content,
         val comments: List<Comment>,
@@ -58,19 +60,19 @@ data class Task(
         data class Content(
             val text: String,
             val attachments: List<Attachment>
-        )
+        ) {
+            fun isEmpty(): Boolean = text.isEmpty() && attachments.isEmpty()
+        }
 
-        enum class Status { NOTHING, DRAFT, DONE, GRADED, REJECTED }
+        enum class Status { NOT_SUBMITTED, SUBMITTED, GRADED, REJECTED }
     }
 
     sealed class SubmissionStatus {
 
-        object Nothing: SubmissionStatus()
+        object NotSubmitted : SubmissionStatus()
 
-        object Draft: SubmissionStatus()
-
-        data class Done(
-            val doneDate: LocalDateTime
+        data class Submitted(
+            val submittedDate: LocalDateTime
         ) : SubmissionStatus()
 
         data class Graded(
@@ -110,15 +112,3 @@ data class SubmissionSettings(
     val attachmentsLimit: Int,
     val attachmentsSizeLimit: Int
 )
-
-//sealed class GradeType {
-//    abstract val position: Int
-//
-//    data class Score(val maxScore: Int) : GradeType() {
-//        override val position: Int get() = 0
-//    }
-//
-//    object Binary : GradeType() {
-//        override val position: Int get() = 1
-//    }
-//}
