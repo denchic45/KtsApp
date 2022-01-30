@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource2
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.google.android.gms.tasks.*
 import com.google.firebase.FirebaseException
@@ -26,7 +26,7 @@ class AuthRepository @Inject constructor(
     override val networkService: NetworkService
 ) : Repository(context) {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-    private lateinit var emitter: SingleEmitter<Resource2<String>>
+    private lateinit var emitter: SingleEmitter<Resource<String>>
     private var verificationId: String? = null
     private var forceResendingToken: ForceResendingToken? = null
     private var callbacks: OnVerificationStateChangedCallbacks?
@@ -34,8 +34,8 @@ class AuthRepository @Inject constructor(
     val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
 
-    fun sendUserPhoneNumber(phoneNum: String): Single<Resource2<String>> {
-        return Single.create { emitter: SingleEmitter<Resource2<String>> ->
+    fun sendUserPhoneNumber(phoneNum: String): Single<Resource<String>> {
+        return Single.create { emitter: SingleEmitter<Resource<String>> ->
             this@AuthRepository.phoneNum = phoneNum
             this@AuthRepository.emitter = emitter
             this@AuthRepository.phoneNum = phoneNum
@@ -54,10 +54,10 @@ class AuthRepository @Inject constructor(
             .addOnCompleteListener(TaskExecutors.MAIN_THREAD, { task: Task<AuthResult?> ->
                 if (task.isSuccessful) {
                     val smsCode = credential.smsCode!!
-                    emitter.onSuccess(Resource2.Success(smsCode))
+                    emitter.onSuccess(Resource.Success(smsCode))
                     callbacks = null
                 } else {
-                    emitter.onSuccess(Resource2.Error(task.exception!!))
+                    emitter.onSuccess(Resource.Error(task.exception!!))
                 }
             })
     }
