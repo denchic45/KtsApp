@@ -5,6 +5,8 @@ import android.net.Uri
 import com.denchic45.kts.data.DownloadByUrlApi
 import com.denchic45.kts.data.model.domain.Attachment
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageException
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -15,62 +17,79 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+
 class SubmissionAttachmentStorage @Inject constructor(
     context: Context,
     private val firebaseStorage: FirebaseStorage,
     private val retrofit: Retrofit
 ) {
-
     private val submissionAttachmentsRef = firebaseStorage.reference.child("submission_attachments")
     private val internalDir = context.applicationContext.filesDir
-    private val submissionPath = File("${internalDir.path}/submissions")
+    private val submissionLocalPath = File("${internalDir.path}/submissions")
 
-
-    //TODO rewrite
-    suspend fun addContentAttachments(
-        parentId: String,
+    suspend fun addSubmissionAttachments(
+        contentId: String,
+        studentId: String,
         attachments: List<Attachment>
     ): List<String> {
-        return attachments.map {
-            val timestamp =
-                DateTimeFormatter.ofPattern("DD-MM-yyyy-HH-mm-ss").format(LocalDateTime.now())
-            val filePath = submissionAttachmentsRef.child("$parentId/${timestamp}_${it.name}")
-            filePath.putFile(Uri.fromFile(it.file)).await()
-            filePath.downloadUrl.await().toString()
+        return attachments.map { attachment ->
+            try {
+                getSubmissionReference(
+                    contentId,
+                    studentId
+                ).child(attachment.name).downloadUrl.await().toString()
+            } catch (exception: Exception) {
+                if (exception is StorageException &&
+                    exception.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND
+                ) {
+                    val timestamp =
+                        DateTimeFormatter.ofPattern("DD-MM-yyyy-HH-mm-ss")
+                            .format(LocalDateTime.now())
+                    val filePath =
+                        submissionAttachmentsRef.child("$contentId/$studentId/${timestamp}_${attachment.name}")
+                    filePath.putFile(Uri.fromFile(attachment.file)).await()
+                    filePath.downloadUrl.await().toString()
+                } else {
+                    exception.printStackTrace()
+                    throw exception
+                }
+            }
         }
     }
 
-    suspend fun get(submissionId: String, studentId: String, urls: List<String>): List<Attachment> {
+    suspend fun get(contentId: String, studentId: String, urls: List<String>): List<Attachment> {
         return withContext(Dispatchers.IO) {
-            if (urls.isEmpty())
-                emptyList()
-            else urls.map { url ->
-                val timestamp = url.substring(url.lastIndexOf("/o/"), url.indexOf('_'))
-                val attachmentPath = submissionPath.path + '/' + submissionId + '/' + studentId
+            if (urls.isEmpty()) emptyList()
+            else {
+                val attachmentPath = getSubmissionLocalPath(contentId, studentId)
                 val itContentDir = File(attachmentPath)
-                val listFiles = itContentDir.listFiles { _, name -> name.startsWith(timestamp) }
-                if (listFiles.isNullOrEmpty()) {
-                    val response = retrofit.create(DownloadByUrlApi::class.java).invoke(url)
+                val listFiles = itContentDir.listFiles()
 
+                urls.map { url ->
                     val name = firebaseStorage.getReferenceFromUrl(url).name
+                    listFiles?.firstOrNull { it.name == name }?.let {
+                        Attachment(file = it)
+                    } ?: run {
+                        val response = retrofit.create(DownloadByUrlApi::class.java).invoke(url)
 
-                    File(attachmentPath).mkdirs()
-                    val contentDir = File(attachmentPath, name)
-                    contentDir.createNewFile()
-                    val fileOutputStream = FileOutputStream(contentDir)
-                    fileOutputStream.write(response.body()!!.bytes())
-                    fileOutputStream.close()
-                    Attachment(file = contentDir)
-                } else {
-                    Attachment(file = listFiles[0])
+                        File(attachmentPath).mkdirs()
+                        val contentDir = File(attachmentPath, name)
+                        contentDir.createNewFile()
+                        val fileOutputStream = FileOutputStream(contentDir)
+                        fileOutputStream.write(response.body()!!.bytes())
+                        fileOutputStream.close()
+                        Attachment(file = contentDir)
+                    }
+
                 }
             }
         }
     }
 
     //TODO rewrite
-    suspend fun update(id: String, attachments: List<Attachment>): List<String> {
-        val currentFiles = submissionAttachmentsRef.child(id).listAll().await().items
+    suspend fun update(contentId: String, studentId: String, attachments: List<Attachment>): List<String> {
+        val currentFiles = getSubmissionReference(contentId, studentId).listAll().await().items
+
         val currentFileNames = currentFiles.map { it.name }.toSet()
         val updatedFileNames = attachments.map { it.name }.toSet()
 
@@ -78,22 +97,44 @@ class SubmissionAttachmentStorage @Inject constructor(
         val removed = currentFiles.filterNot { updatedFileNames.contains(it.name) }
 
         removed.forEach { it.delete().await() }
-        val uploaded = addContentAttachments(id, added)
+        val uploaded = addSubmissionAttachments(contentId, studentId, added)
 
         return currentFiles.minus(removed.toSet())
             .map { it.downloadUrl.await().toString() } + uploaded
     }
 
-    //TODO rewrite
-    suspend fun deleteFilesByContentId(id: String) {
-        submissionAttachmentsRef.child(id).listAll().await()
+    //TODO TEST
+    suspend fun deleteFilesByContentId(contentId: String) {
+        getSubmissionsReference(contentId).listAll().await()
             .items.forEach { it.delete().await() }
     }
 
-    //TODO rewrite
+    //TODO TEST
     fun deleteFromLocal(contentId: String) {
-        val contentDir = File(submissionPath.path + '/' + contentId)
+        val contentDir = File(getSubmissionsLocalPath(contentId))
         contentDir.listFiles()?.forEach { it.delete() }
         contentDir.delete()
+    }
+
+    fun getNames(urls: List<String>): List<String> {
+        return urls.map { url ->
+            firebaseStorage.getReferenceFromUrl(url).name
+        }
+    }
+
+    fun getSubmissionReference(contentId: String, studentId: String): StorageReference {
+        return submissionAttachmentsRef.child(contentId).child(studentId)
+    }
+
+    fun getSubmissionsReference(contentId: String): StorageReference {
+        return submissionAttachmentsRef.child(contentId)
+    }
+
+    fun getSubmissionLocalPath(contentId: String, studentId: String): String {
+        return submissionLocalPath.path + '/' + contentId + '/' + studentId
+    }
+
+    fun getSubmissionsLocalPath(contentId: String): String {
+        return submissionLocalPath.path + '/' + contentId
     }
 }
