@@ -13,7 +13,6 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.EventObserver
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.databinding.FragmentTimetableBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.EventAdapter
@@ -68,11 +67,11 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable), WeekCalendarLis
         appBarController.setLiftOnScroll(false)
         appBarController.setExpandableIfViewCanScroll(viewBinding.rvLessons, viewLifecycleOwner)
         viewModel.title.observe(
-            viewLifecycleOwner,
-            { title: String ->
-                (requireActivity() as AppCompatActivity).supportActionBar!!.title =
-                    title
-            })
+            viewLifecycleOwner
+        ) { title: String ->
+            (requireActivity() as AppCompatActivity).supportActionBar!!.title =
+                title
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -101,7 +100,7 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable), WeekCalendarLis
                 rvLessons.adapter = adapter
                 viewModel.showLessonsOfDay.observe(
                     viewLifecycleOwner,
-                    EventObserver { lessons: List<Event> ->
+                    EventObserver { lessons ->
                         adapter!!.submitList(
                             ArrayList<DomainModel>(lessons),
                             listStateLayout.getCommitCallback(adapter)
@@ -120,11 +119,11 @@ class TimetableFragment : Fragment(R.layout.fragment_timetable), WeekCalendarLis
 
             viewModel.showListState.observe(
                 viewLifecycleOwner,
-                EventObserver { viewKey: String? ->
-                    adapter!!.submitList(emptyList()) {
-                        listStateLayout.showView(viewKey)
-                    }
-                })
+               EventObserver { t ->
+                   adapter!!.submitList(emptyList()) {
+                       listStateLayout.showView(t)
+                   }
+               })
         }
 
 

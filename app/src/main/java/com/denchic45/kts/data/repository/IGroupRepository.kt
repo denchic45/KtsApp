@@ -8,7 +8,6 @@ import com.denchic45.kts.data.model.mapper.GroupMapper
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.UserEntity
-import java.util.stream.Collectors
 
 interface IGroupRepository {
 

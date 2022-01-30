@@ -52,15 +52,15 @@ class ChoiceOfCuratorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = findNavController(view)
-        viewModel.showFoundTeachers.observe(viewLifecycleOwner, { users: List<User> ->
+        viewModel.showFoundTeachers.observe(viewLifecycleOwner) { users: List<User> ->
             adapter!!.submitList(ArrayList<DomainModel>(users))
-        })
+        }
         viewModel.finish.observe(
-            viewLifecycleOwner,
-            { navController!!.popBackStack() })
+            viewLifecycleOwner
+        ) { navController!!.popBackStack() }
         viewModel.showErrorNetworkState.observe(
-            viewLifecycleOwner,
-            { show: Boolean -> if (show) listStateLayout!!.showView(ListStateLayout.NETWORK_VIEW) else listStateLayout!!.showList() })
+            viewLifecycleOwner
+        ) { show: Boolean -> if (show) listStateLayout!!.showView(ListStateLayout.NETWORK_VIEW) else listStateLayout!!.showList() }
         searchBar!!.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
             override fun onQueryTextChange(name: String) {
                 viewModel.onTeacherNameType(name)

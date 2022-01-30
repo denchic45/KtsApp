@@ -64,45 +64,45 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
                     Snackbar.make(fab, message, Snackbar.LENGTH_LONG).show()
                 })
 
-            viewModel.enableSpecialtyField.observe(viewLifecycleOwner, { enable: Boolean ->
+            viewModel.enableSpecialtyField.observe(viewLifecycleOwner) { enable: Boolean ->
                 etSpecialty.isEnabled = enable
-            })
+            }
             viewModel.toolbarTitle.observe(
-                viewLifecycleOwner,
-                { title: String? -> requireActivity().title = title })
+                viewLifecycleOwner
+            ) { title: String? -> requireActivity().title = title }
             viewModel.openChoiceOfCurator.observe(
-                this@GroupEditorFragment,
-                { navController!!.navigate(R.id.action_groupEditorFragment_to_choiceOfCuratorFragment) })
-            viewModel.curatorField.observe(viewLifecycleOwner, { user: User ->
+                this@GroupEditorFragment
+            ) { navController!!.navigate(R.id.action_groupEditorFragment_to_choiceOfCuratorFragment) }
+            viewModel.curatorField.observe(viewLifecycleOwner) { user: User ->
                 Glide.with(this@GroupEditorFragment)
                     .load(user.photoUrl)
                     .transition(DrawableTransitionOptions.withCrossFade(100))
                     .into(ivCuratorAvatar)
                 tvCuratorName.text = user.fullName
-            })
+            }
             viewModel.nameField.observe(
-                viewLifecycleOwner,
-                { text: String -> if (etGroupName.text.toString() != text) etGroupName.setText(text) })
+                viewLifecycleOwner
+            ) { text: String -> if (etGroupName.text.toString() != text) etGroupName.setText(text) }
             viewModel.specialtyField.observe(
-                viewLifecycleOwner,
-                { text: String -> if (etSpecialty.text.toString() != text) etSpecialty.setText(text) })
-            viewModel.courseField.observe(viewLifecycleOwner, { courseResName: String? ->
+                viewLifecycleOwner
+            ) { text: String -> if (etSpecialty.text.toString() != text) etSpecialty.setText(text) }
+            viewModel.courseField.observe(viewLifecycleOwner) { courseResName: String? ->
                 val resId =
                     resources.getIdentifier(courseResName, "string", requireActivity().packageName)
                 etCourse.setText(resId)
-            })
+            }
         }
 
         viewModel.openConfirmation.observe(
-            this,
-            { titleWithSubtitlePair: Pair<String, String> ->
-                val dialog = ConfirmDialog.newInstance(
-                    titleWithSubtitlePair.first,
-                    titleWithSubtitlePair.second
-                )
-                dialog.show(childFragmentManager, null)
-            })
-        viewModel.fieldErrorMessage.observe(this, { idWithMessagePair: Pair<Int, String?> ->
+            this
+        ) { titleWithSubtitlePair: Pair<String, String> ->
+            val dialog = ConfirmDialog.newInstance(
+                titleWithSubtitlePair.first,
+                titleWithSubtitlePair.second
+            )
+            dialog.show(childFragmentManager, null)
+        }
+        viewModel.fieldErrorMessage.observe(this) { idWithMessagePair: Pair<Int, String?> ->
             val textInputLayout: TextInputLayout = requireActivity().findViewById(
                 idWithMessagePair.first
             )
@@ -111,17 +111,17 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
             } else {
                 textInputLayout.error = null
             }
-        })
-        viewModel.showMessageId.observe(viewLifecycleOwner, { resId: Int ->
+        }
+        viewModel.showMessageId.observe(viewLifecycleOwner) { resId: Int ->
             Toast.makeText(
                 context, resources.getString(
                     resId
                 ), Toast.LENGTH_SHORT
             ).show()
-        })
+        }
         viewModel.showSpecialties.observe(
-            viewLifecycleOwner,
-            { listItems: List<ListItem> -> specialtyAdapter!!.updateList(listItems) })
+            viewLifecycleOwner
+        ) { listItems: List<ListItem> -> specialtyAdapter!!.updateList(listItems) }
     }
 
     companion object {

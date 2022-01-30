@@ -136,43 +136,43 @@ class ProfileFragment : Fragment() {
         llGroupInfo!!.setOnClickListener { viewModel.onGroupInfoClick() }
         ivAvatar!!.setOnClickListener { viewModel.onAvatarClick() }
         viewModel.showFullName.observe(
-            viewLifecycleOwner,
-            { s: String? -> tvFullName!!.text = s })
-        viewModel.showRole.observe(viewLifecycleOwner, { id: Int? ->
+            viewLifecycleOwner
+        ) { s: String? -> tvFullName!!.text = s }
+        viewModel.showRole.observe(viewLifecycleOwner) { id: Int? ->
             tvRole!!.setText(
                 id!!
             )
-        })
+        }
         viewModel.showGroupInfo.observe(
-            viewLifecycleOwner,
-            { s: String? -> tvGroupInfo!!.text = s })
+            viewLifecycleOwner
+        ) { s: String? -> tvGroupInfo!!.text = s }
         viewModel.showPhoneNum.observe(
-            viewLifecycleOwner,
-            { s: String? -> tvPhoneNum!!.text = s })
-        viewModel.showEmail.observe(viewLifecycleOwner, { s: String? -> tvEmail!!.text = s })
+            viewLifecycleOwner
+        ) { s: String? -> tvPhoneNum!!.text = s }
+        viewModel.showEmail.observe(viewLifecycleOwner) { s: String? -> tvEmail!!.text = s }
         viewModel.infoVisibility.observe(
-            viewLifecycleOwner,
-            { visible: Boolean -> llInfo!!.visibility = if (visible) View.VISIBLE else View.GONE })
+            viewLifecycleOwner
+        ) { visible: Boolean -> llInfo!!.visibility = if (visible) View.VISIBLE else View.GONE }
         viewModel.groupInfoVisibility.observe(
-            viewLifecycleOwner,
-            { visible: Boolean ->
-                llGroupInfo!!.visibility = if (visible) View.VISIBLE else View.GONE
-            })
-        viewModel.openGroup.observe(viewLifecycleOwner, { id ->
+            viewLifecycleOwner
+        ) { visible: Boolean ->
+            llGroupInfo!!.visibility = if (visible) View.VISIBLE else View.GONE
+        }
+        viewModel.openGroup.observe(viewLifecycleOwner) { id ->
 
             findNavController(view).navigate(
                 R.id.action_profileFragment_to_group,
                 Bundle().apply { putString(GroupFragment.GROUP_ID, id) }
             )
-        })
+        }
         viewModel.optionVisibility.observe(
-            viewLifecycleOwner,
-            { idWithVisibility: Pair<Int, Boolean> ->
-                menu.findItem(
-                    idWithVisibility.first
-                ).isVisible = idWithVisibility.second
-            })
-        viewModel.openFullImage.observe(viewLifecycleOwner, { url: String ->
+            viewLifecycleOwner
+        ) { idWithVisibility: Pair<Int, Boolean> ->
+            menu.findItem(
+                idWithVisibility.first
+            ).isVisible = idWithVisibility.second
+        }
+        viewModel.openFullImage.observe(viewLifecycleOwner) { url: String ->
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 requireActivity(),
                 androidx.core.util.Pair.create(
@@ -184,14 +184,14 @@ class ProfileFragment : Fragment() {
             val intent = Intent(requireActivity(), FullAvatarActivity::class.java)
             intent.putExtra(FullImageActivity.IMAGE_URL, url)
             startActivity(intent, options.toBundle())
-        })
-        viewModel.openGallery.observe(viewLifecycleOwner, {
+        }
+        viewModel.openGallery.observe(viewLifecycleOwner) {
             val intent = Intent(
                 Intent.ACTION_PICK
             )
             intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
             galleryResult.launch(false)
-        })
+        }
     }
 
     //    private fun createViewModelFactory(): ViewModelProvider.Factory {

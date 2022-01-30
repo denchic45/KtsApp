@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.adminPanel.timtableEditor.finder.TimetableFinderFragment">
+    tools:context=".ui.adminPanel.timetableEditor.finder.TimetableFinderFragment">
 
     <com.example.searchbar.SearchBar
         android:id="@+id/sb_group"

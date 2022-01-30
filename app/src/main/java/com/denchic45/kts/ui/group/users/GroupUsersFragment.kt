@@ -52,55 +52,55 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
                 { position -> viewModel.onUserItemLongClick(position) })
             rvUsers.adapter = adapter
             viewModel.showUserOptions.observe(
-                viewLifecycleOwner,
-                {
-                    val popupWindow = ListPopupWindow(
-                        requireActivity()
-                    )
-                    popupWindow.anchorView = rvUsers.layoutManager!!.findViewByPosition(
-                        it.first
-                    )
-                    val adapter = ListPopupWindowAdapter(requireContext(), it.second)
-                    popupWindow.setAdapter(adapter)
-                    popupWindow.width = ViewUtils.measureAdapter(adapter, activity)
-                    popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
-                    popupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-                        popupWindow.dismiss()
-                        viewModel.onOptionUserClick(it.second[position].id)
-                    }
-                    popupWindow.show()
-                })
+                viewLifecycleOwner
+            ) {
+                val popupWindow = ListPopupWindow(
+                    requireActivity()
+                )
+                popupWindow.anchorView = rvUsers.layoutManager!!.findViewByPosition(
+                    it.first
+                )
+                val adapter = ListPopupWindowAdapter(requireContext(), it.second)
+                popupWindow.setAdapter(adapter)
+                popupWindow.width = ViewUtils.measureAdapter(adapter, activity)
+                popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
+                popupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+                    popupWindow.dismiss()
+                    viewModel.onOptionUserClick(it.second[position].id)
+                }
+                popupWindow.show()
+            }
         }
         navController = findNavController(navHostFragment!!.requireView())
         viewModel.onGroupIdReceived(requireArguments().getString(GROUP_UUID))
         viewModel.users!!.observe(
-            viewLifecycleOwner,
-            { users: List<DomainModel?> -> adapter!!.submitList(users) })
+            viewLifecycleOwner
+        ) { users: List<DomainModel?> -> adapter!!.submitList(users) }
         viewModel.openChoiceOfCurator.observe(
-            viewLifecycleOwner,
-            { navController!!.navigate(R.id.action_menu_group_to_choiceOfCuratorFragment) })
+            viewLifecycleOwner
+        ) { navController!!.navigate(R.id.action_menu_group_to_choiceOfCuratorFragment) }
 
         viewModel.openUserEditor.observe(
-            viewLifecycleOwner,
-            { args: Map<String, String> ->
-                val intent = Intent(
-                    activity, UserEditorActivity::class.java
-                )
-                args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
-                startActivity(intent)
-            })
-        viewModel.openProfile.observe(viewLifecycleOwner, { userId: String ->
+            viewLifecycleOwner
+        ) { args: Map<String, String> ->
+            val intent = Intent(
+                activity, UserEditorActivity::class.java
+            )
+            args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
+            startActivity(intent)
+        }
+        viewModel.openProfile.observe(viewLifecycleOwner) { userId: String ->
             val bundle = Bundle()
             bundle.putString(ProfileFragment.USER_ID, userId)
             navController!!.navigate(R.id.action_global_profileFragment, bundle)
-        })
-        viewModel.showMessageRes.observe(viewLifecycleOwner, { resId: Int ->
+        }
+        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int ->
             Toast.makeText(
                 context, resources.getString(
                     resId
                 ), Toast.LENGTH_SHORT
             ).show()
-        })
+        }
     }
 
     override fun onDestroyView() {

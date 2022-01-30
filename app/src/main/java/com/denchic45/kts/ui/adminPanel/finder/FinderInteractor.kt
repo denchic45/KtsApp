@@ -21,9 +21,6 @@ class FinderInteractor @Inject constructor(
     private val specialtyRepository: SpecialtyRepository
 ) : Interactor {
 
-
-    private val currentRepository: Repository? = null
-
     fun findUserByTypedName(name: String): Flow<Resource<List<User>>> {
         return userRepository.getByTypedName(name)
     }

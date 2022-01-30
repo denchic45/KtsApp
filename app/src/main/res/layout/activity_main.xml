@@ -59,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?android:attr/windowBackground"
-                app:font="@font/gilroy_semibold"
+                app:font="@font/gilroy_semi_bold"
                 app:itemIconSize="28dp"
                 app:layout_insetEdge="bottom"
                 app:itemTextAppearanceActive="@style/BottomNavigation.ActiveItemTextAppearance"

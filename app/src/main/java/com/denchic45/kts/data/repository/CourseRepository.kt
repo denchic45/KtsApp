@@ -54,8 +54,6 @@ class CourseRepository @Inject constructor(
     private val userPreference: UserPreference,
     private val timestampPreference: TimestampPreference,
     private val appPreference: AppPreference,
-    private val groupMapper: GroupMapper,
-    private val specialtyMapper: SpecialtyMapper,
     private val sectionMapper: SectionMapper,
     private val courseContentMapper: CourseContentMapper,
     private val courseDao: CourseDao,
@@ -68,7 +66,6 @@ class CourseRepository @Inject constructor(
     private val subjectDao: SubjectDao,
     private val groupDao: GroupDao,
     private val userDao: UserDao,
-    private val specialtyDao: SpecialtyDao,
 ) : Repository(context) {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
@@ -85,7 +82,6 @@ class CourseRepository @Inject constructor(
                         }
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
                         database.withTransaction {
-
 //                                groupCourseDao.deleteByCourse(courseDoc.id)
 
                             subjectDao.upsert(subjectMapper.docToEntity(courseDoc.subject))
@@ -383,8 +379,7 @@ class CourseRepository @Inject constructor(
     ): Map<DocumentReference, Map<String, Any>> {
         return courseDoc.groupIds
             .map { groupId -> addCourseToGroup(groupId, courseDoc) }
-            .map { it.first to it.second }
-            .toMap()
+            .associate { it.first to it.second }
     }
 
     private suspend fun addCourseToGroup(
@@ -477,8 +472,7 @@ class CourseRepository @Inject constructor(
         return if (removedGroupIds.isNotEmpty())
             removedGroupIds.map { groupId ->
                 removeCourseToGroup(groupId, oldCourseDoc)
-            }.map { it.first to it.second }
-                .toMap()
+            }.associate { it.first to it.second }
         else emptyMap()
     }
 
@@ -500,8 +494,7 @@ class CourseRepository @Inject constructor(
     ): Map<DocumentReference, Map<String, Any>> {
         return oldCourseDoc.groupIds
             .map { groupId -> removeCourseToGroup(groupId, oldCourseDoc) }
-            .map { it.first to it.second }
-            .toMap()
+            .associate { it.first to it.second }
 
     }
 

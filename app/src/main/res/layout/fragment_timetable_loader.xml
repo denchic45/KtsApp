@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
-    tools:context=".ui.adminPanel.timtableEditor.loader.TimetableLoaderFragment">
+    tools:context=".ui.adminPanel.timetableEditor.loader.TimetableLoaderFragment">
 
 
     <LinearLayout

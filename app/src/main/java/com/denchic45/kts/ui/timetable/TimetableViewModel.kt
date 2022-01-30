@@ -22,7 +22,7 @@ class TimetableViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     val showLessonsOfDay: LiveData<List<Event>>
     val title = MutableLiveData<String>()
-    val showListState = MutableLiveData<String?>()
+    val showListState = MutableLiveData<String>()
     private val lessonsDate = MutableLiveData<Date>()
     val initTimetable = MutableLiveData<Boolean>()
     private var groupId: String

@@ -177,7 +177,7 @@ class AdapterDelegatesManger(
 
     fun <T : AdapterDelegateExtension> addExtensions(vararg extensions: T) {
         extensions.forEach {
-            this.extensions.put(it::class.java, it)
+            this.extensions[it::class.java] = it
             it.onAttach(adapter)
         }
     }

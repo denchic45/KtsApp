@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.login.resetPassword
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.repository.AuthRepository
@@ -23,7 +22,7 @@ class ResetPasswordViewModel @Inject constructor(
     @JvmField
     var showMessage = SingleLiveData<String>()
     fun onSendClick(email: String) {
-        if (!Validations.isValidEmail(email)) {
+        if (Validations.notValidEmail(email)) {
             showErrorFieldEmail.value = true
             return
         }

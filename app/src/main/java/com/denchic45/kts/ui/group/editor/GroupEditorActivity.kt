@@ -26,18 +26,18 @@ class GroupEditorActivity :
             AppBarController.create(this@GroupEditorActivity, appBar)
             setSupportActionBar(toolbar)
         }
-        viewModel.finish.observe(this, { finish() })
+        viewModel.finish.observe(this) { finish() }
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        viewModel.finish.observe(this, { finish() })
+        viewModel.finish.observe(this) { finish() }
         viewModel.deleteOptionVisibility.observe(
-            this,
-            { visibility: Boolean? ->
-                menu!!.findItem(R.id.option_delete_group).isVisible = visibility!!
-            })
+            this
+        ) { visibility: Boolean? ->
+            menu!!.findItem(R.id.option_delete_group).isVisible = visibility!!
+        }
 
     }
 

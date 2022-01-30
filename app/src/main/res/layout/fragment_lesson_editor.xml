@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.adminPanel.timtableEditor.eventEditor.lessonEditor.LessonEditorFragment">
+    tools:context=".ui.adminPanel.timetableEditor.eventEditor.lessonEditor.LessonEditorFragment">
 
     <RelativeLayout
         android:id="@+id/rl_subject"
@@ -29,7 +29,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="16sp"
             android:layout_toEndOf="@id/iv_subject_ic"
-            android:fontFamily="@font/gilroy_semibold"
+            android:fontFamily="@font/gilroy_semi_bold"
             android:hint="Предмет"
             android:maxLines="1"
             android:textColor="@color/dark_gray"
@@ -45,7 +45,7 @@
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_marginStart="16sp"
-        android:fontFamily="@font/gilroy_semibold"
+        android:fontFamily="@font/gilroy_semi_bold"
         android:gravity="center_vertical"
         android:maxLines="1"
         android:text="Преподаватель"

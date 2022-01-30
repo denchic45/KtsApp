@@ -124,21 +124,21 @@ class CourseEditorFragment :
             })
 
             viewModel.optionVisibility.observe(
-                viewLifecycleOwner,
-                { idAndVisiblePair: Pair<Int, Boolean> ->
-                    val menuItem = menu.findItem(
-                        idAndVisiblePair.first
-                    )
-                    if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
-                })
+                viewLifecycleOwner
+            ) { idAndVisiblePair: Pair<Int, Boolean> ->
+                val menuItem = menu.findItem(
+                    idAndVisiblePair.first
+                )
+                if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
+            }
 
             viewModel.groupList.observe(viewLifecycleOwner) {
                 adapter.submit(it)
             }
 
             viewModel.title.observe(
-                viewLifecycleOwner,
-                { title: String -> requireActivity().title = title })
+                viewLifecycleOwner
+            ) { title: String -> requireActivity().title = title }
 
             viewModel.nameField.observe(viewLifecycleOwner) {
                 if (etCourseName.text.toString() != it) etCourseName.setText(it)
@@ -167,7 +167,7 @@ class CourseEditorFragment :
                     closeKeyboard(etTeacherName)
                 }
             }
-            viewModel.selectSubject.observe(viewLifecycleOwner, { (_, name, iconUrl, colorName) ->
+            viewModel.selectSubject.observe(viewLifecycleOwner) { (_, name, iconUrl, colorName) ->
                 val resColor = requireActivity()
                     .resources
                     .getIdentifier(colorName, "color", requireContext().packageName)
@@ -179,21 +179,21 @@ class CourseEditorFragment :
                     .into(ivSubjectIcon)
                 tvSubjectName.text = name
                 etSubjectName.setText("")
-            })
+            }
 
             viewModel.finish.observe(viewLifecycleOwner) {
                 findNavController().popBackStack()
             }
 
-            viewModel.selectTeacher.observe(viewLifecycleOwner, { teacher: User ->
+            viewModel.selectTeacher.observe(viewLifecycleOwner) { teacher: User ->
                 Glide.with(requireActivity())
                     .load(teacher.photoUrl)
                     .transition(DrawableTransitionOptions.withCrossFade(100))
                     .into(ivTeacherAvatar)
                 tvTeacherName.text = teacher.fullName
                 etTeacherName.setText("")
-            })
-            viewModel.showFoundTeachers.observe(viewLifecycleOwner, { items: List<ListItem> ->
+            }
+            viewModel.showFoundTeachers.observe(viewLifecycleOwner) { items: List<ListItem> ->
                 popupWindow!!.anchorView = etTeacherName
                 popupWindow!!.setAdapter(ListPopupWindowAdapter(requireContext(), items))
                 popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
@@ -201,15 +201,15 @@ class CourseEditorFragment :
                     viewModel.onTeacherSelect(position)
                 }
                 popupWindow!!.show()
-            })
-            viewModel.showMessageRes.observe(viewLifecycleOwner, { resId: Int? ->
+            }
+            viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int? ->
                 Toast.makeText(
                     context, getString(
                         resId!!
                     ), Toast.LENGTH_SHORT
                 ).show()
-            })
-            viewModel.showFoundSubjects.observe(viewLifecycleOwner, { items: List<ListItem> ->
+            }
+            viewModel.showFoundSubjects.observe(viewLifecycleOwner) { items: List<ListItem> ->
                 popupWindow!!.anchorView = etSubjectName
                 popupWindow!!.setAdapter(ListPopupWindowAdapter(requireContext(), items))
                 popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, view1: View?, position: Int, _: Long ->
@@ -217,7 +217,7 @@ class CourseEditorFragment :
                     viewModel.onSubjectSelect(position)
                 }
                 popupWindow!!.show()
-            })
+            }
             viewModel.openConfirmation.observe(viewLifecycleOwner) { titleWithSubtitlePair: Pair<String, String> ->
                 val dialog = ConfirmDialog.newInstance(
                     titleWithSubtitlePair.first,

@@ -42,42 +42,42 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
             )
         }
         viewModel.openLoginByPhoneNum.observe(
-            this,
-            { navController.navigate(R.id.action_authFragment_to_loginByPhoneNumFragment) })
+            this
+        ) { navController.navigate(R.id.action_authFragment_to_loginByPhoneNumFragment) }
         viewModel.openLoginByMail.observe(
             this)
             {
                 navController.navigate(R.id.action_authFragment_to_loginByEmailFragment)
             }
         viewModel.openVerifyPhoneNum.observe(
-            this,
-            { navController.navigate(R.id.action_loginByPhoneNumFragment_to_verifyPhoneNumFragment) })
-        viewModel.showProgress.observe(this, { value: Float? ->
+            this
+        ) { navController.navigate(R.id.action_loginByPhoneNumFragment_to_verifyPhoneNumFragment) }
+        viewModel.showProgress.observe(this) { value: Float? ->
             RichPathAnimator.animate(linePath)
                 .trimPathEnd(value!!)
                 .duration(400)
                 .interpolator(FastOutSlowInInterpolator())
                 .start()
-        })
-        viewModel.backToFragment.observe(this, {
+        }
+        viewModel.backToFragment.observe(this) {
             super.onBackPressed()
             hideKeyboard()
-        })
+        }
         viewModel.fabVisibility.observe(
-            this,
-            { aBoolean: Boolean -> if (aBoolean) fabBack.show() else fabBack.hide() })
-        viewModel.openMain.observe(this, {
+            this
+        ) { aBoolean: Boolean -> if (aBoolean) fabBack.show() else fabBack.hide() }
+        viewModel.openMain.observe(this) {
             Handler(Looper.getMainLooper()).postDelayed(
                 {
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 }, 500
             )
-        })
+        }
         viewModel.showMessage.observe(
-            this,
-            { message: String? -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show() })
-        viewModel.finishApp.observe(this, { aVoid: Void? -> finish() })
+            this
+        ) { message: String? -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show() }
+        viewModel.finishApp.observe(this) { aVoid: Void? -> finish() }
     }
 
     override fun onBackPressed() {

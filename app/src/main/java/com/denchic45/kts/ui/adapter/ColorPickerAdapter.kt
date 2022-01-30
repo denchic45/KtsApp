@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.adapter
 
 import android.content.res.ColorStateList
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.CompoundButton
 import android.widget.RadioButton
@@ -14,7 +12,6 @@ import com.denchic45.kts.data.model.domain.onId
 import com.denchic45.kts.databinding.ItemColorBinding
 import com.denchic45.kts.ui.adapter.ColorPickerAdapter.ColorHolder
 import com.denchic45.kts.utils.viewBinding
-import java.util.*
 
 class ColorPickerAdapter : RecyclerView.Adapter<ColorHolder>() {
     private var current = 0

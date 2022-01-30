@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"
-        android:fontFamily="@font/gilroy_semibold"
+        android:fontFamily="@font/gilroy_semi_bold"
         android:letterSpacing="0"
         android:maxLines="1"
         android:text="Example text"

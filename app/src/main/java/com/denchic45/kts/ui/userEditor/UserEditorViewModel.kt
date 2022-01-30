@@ -108,7 +108,7 @@ open class UserEditorViewModel @Inject constructor(
                     )
                 }, "Номер обязателен"),
                 Rule({
-                    Validations.isValidPhoneNumber(
+                    Validations.validPhoneNumber(
                         fieldPhoneNum.value
                     )
                 }, "Номер некоректный")
@@ -126,7 +126,7 @@ open class UserEditorViewModel @Inject constructor(
                 .sendMessageResult(R.id.til_group, fieldErrorMessage),
             Validation(
                 Rule({
-                    !fieldEmailEnable.value!! || Validations.isValidEmail(
+                    !fieldEmailEnable.value!! || Validations.validEmail(
                         fieldEmail.value
                     ) && fieldEmailEnable.value!!
                 }, "Некоректная почта!")

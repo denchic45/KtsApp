@@ -3,9 +3,7 @@ package com.denchic45.widget.extendedAdapter.extension
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.widget.extendedAdapter.AdapterDelegateExtension
-import com.denchic45.widget.extendedAdapter.DelegationAdapterDsl
 import com.denchic45.widget.extendedAdapter.IDelegationAdapterExtended
-
 
 
 abstract class BaseViewEventExtension<VH : RecyclerView.ViewHolder>(

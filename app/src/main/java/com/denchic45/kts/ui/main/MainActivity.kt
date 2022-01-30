@@ -80,12 +80,12 @@ class MainActivity : AppCompatActivity() {
 
         bnv.setOnItemReselectedListener { item: MenuItem? -> refreshCurrentFragment() }
         viewModel.menuBtnVisibility.observe(
-            this,
-            { itemIdWithVisibilityPair: Pair<Int, Boolean> ->
-                bnv.menu.findItem(
-                    itemIdWithVisibilityPair.first
-                ).isVisible = itemIdWithVisibilityPair.second
-            })
+            this
+        ) { itemIdWithVisibilityPair: Pair<Int, Boolean> ->
+            bnv.menu.findItem(
+                itemIdWithVisibilityPair.first
+            ).isVisible = itemIdWithVisibilityPair.second
+        }
 
         with(binding) {
             rvNav.adapter = navAdapter
@@ -128,18 +128,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.userInfo.observe(this, { user: User ->
+        viewModel.userInfo.observe(this) { user: User ->
             val headerView = binding.navHeader.root
             headerView.setOnClickListener { v: View -> viewModel.onProfileClick() }
             Glide.with(this@MainActivity)
                 .load(user.photoUrl)
                 .into(binding.navHeader.ivAvatar)
             binding.navHeader.tvFullName.text = user.fullName
-        })
-        viewModel.open.observe(this, {
+        }
+        viewModel.open.observe(this) {
             binding.drawerLayout.close()
             navController.navigate(it)
-        })
+        }
 
         viewModel.openCourse.observe(this) { uuid ->
             binding.drawerLayout.close()
@@ -149,17 +149,17 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        viewModel.openLogin.observe(this, {
+        viewModel.openLogin.observe(this) {
             finish()
             startActivity(Intent(this, LoginActivity::class.java))
-        })
-        viewModel.openProfile.observe(this, { id ->
+        }
+        viewModel.openProfile.observe(this) { id ->
             binding.drawerLayout.close()
             val bundle = Bundle()
             bundle.putString(ProfileFragment.USER_ID, id)
             drawerLayout.close()
             navController.navigate(R.id.action_global_profileFragment, bundle)
-        })
+        }
 
         viewModel.goBack.observe(this) {
             navController.navigateUp()

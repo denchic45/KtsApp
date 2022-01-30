@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.adapter
 
 import android.annotation.SuppressLint
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -43,14 +42,14 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
         return when (viewType) {
             TYPE_GROUP -> {
                 GroupHolder(
-                  parent.viewBinding(ItemIconContentBinding::inflate),
+                    parent.viewBinding(ItemIconContentBinding::inflate),
                     onItemClickListener,
                     onItemLongClickListener
                 ) as BaseViewHolder<DomainModel, *>
             }
             TYPE_SPECIALTY -> {
                 SpecialtyHolder(
-                 parent.viewBinding(ItemSpecialtyBinding::inflate),
+                    parent.viewBinding(ItemSpecialtyBinding::inflate),
                     specialtyItemClickListener
                 ) as BaseViewHolder<DomainModel, *>
             }
@@ -77,26 +76,22 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
         itemClickListener: OnItemClickListener
     ) :
         BaseViewHolder<Specialty, ItemSpecialtyBinding>(itemSpecialtyBinding, itemClickListener) {
-        private val tvName: TextView
-        private val ivArrow: ImageView
+        private val tvName: TextView = itemView.findViewById(R.id.textView_specialty_name)
+        private val ivArrow: ImageView = itemView.findViewById(R.id.imageView_specialty_arrow)
         private var isExpand = false
         override fun onBind(item: Specialty) {
             tvName.text = item.name
-            itemView.setOnClickListener(View.OnClickListener { view: View? ->
+            itemView.setOnClickListener {
                 expandArrow(if (isExpand) 0 else 180)
-                onItemClickListener.onItemClick(adapterPosition)
+                onItemClickListener.onItemClick(bindingAdapterPosition)
                 isExpand = !isExpand
-            })
+            }
         }
 
-        fun expandArrow(rotate: Int) {
+        private fun expandArrow(rotate: Int) {
             ivArrow.animate().rotation(rotate.toFloat()).setDuration(300).start()
         }
 
-        init {
-            tvName = itemView.findViewById(R.id.textView_specialty_name)
-            ivArrow = itemView.findViewById(R.id.imageView_specialty_arrow)
-        }
     }
 
     class GroupHolder(
@@ -108,14 +103,13 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
         clickListener,
         longClickListener
     ) {
-        private val tvName: TextView
+        private val tvName: TextView = itemView.findViewById(R.id.tv_content)
         private val ivIcon: ImageView
         override fun onBind(item: Group) {
             tvName.text = item.name
         }
 
         init {
-            tvName = itemView.findViewById(R.id.tv_content)
             ivIcon = itemView.findViewById(R.id.iv_ic)
             ivIcon.setImageDrawable(
                 ContextCompat.getDrawable(

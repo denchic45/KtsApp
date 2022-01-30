@@ -46,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/timetableEditorFragment"
-        android:name="com.denchic45.kts.ui.adminPanel.timtableEditor.TimetableEditorFragment"
+        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.TimetableEditorFragment"
         android:label="fragment_timetable_editor"
         tools:layout="@layout/fragment_timetable_editor" />
     <fragment

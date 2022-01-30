@@ -45,7 +45,6 @@ open class UserRepository @Inject constructor(
     firestore: FirebaseFirestore
 ) : Repository(context) {
     private val usersRef: CollectionReference = firestore.collection("Users")
-    private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarStorage: StorageReference = storage.reference.child("avatars")
     val teachers: LiveData<List<User>>

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:networkView="@layout/state_error_network"
-    tools:context=".ui.adminPanel.timtableEditor.choiceOfSubject.ChoiceOfSubjectFragment">
+    tools:context=".ui.adminPanel.timetableEditor.choiceOfSubject.ChoiceOfSubjectFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv"

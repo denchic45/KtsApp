@@ -74,15 +74,6 @@ public class ListStateLayout extends FrameLayout {
         addView(viewFlipper);
         addView(new View(getContext()), NULL_VIEW);
         setDefaultAnimation();
-//        addView(errorView, ERROR_VIEW);
-//        addView(emptyView, EMPTY_VIEW);
-//        addView(loadingView, LOADING_VIEW);
-//        addView(networkView, NETWORK_VIEW);
-//        addView(startView, START_VIEW);
-//        setAnimation();
-//        if (recyclerView.getAdapter().getItemCount() == 0) {
-//            showView(START_VIEW);
-//        }
     }
 
     private void initAttributes(AttributeSet attrs) {

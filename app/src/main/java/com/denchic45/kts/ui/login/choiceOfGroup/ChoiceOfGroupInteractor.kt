@@ -3,17 +3,16 @@ package com.denchic45.kts.ui.login.choiceOfGroup
 import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.CourseGroup
-import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.repository.GroupInfoRepository
 import com.denchic45.kts.data.repository.GroupRepository
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 
-class ChoiceOfGroupInteractor constructor (
+class ChoiceOfGroupInteractor constructor(
     private val groupRepository: GroupRepository,
     private val groupInfoRepository: GroupInfoRepository
-) : Interactor  {
+) : Interactor {
 
     private var selectedGroup: PublishSubject<CourseGroup>? = PublishSubject.create()
     fun findGroupsBySpecialtyId(id: String): LiveData<List<CourseGroup>> {

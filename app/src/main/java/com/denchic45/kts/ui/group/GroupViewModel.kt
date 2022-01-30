@@ -10,10 +10,9 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
-import com.denchic45.kts.uipermissions.UIPermissions
+import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.function.Predicate
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -21,21 +20,21 @@ class GroupViewModel @Inject constructor(
     @Named("Group ${GroupPreference.GROUP_ID}") groupId: String?,
     private val interactor: GroupInteractor
 ) : BaseViewModel() {
-    
+
     val initTabs = MutableLiveData(2)
-    
+
     val menuItemVisibility = SingleLiveData<Pair<Int, Boolean>>()
-    
+
     val title = MutableStateFlow("")
 
     val openUserEditor = SingleLiveData<Pair<String, String>>()
-    
+
     val openGroupEditor = SingleLiveData<String>()
     private val isExistGroup: LiveData<Boolean>
 
     val groupId: String = groupId ?: interactor.yourGroupId
     private val isExistGroupObserver: Observer<Boolean>
-    private val uiPermissions: UIPermissions
+    private val uiPermissions: UiPermissions
     private val groupNameByGroupId: StateFlow<String> =
         interactor.getNameByGroupId(this.groupId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
@@ -93,14 +92,11 @@ class GroupViewModel @Inject constructor(
             }
         }
         isExistGroup.observeForever(isExistGroupObserver)
-        uiPermissions = UIPermissions(interactor.findThisUser())
+        uiPermissions = UiPermissions(interactor.findThisUser())
         uiPermissions.addPermissions(
             Permission(
-                ALLOW_EDIT_GROUP,
-                Predicate { (_, _, _, _, groupId, role, _, _, _, _, _, _, admin) ->
-                    (role == User.HEAD_TEACHER || admin
-                            || groupId == groupId)
-                })
+                ALLOW_EDIT_GROUP, { hasAdminPerms() }, { curatorFor(this@GroupViewModel.groupId) }
+            )
         )
         if (uiPermissions.isAllowed(ALLOW_EDIT_GROUP)) {
             initTabs.setValue(3)

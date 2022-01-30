@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import static androidx.recyclerview.widget.RecyclerView.ItemDecoration;
 
 public class DividerItemDecorator extends ItemDecoration {
-    private Drawable mDivider;
+    private final Drawable mDivider;
 
     public DividerItemDecorator(Drawable divider) {
         mDivider = divider;

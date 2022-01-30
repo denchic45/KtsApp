@@ -1,46 +1,37 @@
-package com.denchic45.kts.uivalidator;
+package com.denchic45.kts.uivalidator
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Contract
+import java.util.*
+import java.util.function.Consumer
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+class UIValidator {
+    private val validations: MutableList<Validation>
 
-public class UIValidator {
-
-    private final List<Validation> validations;
-
-    public UIValidator() {
-        validations = new ArrayList<>();
+    constructor() {
+        validations = ArrayList()
     }
 
-    public UIValidator(List<Validation> validations) {
-        this.validations = validations;
+    constructor(validations: MutableList<Validation>) {
+        this.validations = validations
     }
 
-    @Contract("_ -> new")
-    public static @NotNull UIValidator of(Validation... validations) {
-        return new UIValidator(Arrays.asList(validations));
+    fun addValidation(validation: Validation) {
+        validations.add(validation)
     }
 
-    public void addValidation(Validation validation) {
-        validations.add(validation);
+    fun runValidates(): Boolean {
+        validations.forEach(Consumer { obj: Validation -> obj.validate() })
+        return validations.stream().allMatch { obj: Validation -> obj.validate() }
     }
 
-    public boolean runValidates() {
-        validations.forEach(Validation::validate);
-        return validations.stream().allMatch(Validation::validate);
+    fun runValidates(runnable: Runnable) {
+        if (runValidates()) runnable.run()
     }
 
-    public void runValidates(Runnable runnable) {
-        if (runValidates())
-            runnable.run();
+    companion object {
+        @Contract("_ -> new")
+        fun of(vararg validations: Validation?): UIValidator {
+            return UIValidator(Arrays.asList(*validations))
+        }
     }
-
-//    public boolean isValid() {
-//        return validations.stream().allMatch(Validation::isValid);
-//    }
 }

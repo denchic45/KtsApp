@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/lessonEditorFragment"
-        android:name="com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.EventEditorFragment"
+        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorFragment"
         android:label="EventEditorFragment">
         <action
             android:id="@+id/action_lessonEditorFragment_to_choiceOfGroupSubjectFragment"
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/choiceOfGroupSubjectFragment"
-        android:name="com.denchic45.kts.ui.adminPanel.timtableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment"
+        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment"
         android:label="fragment_choice_of_group_subject"
         tools:layout="@layout/fragment_choice_of_group_subject" >
         <action
@@ -32,7 +32,7 @@
         tools:layout="@layout/fragment_choice_of_curator" />
     <fragment
         android:id="@+id/choiceOfSubjectFragment"
-        android:name="com.denchic45.kts.ui.adminPanel.timtableEditor.choiceOfSubject.ChoiceOfSubjectFragment"
+        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfSubject.ChoiceOfSubjectFragment"
         android:label="fragment_choice_of_subject"
         tools:layout="@layout/fragment_choice_of_subject" />
 </navigation>

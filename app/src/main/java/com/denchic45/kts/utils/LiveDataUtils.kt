@@ -1,7 +1,6 @@
 package com.denchic45.kts.utils
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 
 object LiveDataUtils {

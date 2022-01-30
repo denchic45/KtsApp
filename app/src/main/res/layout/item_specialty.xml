@@ -12,7 +12,7 @@
         android:layout_weight="2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/gilroy_semibold"
+        android:fontFamily="@font/gilroy_semi_bold"
         android:text="Sample text"
         android:textSize="18sp" />
 

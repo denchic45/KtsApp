@@ -1,12 +1,10 @@
 package com.denchic45.kts.ui.login
 
 import android.telephony.PhoneNumberUtils
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.rx.AsyncCompletableTransformer
 import com.denchic45.kts.utils.Validations
 import com.google.firebase.FirebaseNetworkException
@@ -19,48 +17,35 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val interactor: LoginInteractor
 ) : ViewModel() {
-    @JvmField
+
     val backToFragment = SingleLiveData<Void>()
 
-    @JvmField
     val finishApp = SingleLiveData<Void>()
 
-    @JvmField
     val openMain: SingleLiveData<*> = SingleLiveData<Any>()
 
-    @JvmField
     val errorNum = SingleLiveData<String>()
 
-    val toolbarTitle = MutableLiveData<String>()
+    private val toolbarTitle = MutableLiveData<String>()
 
-    @JvmField
     val showProgress = MutableLiveData(0f)
 
-    @JvmField
     val fabVisibility = MutableLiveData<Boolean>()
 
-    @JvmField
     val verifyUser = MutableLiveData<String>()
 
-    @JvmField
     val showMailError = SingleLiveData<String?>()
 
-    @JvmField
     val showPasswordError = SingleLiveData<String?>()
 
-    @JvmField
     val openLoginByPhoneNum = SingleLiveData<Void>()
 
-    @JvmField
     val openLoginByMail = SingleLiveData<Void>()
 
-    @JvmField
     val openVerifyPhoneNum = SingleLiveData<Void>()
 
-    @JvmField
     val openResetPassword = SingleLiveData<Void>()
 
-    @JvmField
     val showMessage = SingleLiveData<String>()
     private val addedProgress = Stack<Float?>()
     private val testNumbers = Stream.of(arrayOf("+16505553434", "+79510832144")).collect(
@@ -68,7 +53,7 @@ class LoginViewModel @Inject constructor(
             { data: Array<String> -> data[0] },
             { data: Array<String> -> data[1] })
     )
-    var userAccountList: LiveData<List<User>>? = null
+
     fun onGetCodeClick(phoneNum: String) {
         val normalizeNumber = PhoneNumberUtils.normalizeNumber(phoneNum)
         val realProneNum = testNumbers[normalizeNumber] ?: normalizeNumber
@@ -131,7 +116,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onNextMailClick(mail: String, password: String) {
-        if (!Validations.isValidEmail(mail)) {
+        if (Validations.notValidEmail(mail)) {
             showMailError.value = "Неккоректный ввод"
             return
         }

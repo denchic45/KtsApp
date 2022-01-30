@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.adminPanel.timtableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment"
+    tools:context=".ui.adminPanel.timetableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment"
     app:networkView="@layout/state_error_network">
 
     <androidx.recyclerview.widget.RecyclerView

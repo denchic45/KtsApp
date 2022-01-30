@@ -368,7 +368,7 @@ class TaskEditorFragment :
     }
 }
 
-class AttachmentAdapterDelegate : ListItemAdapterDelegate<Attachment, AttachmentHolder>() {
+class AttachmentAdapterDelegate(private val crossBtnVisibility: Boolean = true) : ListItemAdapterDelegate<Attachment, AttachmentHolder>() {
     override fun isForViewType(item: Any): Boolean = item is Attachment
 
     override fun onBindViewHolder(item: Attachment, holder: AttachmentHolder) {
@@ -376,7 +376,7 @@ class AttachmentAdapterDelegate : ListItemAdapterDelegate<Attachment, Attachment
     }
 
     override fun onCreateViewHolder(parent: ViewGroup): AttachmentHolder {
-        return AttachmentHolder(parent.viewBinding(ItemAttachmentBinding::inflate))
+        return AttachmentHolder(parent.viewBinding(ItemAttachmentBinding::inflate), crossBtnVisibility)
     }
 }
 
@@ -405,10 +405,13 @@ class AddAttachmentHolder(itemAddAttachmentBinding: ItemAddAttachmentBinding) :
     }
 }
 
-class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding) :
+class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding,private val crossBtnVisibility: Boolean) :
     BaseViewHolder<Attachment, ItemAttachmentBinding>(itemAttachmentBinding) {
     override fun onBind(item: Attachment) {
         with(binding) {
+            if (!crossBtnVisibility) {
+                ivFileRemove.visibility = View.GONE
+            }
             ivOverlay.setImageDrawable(null)
             tvName.text = item.file.name
             val glide = Glide.with(ivFile)

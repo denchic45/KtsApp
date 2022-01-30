@@ -22,7 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:fontFamily="@font/gilroy_semibold"
+        android:fontFamily="@font/gilroy_semi_bold"
         android:text="Имя Фамилия"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@id/iv_avatar"

@@ -85,7 +85,7 @@ class SubjectAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel,*>>
         itemClickListener: OnItemClickListener,
         longClickListener: OnItemLongClickListener
     ) : BaseViewHolder<Subject, ItemIconContentBinding>(itemIconContentBinding, itemClickListener, longClickListener) {
-        private val ivIcon: ImageView
+        private val ivIcon: ImageView = itemView.findViewById(R.id.iv_ic)
         private val tvName: TextView
         override fun onBind(item: Subject) {
             tvName.text = item.name
@@ -103,7 +103,6 @@ class SubjectAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel,*>>
         }
 
         init {
-            ivIcon = itemView.findViewById(R.id.iv_ic)
             tvName = itemView.findViewById(R.id.tv_content)
         }
     }

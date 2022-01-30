@@ -1,19 +1,19 @@
-package com.denchic45.kts.utils;
+package com.denchic45.kts.utils
 
-import android.text.TextUtils;
+import android.util.Patterns
 
-public class Validations {
-
-    public static boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+object Validations {
+    fun validEmail(target: CharSequence?): Boolean {
+        return !target.isNullOrEmpty() && Patterns.EMAIL_ADDRESS.matcher(target).matches()
     }
 
-    public static boolean isValidPhoneNumber(CharSequence target) {
-        if (target == null || target.length() < 6) {
-            return false;
-        } else {
-            return android.util.Patterns.PHONE.matcher(target).matches();
-        }
+    fun notValidEmail(target: CharSequence) = !validEmail(target)
 
+    fun validPhoneNumber(target: CharSequence?): Boolean {
+        return if (target == null || target.length < 6) {
+            false
+        } else {
+            Patterns.PHONE.matcher(target).matches()
+        }
     }
 }

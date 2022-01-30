@@ -18,7 +18,7 @@
             android:id="@+id/cb_homework_completed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/gilroy_semibold"
+            android:fontFamily="@font/gilroy_semi_bold"
             android:maxLines="1"
             android:minHeight="4dp"
             android:paddingStart="14sp"
@@ -115,7 +115,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="14sp"
-            android:fontFamily="@font/gilroy_semibold"
+            android:fontFamily="@font/gilroy_semi_bold"
             android:singleLine="true"
             android:text="23 room"
             android:textSize="16sp" />

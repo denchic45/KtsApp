@@ -129,6 +129,7 @@ public final class AppBarController {
                     super.onItemRangeMoved(fromPosition, toPosition, itemCount);
                 }
             };
+            assert adapter != null;
             adapter.registerAdapterDataObserver(observer);
             lifecycleOwner.getLifecycle().addObserver(new LifecycleEventObserver() {
                 @Override
@@ -148,6 +149,7 @@ public final class AppBarController {
         new RecyclerViewFinishListener(recyclerView, () -> {
             CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
             AppBarLayout.Behavior behavior = (AppBarLayout.Behavior) params.getBehavior();
+            assert behavior != null;
             behavior.setDragCallback(new AppBarLayout.Behavior.DragCallback() {
                 @Override
                 public boolean canDrag(@NonNull AppBarLayout appBarLayout) {
@@ -168,6 +170,7 @@ public final class AppBarController {
     private void removeDragCallback() {
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
         AppBarLayout.Behavior behavior = (AppBarLayout.Behavior) params.getBehavior();
+        assert behavior != null;
         behavior.setDragCallback(null);
     }
 

@@ -122,19 +122,19 @@ class SubmissionAttachmentStorage @Inject constructor(
         }
     }
 
-    fun getSubmissionReference(contentId: String, studentId: String): StorageReference {
+    private fun getSubmissionReference(contentId: String, studentId: String): StorageReference {
         return submissionAttachmentsRef.child(contentId).child(studentId)
     }
 
-    fun getSubmissionsReference(contentId: String): StorageReference {
+    private fun getSubmissionsReference(contentId: String): StorageReference {
         return submissionAttachmentsRef.child(contentId)
     }
 
-    fun getSubmissionLocalPath(contentId: String, studentId: String): String {
+    private fun getSubmissionLocalPath(contentId: String, studentId: String): String {
         return submissionLocalPath.path + '/' + contentId + '/' + studentId
     }
 
-    fun getSubmissionsLocalPath(contentId: String): String {
+    private fun getSubmissionsLocalPath(contentId: String): String {
         return submissionLocalPath.path + '/' + contentId
     }
 }

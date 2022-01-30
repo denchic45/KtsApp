@@ -35,12 +35,12 @@ class ChoiceOfGroupFragment :
             rvGroups.adapter = adapter
         }
         navController = findNavController(view)
-        viewModel.groupAndSpecialtyList.observe(viewLifecycleOwner, { list: List<DomainModel> ->
+        viewModel.groupAndSpecialtyList.observe(viewLifecycleOwner) { list: List<DomainModel> ->
             adapter.submitList(ArrayList(list))
-        })
+        }
         viewModel.finish.observe(
-            viewLifecycleOwner,
-            { navController!!.popBackStack() })
+            viewLifecycleOwner
+        ) { navController!!.popBackStack() }
     }
 
     override fun onDestroyView() {

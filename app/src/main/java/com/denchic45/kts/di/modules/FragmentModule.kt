@@ -1,13 +1,13 @@
 package com.denchic45.kts.di.modules
 
 import com.denchic45.kts.ui.adminPanel.finder.FinderFragment
-import com.denchic45.kts.ui.adminPanel.timtableEditor.TimetableEditorFragment
-import com.denchic45.kts.ui.adminPanel.timtableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment
-import com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.EventEditorFragment
-import com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.lessonEditor.LessonEditorFragment
-import com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment
-import com.denchic45.kts.ui.adminPanel.timtableEditor.finder.TimetableFinderFragment
-import com.denchic45.kts.ui.adminPanel.timtableEditor.loader.TimetableLoaderFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.TimetableEditorFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.lessonEditor.LessonEditorFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.finder.TimetableFinderFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.TimetableLoaderFragment
 import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.course.TaskFragment
 import com.denchic45.kts.ui.course.sectionPicker.SectionPickerFragment
@@ -112,7 +112,7 @@ interface FragmentModule {
     @ContributesAndroidInjector(modules = [IntentModule::class])
     fun contributeSectionPickerFragment(): SectionPickerFragment
 
-    @ContributesAndroidInjector()
+    @ContributesAndroidInjector
     fun contributeCreatorDialog(): CreatorDialog
 
     @ContributesAndroidInjector(modules = [IntentModule::class])

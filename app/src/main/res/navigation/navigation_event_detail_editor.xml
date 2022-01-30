@@ -6,7 +6,7 @@
     >
     <fragment
         android:id="@+id/lessonEditorFragment"
-        android:name="com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.lessonEditor.LessonEditorFragment"
+        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.lessonEditor.LessonEditorFragment"
         android:label="fragment_lesson_editor"
         tools:layout="@layout/fragment_lesson_editor" />
     <action
@@ -14,7 +14,7 @@
         app:destination="@id/lessonEditorFragment" />
     <fragment
         android:id="@+id/simpleEventEditorFragment"
-        android:name="com.denchic45.kts.ui.adminPanel.timtableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment"
+        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment"
         android:label="fragment_simple_event"
         tools:layout="@layout/fragment_simple_event" />
     <action

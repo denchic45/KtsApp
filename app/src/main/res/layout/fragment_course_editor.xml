@@ -152,7 +152,7 @@
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_marginStart="16dp"
-            android:fontFamily="@font/gilroy_semibold"
+            android:fontFamily="@font/gilroy_semi_bold"
             android:gravity="center_vertical"
             android:text="Группы"
             android:textSize="16sp" />

@@ -123,9 +123,7 @@ class SubjectRepository @Inject constructor(
             }
             .addOnFailureListener { Log.d("lol", "onFailure: ") }
         return Transformations.map(subjectDao.get(id)) { entity: SubjectEntity ->
-            subjectMapper.entityToDomain(
-                entity
-            )
+            subjectMapper.entityToDomain(entity)
         }
     }
 

@@ -43,9 +43,9 @@ data class User(
         get() = role == STUDENT || role == DEPUTY_MONITOR || role == CLASS_MONITOR
 
 
-    fun hasGroup(): Boolean {
-        return groupId != null && groupId != ""
-    }
+    fun hasGroup(): Boolean = !groupId.isNullOrEmpty()
+
+    fun hasAdminPerms() = admin || role == "HEAD_TEACHER"
 
     val fullName: String
         get() = "$firstName $surname"
@@ -77,6 +77,8 @@ data class User(
             admin
         )
     }
+
+    fun curatorFor(groupId: String): Boolean = isTeacher && groupId == this.groupId
 
     companion object {
         const val STUDENT = "STUDENT"

@@ -1,11 +1,10 @@
 package com.denchic45.kts.di.modules
 
-import android.content.Context
 import com.denchic45.kts.data.repository.SubjectRepository
+import com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfSubject.ChoiceOfSubjectInteractor
+import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
-import com.denchic45.kts.ui.adminPanel.timtableEditor.choiceOfSubject.ChoiceOfSubjectInteractor
-import dagger.Module
 
 @Module
 object ChoiceOfGroupSubjectModule {

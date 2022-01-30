@@ -9,14 +9,20 @@ import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.Resource
-import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.dao.CourseDao
+import com.denchic45.kts.data.dao.GroupDao
+import com.denchic45.kts.data.dao.SpecialtyDao
+import com.denchic45.kts.data.dao.UserDao
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.GroupCourses
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.mapper.*
+import com.denchic45.kts.data.model.mapper.CourseMapper
+import com.denchic45.kts.data.model.mapper.GroupMapper
+import com.denchic45.kts.data.model.mapper.SpecialtyMapper
+import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
 import com.denchic45.kts.data.model.room.UserEntity
 import com.denchic45.kts.data.prefs.GroupPreference
@@ -191,7 +197,7 @@ class GroupInfoRepository @Inject constructor(
 
     private suspend fun upsertGroupInfo(groupDoc: GroupDoc) {
         groupDao.upsert(groupMapper.docToEntity(groupDoc))
-        specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc!!.specialty))
+        specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
         saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
     }
 
@@ -295,7 +301,7 @@ class GroupInfoRepository @Inject constructor(
             val updatedGroupMap: MutableMap<String, Any> = HashMap()
             updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
             updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
-            groupsRef.document(groupId!!).update(updatedGroupMap)
+            groupsRef.document(groupId).update(updatedGroupMap)
                 .addOnSuccessListener { emitter.onComplete() }
                 .addOnFailureListener { t: Exception -> emitter.onError(t) }
         }

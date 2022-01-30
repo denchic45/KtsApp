@@ -49,7 +49,7 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
 
     private val adapter =
         adapter {
-            delegates(AttachmentAdapterDelegate())
+            delegates(AttachmentAdapterDelegate(false))
             extensions {
                 click<AttachmentHolder> { onClick = { viewModel.onTaskFileClick(it) } }
             }
@@ -202,7 +202,7 @@ class TaskFragment : BaseFragment<TaskViewModel, FragmentTaskBinding>(R.layout.f
             }
 
         lifecycleScope.launchWhenStarted {
-            viewModel.taskViewState.collect {
+            viewModel.taskViewState.collect { it ->
                 with(binding) {
                     tvTaskName.text = it.name
                     tvDescription.text = it.description

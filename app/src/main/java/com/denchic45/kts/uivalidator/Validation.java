@@ -18,11 +18,7 @@ import kotlin.Pair;
 
 public class Validation {
 
-    //    private final MutableLiveData<T> errorEventLiveData;
-//    private final T defValue;
-//    private final int fieldResId;
     private final Rule[] rules;
-    //    private boolean lastValidate = true;
     private Runnable errorRunnable;
     private Consumer<String> messageConsumer;
     private Consumer<Integer> resIdConsumer;
@@ -32,24 +28,13 @@ public class Validation {
     private ValidationListener validationListener = ValidationListener.EMPTY;
 
     public Validation(Rule... rules) {
-//        this.fieldResId = 0;
         this.rules = rules;
     }
 
-//    public Validation(int fieldResId, Rule... rules) {
-//        this.fieldResId = fieldResId;
-//        this.rules = rules;
-//    }
 
     public boolean validate() {
-//        lastValidate = isValid() || !lastValidate;
-//        return lastValidate;
         return isValid();
     }
-
-//    public boolean validate2() {
-//        return ;
-//    }
 
     public Validation onErrorRun(Runnable runnable) {
         errorRunnable = runnable;

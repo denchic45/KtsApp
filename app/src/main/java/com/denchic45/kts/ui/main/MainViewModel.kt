@@ -8,12 +8,11 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
-import com.denchic45.kts.uipermissions.UIPermissions
+import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.function.Predicate
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
@@ -37,7 +36,7 @@ class MainViewModel @Inject constructor(
 
     val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
 
-    private var courseUuids = emptyMap<String,String>()
+    private var courseUuids = emptyMap<String, String>()
 
     val goBack = SingleLiveData<Unit>()
 
@@ -57,7 +56,7 @@ class MainViewModel @Inject constructor(
 
     val userInfo = MutableLiveData<User>()
 
-    private val uiPermissions: UIPermissions
+    private val uiPermissions: UiPermissions
     var selectedDate = SingleLiveData<Date>()
 
     var openLogin = SingleLiveData<Void>()
@@ -135,7 +134,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             interactor.findOwnCourses()
                 .combine(interactor.observeHasGroup()) { courses, hasGroup ->
-                    courseUuids = courses.map { it.name to it.id }.toMap()
+                    courseUuids = courses.associate { it.name to it.id }
                     NavMenuState.NavMenu(
                         courses,
                         interactor.findThisUser(),
@@ -168,17 +167,13 @@ class MainViewModel @Inject constructor(
                 }
         }
 
-        uiPermissions = UIPermissions(interactor.findThisUser())
-        uiPermissions.addPermissions(
-            Permission(
-                ALLOW_CONTROL,
-                Predicate { (_, _, _, _, _, role, _, _, _, _, _, _, admin) -> role == User.HEAD_TEACHER || admin })
-        )
+        uiPermissions = UiPermissions(interactor.findThisUser())
+        uiPermissions.addPermissions(Permission(ALLOW_CONTROL, { hasAdminPerms() }))
     }
 
     sealed class NavMenuState {
         data class NavMenu(
-            private val cours: List<Course>,
+            private val courses: List<Course>,
             private val user: User,
             private val hasGroup: Boolean,
             val expandAllCourse: Boolean = false
@@ -191,15 +186,15 @@ class MainViewModel @Inject constructor(
             private fun generate(): MutableList<NavItem> {
                 val list: MutableList<NavItem> = mainTextItems.toMutableList()
                 list.add(DividerItem())
-                if (cours.isNotEmpty()) {
+                if (courses.isNotEmpty()) {
                     val nameOfDropdownCoursesNavItem: Int
                     list.add(NavSubHeaderItem(EitherResource.Id(R.string.nav_courses_my)))
                     val visibleCourses = if (expandAllCourse) {
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_hide
-                        cours
+                        courses
                     } else {
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_show_all
-                        cours.take(5)
+                        courses.take(5)
                     }
                     list.addAll(visibleCourses.map {
                         NavTextItem(
@@ -209,7 +204,7 @@ class MainViewModel @Inject constructor(
                             color = EitherResource.String(it.subject.colorName)
                         )
                     })
-                    if (cours.size > 5)
+                    if (courses.size > 5)
                         list.add(
                             NavDropdownItem(
                                 EitherResource.Id(nameOfDropdownCoursesNavItem),

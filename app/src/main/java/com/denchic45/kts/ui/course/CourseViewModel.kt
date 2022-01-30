@@ -6,11 +6,11 @@ import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.Task
-import com.denchic45.kts.domain.usecase.RemoveCourseContentUseCase
 import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
+import com.denchic45.kts.domain.usecase.RemoveCourseContentUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
-import com.denchic45.kts.uipermissions.UIPermissions
+import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,18 +32,14 @@ class CourseViewModel @Inject constructor(
     val showContents: MutableLiveData<List<DomainModel>> = MutableLiveData()
     private val findCourseFlow = findCourseUseCase(courseId)
 
-    private val uiPermissions: UIPermissions = UIPermissions(findSelfUserUseCase())
+    private val uiPermissions: UiPermissions = UiPermissions(findSelfUserUseCase())
 
     init {
         viewModelScope.launch {
             findCourseFlow.collect { course ->
                 courseName.value = course.name
                 uiPermissions.addPermissions(
-                    Permission(
-                    PERMISSION_EDIT,
-                    { it == course.teacher },
-                    { it.admin }
-                )
+                    Permission(PERMISSION_EDIT, { this == course.teacher }, { hasAdminPerms() })
                 )
             }
         }
@@ -75,7 +71,6 @@ class CourseViewModel @Inject constructor(
 //            removeCourseContentUseCase(showContents.value!![position] as CourseContent)
 //        }
     }
-
 
 
     override fun onCleared() {

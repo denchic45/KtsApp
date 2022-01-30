@@ -28,19 +28,19 @@ class FullAvatarActivity : FullImageActivity() {
         supportActionBar!!.title = ""
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         viewModel.optionVisibility.observe(
-            this,
-            { idAndVisibility: Pair<Int, Boolean> ->
-                menu!!.findItem(
-                    idAndVisibility.first!!
-                ).isVisible = idAndVisibility.second!!
-            })
+            this
+        ) { idAndVisibility: Pair<Int, Boolean> ->
+            menu!!.findItem(
+                idAndVisibility.first
+            ).isVisible = idAndVisibility.second
+        }
         viewModel.showMessage.observe(
-            this,
-            { s: String? -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show() })
+            this
+        ) { s: String? -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show() }
         viewModel.showMessageRes.observe(
-            this,
-            { s: Int? -> Toast.makeText(this, s!!, Toast.LENGTH_SHORT).show() })
-        viewModel.finish.observe(this, { supportFinishAfterTransition() })
+            this
+        ) { s: Int? -> Toast.makeText(this, s!!, Toast.LENGTH_SHORT).show() }
+        viewModel.finish.observe(this) { supportFinishAfterTransition() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

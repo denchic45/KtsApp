@@ -50,15 +50,15 @@ class SpecialtyEditorDialog :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.enablePositiveBtn.observe(viewLifecycleOwner, { enabled: Boolean? ->
+        viewModel.enablePositiveBtn.observe(viewLifecycleOwner) { enabled: Boolean? ->
             alertDialog.getButton(
                 AlertDialog.BUTTON_POSITIVE
             ).isEnabled = enabled!!
-        })
+        }
         with(binding) {
             viewModel.nameField.observe(
-                viewLifecycleOwner,
-                { name: String? -> etName.setText(name) })
+                viewLifecycleOwner
+            ) { name: String? -> etName.setText(name) }
             etName.textChanges()
                 .compose(EditTextTransformer())
                 .subscribe { name: String? ->
@@ -67,27 +67,28 @@ class SpecialtyEditorDialog :
                     )
                 }
         }
-        viewModel.deleteBtnVisibility.observe(viewLifecycleOwner, { visibility: Boolean ->
+        viewModel.deleteBtnVisibility.observe(viewLifecycleOwner) { visibility: Boolean ->
             alertDialog.getButton(
                 AlertDialog.BUTTON_NEUTRAL
             ).visibility = if (visibility) View.VISIBLE else View.GONE
-        })
+        }
         viewModel.title.observe(
-            viewLifecycleOwner,
-            { name: String? -> alertDialog.setTitle(name) })
-        viewModel.showMessageRes.observe(viewLifecycleOwner, { resId: Int? ->
+            viewLifecycleOwner
+        ) { name: String? -> alertDialog.setTitle(name) }
+        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int? ->
             Toast.makeText(
                 context, getString(
                     resId!!
                 ), Toast.LENGTH_SHORT
             ).show()
-        })
-        viewModel.finish.observe(viewLifecycleOwner, { dismiss() })
+        }
+        viewModel.finish.observe(viewLifecycleOwner) { dismiss() }
         viewModel.openConfirmation.observe(
-            viewLifecycleOwner, { titleWithSubtitlePair: Pair<String, String> ->
-                ConfirmDialog.newInstance(titleWithSubtitlePair.first, titleWithSubtitlePair.second)
-                    .show(childFragmentManager, null)
-            })
+            viewLifecycleOwner
+        ) { titleWithSubtitlePair: Pair<String, String> ->
+            ConfirmDialog.newInstance(titleWithSubtitlePair.first, titleWithSubtitlePair.second)
+                .show(childFragmentManager, null)
+        }
     }
 
     override fun onAttach(context: Context) {

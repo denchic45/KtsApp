@@ -12,7 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LifecycleOwner
-import com.denchic45.kts.ui.adminPanel.timtableEditor.loader.TimetableLoaderFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.TimetableLoaderFragment
 
 class FilePicker(
     private val activity: AppCompatActivity,
@@ -34,8 +34,8 @@ class FilePicker(
         registry.register(
             RESULT_REGISTRY_KEY,
             owner,
-            ActivityResultContracts.StartActivityForResult(),
-            { callback(it) })
+            ActivityResultContracts.StartActivityForResult()
+        ) { callback(it) }
 
     fun selectFiles() {
         if (Permissions.checkExternalStorageManager(activity)) {

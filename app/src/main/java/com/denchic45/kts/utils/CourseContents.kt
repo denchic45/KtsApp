@@ -10,7 +10,7 @@ object CourseContents {
         contents: List<CourseContent>,
         sections: List<Section>
     ): List<DomainModel> {
-        val sectionsById = sections.map { it.id to it }.toMap()
+        val sectionsById = sections.associateBy { it.id }
 
         return (sections + contents).groupBy {
             when (it) {

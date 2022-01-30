@@ -100,10 +100,10 @@ public class WeekPageAdapter extends RecyclerView.Adapter<WeekPageAdapter.WeekHo
             gridView = itemView.findViewById(R.id.grid_days);
 
             gridView.setOnItemClickListener((adapterView, view, position, l) -> {
-                if (weekItemOfCheckedDayItemPos != getAdapterPosition()) {
+                if (weekItemOfCheckedDayItemPos != getBindingAdapterPosition()) {
                     weekList.get(weekItemOfCheckedDayItemPos).setSelectedDay(-1);
                     notifyItemChanged(weekItemOfCheckedDayItemPos);
-                    weekItemOfCheckedDayItemPos = getAdapterPosition();
+                    weekItemOfCheckedDayItemPos = getBindingAdapterPosition();
                 }
                 weekList.get(weekItemOfCheckedDayItemPos).setSelectedDay(position);
                 setCheckedItem(position, true);

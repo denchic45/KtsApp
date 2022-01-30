@@ -221,7 +221,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:fontFamily="@font/gilroy_semibold"
+        android:fontFamily="@font/gilroy_semi_bold"
         android:letterSpacing="0"
         android:text="Добавить"
         android:textAllCaps="false"

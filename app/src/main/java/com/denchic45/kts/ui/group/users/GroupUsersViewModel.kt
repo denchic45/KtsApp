@@ -13,14 +13,11 @@ import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.uipermissions.Permission
-import com.denchic45.kts.uipermissions.UIPermissions
+import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
 import io.reactivex.rxjava3.disposables.Disposable
-import java.util.*
-import java.util.function.Predicate
 import javax.inject.Inject
 import javax.inject.Named
-import kotlin.collections.ArrayList
 
 class GroupUsersViewModel @Inject constructor(
     private val interactor: GroupUsersInteractor,
@@ -38,7 +35,7 @@ class GroupUsersViewModel @Inject constructor(
     @JvmField
     val openChoiceOfCurator = SingleLiveData<Void>()
 
-    private val uiPermissions: UIPermissions = UIPermissions(interactor.findThisUser())
+    private val uiPermissions: UiPermissions = UiPermissions(interactor.findThisUser())
 
     @JvmField
     var users: LiveData<List<DomainModel?>>? = null
@@ -88,9 +85,9 @@ class GroupUsersViewModel @Inject constructor(
             }
             OPTION_EDIT_USER -> {
                 val args: MutableMap<String, String> = HashMap()
-                args[UserEditorActivity.USER_ROLE] = selectedUser!!.role
-                args[UserEditorActivity.USER_ID] = selectedUser!!.id
-                args[UserEditorActivity.USER_GROUP_ID] = selectedUser!!.groupId!!
+                args[UserEditorActivity.USER_ROLE] = selectedUser.role
+                args[UserEditorActivity.USER_ID] = selectedUser.id
+                args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId!!
                 openUserEditor.setValue(args)
             }
             OPTION_DELETE_USER -> interactor.removeStudent(selectedUser)
@@ -134,9 +131,7 @@ class GroupUsersViewModel @Inject constructor(
 
     init {
         uiPermissions.addPermissions(
-            Permission(
-                ALLOW_EDIT_USERS,
-                Predicate { user: User -> user.isTeacher || user.admin })
+            Permission(ALLOW_EDIT_USERS, { isTeacher }, { hasAdminPerms() })
         )
     }
 }

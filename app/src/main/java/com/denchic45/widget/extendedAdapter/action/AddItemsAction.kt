@@ -2,7 +2,6 @@ package com.denchic45.widget.extendedAdapter.action
 
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
-import com.denchic45.widget.extendedAdapter.action.Action
 
 class AddItemsAction(
     override val adapter: RecyclerView.Adapter<*>,

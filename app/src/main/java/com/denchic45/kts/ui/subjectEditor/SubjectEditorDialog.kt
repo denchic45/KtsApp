@@ -61,46 +61,46 @@ class SubjectEditorDialog :
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
             viewModel.showColors.observe(
-                viewLifecycleOwner,
-                { listWithCurrentPair: Pair<List<ListItem>, Int> ->
-                    adapter = ColorPickerAdapter()
-                    binding.rvColorPicker.adapter = adapter
-                    adapter.list = listWithCurrentPair.first
-                    adapter.setItemClickListener { position: Int ->
-                        viewModel.onColorSelect(position)
-                        adapter.notifyDataSetChanged()
-                    }
-                    viewModel.currentSelectedColor.observe(viewLifecycleOwner, { current: Int ->
-                        adapter.setCurrent(current)
-                    })
-                })
-            viewModel.deleteBtnVisibility.observe(viewLifecycleOwner, { visibility: Boolean ->
+                viewLifecycleOwner
+            ) { listWithCurrentPair: Pair<List<ListItem>, Int> ->
+                adapter = ColorPickerAdapter()
+                binding.rvColorPicker.adapter = adapter
+                adapter.list = listWithCurrentPair.first
+                adapter.setItemClickListener { position: Int ->
+                    viewModel.onColorSelect(position)
+                    adapter.notifyDataSetChanged()
+                }
+                viewModel.currentSelectedColor.observe(viewLifecycleOwner) { current: Int ->
+                    adapter.setCurrent(current)
+                }
+            }
+            viewModel.deleteBtnVisibility.observe(viewLifecycleOwner) { visibility: Boolean ->
                 alertDialog.getButton(
                     AlertDialog.BUTTON_NEUTRAL
                 ).visibility = if (visibility) View.VISIBLE else View.GONE
-            })
+            }
             viewModel.openConfirmation.observe(
-                viewLifecycleOwner,
-                { stringStringPair: Pair<String, String> ->
-                    ConfirmDialog.newInstance(stringStringPair.first, stringStringPair.second).show(
-                        childFragmentManager, null
-                    )
-                })
+                viewLifecycleOwner
+            ) { stringStringPair: Pair<String, String> ->
+                ConfirmDialog.newInstance(stringStringPair.first, stringStringPair.second).show(
+                    childFragmentManager, null
+                )
+            }
             viewModel.title.observe(
-                viewLifecycleOwner,
-                { title: String -> dialog!!.setTitle(title) })
-            viewModel.openIconPicker.observe(viewLifecycleOwner, {
+                viewLifecycleOwner
+            ) { title: String -> dialog!!.setTitle(title) }
+            viewModel.openIconPicker.observe(viewLifecycleOwner) {
                 IconPickerDialog().show(
                     requireActivity().supportFragmentManager, null
                 )
-            })
-            viewModel.enablePositiveBtn.observe(viewLifecycleOwner, { enabled: Boolean ->
+            }
+            viewModel.enablePositiveBtn.observe(viewLifecycleOwner) { enabled: Boolean ->
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).isEnabled = enabled
-            })
+            }
             viewModel.nameField.observe(
-                viewLifecycleOwner,
-                { name: String -> etSubjectName.setText(name) })
-            viewModel.icon.observe(viewLifecycleOwner, { iconUrl: String? ->
+                viewLifecycleOwner
+            ) { name: String -> etSubjectName.setText(name) }
+            viewModel.icon.observe(viewLifecycleOwner) { iconUrl: String? ->
                 GlideApp.with(
                     requireActivity()
                 )
@@ -109,14 +109,14 @@ class SubjectEditorDialog :
                     .listener(SvgColorListener(ivSubjectIc, viewModel.colorIcon.value!!, activity))
                     .load(iconUrl)
                     .into(ivSubjectIc)
-            })
-            viewModel.colorIcon.observe(viewLifecycleOwner, { color: Int ->
+            }
+            viewModel.colorIcon.observe(viewLifecycleOwner) { color: Int ->
                 ivSubjectIc.post { ViewUtils.paintImageView(ivSubjectIc, color, context) }
-            })
-            viewModel.showMessage.observe(viewLifecycleOwner, { message: String ->
+            }
+            viewModel.showMessage.observe(viewLifecycleOwner) { message: String ->
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            })
-            viewModel.finish.observe(viewLifecycleOwner, { dismiss() })
+            }
+            viewModel.finish.observe(viewLifecycleOwner) { dismiss() }
             etSubjectName.textChanges()
                 .compose(EditTextTransformer())
                 .subscribe { name: String -> viewModel.onNameType(name) }

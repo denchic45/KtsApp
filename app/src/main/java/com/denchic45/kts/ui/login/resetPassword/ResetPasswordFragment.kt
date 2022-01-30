@@ -40,20 +40,20 @@ class ResetPasswordFragment : BaseFragment<ResetPasswordViewModel, FragmentReset
                 etEmail!!.text.toString()
             )
         }
-        viewModel.showErrorFieldEmail.observe(viewLifecycleOwner, { error: Boolean ->
+        viewModel.showErrorFieldEmail.observe(viewLifecycleOwner) { error: Boolean ->
             if (error) {
                 tilEmail!!.error = "Некоректная почта"
             } else {
                 tilEmail!!.error = null
             }
-        })
-        viewModel.showMessage.observe(viewLifecycleOwner, { s: String? ->
+        }
+        viewModel.showMessage.observe(viewLifecycleOwner) { s: String? ->
             Toast.makeText(
                 activity, s, Toast.LENGTH_LONG
             ).show()
-        })
+        }
         viewModel.finish.observe(
-            viewLifecycleOwner,
-            { unused: Void? -> findNavController(view).popBackStack() })
+            viewLifecycleOwner
+        ) { unused: Void? -> findNavController(view).popBackStack() }
     }
 }

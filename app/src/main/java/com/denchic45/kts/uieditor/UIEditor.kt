@@ -14,10 +14,6 @@ class UIEditor<T : DomainModel> @JvmOverloads constructor(
 
     var oldItem: T? = null
 
-    init {
-//        oldItem = createInstance()
-    }
-
 //    fun createInstance(): T {
 //        return createSupplier.get()
 //    }
@@ -28,7 +24,7 @@ class UIEditor<T : DomainModel> @JvmOverloads constructor(
 //    }
 
     fun hasBeenChanged(): Boolean {
-        Log.d("lol", "hasBeenChanged course: ${oldItem} \nand ${createItem()}")
+        Log.d("lol", "hasBeenChanged course: $oldItem \nand ${createItem()}")
         return oldItem != createItem()
     }
 }

@@ -32,7 +32,7 @@ class AsyncTransformer<T> : ObservableTransformer<T, T>, SingleTransformer<T, T>
     }
 }
 
-class AsyncCompletableTransformer() : CompletableTransformer {
+class AsyncCompletableTransformer : CompletableTransformer {
     override fun apply(completable: Completable): CompletableSource {
         return completable
             .subscribeOn(Schedulers.io())

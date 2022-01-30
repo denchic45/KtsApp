@@ -101,13 +101,13 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
                 )
             }
 
-            viewModel.currentSelectedEntity.observe(viewLifecycleOwner, { position: Int ->
+            viewModel.currentSelectedEntity.observe(viewLifecycleOwner) { position: Int ->
                 currentAdapter = listAdapters[position] as ListAdapter<DomainModel, *>
                 rvFoundItems.adapter = currentAdapter
                 AppBarController.findController(requireActivity())
                     .setExpandableIfViewCanScroll(rvFoundItems, viewLifecycleOwner)
                 finderEntityAdapter.selectItem(position)
-            })
+            }
         }
         searchBar.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
             override fun onQueryTextSubmit(query: String) {
@@ -117,66 +117,66 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         searchBar.attachNavigationDrawer(requireActivity().findViewById(R.id.drawer_layout))
         val listStateLayout = view as ListStateLayout
         viewModel.finderEntities.observe(
-            viewLifecycleOwner,
-            { list: List<ListItem> -> finderEntityAdapter.submitList(list) })
+            viewLifecycleOwner
+        ) { list: List<ListItem> -> finderEntityAdapter.submitList(list) }
 
-        viewModel.showListEmptyState.observe(viewLifecycleOwner, { show: Boolean ->
+        viewModel.showListEmptyState.observe(viewLifecycleOwner) { show: Boolean ->
             if (show) {
                 listStateLayout.showView(ListStateLayout.EMPTY_VIEW)
             } else {
                 listStateLayout.showList()
             }
-        })
+        }
         viewModel.showFoundItems.observe(
-            viewLifecycleOwner,
-            { foundEntities: List<DomainModel> ->
-                currentAdapter.submitList(
-                    foundEntities,
-                    listStateLayout.getCommitCallback(currentAdapter)
-                )
-            })
-        viewModel.openGroup.observe(viewLifecycleOwner, { groupId: String? ->
+            viewLifecycleOwner
+        ) { foundEntities: List<DomainModel> ->
+            currentAdapter.submitList(
+                foundEntities,
+                listStateLayout.getCommitCallback(currentAdapter)
+            )
+        }
+        viewModel.openGroup.observe(viewLifecycleOwner) { groupId: String? ->
             val bundle = Bundle()
             bundle.putString(GroupFragment.GROUP_ID, groupId)
             navController.navigate(R.id.action_finderFragment_to_group_editor, bundle)
-        })
-        viewModel.showMessage.observe(viewLifecycleOwner, { message: String? ->
+        }
+        viewModel.showMessage.observe(viewLifecycleOwner) { message: String? ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        })
+        }
         viewModel.openUserEditor.observe(
-            viewLifecycleOwner,
-            { args: Map<String, String> ->
-                val intent = Intent(
-                    activity, UserEditorActivity::class.java
-                )
-                args.forEach { (name: String?, value: String?) -> intent.putExtra(name, value) }
-                startActivity(intent)
-            })
-        viewModel.openProfile.observe(viewLifecycleOwner, { userId: String? ->
+            viewLifecycleOwner
+        ) { args: Map<String, String> ->
+            val intent = Intent(
+                activity, UserEditorActivity::class.java
+            )
+            args.forEach { (name: String?, value: String?) -> intent.putExtra(name, value) }
+            startActivity(intent)
+        }
+        viewModel.openProfile.observe(viewLifecycleOwner) { userId: String? ->
             val bundle = Bundle()
             bundle.putString(ProfileFragment.USER_ID, userId)
             navController.navigate(R.id.action_global_profileFragment, bundle)
-        })
-        viewModel.openSubjectEditor.observe(viewLifecycleOwner, { subjectId: String? ->
+        }
+        viewModel.openSubjectEditor.observe(viewLifecycleOwner) { subjectId: String? ->
             SubjectEditorDialog.newInstance(subjectId).show(
                 childFragmentManager, null
             )
-        })
-        viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupId: String? ->
+        }
+        viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId: String? ->
             val intent = Intent(activity, GroupEditorActivity::class.java)
             intent.putExtra(GroupEditorFragment.GROUP_ID, groupId)
             requireActivity().startActivity(intent)
-        })
-        viewModel.openSpecialtyEditor.observe(viewLifecycleOwner, { id ->
+        }
+        viewModel.openSpecialtyEditor.observe(viewLifecycleOwner) { id ->
             SpecialtyEditorDialog.newInstance(id).show(
                 childFragmentManager, null
             )
-        })
-        viewModel.openConfirmation.observe(viewLifecycleOwner, { (first, second) ->
+        }
+        viewModel.openConfirmation.observe(viewLifecycleOwner) { (first, second) ->
             ConfirmDialog.newInstance(
                 first, second
             ).show(childFragmentManager, null)
-        })
+        }
 
         viewModel.openCourse.observe(viewLifecycleOwner) {
             navController.navigate(
@@ -184,7 +184,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
                 bundleOf(CourseEditorFragment.COURSE_ID to it)
             )
         }
-        viewModel.showOptions.observe(viewLifecycleOwner, { (first, second) ->
+        viewModel.showOptions.observe(viewLifecycleOwner) { (first, second) ->
             val popupWindow = ListPopupWindow(
                 requireActivity()
             )
@@ -198,7 +198,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
             popupWindow.setAdapter(popupAdapter)
             popupWindow.show()
-        })
+        }
     }
 
     override fun onItemClick(position: Int) {

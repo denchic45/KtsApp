@@ -2,8 +2,8 @@
 <resources>
 
     <style name="TextAppearance.Kts.Subtitle1" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
-        <item name="fontFamily">@font/gilroy_semibold</item>
-        <item name="android:fontFamily">@font/gilroy_semibold</item>
+        <item name="fontFamily">@font/gilroy_semi_bold</item>
+        <item name="android:fontFamily">@font/gilroy_semi_bold</item>
         <item name="android:textColor">?android:textColorPrimary</item>
     </style>
 
@@ -29,8 +29,8 @@
     </style>
 
     <style name="TextAppearance.Kts.SubHeader" parent="TextAppearance.Kts.Subtitle2">
-        <item name="fontFamily">@font/gilroy_semibold</item>
-        <item name="android:fontFamily">@font/gilroy_semibold</item>
+        <item name="fontFamily">@font/gilroy_semi_bold</item>
+        <item name="android:fontFamily">@font/gilroy_semi_bold</item>
         <item name="android:textColor">@color/dark</item>
         <item name="android:textSize">16sp</item>
     </style>
@@ -58,7 +58,7 @@
     </style>
 
     <style name="TextAppearance.Kts.Chip" parent="TextAppearance.MaterialComponents.Chip">
-        <item name="android:fontFamily">@font/gilroy_semibold</item>
+        <item name="android:fontFamily">@font/gilroy_semi_bold</item>
     </style>
 
 </resources>

@@ -2,14 +2,11 @@ package com.denchic45.kts;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +17,7 @@ import androidx.viewpager2.widget.ViewPager2;
  * Layout to wrap a scrollable component inside a ViewPager2. Provided as a solution to the problem
  * where pages of ViewPager2 have nested scrollable elements that scroll in the same direction as
  * ViewPager2. The scrollable element needs to be the immediate and only child of this host layout.
- *
+ * <p>
  * This solution has limitations when using multiple levels of nested scrollable elements
  * (e.g. a horizontal RecyclerView in a vertical RecyclerView in a horizontal ViewPager2).
  */
@@ -51,7 +48,7 @@ public class NestedScrollableHost extends FrameLayout {
         init(context);
     }
 
-    private void init(Context context){
+    private void init(Context context) {
         touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
 
@@ -59,7 +56,7 @@ public class NestedScrollableHost extends FrameLayout {
             @Override
             public boolean onPreDraw() {
                 View v = (View) getParent();
-                while (v!=null && !(v instanceof ViewPager2)){
+                while (v != null && !(v instanceof ViewPager2)) {
                     v = (View) v.getParent();
                 }
                 parentViewPager = (ViewPager2) v;
@@ -105,12 +102,12 @@ public class NestedScrollableHost extends FrameLayout {
             initialY = e.getY();
             getParent().requestDisallowInterceptTouchEvent(true);
         } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-            float dx = e.getX()- initialX;
+            float dx = e.getX() - initialX;
             float dy = e.getY() - initialY;
             boolean isVpHorizontal = orientation == ViewPager2.ORIENTATION_HORIZONTAL;
 
             // assuming ViewPager2 touch-slop is 2x touch-slop of child
-            float scaledDx = Math.abs(dx) * (isVpHorizontal ?  .5f : 1f);
+            float scaledDx = Math.abs(dx) * (isVpHorizontal ? .5f : 1f);
             float scaledDy = Math.abs(dy) * (isVpHorizontal ? 1f : .5f);
             if (scaledDx > touchSlop || scaledDy > touchSlop) {
                 if (isVpHorizontal == (scaledDy > scaledDx)) {
@@ -118,16 +115,13 @@ public class NestedScrollableHost extends FrameLayout {
                     getParent().requestDisallowInterceptTouchEvent(false);
                 } else {
                     // Gesture is parallel, query child if movement in that direction is possible
-                    if (canChildScroll(orientation, isVpHorizontal ? dx : dy)) {
-                        // Child can scroll, disallow all parents to intercept
-                        getParent().requestDisallowInterceptTouchEvent(true);
-                    } else {
-                        // Child cannot scroll, allow all parents to intercept
-                        getParent().requestDisallowInterceptTouchEvent(false);
-                    }
+                    // Child can scroll, disallow all parents to intercept
+                    // Child cannot scroll, allow all parents to intercept
+                    getParent().requestDisallowInterceptTouchEvent(canChildScroll(orientation, isVpHorizontal ? dx : dy));
                 }
             }
 
 
         }
-    }}
+    }
+}

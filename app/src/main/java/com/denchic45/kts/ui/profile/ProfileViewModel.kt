@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.profile
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Group
@@ -10,10 +9,9 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.rx.AsyncTransformer
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
-import com.denchic45.kts.uipermissions.UIPermissions
+import com.denchic45.kts.uipermissions.UiPermissions
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.launch
-import java.util.function.Predicate
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -33,7 +31,7 @@ class ProfileViewModel @Inject constructor(
     val openGroup = SingleLiveData<String>()
     val openFullImage = SingleLiveData<String>()
     val openGallery = SingleLiveData<Void>()
-    private val uiPermissions: UIPermissions
+    private val uiPermissions: UiPermissions
     private val compositeDisposable = CompositeDisposable()
     private var userOfProfile: User? = null
     private var group: Group? = null
@@ -111,13 +109,9 @@ class ProfileViewModel @Inject constructor(
                     optionVisibility.value = Pair(R.id.menu_select_avatar, false)
                 }
             })
-        uiPermissions = UIPermissions(interactor.findThisUser())
+        uiPermissions = UiPermissions(interactor.findThisUser())
         uiPermissions.addPermissions(
-            Permission(
-                PERMISSION_USER_NFO,
-                User::admin,
-                User::isTeacher,
-                Predicate { (userId) -> userId == id })
+            Permission(PERMISSION_USER_NFO, { hasAdminPerms() }, { isTeacher }, { this.id == id })
         )
         infoVisibility.value = uiPermissions.isAllowed(PERMISSION_USER_NFO)
     }

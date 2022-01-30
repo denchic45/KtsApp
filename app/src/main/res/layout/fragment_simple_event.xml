@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="72dp"
     android:foreground="?selectableItemBackgroundBorderless"
-    tools:context=".ui.adminPanel.timtableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment">
+    tools:context=".ui.adminPanel.timetableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment">
 
     <ImageView
         android:id="@+id/iv_subject_ic"
@@ -25,7 +25,7 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="16sp"
         android:layout_toEndOf="@id/iv_subject_ic"
-        android:fontFamily="@font/gilroy_semibold"
+        android:fontFamily="@font/gilroy_semi_bold"
         android:hint="Событие"
         android:maxLines="1"
         android:textColor="@color/dark_gray"

@@ -10,7 +10,6 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.adapter.CustomAdapter
-import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.base.listFragment.ListFragment
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar

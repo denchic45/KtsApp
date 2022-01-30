@@ -23,7 +23,7 @@
         android:layout_marginStart="16sp"
         android:layout_toEndOf="@id/iv_ic"
         android:layout_centerVertical="true"
-        android:fontFamily="@font/gilroy_semibold"
+        android:fontFamily="@font/gilroy_semi_bold"
         android:maxLines="1"
         android:textAppearance="?attr/textAppearanceBody2"
         android:text="Some group"

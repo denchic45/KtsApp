@@ -40,13 +40,13 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
                 itemClickListener
             )
             TYPE_HEADER -> return HeaderHolder(
-              parent.viewBinding(ItemHeaderBinding::inflate)
+                parent.viewBinding(ItemHeaderBinding::inflate)
             )
             TYPE_PROGRESS -> return ProgressItemHolder(
-               parent.viewBinding(ItemIconContent2Binding::inflate), itemClickListener
+                parent.viewBinding(ItemIconContent2Binding::inflate), itemClickListener
             )
             TYPE_SWITCH -> return SwitchItemHolder(
-               parent.viewBinding(ItemContentSwitchBinding::inflate), itemCheckListener
+                parent.viewBinding(ItemContentSwitchBinding::inflate), itemCheckListener
             )
             else -> throw IllegalStateException()
         }
@@ -66,12 +66,16 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
         } else {
             for (payload in payloads) {
                 if (holder is ProgressItemHolder) {
-                    if (payload === PAYLOAD.SHOW_LOADING) {
-                        holder.showLoading()
-                    } else if (payload === PAYLOAD.SHOW_IMAGE) {
-                        holder.showImage()
-                    } else if (payload === PAYLOAD.CHANGE_TITLE) {
-                        holder.binding.tvContent.text = (getItem(position)!!.title)
+                    when {
+                        payload === PAYLOAD.SHOW_LOADING -> {
+                            holder.showLoading()
+                        }
+                        payload === PAYLOAD.SHOW_IMAGE -> {
+                            holder.showImage()
+                        }
+                        payload === PAYLOAD.CHANGE_TITLE -> {
+                            holder.binding.tvContent.text = (getItem(position)!!.title)
+                        }
                     }
                 }
             }
@@ -114,7 +118,10 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
         itemPopupIconContentBinding: ItemPopupIconContentBinding,
         listener: OnItemClickListener
     ) :
-        BaseViewHolder<ListItem, ItemPopupIconContentBinding>(itemPopupIconContentBinding, listener) {
+        BaseViewHolder<ListItem, ItemPopupIconContentBinding>(
+            itemPopupIconContentBinding,
+            listener
+        ) {
         override fun onBind(item: ListItem) {
 
             with(binding) {
@@ -154,9 +161,9 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
 
                 item.color.fold({
                     if (it != 0) {
-                        androidx.core.graphics.drawable.DrawableCompat.setTint(
-                            androidx.core.graphics.drawable.DrawableCompat.wrap(ivIc.drawable),
-                            androidx.core.content.ContextCompat.getColor(context, it)
+                        DrawableCompat.setTint(
+                            DrawableCompat.wrap(ivIc.drawable),
+                            ContextCompat.getColor(context, it)
                         )
                     }
                 }, {})
@@ -171,14 +178,14 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
 
         fun showLoading() {
             if (itemView.isClickable) {
-                binding.vsIc.post {    binding.vsIc.displayedChild = 1 }
+                binding.vsIc.post { binding.vsIc.displayedChild = 1 }
                 itemView.isClickable = false
             }
         }
 
         fun showImage() {
             if (!itemView.isClickable) {
-                binding.vsIc.post {    binding.vsIc.displayedChild = 0 }
+                binding.vsIc.post { binding.vsIc.displayedChild = 0 }
                 itemView.isClickable = true
             }
         }

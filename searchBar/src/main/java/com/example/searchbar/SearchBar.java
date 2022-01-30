@@ -37,7 +37,7 @@ import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.example.Utils.DimensionUtils;
+import com.example.utils.DimensionUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -136,7 +136,7 @@ public class SearchBar extends LinearLayout {
         if (contentLayoutId != 0) {
             ViewParent parent = getParent();
             View rootView = ((View) parent).getRootView();
-            ViewGroup contentView = ((ViewGroup) rootView).findViewById(contentLayoutId);
+            ViewGroup contentView = rootView.findViewById(contentLayoutId);
 
             int top = DimensionUtils.dpToPx(8, getContext());
 
@@ -216,9 +216,8 @@ public class SearchBar extends LinearLayout {
 
     private void animateProgressLeftIcon(float progress) {
         ValueAnimator anim = ValueAnimator.ofFloat(menuIcon.getProgress(), progress);
-        anim.addUpdateListener(valueAnimator -> {
-            menuIcon.setProgress((Float) valueAnimator.getAnimatedValue());
-        });
+        anim.addUpdateListener(valueAnimator ->
+                menuIcon.setProgress((Float) valueAnimator.getAnimatedValue()));
         anim.setInterpolator(new DecelerateInterpolator());
         anim.setDuration(300);
         anim.start();
@@ -261,8 +260,6 @@ public class SearchBar extends LinearLayout {
                 animateProgressLeftIcon(1);
                 break;
             case LEFT_ACTION_MODE_SEARCH:
-                toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
-                break;
             default:
                 toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         }

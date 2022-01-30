@@ -84,14 +84,14 @@ class GroupFragment : Fragment() {
                 }
         }
         viewModel.menuItemVisibility.observe(
-            viewLifecycleOwner,
-            { idAndVisiblePair: Pair<Int, Boolean> ->
-                val menuItem = menu!!.findItem(
-                    idAndVisiblePair.first
-                )
-                if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
-            })
-        viewModel.initTabs.observe(viewLifecycleOwner, { size: Int ->
+            viewLifecycleOwner
+        ) { idAndVisiblePair: Pair<Int, Boolean> ->
+            val menuItem = menu!!.findItem(
+                idAndVisiblePair.first
+            )
+            if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
+        }
+        viewModel.initTabs.observe(viewLifecycleOwner) { size: Int ->
             val adapter = GroupFragmentAdapter(
                 childFragmentManager,
                 viewModel.groupId,
@@ -106,23 +106,23 @@ class GroupFragment : Fragment() {
                 }
             })
             tabLayout!!.setupWithViewPager(viewPager)
-        })
+        }
         viewModel.openUserEditor.observe(
-            viewLifecycleOwner,
-            { (userType, groupId) ->
-                val intent = Intent(requireContext(), UserEditorActivity::class.java)
-                intent.putExtra(UserEditorActivity.USER_ROLE, userType)
-                intent.putExtra(UserEditorActivity.USER_GROUP_ID, groupId)
-                startActivity(intent)
-            })
-        viewModel.openGroupEditor.observe(viewLifecycleOwner, { groupId: String? ->
+            viewLifecycleOwner
+        ) { (userType, groupId) ->
+            val intent = Intent(requireContext(), UserEditorActivity::class.java)
+            intent.putExtra(UserEditorActivity.USER_ROLE, userType)
+            intent.putExtra(UserEditorActivity.USER_GROUP_ID, groupId)
+            startActivity(intent)
+        }
+        viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId: String? ->
             val intent = Intent(activity, GroupEditorActivity::class.java)
             intent.putExtra(GroupEditorFragment.GROUP_ID, groupId)
             requireActivity().startActivity(intent)
-        })
+        }
         viewModel.finish.observe(
-            viewLifecycleOwner,
-            { navController!!.popBackStack() })
+            viewLifecycleOwner
+        ) { navController!!.popBackStack() }
     }
 
     override fun onDestroyView() {

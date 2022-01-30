@@ -18,7 +18,6 @@ import com.denchic45.kts.ui.confirm.ConfirmDialog
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.collect
-import java.util.function.Consumer
 import javax.inject.Inject
 
 class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
@@ -40,32 +39,29 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
             rvCourse.adapter = adapter
         }
 
-        viewModel.openCourseEditorDialog.observe(viewLifecycleOwner, { course: Course ->
-        })
         lifecycleScope.launchWhenStarted {
-            viewModel.courses.collect { cours: List<Course> -> adapter!!.submitList(cours) }
+            viewModel.courses.collect { courses: List<Course> -> adapter!!.submitList(courses) }
         }
         viewModel.openConfirmation.observe(
-            viewLifecycleOwner,
-            { titleWithSubtitlePair: Pair<String, String> ->
-                val dialog = ConfirmDialog.newInstance(
-                    titleWithSubtitlePair.first,
-                    titleWithSubtitlePair.second
-                )
-                dialog.show(childFragmentManager, null)
-            })
+            viewLifecycleOwner
+        ) { titleWithSubtitlePair: Pair<String, String> ->
+            val dialog = ConfirmDialog.newInstance(
+                titleWithSubtitlePair.first,
+                titleWithSubtitlePair.second
+            )
+            dialog.show(childFragmentManager, null)
+        }
         viewModel.selectItem.observe(
-            viewLifecycleOwner,
-            { positionWithSelectPair: Pair<Int, Boolean> ->
-                selectSubjectTeacherItem(
-                    positionWithSelectPair.first,
-                    positionWithSelectPair.second
-                )
-            })
-        viewModel.clearItemsSelection.observe(viewLifecycleOwner, { positions: Set<Int> ->
-            positions.forEach(
-                Consumer { position: Int -> selectSubjectTeacherItem(position, false) })
-        })
+            viewLifecycleOwner
+        ) { positionWithSelectPair: Pair<Int, Boolean> ->
+            selectSubjectTeacherItem(
+                positionWithSelectPair.first,
+                positionWithSelectPair.second
+            )
+        }
+        viewModel.clearItemsSelection.observe(viewLifecycleOwner) { positions: Set<Int> ->
+            positions.forEach { position: Int -> selectSubjectTeacherItem(position, false) }
+        }
     }
 
     private fun selectSubjectTeacherItem(position: Int, select: Boolean) {

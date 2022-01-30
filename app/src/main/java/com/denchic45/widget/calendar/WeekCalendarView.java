@@ -5,7 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -14,7 +13,6 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.denchic45.kts.R;
-import com.denchic45.kts.utils.ViewUtils;
 import com.denchic45.widget.calendar.model.Week;
 
 import org.apache.commons.lang3.time.DateUtils;
@@ -54,9 +52,9 @@ public class WeekCalendarView extends LinearLayout {
         super.setEnabled(enabled);
         viewPagerWeek.setUserInputEnabled(enabled);
 //        viewPagerWeek.post(() -> {
-            WeekPageAdapter.WeekHolder weekHolder = adapter.getWeekHolder(viewPagerWeek.getCurrentItem());
-            if (weekHolder != null)
-                weekHolder.setEnable(enabled);
+        WeekPageAdapter.WeekHolder weekHolder = adapter.getWeekHolder(viewPagerWeek.getCurrentItem());
+        if (weekHolder != null)
+            weekHolder.setEnable(enabled);
 //        });
     }
 

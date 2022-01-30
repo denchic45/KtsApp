@@ -6,13 +6,17 @@ import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.google.android.gms.tasks.*
+import com.google.android.gms.tasks.TaskExecutors
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
-import io.reactivex.rxjava3.core.*
-import kotlinx.coroutines.*
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.CompletableEmitter
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.core.SingleEmitter
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -51,7 +55,7 @@ class AuthRepository @Inject constructor(
 
     private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
         firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(TaskExecutors.MAIN_THREAD, { task: Task<AuthResult?> ->
+            .addOnCompleteListener(TaskExecutors.MAIN_THREAD) { task ->
                 if (task.isSuccessful) {
                     val smsCode = credential.smsCode!!
                     emitter.onSuccess(Resource.Success(smsCode))
@@ -59,7 +63,7 @@ class AuthRepository @Inject constructor(
                 } else {
                     emitter.onSuccess(Resource.Error(task.exception!!))
                 }
-            })
+            }
     }
 
     fun authByPhoneNum(code: String?) {
@@ -71,7 +75,7 @@ class AuthRepository @Inject constructor(
     }
 
     val listenAuthState: Flow<Boolean> = callbackFlow {
-        val listener: (FirebaseAuth) -> Unit = { firebaseAuth1: FirebaseAuth ->
+        val listener: (FirebaseAuth) -> Unit = {
 
             trySend(firebaseAuth.currentUser != null)
         }
