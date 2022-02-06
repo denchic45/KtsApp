@@ -2,17 +2,12 @@ package com.denchic45.kts.ui.course.taskInfo
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.data.model.domain.SubmissionSettings
 import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.confirm.ConfirmInteractor
-import com.denchic45.kts.ui.course.content.ContentFragment
-import com.denchic45.kts.uipermissions.Permission
-import com.denchic45.kts.uipermissions.UiPermissions
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -28,7 +23,7 @@ import javax.inject.Named
 class TaskInfoViewModel @Inject constructor(
     @Named(TaskInfoFragment.TASK_ID) val taskId: String,
     @Named(TaskInfoFragment.COURSE_ID) val courseId: String,
-
+    findSelfUserUseCase: FindSelfUserUseCase,
     findTaskUseCase: FindTaskUseCase,
     findTaskAttachmentsUseCase: FindAttachmentsUseCase,
     findSelfTaskSubmissionUseCase: FindSelfTaskSubmissionUseCase,
@@ -38,8 +33,6 @@ class TaskInfoViewModel @Inject constructor(
     companion object {
         const val ALLOW_EDIT_TASK = "ALLOW_EDIT_TASK"
     }
-
-
 
     private val taskFlow = findTaskUseCase(taskId).shareIn(
         viewModelScope,
@@ -92,11 +85,15 @@ class TaskInfoViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _submissionViewState.emitAll(findSelfTaskSubmissionUseCase(task())
-                .onEach {
-                    oldContent = it.content
-                    content = oldContent
-                })
+            if (findSelfUserUseCase().isStudent) {
+                _submissionViewState.emitAll(
+                    findSelfTaskSubmissionUseCase(task())
+                        .onEach {
+                            oldContent = it.content
+                            content = oldContent
+                        }
+                )
+            }
         }
     }
 
