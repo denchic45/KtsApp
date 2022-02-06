@@ -9,36 +9,36 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
 import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.TimetableLoaderFragment
 
 class FilePicker(
-    private val activity: AppCompatActivity,
-    owner: LifecycleOwner,
+    private val fragment: Fragment,
     private val callback: (activityResult: ActivityResult) -> Unit,
     private val multipleSelect: Boolean = false
 ) {
 
-    private val registry: ActivityResultRegistry = activity.activityResultRegistry
+    private val registry: ActivityResultRegistry = activityFromFragment().activityResultRegistry
+
+    private fun activityFromFragment() = fragment.requireActivity()
 
     private var getPermissions: ActivityResultLauncher<Intent> =
         registry.register(
             PERMISSION_REGISTRY_KEY,
-            owner,
+            fragment,
             ActivityResultContracts.StartActivityForResult()
         ) { chooseFile() }
 
     private var getFile: ActivityResultLauncher<Intent> =
         registry.register(
-            RESULT_REGISTRY_KEY,
-            owner,
+            RESULT_REGISTRY_KEY + fragment.javaClass.name,
+            fragment,
             ActivityResultContracts.StartActivityForResult()
         ) { callback(it) }
 
     fun selectFiles() {
-        if (Permissions.checkExternalStorageManager(activity)) {
+        if (Permissions.checkExternalStorageManager(activityFromFragment())) {
             chooseFile()
         } else {
             requestPermissions()
@@ -53,7 +53,7 @@ class FilePicker(
                     data = Uri.parse(
                         String.format(
                             "package:%s",
-                            activity.applicationContext.packageName
+                            activityFromFragment().applicationContext.packageName
                         )
                     )
                 })
@@ -62,7 +62,7 @@ class FilePicker(
             }
         } else {
             ActivityCompat.requestPermissions(
-                activity, arrayOf(
+                activityFromFragment(), arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE
                 ), TimetableLoaderFragment.PICK_FILE_RESULT_CODE

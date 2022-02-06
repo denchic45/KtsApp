@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "b5e2868583e15b6cfb8a2f86c12d1079",
+    "identityHash": "41a721e4de8ffa53dc5024565e00c490",
     "entities": [
       {
         "tableName": "subject",
@@ -130,7 +130,7 @@
       },
       {
         "tableName": "course_content",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `section_id` TEXT NOT NULL, `name` TEXT NOT NULL, `attachments` TEXT NOT NULL, `description` TEXT NOT NULL, `details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `created_date` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `completion_date` INTEGER, PRIMARY KEY(`content_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `section_id` TEXT NOT NULL, `name` TEXT NOT NULL, `attachments` TEXT NOT NULL, `description` TEXT NOT NULL, `content_details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `created_date` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `completion_date` INTEGER, PRIMARY KEY(`content_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -169,8 +169,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "details",
-            "columnName": "details",
+            "fieldPath": "contentDetails",
+            "columnName": "content_details",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -563,7 +563,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "courseUuid",
+            "fieldPath": "courseId",
             "columnName": "course_id",
             "affinity": "TEXT",
             "notNull": true
@@ -900,7 +900,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b5e2868583e15b6cfb8a2f86c12d1079')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '41a721e4de8ffa53dc5024565e00c490')"
     ]
   }
 }

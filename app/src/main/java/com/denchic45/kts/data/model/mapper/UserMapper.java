@@ -43,15 +43,11 @@ public interface UserMapper {
         return generator.generateKeys(fullName, predicate -> predicate.length() > 2);
     }
 
-    @SuppressWarnings("NullableProblems")
     UserEntity docToEntity(@NotNull UserDoc user);
 
-    @SuppressWarnings("NullableProblems")
     List<UserEntity> docToEntity(@NotNull List<UserDoc> users);
 
-    @SuppressWarnings("NullableProblems")
     @NotNull User docToDomain(@NotNull UserDoc users);
 
-    @SuppressWarnings("NullableProblems")
     @NotNull List<User> docToDomain(@NotNull List<UserDoc> users);
 }

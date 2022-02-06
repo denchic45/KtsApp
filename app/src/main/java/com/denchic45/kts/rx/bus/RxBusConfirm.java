@@ -15,18 +15,20 @@ public class RxBusConfirm {
     }
 
     public void postEvent(Boolean o) {
-        subject.onNext(o);
+        if (subject != null)
+            subject.onNext(o);
     }
 
     public Observable<Boolean> getEvent() {
-        if (subject == null) {
+        if (subject == null)
             subject = PublishSubject.create();
-        }
+
         return subject;
     }
 
     public void completeEvent() {
-        subject.onComplete();
+        if (subject != null)
+            subject.onComplete();
         subject = null;
     }
 }

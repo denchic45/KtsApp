@@ -11,6 +11,7 @@ import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
@@ -18,6 +19,8 @@ import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.UUIDS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.File
 import java.time.Instant
@@ -32,6 +35,7 @@ class TaskEditorViewModel @Inject constructor(
     @Named(TaskEditorFragment.TASK_ID) taskId: String?,
     @Named(TaskEditorFragment.COURSE_ID) private val courseId: String,
     @Named(TaskEditorFragment.SECTION_ID) sectionId: String?,
+    private val confirmInteractor: ConfirmInteractor,
     private val findTaskUseCase: FindTaskUseCase,
     private val findAttachmentsUseCase: FindAttachmentsUseCase,
     private val findSectionUseCase: FindSectionUseCase,
@@ -168,6 +172,8 @@ class TaskEditorViewModel @Inject constructor(
     private fun setupForExist() {
         viewModelScope.launch {
             findTaskUseCase(taskId)
+                .onEach { if (it == null) finish.call() }
+                .filterNotNull()
                 .collect {
                     uiEditor.oldItem = it
                     nameField.value = it.name
@@ -262,21 +268,18 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     fun onAttachmentsSelect(selectedFiles: List<File>) {
-        selectedFiles[0]
         attachments.addAll(selectedFiles.map { Attachment(file = it) })
         postAttachments()
     }
 
     fun onRemoveFileClick(position: Int) {
         openConfirmation.postValue("Убрать файл" to "подтвердите ваш выбор")
-        RxBusConfirm.getInstance()
-            .event
-            .subscribe {
-                if (it) {
-                    attachments.removeAt(position)
-                    postAttachments()
-                }
+        viewModelScope.launch {
+            if (confirmInteractor.awaitConfirm()) {
+                attachments.removeAt(position)
+                postAttachments()
             }
+        }
     }
 
     fun onAttachmentClick(position: Int) {

@@ -52,7 +52,7 @@ class EventRepository @Inject constructor(
     override val userMapper: UserMapper,
     override val groupMapper: GroupMapper,
     override val specialtyMapper: SpecialtyMapper,
-    private val dataBase: DataBase,
+    override val dataBase: DataBase,
     private val lessonDao: LessonDao,
     override val userDao: UserDao,
     private val courseDao: CourseDao,

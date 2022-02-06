@@ -64,7 +64,7 @@
                 app:tabMode="scrollable"
                 app:tabRippleColor="@android:color/transparent"
                 app:tabTextAppearance="@style/AppTheme.Tabs.TextAppearance"
-                tools:ignore="RtlSymmetry"></com.google.android.material.tabs.TabLayout>
+                tools:ignore="RtlSymmetry" />
 
             <Button
                 android:id="@+id/btn_add_group"

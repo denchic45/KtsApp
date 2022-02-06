@@ -86,18 +86,20 @@ class AuthRepository @Inject constructor(
     }
 
 
-    fun authByEmail(mail: String, password: String): Completable {
+    fun authByEmail(email: String, password: String): Completable {
         return Completable.create { emitter: CompletableEmitter ->
-            firebaseAuth.signInWithEmailAndPassword(
-                mail, password
-            )
+            firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener { emitter.onComplete() }
                 .addOnFailureListener { t: Exception -> emitter.onError(t) }
         }
     }
 
-    fun signUpNewUser(email: String?, password: String?) {
-        firebaseAuth.createUserWithEmailAndPassword(email!!, password!!)
+    fun signUpNewUser(email: String, password: String) {
+        firebaseAuth.createUserWithEmailAndPassword(email!!, password!!).addOnCompleteListener {
+            if (it.exception != null) {
+                it.exception!!.printStackTrace()
+            }
+        }
     }
 
     fun resetPassword(email: String): Completable {

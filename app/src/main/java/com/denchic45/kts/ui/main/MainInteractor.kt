@@ -1,12 +1,12 @@
 package com.denchic45.kts.ui.main
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Course
+import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.repository.*
@@ -14,10 +14,12 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.TimestampUtil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -90,24 +92,13 @@ class MainInteractor @Inject constructor(
 
     }
 
-    val roleOfThisUser: String
-        get() = userRepository.roleOfThisUser
+    fun findThisUser(): User = userRepository.findSelf()
 
-    fun findThisUser(): User {
-        return userRepository.findSelf()
-    }
-
-    fun listenThisUser(): Flow<Optional<User>> {
-        return userRepository.thisUserObserver
-    }
+    fun listenThisUser(): Flow<User?> = userRepository.thisUserObserver
 
     suspend fun startListeners() {
-        listenThisUser().mapLatest { optionalUser: Optional<User> ->
-            if (!optionalUser.isPresent) {
-                clearAllData(context)
-                authRepository.signOut()
-            } else {
-                val user = optionalUser.get()
+        listenThisUser().collect { user ->
+            user?.let {
                 if (user.isTeacher) {
                     groupInfoRepository.listenYouGroupByCurator()
                     groupInfoRepository.listenGroupsWhereThisUserIsTeacher(user)
@@ -115,13 +106,14 @@ class MainInteractor @Inject constructor(
                     groupInfoRepository.listenYourGroup()
                 }
                 courseRepository.observeByYouGroup()
+            } ?: run {
+                clearAllData(context)
+                authRepository.signOut()
             }
-        }.collect {
-            Log.d("lol", "fucking end: ")
         }
     }
 
-    fun findOwnCourses(): Flow<List<Course>> {
+    fun findOwnCourses(): Flow<List<CourseHeader>> {
         val thisUser = findThisUser()
         return when {
             thisUser.isTeacher -> courseRepository.findByYourAsTeacher()

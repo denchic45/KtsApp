@@ -57,7 +57,7 @@ class TaskEditorFragment :
 
     companion object {
         const val TASK_ID = "TaskEditor TASK_ID"
-        const val COURSE_ID = "COURSE_ID"
+        const val COURSE_ID = "TaskEditor COURSE_ID"
         const val SECTION_ID = "SECTION_ID"
     }
 
@@ -93,15 +93,13 @@ class TaskEditorFragment :
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        filePicker = FilePicker(requireActivity() as AppCompatActivity, this, {
+        filePicker = FilePicker(this, {
             if (it.resultCode == Activity.RESULT_OK) {
                 with(it.data!!) {
                     clipData?.let { clipData ->
                         viewModel.onAttachmentsSelect(
                             List(clipData.itemCount) { position ->
-                                File(
-                                    requireContext().path(clipData.getItemAt(position).uri)
-                                )
+                                File(requireContext().path(clipData.getItemAt(position).uri))
                             }
                         )
                     } ?: viewModel.onAttachmentsSelect(listOf(File(requireContext().path(data!!))))

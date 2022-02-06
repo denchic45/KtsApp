@@ -17,3 +17,10 @@ data class Course(
 
     private constructor() : this("", "", Subject.createEmpty(), User.createEmpty(), emptyList())
 }
+
+data class CourseHeader(
+    override var id: String,
+    var name: String,
+    var subject: Subject,
+    var teacher: User
+): DomainModel()

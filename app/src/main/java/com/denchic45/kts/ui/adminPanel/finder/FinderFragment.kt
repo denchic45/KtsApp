@@ -82,7 +82,6 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         appBarController = AppBarController.findController(requireActivity())
         hideMainToolbar()
         with(viewBinding) {
@@ -96,9 +95,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             layoutManager = LinearLayoutManager(activity)
             rvFoundItems.layoutManager = layoutManager
             finderEntityAdapter.setItemClickListener { position: Int ->
-                viewModel.onFinderEntitySelect(
-                    position
-                )
+                viewModel.onFinderEntitySelect(position)
             }
 
             viewModel.currentSelectedEntity.observe(viewLifecycleOwner) { position: Int ->

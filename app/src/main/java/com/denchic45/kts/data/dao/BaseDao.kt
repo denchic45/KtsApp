@@ -22,7 +22,7 @@ abstract class BaseDao<T> {
     abstract fun delete(obj: T)
     @Transaction
     @Delete
-    abstract fun delete(obj: List<T>)
+    abstract suspend fun delete(obj: List<T>)
     @Transaction
     open suspend fun upsert(obj: T) {
         val id = insert(obj)

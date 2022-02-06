@@ -37,7 +37,7 @@ class FinderInteractor @Inject constructor(
         return specialtyRepository.findByTypedName(name)
     }
 
-    fun findCourseByTypedName(name: String): Flow<Resource<List<Course>>> {
+    fun findCourseByTypedName(name: String): Flow<Resource<List<CourseHeader>>> {
         return courseRepository.findByTypedName(name)
     }
 

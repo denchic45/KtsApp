@@ -23,9 +23,9 @@ import com.denchic45.kts.data.model.EntityModel;
                         deferred = true)
         })
 public class GroupCourseCrossRef implements EntityModel {
-    public GroupCourseCrossRef(@NonNull String groupId, @NonNull String courseUuid) {
+    public GroupCourseCrossRef(@NonNull String groupId, @NonNull String courseId) {
         this.groupId = groupId;
-        this.courseUuid = courseUuid;
+        this.courseId = courseId;
     }
 
     @ColumnInfo(index = true, name = "group_id")
@@ -33,5 +33,5 @@ public class GroupCourseCrossRef implements EntityModel {
     public String groupId;
     @ColumnInfo(index = true, name = "course_id")
     @NonNull
-    public String courseUuid;
+    public String courseId;
 }

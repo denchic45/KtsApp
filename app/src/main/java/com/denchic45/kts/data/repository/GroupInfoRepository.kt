@@ -64,7 +64,7 @@ class GroupInfoRepository @Inject constructor(
     private val courseMapper: CourseMapper,
     override val specialtyMapper: SpecialtyMapper,
     private val firestore: FirebaseFirestore,
-    private val dataBase: DataBase
+    override val dataBase: DataBase
 ) : Repository(context), IGroupRepository {
 
     private val compositeDisposable = CompositeDisposable()
@@ -82,19 +82,6 @@ class GroupInfoRepository @Inject constructor(
 //        groupDao.upsert(groupMapper.docToEntity(groupDoc))
 //        specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
 //    }
-
-    private suspend fun saveUsersAndGroupsAndSubjectsOfTeacher(
-        groupDocs: List<GroupDoc>,
-        teacherId: String
-    ) {
-        dataBase.withTransaction {
-            for (groupDoc in groupDocs) {
-                upsertUsersOfGroup(groupDoc)
-                groupDao.upsert(groupMapper.docToEntity(groupDoc))
-                specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
-            }
-        }
-    }
 
     fun listenYourGroup() {
         addListenerRegistration("yourGroup") { yourGroupByIdListener }
@@ -238,11 +225,15 @@ class GroupInfoRepository @Inject constructor(
                     Log.d("lol", "onError: ", error)
                 }
                 coroutineScope.launch(dispatcher) {
-                    val groupDocs = snapshots!!.toObjects(GroupDoc::class.java)
-                    for (groupDoc in groupDocs) {
-                        saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
+                    snapshots?.let {
+                        if (timestampsNotNull(snapshots)) {
+                            val groupDocs = snapshots.toObjects(GroupDoc::class.java)
+                            for (groupDoc in groupDocs) {
+                                saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
+                            }
+                            trySend(Resource.Success(groupMapper.docToCourseGroupDomain(groupDocs)))
+                        }
                     }
-                    trySend(Resource.Success(groupMapper.docToCourseGroupDomain(groupDocs)))
                 }
             }
 
@@ -384,12 +375,10 @@ class GroupInfoRepository @Inject constructor(
                         emitter.onError(error)
                         return@addSnapshotListener
                     }
-                    if (!value!!.isEmpty)
+                    if (!value!!.isEmpty && timestampsNotNull(value))
                         coroutineScope.launch(dispatcher) {
                             saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
-                                value.documents[0].toObject(
-                                    GroupDoc::class.java
-                                )!!
+                                value.documents[0].toObject(GroupDoc::class.java)!!
                             )
                         }
                 }

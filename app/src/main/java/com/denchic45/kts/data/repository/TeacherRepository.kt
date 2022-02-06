@@ -6,7 +6,9 @@ import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.SearchKeysGenerator
@@ -15,26 +17,26 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import io.reactivex.rxjava3.core.*
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.CompletableEmitter
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import java.util.*
 import javax.inject.Inject
 
 class TeacherRepository @Inject constructor(
     context: Context,
     private val userMapper: UserMapper
 ) : Repository(context) {
-
-    private val usersRef: CollectionReference
-    private val groupsRef: CollectionReference
-
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val storage: FirebaseStorage
-    private val avatarsRef: StorageReference
-    override val networkService: NetworkService
+    private val usersRef: CollectionReference = firestore.collection("Users")
+    private val groupsRef: CollectionReference = firestore.collection("Groups")
+    private val coursesRef: CollectionReference = firestore.collection("Courses")
+
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+    private val avatarsRef: StorageReference = storage.reference.child("avatars")
+    override val networkService: NetworkService = NetworkService(context)
     private var batch: WriteBatch? = null
 
     suspend fun add(teacher: User): User {
@@ -49,38 +51,37 @@ class TeacherRepository @Inject constructor(
         batch = firestore.batch()
         val teacherDoc = userMapper.domainToDoc(teacher)
         val tasks = Tasks.whenAllComplete(
-            findGroupsWithTeacherQuery(teacher.id),
+            findCoursesWithTeacherQuery(teacher.id),
             findGroupWithCuratorQuery(teacher.id)
         ).await()
-        val groupsWithThisTeacherSnapshot = tasks[0].result as QuerySnapshot?
+        val coursesWithThisTeacherSnapshot = tasks[0].result as QuerySnapshot?
         val groupWithThisCuratorSnapshot = tasks[1].result as QuerySnapshot?
-        if (!groupsWithThisTeacherSnapshot!!.isEmpty) {
-            val groupsWithThisTeacher = groupsWithThisTeacherSnapshot.toObjects(
-                GroupDoc::class.java
+        if (!coursesWithThisTeacherSnapshot!!.isEmpty) {
+            val coursesWithThisTeacher = coursesWithThisTeacherSnapshot.toObjects(
+                CourseDoc::class.java
             )
-            for ((id) in groupsWithThisTeacher) {
-                val updateGroupMap: MutableMap<String, Any> = HashMap()
-                updateGroupMap["teachers." + teacher.id] = teacherDoc
-                updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
-                batch!!.update(groupsRef.document(id), updateGroupMap)
+            for (courseDoc in coursesWithThisTeacher) {
+                val updateCourseMap: MutableMap<String, Any> = HashMap()
+                updateCourseMap["teacher"] = teacherDoc
+                updateCourseMap["timestamp"] = FieldValue.serverTimestamp()
+                batch!!.update(coursesRef.document(courseDoc.id), updateCourseMap)
             }
         }
         if (!groupWithThisCuratorSnapshot!!.isEmpty) {
-            val (id) = groupWithThisCuratorSnapshot.toObjects(
-                GroupDoc::class.java
-            )[0]
+            val groupWithThisCurator =
+                groupWithThisCuratorSnapshot.toObjects(GroupDoc::class.java)[0]
             val updateGroupMap: MutableMap<String, Any> = HashMap()
             updateGroupMap["curator"] = teacherDoc
             updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
-            batch!!.update(groupsRef.document(id), updateGroupMap)
+            batch!!.update(groupsRef.document(groupWithThisCurator.id), updateGroupMap)
         }
         batch!![usersRef.document(teacherDoc.id)] = teacherDoc
         batch!!.commit().await()
         return teacher
     }
 
-    private fun findGroupsWithTeacherQuery(teacherId: String): Task<QuerySnapshot> {
-        return groupsRef.orderBy("teachers.$teacherId").get()
+    private fun findCoursesWithTeacherQuery(teacherId: String): Task<QuerySnapshot> {
+        return coursesRef.whereEqualTo("teacher.id", teacherId).get()
     }
 
     private fun findGroupWithCuratorQuery(teacherId: String): Task<QuerySnapshot> {
@@ -117,8 +118,8 @@ class TeacherRepository @Inject constructor(
             batch = firestore.batch()
             batch!!.delete(usersRef.document(teacher.id))
             batch!!.commit()
-                .addOnSuccessListener { command: Void? -> emitter.onComplete() }
-                .addOnFailureListener { t: Exception? -> emitter.onError(t) }
+                .addOnSuccessListener { emitter.onComplete() }
+                .addOnFailureListener(emitter::onError)
             deleteAvatar(teacher.id)
         }
     }
@@ -129,11 +130,4 @@ class TeacherRepository @Inject constructor(
             .addOnFailureListener { e: Exception? -> Log.d("lol", "onFailure: ", e) }
     }
 
-    init {
-        usersRef = firestore.collection("Users")
-        groupsRef = firestore.collection("Groups")
-        storage = FirebaseStorage.getInstance()
-        avatarsRef = storage.reference.child("avatars")
-        networkService = NetworkService(context)
-    }
 }

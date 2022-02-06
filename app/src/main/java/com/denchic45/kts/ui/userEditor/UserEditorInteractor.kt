@@ -106,7 +106,7 @@ class UserEditorInteractor @Inject constructor(
         groupInfoRepository.removeListeners()
     }
 
-    fun signUpUser(email: String?, password: String?) {
+    fun signUpUser(email: String, password: String) {
         authRepository.signUpNewUser(email, password)
     }
 

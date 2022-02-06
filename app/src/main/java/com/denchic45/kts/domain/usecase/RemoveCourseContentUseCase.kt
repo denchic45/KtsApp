@@ -7,6 +7,6 @@ import javax.inject.Inject
 class RemoveCourseContentUseCase @Inject constructor(
     private val courseRepository: CourseRepository
 ) {
-    suspend operator fun invoke(courseContent: CourseContent) = courseRepository.removeCourseContent(courseContent)
+    suspend operator fun invoke(taskId: String) = courseRepository.removeCourseContent(taskId)
 
 }

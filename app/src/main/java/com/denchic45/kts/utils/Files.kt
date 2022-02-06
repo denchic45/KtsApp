@@ -29,6 +29,19 @@ fun File.getMimeType(): String {
     } else mime.split("/")[0]
 }
 
+fun File.clearAndDelete(): Boolean {
+        val allContents = this.listFiles()
+        if (allContents != null) {
+            for (file in allContents) {
+                file.clearAndDelete()
+            }
+        }
+        return this.delete()
+
+}
+
+
+
 fun File.getExtension(): String {
     val fileName = name
     val i: Int = fileName.lastIndexOf('.')
@@ -36,6 +49,16 @@ fun File.getExtension(): String {
 }
 
 object Files {
+
+    fun deleteDirectory(directoryToBeDeleted: File): Boolean {
+        val allContents = directoryToBeDeleted.listFiles()
+        if (allContents != null) {
+            for (file in allContents) {
+                deleteDirectory(file)
+            }
+        }
+        return directoryToBeDeleted.delete()
+    }
 
     fun nameWithoutTimestamp(name: String): String {
         val split = name.split("_")

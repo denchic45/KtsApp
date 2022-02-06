@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import java.util.*
 import java.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Named
@@ -68,11 +67,11 @@ class FinderViewModel @Inject constructor(
     val showOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
     private val queryByName = MutableSharedFlow<String>()
     private val onFinderItemClickActions: List<Consumer<String>> = listOf(
-    Consumer { t: String -> openProfile.setValue(t) },
-    Consumer { t: String -> openGroup.setValue(t) },
-    Consumer { t: String -> openSubject.setValue(t) },
-    Consumer { t: String -> openSpecialtyEditor.setValue(t) },
-    Consumer { t: String -> openCourse.setValue(t) })
+        Consumer { t: String -> openProfile.setValue(t) },
+        Consumer { t: String -> openGroup.setValue(t) },
+        Consumer { t: String -> openSubject.setValue(t) },
+        Consumer { t: String -> openSpecialtyEditor.setValue(t) },
+        Consumer { t: String -> openCourse.setValue(t) })
     private val queryTexts = mutableListOf<String?>(null, null, null, null, null)
     private val startEmptyList: List<DomainModel> = emptyList()
     private val foundEntities = mutableListOf(
@@ -82,7 +81,9 @@ class FinderViewModel @Inject constructor(
         startEmptyList,
         startEmptyList
     )
+
     private val onOptionItemClickActions: Map<String, Action>
+
     private val findByTypedNameActions = listOf(
         { name: String -> interactor.findUserByTypedName(name) },
         { name: String -> interactor.findGroupByTypedName(name) },
@@ -116,8 +117,8 @@ class FinderViewModel @Inject constructor(
         interactor.removeListeners()
     }
 
-    fun onOptionClick(uuidOption: String) {
-        onOptionItemClickActions[uuidOption]!!.run()
+    fun onOptionClick(optionId: String) {
+        onOptionItemClickActions[optionId]!!.run()
     }
 
     fun onFinderItemClick(position: Int) {
@@ -193,7 +194,7 @@ class FinderViewModel @Inject constructor(
                 val args: MutableMap<String, String> = HashMap()
                 args[UserEditorActivity.USER_ROLE] = selectedUser.role
                 args[UserEditorActivity.USER_ID] = selectedUser.id
-                args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId!!
+                args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId ?: ""
                 openUserEditor.setValue(args)
             },
             "OPTION_DELETE_USER" to Action {
@@ -264,7 +265,6 @@ class FinderViewModel @Inject constructor(
                         }
                     }
             }
-
         )
     }
 }

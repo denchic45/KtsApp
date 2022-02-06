@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import com.denchic45.kts.data.DownloadByUrlApi
 import com.denchic45.kts.data.model.domain.Attachment
+import com.denchic45.kts.utils.Files
+import com.denchic45.kts.utils.clearAndDelete
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference
@@ -86,7 +88,6 @@ class SubmissionAttachmentStorage @Inject constructor(
         }
     }
 
-    //TODO rewrite
     suspend fun update(contentId: String, studentId: String, attachments: List<Attachment>): List<String> {
         val currentFiles = getSubmissionReference(contentId, studentId).listAll().await().items
 
@@ -112,8 +113,7 @@ class SubmissionAttachmentStorage @Inject constructor(
     //TODO TEST
     fun deleteFromLocal(contentId: String) {
         val contentDir = File(getSubmissionsLocalPath(contentId))
-        contentDir.listFiles()?.forEach { it.delete() }
-        contentDir.delete()
+        contentDir.clearAndDelete()
     }
 
     fun getNames(urls: List<String>): List<String> {

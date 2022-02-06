@@ -14,6 +14,7 @@ import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskHolder
+import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.widget.extendedAdapter.adapter
@@ -30,6 +31,7 @@ class CourseFragment :
     var collapsingToolbarLayout: CollapsingToolbarLayout? = null
 
     private var mainToolbar: Toolbar? = null
+    private lateinit var toolbar: Toolbar
 
     companion object {
         const val COURSE_ID = "CourseFragment COURSE_UUID"
@@ -46,7 +48,8 @@ class CourseFragment :
             removeView(toolbar) //todo сохранять классический тулбар в переменную и возвращать при выходе
             collapsingToolbarLayout =
                 addView(R.layout.toolbar_course) as CollapsingToolbarLayout
-            collapsingToolbarLayout!!.findViewById<Toolbar>(R.id.toolbar).apply {
+            this@CourseFragment.toolbar = collapsingToolbarLayout!!.findViewById(R.id.toolbar)
+            this@CourseFragment.toolbar.apply {
                 setNavigationIcon(R.drawable.ic_arrow_back)
                 inflateMenu(R.menu.options_course)
                 setNavigationOnClickListener {
@@ -56,13 +59,17 @@ class CourseFragment :
                     viewModel.onOptionClick(it.itemId)
                     false
                 }
+                viewModel.onCreateOptions()
             }
-
             setLiftOnScroll(true)
         }
 
         requireActivity().findViewById<FloatingActionButton>(R.id.fab_main).setOnClickListener {
             viewModel.onFabClick()
+        }
+
+        viewModel.optionVisibility.observe(viewLifecycleOwner) { (itemId, visible) ->
+            toolbar.menu.findItem(itemId).isVisible = visible
         }
 
         with(binding) {
@@ -87,12 +94,16 @@ class CourseFragment :
             viewModel.courseName.observe(viewLifecycleOwner) {
                 collapsingToolbarLayout!!.title = it
             }
+            viewModel.fabVisibility.observe(viewLifecycleOwner) {
+                requireActivity().findViewById<FloatingActionButton>(R.id.fab_main)
+                    .visibility = if (it) View.VISIBLE else View.INVISIBLE
+            }
         }
 
-        viewModel.openTask.observe(viewLifecycleOwner) {
+        viewModel.openTask.observe(viewLifecycleOwner) { (taskId, courseId) ->
             findNavController().navigate(
-                R.id.action_courseFragment_to_taskFragment,
-                bundleOf(TaskFragment.TASK_ID to it)
+                R.id.action_courseFragment_to_contentFragment,
+                bundleOf(ContentFragment.TASK_ID to taskId, ContentFragment.COURSE_ID to courseId)
             )
         }
 
@@ -117,7 +128,9 @@ class CourseFragment :
         viewModel.showMessage.observe(viewLifecycleOwner) {
             Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
         }
+
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

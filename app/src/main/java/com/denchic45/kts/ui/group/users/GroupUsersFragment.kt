@@ -54,19 +54,15 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
             viewModel.showUserOptions.observe(
                 viewLifecycleOwner
             ) {
-                val popupWindow = ListPopupWindow(
-                    requireActivity()
-                )
-                popupWindow.anchorView = rvUsers.layoutManager!!.findViewByPosition(
-                    it.first
-                )
+                val popupWindow = ListPopupWindow(requireActivity())
+                popupWindow.anchorView = rvUsers.layoutManager!!.findViewByPosition(it.first)
                 val adapter = ListPopupWindowAdapter(requireContext(), it.second)
                 popupWindow.setAdapter(adapter)
                 popupWindow.width = ViewUtils.measureAdapter(adapter, activity)
                 popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
                 popupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                     popupWindow.dismiss()
-                    viewModel.onOptionUserClick(it.second[position].id)
+                    viewModel.onOptionUserClick(it.second[position].title)
                 }
                 popupWindow.show()
             }

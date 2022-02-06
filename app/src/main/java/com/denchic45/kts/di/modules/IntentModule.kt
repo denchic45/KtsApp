@@ -3,7 +3,8 @@ package com.denchic45.kts.di.modules
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.course.CourseFragment
-import com.denchic45.kts.ui.course.TaskFragment
+import com.denchic45.kts.ui.course.content.ContentFragment
+import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
@@ -123,10 +124,30 @@ object IntentModule {
         return taskEditorFragment.requireArguments().getString(TaskEditorFragment.SECTION_ID)
     }
 
-    @Named(TaskFragment.TASK_ID)
+    @Named(ContentFragment.TASK_ID)
     @Provides
-    fun provideTaskId(taskFragment: TaskFragment): String {
-        return taskFragment.requireArguments().getString(TaskFragment.TASK_ID)!!
+    fun provideTaskId(contentFragment: ContentFragment): String {
+        return contentFragment.requireArguments().getString(ContentFragment.TASK_ID)!!
+    }
+
+    @Named(ContentFragment.COURSE_ID)
+    @Provides
+    fun provideCourseId(contentFragment: ContentFragment): String {
+        return contentFragment.requireArguments()
+            .getString(ContentFragment.COURSE_ID)!!
+    }
+
+    @Named(TaskInfoFragment.TASK_ID)
+    @Provides
+    fun provideTaskIdToTaskInfo(taskInfoFragment: TaskInfoFragment): String {
+        return taskInfoFragment.requireParentFragment().requireArguments().getString(ContentFragment.TASK_ID)!!
+    }
+
+    @Named(TaskInfoFragment.COURSE_ID)
+    @Provides
+    fun provideCourseIdToTaskInfo(taskInfoFragment: TaskInfoFragment): String {
+        return taskInfoFragment.requireParentFragment().requireArguments()
+            .getString(ContentFragment.COURSE_ID)!!
     }
 
 }

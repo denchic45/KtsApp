@@ -110,7 +110,7 @@ class ProfileViewModel @Inject constructor(
                 }
             })
         uiPermissions = UiPermissions(interactor.findThisUser())
-        uiPermissions.addPermissions(
+        uiPermissions.putPermissions(
             Permission(PERMISSION_USER_NFO, { hasAdminPerms() }, { isTeacher }, { this.id == id })
         )
         infoVisibility.value = uiPermissions.isAllowed(PERMISSION_USER_NFO)

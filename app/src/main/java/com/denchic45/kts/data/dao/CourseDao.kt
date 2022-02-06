@@ -23,7 +23,7 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     abstract fun getSync(id: String): CourseWithSubjectWithTeacherAndGroupsEntities
 
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
-    abstract fun getCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectWithTeacherAndGroupsEntities>>
+    abstract fun getCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectAndTeacherEntities>>
 
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
     abstract fun getCoursesByGroupIdSync(groupId: String): List<CourseWithSubjectWithTeacherAndGroupsEntities>
@@ -75,4 +75,7 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
 
     @Query("DELETE FROM course WHERE course_id =:courseId")
     abstract fun deleteById(courseId: String)
+
+    @Query("SELECT EXISTS (SELECT * FROM course  WHERE course_id=:courseId AND teacher_id=:teacherId)")
+    abstract suspend fun isCourseTeacher(courseId: String, teacherId: String): Boolean
 }

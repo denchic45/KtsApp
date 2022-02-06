@@ -24,8 +24,11 @@ class CourseViewModel @Inject constructor(
     findSelfUserUseCase: FindSelfUserUseCase
 ) : BaseViewModel() {
 
+    val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
+
     val openTaskEditor = SingleLiveData<Triple<String?, String, String>>()
-    val openTask = SingleLiveData<String>()
+    val openTask = SingleLiveData<Pair<String,String>>()
+    val fabVisibility = SingleLiveData<Boolean>()
 
     val openCourseEditor = SingleLiveData<String>()
     val courseName: MutableLiveData<String> = MutableLiveData()
@@ -36,19 +39,25 @@ class CourseViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            findCourseFlow.collect { course ->
-                courseName.value = course.name
-                uiPermissions.addPermissions(
-                    Permission(PERMISSION_EDIT, { this == course.teacher }, { hasAdminPerms() })
-                )
-            }
-        }
-        viewModelScope.launch {
             findCourseContentUseCase.invoke(courseId).collect {
                 showContents.value = it
             }
         }
 
+        viewModelScope.launch {
+            findCourseFlow.collect { course ->
+                courseName.value = course.name
+                uiPermissions.putPermissions(
+                    Permission(ALLOW_COURSE_EDIT, { this == course.teacher }, { hasAdminPerms() }),
+                    Permission(ALLOW_ADD_COURSE_CONTENT, { this == course.teacher }, { hasAdminPerms() })
+                )
+                val allowCourseEdit = uiPermissions.isNotAllowed(ALLOW_COURSE_EDIT)
+                optionVisibility.value = R.id.option_edit_course to allowCourseEdit
+                optionVisibility.value = R.id.option_edit_sections to allowCourseEdit
+
+                fabVisibility.value = uiPermissions.isAllowed(ALLOW_ADD_COURSE_CONTENT)
+            }
+        }
     }
 
     fun onFabClick() {
@@ -56,14 +65,8 @@ class CourseViewModel @Inject constructor(
     }
 
     fun onTaskItemClick(position: Int) {
-        openTask.value = (showContents.value!![position] as Task).id
-
-        //open task editor
-//        openTaskEditor.value = Triple(
-//            showContents.value!![position].id,
-//            courseId,
-//            (showContents.value!![position] as Task).sectionId
-//        )
+        val task = showContents.value!![position] as Task
+        openTask.value = task.id to task.courseId
     }
 
     fun onTaskItemLongClick(position: Int) {
@@ -84,7 +87,12 @@ class CourseViewModel @Inject constructor(
         }
     }
 
+    fun onCreateOptions() {
+
+    }
+
     companion object {
-        const val PERMISSION_EDIT = "PERMISSION_EDIT"
+        const val ALLOW_COURSE_EDIT = "PERMISSION_EDIT"
+        const val ALLOW_ADD_COURSE_CONTENT = "ALLOW_ADD_COURSE_CONTENT"
     }
 }

@@ -16,7 +16,6 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.firestore.CourseContentDoc
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.firestore.SubjectTeacherPair
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.*
 import com.denchic45.kts.data.prefs.*
@@ -33,15 +32,20 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
+import kotlin.reflect.full.memberProperties
 
 class CourseRepository @Inject constructor(
     context: Context,
-    private val userMapper: UserMapper,
+    override val userMapper: UserMapper,
     private val externalScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val courseMapper: CourseMapper,
+    override val specialtyMapper: SpecialtyMapper,
+    override val groupMapper: GroupMapper,
     private val submissionMapper: SubmissionMapper,
     private val coursePreference: CoursePreference,
     private val groupPreference: GroupPreference,
@@ -50,12 +54,14 @@ class CourseRepository @Inject constructor(
     private val contentAttachmentStorage: ContentAttachmentStorage,
     private val submissionAttachmentStorage: SubmissionAttachmentStorage,
     private val firestore: FirebaseFirestore,
-    private val database: DataBase,
+    override val dataBase: DataBase,
     private val userPreference: UserPreference,
     private val timestampPreference: TimestampPreference,
     private val appPreference: AppPreference,
     private val sectionMapper: SectionMapper,
     private val courseContentMapper: CourseContentMapper,
+    override val specialtyDao: SpecialtyDao,
+    override val userDao: UserDao,
     private val courseDao: CourseDao,
     private val courseContentDao: CourseContentDao,
     private val sectionDao: SectionDao,
@@ -64,9 +70,8 @@ class CourseRepository @Inject constructor(
     private val contentCommentDao: ContentCommentDao,
     private val groupCourseDao: GroupCourseDao,
     private val subjectDao: SubjectDao,
-    private val groupDao: GroupDao,
-    private val userDao: UserDao,
-) : Repository(context) {
+    override val groupDao: GroupDao,
+) : Repository(context), IGroupRepository {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
 
@@ -80,16 +85,12 @@ class CourseRepository @Inject constructor(
                             courseDao.deleteById(courseId)
                             return@launch
                         }
+                        if (timestampIsNull(value))
+                            return@launch
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
-                        database.withTransaction {
-//                                groupCourseDao.deleteByCourse(courseDoc.id)
 
-                            subjectDao.upsert(subjectMapper.docToEntity(courseDoc.subject))
-                            userDao.upsert(userMapper.docToEntity(courseDoc.teacher))
-
-                            courseDao.upsert(courseMapper.docToEntity(courseDoc))
-
-                            sectionDao.upsert(sectionMapper.docToEntity(courseDoc.sections))
+                        dataBase.withTransaction {
+                            saveCourses(listOf(courseDoc))
 
                             //Saving groups of course
 //                                courseDoc.groupIds.let { groupIds ->
@@ -97,6 +98,7 @@ class CourseRepository @Inject constructor(
 //                                        val groupDocs = groupsRef.whereIn("id", groupIds)
 //                                            .get()
 //                                            .await().toObjects(GroupDoc::class.java)
+//
 //                                        groupDao.upsert(groupMapper.docToEntity(groupDocs))
 //                                        specialtyDao.upsert(
 //                                            specialtyMapper.docToEntity(
@@ -110,6 +112,15 @@ class CourseRepository @Inject constructor(
 //                                        )
 //                                    }
 //                                }
+
+                            val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
+                                .get()
+                                .await()
+                            if (timestampsNotNull(querySnapshot))
+                                saveUsersAndGroupsAndSubjectsOfTeacher(
+                                    querySnapshot.toObjects(GroupDoc::class.java),
+                                    userPreference.id
+                                )
                         }
                     }
                 }
@@ -142,7 +153,7 @@ class CourseRepository @Inject constructor(
     // todo проверить получше
 // Сначала мы ищем хотя бы один курс с обновленным timestamp, и если находим, то начинаем прослушивать
 // все курсы данного преподавателя
-    fun findByYourAsTeacher(): Flow<List<Course>> {
+    fun findByYourAsTeacher(): Flow<List<CourseHeader>> {
         addListenerRegistration("findOneCourseByTimestamp") {
             coursesRef.whereGreaterThan(
                 "timestamp",
@@ -165,7 +176,7 @@ class CourseRepository @Inject constructor(
                 }
         }
         return courseDao.getByTeacherId(userPreference.id)
-            .map { courseMapper.entityToDomain(it) }
+            .map { courseMapper.entityToDomainHeaders(it) }
     }
 
     fun findContentByCourseId(courseId: String): Flow<List<DomainModel>> {
@@ -183,15 +194,17 @@ class CourseRepository @Inject constructor(
                     return@addSnapshotListener
                 }
                 if (value != null && !value.isEmpty) {
-                    externalScope.launch(dispatcher) {
-                        val courseContents = courseContentMapper.docToEntity(value)
+                    if (timestampsNotNull(value)) {
+                        externalScope.launch(dispatcher) {
+                            val courseContents = courseContentMapper.docToEntity(value)
 
-                        saveCourseContentsLocal(courseContents)
+                            saveCourseContentsLocal(courseContents)
 
-                        coursePreference.setTimestampContentsOfCourse(
-                            courseId,
-                            courseContents.first.maxOf { it.timestamp }.time
-                        )
+                            coursePreference.setTimestampContentsOfCourse(
+                                courseId,
+                                courseContents.first.maxOf { it.timestamp }.time
+                            )
+                        }
                     }
                 }
             }
@@ -203,13 +216,12 @@ class CourseRepository @Inject constructor(
                     courseContentMapper.entityToDomain(courseContentEntities),
                     sectionMapper.entityToDomain(sectionEntities)
                 )
-
                 //todo отсортировать секции с курсами
             }
     }
 
     private suspend fun saveCourseContentsLocal(
-        courseContents: Pair<MutableList<CourseContentEntity>, MutableList<CourseContentDoc>>
+        courseContents: Pair<List<CourseContentEntity>, List<CourseContentDoc>>
     ) {
 
         val removedCourseContents = courseContents.first.filter { it.deleted }
@@ -220,18 +232,15 @@ class CourseRepository @Inject constructor(
             submissionAttachmentStorage.deleteFromLocal(it.id)
         }
 
-        database.withTransaction {
-
+        dataBase.withTransaction {
             courseContentDao.upsert(remainingCourseContent)
             courseContentDao.delete(removedCourseContents)
 
             val submissionEntities = mutableListOf<SubmissionEntity>()
             val contentCommentEntities = mutableListOf<ContentCommentEntity>()
-            val submissionCommentEntities =
-                mutableListOf<SubmissionCommentEntity>()
+            val submissionCommentEntities = mutableListOf<SubmissionCommentEntity>()
 
             courseContents.second.forEach {
-
                 submissionDao.deleteByContentId(it.id)
                 contentCommentDao.deleteByContentId(it.id)
 
@@ -246,8 +255,11 @@ class CourseRepository @Inject constructor(
                 }
             }
 
+            Log.d("lol", "upsert submissions...")
             submissionDao.upsert(submissionEntities)
+            Log.d("lol", "upsert content comments...")
             contentCommentDao.upsert(contentCommentEntities)
+            Log.d("lol", "upsert subm. comments...")
             submissionCommentDao.upsert(submissionCommentEntities)
         }
     }
@@ -282,71 +294,58 @@ class CourseRepository @Inject constructor(
         val groupWithCourseEntities = courseDocs.flatMap { courseDoc ->
             courseDoc.groupIds
                 .filter { groupDao.isExistSync(it) }
-                .map { groupId ->
-                    GroupCourseCrossRef(groupId, courseDoc.id)
-                }
+                .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
         }
 
         userDao.upsert(teacherEntities)
         subjectDao.upsert(subjectEntities)
         courseDao.upsert(courseEntities)
-        sectionDao.upsert(courseDocs.flatMap { sectionMapper.docToEntity(it.sections) })
+        sectionDao.upsert(courseDocs.flatMap {
+            sectionMapper.docToEntity(it.sections ?: emptyList())
+        })
         groupCourseDao.upsert(groupWithCourseEntities)
     }
 
-    fun findByGroupId(groupId: String): Flow<List<Course>> {
+    fun findByGroupId(groupId: String): Flow<List<CourseHeader>> {
         if (groupId != groupPreference.groupId)
             getCoursesByGroupIdRemotely(groupId)
         return courseDao.getCoursesByGroupId(groupId).asFlow()
-            .map { courseMapper.entityToDomain2(it) }
+            .map { courseMapper.entityToDomainHeaders(it) }
     }
 
     private fun getCoursesByGroupIdRemotely(groupId: String) {
         externalScope.launch(dispatcher) {
             coursesByGroupIdQuery(groupId).get().await().let {
-                saveCoursesOfGroup(
-                    it.toObjects(CourseDoc::class.java),
-                    groupId
-                )
+                saveCoursesOfGroup(it.toObjects(CourseDoc::class.java), groupId)
             }
         }
-    }
-
-    fun findByTeacherId(teacherId: String): Flow<List<Course>> {
-        if (teacherId != userPreference.id)
-            getCoursesByTeacherRemotely(teacherId)
-        return courseDao.getByTeacherId(teacherId)
-            .map { courseMapper.entityToDomain(it) }
     }
 
     private fun getCoursesByTeacherRemotely(teacherId: String) {
         externalScope.launch(dispatcher) {
             coursesByTeacherIdQuery(teacherId).get().await().let {
-                saveCourseOfTeacher(
-                    it.toObjects(CourseDoc::class.java),
-                    teacherId
-                )
+                saveCourseOfTeacher(it.toObjects(CourseDoc::class.java), teacherId)
             }
         }
     }
 
 
-    fun findByYouGroup(): LiveData<List<Course>> {
+    fun findByYouGroup(): LiveData<List<CourseHeader>> {
         return Transformations.map(
             courseDao.getCoursesByGroupId(groupPreference.groupId)
-        ) { entity: List<CourseWithSubjectWithTeacherAndGroupsEntities> ->
-            courseMapper.entityToDomain2(entity)
+        ) { entity ->
+            courseMapper.entityToDomainHeaders(entity)
         }
     }
 
     suspend fun add(course: Course) {
         checkInternetConnection()
         val courseDoc = courseMapper.domainToDoc(course)
-        val refsWithUpdatedFields = addCoursesToGroups(courseDoc)
+//        val refsWithUpdatedFields = addCoursesToGroups(courseDoc)
 
         val batch = firestore.batch()
         batch.set(coursesRef.document(courseDoc.id), courseDoc)
-        refsWithUpdatedFields.forEach { batch.update(it.key, it.value) }
+//        refsWithUpdatedFields.forEach { batch.update(it.key, it.value) }
         externalScope.launch(dispatcher) { batch.commit().await() }
     }
 
@@ -364,218 +363,213 @@ class CourseRepository @Inject constructor(
                 FieldsComparator.mapOfDifference(oldCourseDoc, courseDoc)
             )
 
-            val refsWithUpdatedFields = updateCourseToGroups(oldCourseDoc, courseDoc) +
-                    removeCourseToRemovedGroups(oldCourseDoc, courseDoc)
-
-            refsWithUpdatedFields.forEach {
-                batch.update(it.key, it.value)
-            }
+//            val refsWithUpdatedFields = updateCourseToGroups(oldCourseDoc, courseDoc) +
+//                    removeCourseToRemovedGroups(oldCourseDoc, courseDoc)
+//
+//            refsWithUpdatedFields.forEach {
+//                batch.update(it.key, it.value)
+//            }
             externalScope.launch(dispatcher) { batch.commit().await() }
         }
     }
 
-    private suspend fun addCoursesToGroups(
-        courseDoc: CourseDoc
-    ): Map<DocumentReference, Map<String, Any>> {
-        return courseDoc.groupIds
-            .map { groupId -> addCourseToGroup(groupId, courseDoc) }
-            .associate { it.first to it.second }
-    }
+//    private suspend fun addCoursesToGroups(
+//        courseDoc: CourseDoc
+//    ): Map<DocumentReference, Map<String, Any>> {
+//        return courseDoc.groupIds
+//            .map { groupId -> addCourseToGroup(groupId, courseDoc) }
+//            .associate { it.first to it.second }
+//    }
+//
+//    private suspend fun addCourseToGroup(
+//        groupId: String,
+//        courseDoc: CourseDoc
+//    ): Pair<DocumentReference, Map<String, Any>> {
+//        val groupDoc = groupsRef.document(groupId)
+//            .get()
+//            .await().toObject(GroupDoc::class.java)!!
+//        return groupsRef.document(groupId) to mapOfAddedFieldsCourse(
+//            groupDoc,
+//            courseDoc
+//        )
+//    }
 
-    private suspend fun addCourseToGroup(
-        groupId: String,
-        courseDoc: CourseDoc
-    ): Pair<DocumentReference, Map<String, Any>> {
-        val groupDoc = groupsRef.document(groupId)
-            .get()
-            .await().toObject(GroupDoc::class.java)!!
-        return groupsRef.document(groupId) to mapOfAddedFieldsCourse(
-            groupDoc,
-            courseDoc
-        )
-    }
-
-    private fun mapOfAddedFieldsCourse(
-        groupDoc: GroupDoc,
-        courseDoc: CourseDoc
-    ): Map<String, Any> {
-        val courseField = SubjectTeacherPair(
-            courseDoc.subject.id,
-            courseDoc.teacher.id
-        )
-        val groupHasNotContainCourse = !groupDoc.courses!!.contains(courseField)
-        if (groupHasNotContainCourse) {
-            return mapOf(
-                timestampFiledPair(),
-                "timestampCourses" to FieldValue.serverTimestamp(),
-                "courses" to FieldValue.arrayUnion(courseField),
-                "subjects.${courseDoc.subject.id}" to courseDoc.subject,
-                "teachers.${courseDoc.teacher.id}" to courseDoc.teacher,
-
-                "teacherIds" to FieldValue.arrayUnion(courseDoc.teacher.id)
-            )
-        } else {
-            throw SameCoursesException()
-        }
-    }
-
-    private suspend fun updateCourseToGroups(
-        oldCourseDoc: CourseDoc, courseDoc: CourseDoc
-    ): Map<DocumentReference, Map<String, Any>> {
-        val updatedSubjectOrTeacherInCourse = !oldCourseDoc.equalSubjectsAndTeachers(courseDoc)
-        val map = courseDoc.groupIds.map { groupId ->
-            if (updatedSubjectOrTeacherInCourse) {
-                updateCourseToGroup(groupId, oldCourseDoc, courseDoc)
-            } else {
-                groupsRef.document(groupId) to mutableMapOf<String, Any>(
-                    timestampFiledPair(),
-                    "timestampCourses" to FieldValue.serverTimestamp()
-                )
-            }
-        }
-        return map.associate { it.first to it.second }
-    }
-
-    private suspend fun updateCourseToGroup(
-        groupId: String,
-        oldCourseDoc: CourseDoc,
-        courseDoc: CourseDoc
-    ): Pair<DocumentReference, Map<String, Any>> {
-        val groupDoc = groupsRef.document(groupId)
-            .get()
-            .await().toObject(GroupDoc::class.java)!!
-
-        val oldCourseField = SubjectTeacherPair(
-            oldCourseDoc.subject.id,
-            oldCourseDoc.teacher.id
-        )
-        return groupsRef.document(groupId) to
-                mapOfDeletedCourseFields(
-                    groupDoc,
-                    oldCourseDoc
-                ) + mapOfAddedFieldsCourse(
-            groupDoc.apply {
-                courses = courses!!.toMutableList().apply {
-                    removeIf { courseFieldInDoc ->
-                        courseFieldInDoc == oldCourseField
-                    }
-                }.toList()
-            },
-            courseDoc
-        )
-    }
-
-    private suspend fun removeCourseToRemovedGroups(
-        oldCourseDoc: CourseDoc, courseDoc: CourseDoc
-    ): Map<DocumentReference, Map<String, Any>> {
-        val removedGroupIds = oldCourseDoc.groupIds.minus(courseDoc.groupIds)
-        return if (removedGroupIds.isNotEmpty())
-            removedGroupIds.map { groupId ->
-                removeCourseToGroup(groupId, oldCourseDoc)
-            }.associate { it.first to it.second }
-        else emptyMap()
-    }
+//    private fun mapOfAddedFieldsCourse(
+//        groupDoc: GroupDoc,
+//        courseDoc: CourseDoc
+//    ): Map<String, Any> {
+//        val courseField = SubjectTeacherPair(
+//            courseDoc.subject.id,
+//            courseDoc.teacher.id
+//        )
+//        val groupHasNotContainCourse = !groupDoc.courses!!.contains(courseField)
+//        if (groupHasNotContainCourse) {
+//            return mapOf(
+//                timestampFiledPair(),
+//                "timestampCourses" to FieldValue.serverTimestamp(),
+//                "courses" to FieldValue.arrayUnion(courseField),
+//                "subjects.${courseDoc.subject.id}" to courseDoc.subject,
+//                "teachers.${courseDoc.teacher.id}" to courseDoc.teacher,
+//
+//                "teacherIds" to FieldValue.arrayUnion(courseDoc.teacher.id)
+//            )
+//        } else {
+//            throw SameCoursesException()
+//        }
+//    }
+//
+//    private suspend fun updateCourseToGroups(
+//        oldCourseDoc: CourseDoc, courseDoc: CourseDoc
+//    ): Map<DocumentReference, Map<String, Any>> {
+//        val updatedSubjectOrTeacherInCourse = !oldCourseDoc.equalSubjectsAndTeachers(courseDoc)
+//        val map = courseDoc.groupIds.map { groupId ->
+//            if (updatedSubjectOrTeacherInCourse) {
+//                updateCourseToGroup(groupId, oldCourseDoc, courseDoc)
+//            } else {
+//                groupsRef.document(groupId) to mutableMapOf<String, Any>(
+//                    timestampFiledPair(),
+//                    "timestampCourses" to FieldValue.serverTimestamp()
+//                )
+//            }
+//        }
+//        return map.associate { it.first to it.second }
+//    }
+//
+//    private suspend fun updateCourseToGroup(
+//        groupId: String,
+//        oldCourseDoc: CourseDoc,
+//        courseDoc: CourseDoc
+//    ): Pair<DocumentReference, Map<String, Any>> {
+//        val groupDoc = groupsRef.document(groupId)
+//            .get()
+//            .await().toObject(GroupDoc::class.java)!!
+//
+//        val oldCourseField = SubjectTeacherPair(
+//            oldCourseDoc.subject.id,
+//            oldCourseDoc.teacher.id
+//        )
+//        return groupsRef.document(groupId) to
+//                mapOfDeletedCourseFields(
+//                    groupDoc,
+//                    oldCourseDoc
+//                ) + mapOfAddedFieldsCourse(
+//            groupDoc.apply {
+//                courses = courses!!.toMutableList().apply {
+//                    removeIf { courseFieldInDoc ->
+//                        courseFieldInDoc == oldCourseField
+//                    }
+//                }.toList()
+//            },
+//            courseDoc
+//        )
+//    }
+//
+//    private suspend fun removeCourseToRemovedGroups(
+//        oldCourseDoc: CourseDoc, courseDoc: CourseDoc
+//    ): Map<DocumentReference, Map<String, Any>> {
+//        val removedGroupIds = oldCourseDoc.groupIds.minus(courseDoc.groupIds)
+//        return if (removedGroupIds.isNotEmpty())
+//            removedGroupIds
+//                .map { groupId -> removeCourseToGroup(groupId, oldCourseDoc) }
+//                .associate { it.first to it.second }
+//        else emptyMap()
+//    }
 
     suspend fun remove(course: Course) {
         checkInternetConnection()
         val batch = firestore.batch()
         val courseDoc = courseMapper.domainToDoc(course)
         batch.delete(coursesRef.document(courseDoc.id))
-        val refsWithUpdatedFields = removeCoursesToGroups(courseDoc)
+//        val refsWithUpdatedFields = removeCoursesToGroups(courseDoc)
 
-        refsWithUpdatedFields.forEach {
-            batch.update(it.key, it.value)
-        }
+//        refsWithUpdatedFields.forEach {
+//            batch.update(it.key, it.value)
+//        }
+
         externalScope.launch(dispatcher) { batch.commit().await() }
     }
 
-    private suspend fun removeCoursesToGroups(
-        oldCourseDoc: CourseDoc
-    ): Map<DocumentReference, Map<String, Any>> {
-        return oldCourseDoc.groupIds
-            .map { groupId -> removeCourseToGroup(groupId, oldCourseDoc) }
-            .associate { it.first to it.second }
-
-    }
-
-    private suspend fun removeCourseToGroup(
-        groupId: String,
-        oldCourseDoc: CourseDoc
-    ): Pair<DocumentReference, Map<String, Any>> {
-        val groupDoc = groupsRef.document(groupId)
-            .get()
-            .await()
-            .toObject(GroupDoc::class.java)!!
-        return groupsRef.document(groupId) to mapOfDeletedCourseFields(
-            groupDoc,
-            oldCourseDoc
-        )
-
-    }
-
-    private fun mapOfDeletedCourseFields(
-        groupDoc: GroupDoc,
-        oldCourseDoc: CourseDoc
-    ): MutableMap<String, Any> {
-
-        val oldCourseField = SubjectTeacherPair(
-            oldCourseDoc.subject.id,
-            oldCourseDoc.teacher.id
-        )
-
-        val updatedFieldsGroup = mutableMapOf<String, Any>(
-            timestampFiledPair(),
-            "timestampCourses" to FieldValue.serverTimestamp()
-        )
-
-        updatedFieldsGroup["courses"] = FieldValue.arrayRemove(oldCourseField)
-        // remove if not use
-        val groupCoursesWithoutOldCourse = groupDoc.courses!!.toMutableList()
-        groupCoursesWithoutOldCourse.removeIf { courseFieldInDoc -> courseFieldInDoc == oldCourseField }
-        val subjectInOldCourseNoLongerUsed =
-            groupCoursesWithoutOldCourse.none { courseFieldInDoc ->
-                courseFieldInDoc.subjectId == oldCourseField.subjectId
-            }
-        val teacherInOldCourseNoLongerUsed =
-            groupCoursesWithoutOldCourse.none { courseFieldInDoc ->
-                courseFieldInDoc.teacherId == oldCourseField.teacherId
-            }
-        if (subjectInOldCourseNoLongerUsed) {
-            updatedFieldsGroup["subjects.${oldCourseDoc.subject.id}"] = FieldValue.delete()
-        }
-        if (teacherInOldCourseNoLongerUsed) {
-            updatedFieldsGroup["teachers.${oldCourseDoc.teacher.id}"] = FieldValue.delete()
-            updatedFieldsGroup["teacherIds"] = FieldValue.arrayRemove(oldCourseDoc.teacher.id)
-        }
-        return updatedFieldsGroup
-    }
-
-    private fun updateGroupsByCourse(
-        groupIds: List<String>,
-        batch: WriteBatch
-    ) {
-        for (groupId in groupIds) {
-            batch.update(
-                groupsRef.document(groupId),
-                mapOf(
-                    timestampFiledPair(),
-                    "timestampCourses" to FieldValue.serverTimestamp()
-                )
-            )
-        }
-    }
+//    private suspend fun removeCoursesToGroups(
+//        oldCourseDoc: CourseDoc
+//    ): Map<DocumentReference, Map<String, Any>> {
+//        return oldCourseDoc.groupIds
+//            .map { groupId -> removeCourseToGroup(groupId, oldCourseDoc) }
+//            .associate { it.first to it.second }
+//
+//    }
+//
+//    private suspend fun removeCourseToGroup(
+//        groupId: String,
+//        oldCourseDoc: CourseDoc
+//    ): Pair<DocumentReference, Map<String, Any>> {
+//        val groupDoc = groupsRef.document(groupId)
+//            .get()
+//            .await()
+//            .toObject(GroupDoc::class.java)!!
+//        return groupsRef.document(groupId) to mapOfDeletedCourseFields(groupDoc, oldCourseDoc)
+//
+//    }
+//
+//    private fun mapOfDeletedCourseFields(
+//        groupDoc: GroupDoc,
+//        oldCourseDoc: CourseDoc
+//    ): MutableMap<String, Any> {
+//
+//        val oldCourseField = SubjectTeacherPair(oldCourseDoc.subject.id, oldCourseDoc.teacher.id)
+//
+//        val updatedFieldsGroup = mutableMapOf<String, Any>(
+//            timestampFiledPair(),
+//            "timestampCourses" to FieldValue.serverTimestamp()
+//        )
+//
+//        updatedFieldsGroup["courses"] = FieldValue.arrayRemove(oldCourseField)
+//        // remove if not use
+//        val groupCoursesWithoutOldCourse = groupDoc.courses!!.toMutableList().apply {
+//            removeIf { courseFieldInDoc -> courseFieldInDoc == oldCourseField }
+//        }
+//        val subjectInOldCourseNoLongerUsed =
+//            groupCoursesWithoutOldCourse.none { courseFieldInDoc ->
+//                courseFieldInDoc.subjectId == oldCourseField.subjectId
+//            }
+//        val teacherInOldCourseNoLongerUsed =
+//            groupCoursesWithoutOldCourse.none { courseFieldInDoc ->
+//                courseFieldInDoc.teacherId == oldCourseField.teacherId
+//            }
+//        if (subjectInOldCourseNoLongerUsed) {
+//            updatedFieldsGroup["subjects.${oldCourseDoc.subject.id}"] = FieldValue.delete()
+//        }
+//        if (teacherInOldCourseNoLongerUsed) {
+//            updatedFieldsGroup["teachers.${oldCourseDoc.teacher.id}"] = FieldValue.delete()
+//            updatedFieldsGroup["teacherIds"] = FieldValue.arrayRemove(oldCourseDoc.teacher.id)
+//        }
+//        return updatedFieldsGroup
+//    }
+//
+//    private fun updateGroupsByCourse(
+//        groupIds: List<String>,
+//        batch: WriteBatch
+//    ) {
+//        for (groupId in groupIds) {
+//            batch.update(
+//                groupsRef.document(groupId),
+//                mapOf(
+//                    timestampFiledPair(),
+//                    "timestampCourses" to FieldValue.serverTimestamp()
+//                )
+//            )
+//        }
+//    }
 
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
 
 
-    fun findByTypedName(name: String): Flow<Resource<List<Course>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<Resource<List<CourseHeader>>> = callbackFlow {
         addListenerRegistration("name") {
             coursesRef
                 .whereArrayContains("searchKeys", name.lowercase())
                 .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                     val courseDocs = value!!.toObjects(CourseDoc::class.java)
                     externalScope.launch(dispatcher) { saveCourses(courseDocs) }
-
                     trySend(
                         Resource.Success(courseMapper.docToDomain(courseDocs))
                     )
@@ -584,10 +578,10 @@ class CourseRepository @Inject constructor(
         awaitClose { }
     }
 
-    fun findWhereYouTeacher(): Flow<List<Course>> {
-        return courseDao.getByTeacherId(userPreference.id)
-            .map { courseMapper.entityToDomain(it) }
-    }
+//    fun findWhereYouTeacher(): Flow<List<Course>> {
+//        return courseDao.getByTeacherId(userPreference.id)
+//            .map { courseMapper.entityToDomain(it) }
+//    }
 
     suspend fun removeGroup(group: Group) {
         val courseDocs = coursesRef.whereArrayContains("groupIds", group.id)
@@ -607,9 +601,13 @@ class CourseRepository @Inject constructor(
         batch.commit().await()
     }
 
-    fun findTask(id: String): Flow<Task> {
+    fun findTask(id: String): Flow<Task?> {
         return courseContentDao.get(id)
-            .map(courseContentMapper::entityToTaskDomain)
+            .map { taskEntity ->
+                taskEntity?.let { existTask ->
+                    courseContentMapper.entityToTaskDomain(existTask)
+                }
+            }
     }
 
     fun findAttachmentsByContentId(contentId: String): Flow<List<Attachment>> {
@@ -629,8 +627,13 @@ class CourseRepository @Inject constructor(
             .set(courseContentMapper.domainToTaskDoc(task).apply {
                 this.attachments = attachments
                 this.order = order
-            })
+            }.asMap())
             .await()
+    }
+
+    inline fun <reified T : Any> T.asMap(): Map<String, Any?> {
+        val props = T::class.memberProperties.associateBy { it.name }
+        return props.keys.associateWith { props[it]?.get(this) }
     }
 
     private suspend fun getLastContentOrderByCourseIdAndSectionId(
@@ -650,8 +653,9 @@ class CourseRepository @Inject constructor(
 
     suspend fun updateTask(task: Task) {
         val attachments = contentAttachmentStorage.update(task.id, task.attachments)
-        val cacheTask = courseContentMapper.entityToTaskDomain(courseContentDao.getSync(task.id))
-        val updatedFields = FieldsComparator.mapOfDifference(cacheTask, task)
+        val cacheTask = courseContentMapper.entityToTaskDoc(courseContentDao.getSync(task.id))
+        val updatedFields =
+            FieldsComparator.mapOfDifference(cacheTask, courseContentMapper.domainToDoc(task))
         updatedFields["attachments"] = attachments
         updatedFields["timestamp"] = Date()
         if (updatedFields.containsKey("sectionId"))
@@ -664,15 +668,16 @@ class CourseRepository @Inject constructor(
             .await()
     }
 
-    suspend fun removeCourseContent(courseContent: CourseContent) {
-        contentAttachmentStorage.deleteFilesByContentId(courseContent.id)
-        submissionAttachmentStorage.deleteFilesByContentId(courseContent.id)
-        coursesRef.document(courseContent.courseId)
+    suspend fun removeCourseContent(taskId: String) {
+
+        contentAttachmentStorage.deleteFilesByContentId(taskId)
+        submissionAttachmentStorage.deleteFilesByContentId(taskId)
+        coursesRef.document(courseContentDao.getCourseIdByTaskId(taskId))
             .collection("Contents")
-            .document(courseContent.id)
+            .document(taskId)
             .set(
                 mapOf(
-                    "id" to courseContent.id,
+                    "id" to taskId,
                     "timestamp" to Date(),
                     "deleted" to true
                 )
@@ -689,7 +694,6 @@ class CourseRepository @Inject constructor(
     fun findTaskSubmission(courseContent: CourseContent, userId: String): Flow<Task.Submission> {
         return submissionDao.getByTaskIdAndUserId(courseContent.id, userId)
             .map {
-                Log.d("lo;", "!!!123 map: ")
                 it?.let {
                     val attachments = submissionAttachmentStorage.get(
                         it.submissionEntity.contentId,
@@ -701,7 +705,7 @@ class CourseRepository @Inject constructor(
                     courseContent.id,
                     courseContent.courseId,
                     userMapper.entityToDomain(userDao.getSync(userId)),
-                    Task.Submission.Content("EMPTY REPOSITORY", emptyList()),
+                    Task.Submission.Content("", emptyList()),
                     emptyList(),
                     Task.SubmissionStatus.NotSubmitted
                 )
@@ -710,24 +714,8 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateSubmissionFromStudent(submission: Task.Submission) {
-//        val submissionDoc = submissionMapper.domainToDoc(submission)
-
         val studentId = submission.student.id
         val contentId = submission.contentId
-
-//        val oldSubmission =
-//            submissionDao.getByContentIdAndUserIdSync(contentId, studentId)
-
-//        oldSubmission?.submissionEntity?.attachments?.let {
-//            val currentFileNames = submissionAttachmentStorage.getNames(it)
-//            val updatedFileNames = submission.content.attachments
-//                .map { Files.nameWithoutTimestamp(it.name) }
-//                .toSet()
-//            val removedFiles = currentFileNames.filterNot { currentFileName ->
-//                updatedFileNames.contains(Files.nameWithoutTimestamp(currentFileName))
-//            }
-//            submissionAttachmentStorage.deleteIfRemoved(contentId, studentId, removedFiles)
-//        }
 
         val attachmentUrls = submissionAttachmentStorage.update(
             contentId,
@@ -736,8 +724,10 @@ class CourseRepository @Inject constructor(
         )
 
         val submittedDate =
-            if (submission.status is Task.SubmissionStatus.Submitted) submission.status.submittedDate
+            if (submission.status is Task.SubmissionStatus.Submitted)
+                convertToDateViaInstant(submission.status.submittedDate)
             else null
+
         val updatedFields = mapOf(
             "timestamp" to FieldValue.serverTimestamp(),
             "submissions.$studentId.studentId" to studentId,
@@ -754,6 +744,14 @@ class CourseRepository @Inject constructor(
             .update(updatedFields)
             .await()
     }
+
+    suspend fun isCourseTeacher(userId: String, courseId: String): Boolean {
+        return courseDao.isCourseTeacher(courseId, userId)
+    }
+}
+
+fun convertToDateViaInstant(dateToConvert: LocalDateTime): Date {
+    return Date.from(dateToConvert.atZone(ZoneId.systemDefault()).toInstant())
 }
 
 class SameCoursesException : Exception()

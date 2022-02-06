@@ -16,6 +16,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Course
+import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.ItemCourseBinding
@@ -25,7 +26,7 @@ import com.denchic45.kts.utils.viewBinding
 class CourseAdapter(
     val onItemClickListener: OnItemClickListener = OnItemClickListener { },
     val onItemLongClickListener: OnItemLongClickListener = OnItemLongClickListener { }
-) : ListAdapter<Course, CourseAdapter.CourseHolder>(
+) : ListAdapter<CourseHeader, CourseAdapter.CourseHolder>(
     DIFF_CALLBACK
 ) {
 
@@ -45,7 +46,7 @@ class CourseAdapter(
         itemCourseBinding: ItemCourseBinding,
         listener: OnItemClickListener,
         longItemClickListener: OnItemLongClickListener
-    ) : BaseViewHolder<Course, ItemCourseBinding>(
+    ) : BaseViewHolder<CourseHeader, ItemCourseBinding>(
         itemCourseBinding,
         listener,
         longItemClickListener
@@ -54,7 +55,7 @@ class CourseAdapter(
         private val ivTeacherAvatar: ImageView
         private val tvSubjectName: TextView
         private val tvTeacherFullName: TextView
-        override fun onBind(item: Course) {
+        override fun onBind(item: CourseHeader) {
             val subject: Subject = item.subject
             val teacher: User = item.teacher
             val resColor: Int = itemView.context
@@ -105,13 +106,13 @@ class CourseAdapter(
     }
 
     companion object {
-        private val DIFF_CALLBACK: DiffUtil.ItemCallback<Course> =
-            object : DiffUtil.ItemCallback<Course>() {
-                override fun areItemsTheSame(oldItem: Course, newItem: Course): Boolean {
+        private val DIFF_CALLBACK: DiffUtil.ItemCallback<CourseHeader> =
+            object : DiffUtil.ItemCallback<CourseHeader>() {
+                override fun areItemsTheSame(oldItem: CourseHeader, newItem: CourseHeader): Boolean {
                     return oldItem.subject.id == newItem.subject.id
                 }
 
-                override fun areContentsTheSame(oldItem: Course, newItem: Course): Boolean {
+                override fun areContentsTheSame(oldItem: CourseHeader, newItem: CourseHeader): Boolean {
                     return oldItem == newItem
                 }
             }

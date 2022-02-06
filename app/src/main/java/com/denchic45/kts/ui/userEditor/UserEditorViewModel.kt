@@ -12,8 +12,8 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
-import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
@@ -22,7 +22,6 @@ import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.Validations
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -35,7 +34,8 @@ open class UserEditorViewModel @Inject constructor(
     @Named(UserEditorActivity.USER_ROLE) role: String,
     @Named(UserEditorActivity.USER_GROUP_ID) private var groupId: String?,
     @Named("genders") genderList: List<ListItem>,
-    private val interactor: UserEditorInteractor
+    private val interactor: UserEditorInteractor,
+    private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
 
     val title = MutableLiveData<String>()
@@ -85,7 +85,6 @@ open class UserEditorViewModel @Inject constructor(
     private var gender = 0
     private var admin = false
     private var generatedAvatar = true
-    private var subscribeConfirmation: Disposable? = null
     private var password: String? = null
     private fun getUiValidator(): UIValidator {
         val uiValidator: UIValidator = UIValidator.of(
@@ -136,6 +135,10 @@ open class UserEditorViewModel @Inject constructor(
                 Rule(
                     { !fieldPasswordVisibility.value!! || !TextUtils.isEmpty(password) && fieldPasswordVisibility.value!! },
                     "Некоректный пароль!"
+                ),
+                Rule(
+                    { !fieldPasswordVisibility.value!! || fieldPasswordVisibility.value!! && password!!.length > 5 },
+                    "Минимальный размер пароля - 6 символов!"
                 )
             )
                 .sendMessageResult(R.id.til_password, fieldErrorMessage)
@@ -291,13 +294,16 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     fun onFabClick() {
-        uiValidator.runValidates { if (uiEditor.hasBeenChanged()) saveChanges() }
+        uiValidator.runValidates {
+            if (uiEditor.hasBeenChanged())
+                saveChanges()
+        }
     }
 
     private fun saveChanges() {
         viewModelScope.launch {
             val saveUserObservable: Flow<Resource<User>> = if (uiEditor.isNew) {
-                interactor.signUpUser(fieldEmail.value, password)
+                interactor.signUpUser(fieldEmail.value!!, password!!)
                 interactor.addUser(uiEditor.item)
             } else {
                 interactor.updateUser(uiEditor.item)
@@ -342,31 +348,26 @@ open class UserEditorViewModel @Inject constructor(
     private fun confirmDelete() {
         openConfirmation.value =
             Pair("Удаление пользователя", "Удаленного пользователя нельзя будет восстановить")
-        subscribeConfirmation = RxBusConfirm.getInstance()
-            .event
-            .subscribe { confirm: Boolean ->
-                if (confirm) {
-                    if (isStudent(role!!)) interactor.removeStudent(uiEditor.item)
-                        .subscribe() else if (isTeacher(
-                            role!!
-                        )
-                    ) interactor.removeTeacher(uiEditor.item).subscribe()
-                    finish.call()
-                }
-                subscribeConfirmation!!.dispose()
+
+        viewModelScope.launch {
+            if (confirmInteractor.awaitConfirm()) {
+                if (isStudent(role!!)) interactor.removeStudent(uiEditor.item)
+                    .subscribe() else if (isTeacher(
+                        role!!
+                    )
+                ) interactor.removeTeacher(uiEditor.item).subscribe()
+                finish.call()
             }
+        }
     }
 
     private fun confirmExit(titleWithSubtitlePair: Pair<String, String>) {
         openConfirmation.value = titleWithSubtitlePair
-        subscribeConfirmation = RxBusConfirm.getInstance()
-            .event
-            .subscribe { confirm: Boolean ->
-                if (confirm) {
-                    finish.call()
-                }
-                subscribeConfirmation!!.dispose()
+        viewModelScope.launch {
+            if (confirmInteractor.awaitConfirm()) {
+                finish.call()
             }
+        }
     }
 
     private fun setAvailableRoles() {

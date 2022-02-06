@@ -3,8 +3,9 @@ package com.denchic45.kts.uipermissions
 import com.denchic45.kts.data.model.domain.User
 
 class UiPermissions(private val user: User) {
-    private val permissions: MutableList<Permission> = mutableListOf()
-    fun addPermissions(vararg permission: Permission): Boolean {
+    private val permissions: MutableSet<Permission> = mutableSetOf()
+
+    fun putPermissions(vararg permission: Permission): Boolean {
         return permissions.addAll(mutableListOf(*permission))
     }
 

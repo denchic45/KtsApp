@@ -22,15 +22,16 @@ data class GroupDoc(
 
     var students: Map<String, UserDoc>? = null
         get() = field ?: emptyMap()
-    var subjects: Map<String, SubjectDoc>? = null
-        get() = field ?: emptyMap()
-    var teachers: Map<String, UserDoc>? = null
-        get() = field ?: emptyMap()
-    var courses: List<SubjectTeacherPair>? = null
-        get() = field ?: emptyList()
 
-    var teacherIds: List<String>? = null
-        get() = field ?: emptyList()
+//    var subjects: Map<String, SubjectDoc>? = null
+//        get() = field ?: emptyMap()
+//    var teachers: Map<String, UserDoc>? = null
+//        get() = field ?: emptyMap()
+//    var courses: List<SubjectTeacherPair>? = null
+//        get() = field ?: emptyList()
+//
+//    var teacherIds: List<String>? = null
+//        get() = field ?: emptyList()
 
 
     @get:Exclude
@@ -38,9 +39,9 @@ data class GroupDoc(
         get() = students!!.values + (curator)
 }
 
-data class SubjectTeacherPair(
-    var subjectId: String,
-    var teacherId: String
-) {
-    private constructor() : this("", "")
-}
+//data class SubjectTeacherPair(
+//    var subjectId: String,
+//    var teacherId: String
+//) {
+//    private constructor() : this("", "")
+//}

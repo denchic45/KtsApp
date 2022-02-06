@@ -159,7 +159,7 @@ public interface EventMapper extends
         return lessonEntities.stream()
                 .flatMap((Function<EventEntity, Stream<TeacherEventCrossRef>>) lessonEntity -> lessonEntity.getTeacherIds()
                         .stream()
-                        .map(uuid -> new TeacherEventCrossRef(lessonEntity.getId(), uuid)))
+                        .map(id -> new TeacherEventCrossRef(lessonEntity.getId(), id)))
                 .collect(Collectors.toList());
     }
 }

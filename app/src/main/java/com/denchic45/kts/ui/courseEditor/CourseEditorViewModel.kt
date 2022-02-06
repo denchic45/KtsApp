@@ -212,7 +212,7 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private fun setSaveOptionVisibility(visible: Boolean) {
-        optionVisibility.postValue(R.id.option_save_course to visible)
+        optionVisibility.postValue(R.id.option_course_save to visible)
     }
 
     fun onSubjectSelect(position: Int) {
@@ -281,11 +281,11 @@ class CourseEditorViewModel @Inject constructor(
             android.R.id.home -> {
                 confirmFinish()
             }
-            R.id.option_delete_course -> {
-                onDeleteClick()
-            }
-            R.id.option_save_course -> {
+            R.id.option_course_save -> {
                 onSaveClick()
+            }
+            R.id.option_course_delete -> {
+                onDeleteClick()
             }
         }
     }
@@ -352,6 +352,6 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     fun onCreateOptions() {
-        optionVisibility.postValue(R.id.option_delete_course to !uiEditor.isNew)
+        optionVisibility.postValue(R.id.option_course_delete to !uiEditor.isNew)
     }
 }

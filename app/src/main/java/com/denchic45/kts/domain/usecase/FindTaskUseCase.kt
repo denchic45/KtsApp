@@ -8,6 +8,6 @@ import javax.inject.Inject
 class FindTaskUseCase @Inject constructor(
     private val courseRepository: CourseRepository
 ) {
-    operator fun invoke(id: String): Flow<Task> = courseRepository.findTask(id)
+    operator fun invoke(id: String): Flow<Task?> = courseRepository.findTask(id)
 
 }

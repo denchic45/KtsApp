@@ -8,4 +8,22 @@
     <array name="reply_values">
         <item>@drawable/ic_send</item>
     </array>
+
+    <string-array name="options_user">
+        <item>Посмотреть профиль</item>
+        <item>Редактировать</item>
+        <item>Удалить</item>
+    </string-array>
+
+    <string-array name="options_group">
+        <item>Посмотреть</item>
+        <item>Редактировать</item>
+        <item>Удалить</item>
+    </string-array>
+
+    <string-array name="options_subject">
+        <item>Открыть</item>
+        <item>Редактировать</item>
+        <item>Удалить</item>
+    </string-array>
 </resources>

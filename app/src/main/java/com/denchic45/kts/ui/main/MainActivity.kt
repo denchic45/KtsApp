@@ -141,11 +141,11 @@ class MainActivity : AppCompatActivity() {
             navController.navigate(it)
         }
 
-        viewModel.openCourse.observe(this) { uuid ->
+        viewModel.openCourse.observe(this) { id ->
             binding.drawerLayout.close()
             navController.navigate(
                 R.id.action_global_courseFragment,
-                bundleOf(CourseFragment.COURSE_ID to uuid)
+                bundleOf(CourseFragment.COURSE_ID to id)
             )
         }
 

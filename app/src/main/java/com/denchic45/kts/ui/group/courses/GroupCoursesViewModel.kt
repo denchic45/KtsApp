@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Course
+import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +20,7 @@ class GroupCoursesViewModel @Inject constructor(
     val clearItemsSelection = SingleLiveData<Set<Int>>()
     val selectItem = MutableLiveData<Pair<Int, Boolean>>()
     private val groupId: String = groupId ?: interactor.yourGroupId
-    var courses: StateFlow<List<Course>> =
+    var courses: StateFlow<List<CourseHeader>> =
         interactor.findCoursesByGroupId(this.groupId).stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000), emptyList()

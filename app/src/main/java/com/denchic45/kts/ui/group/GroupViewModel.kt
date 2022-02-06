@@ -93,7 +93,7 @@ class GroupViewModel @Inject constructor(
         }
         isExistGroup.observeForever(isExistGroupObserver)
         uiPermissions = UiPermissions(interactor.findThisUser())
-        uiPermissions.addPermissions(
+        uiPermissions.putPermissions(
             Permission(
                 ALLOW_EDIT_GROUP, { hasAdminPerms() }, { curatorFor(this@GroupViewModel.groupId) }
             )

@@ -20,7 +20,7 @@ abstract class SectionMapper {
 
     abstract fun entityToDomain(entityList: List<SectionEntity>): List<Section>
 
-    abstract fun docToEntity(sectionDoc: SectionDoc?): SectionEntity
+    abstract fun docToEntity(sectionDoc: SectionDoc): SectionEntity
 
-    abstract fun docToEntity(sectionDocs: List<SectionDoc?>?): List<SectionEntity>
+    abstract fun docToEntity(sectionDocs: List<SectionDoc>): List<SectionEntity>
 }

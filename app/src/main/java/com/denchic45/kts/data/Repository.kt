@@ -3,7 +3,9 @@ package com.denchic45.kts.data
 import android.content.Context
 import com.denchic45.kts.data.Repository.Subscription
 import com.denchic45.kts.utils.NetworkException
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QuerySnapshot
 import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Emitter
 import io.reactivex.rxjava3.disposables.Disposable
@@ -116,5 +118,21 @@ abstract class Repository protected constructor(context: Context?) {
         fun unsubscribe() {
             lambdaUnsubscribe.unsubscribe()
         }
+    }
+
+    fun timestampsIsNull(querySnapshot: QuerySnapshot):Boolean {
+        return querySnapshot.documents.all { timestampIsNull(it) }
+    }
+
+    fun timestampIsNull(documentSnapshot: DocumentSnapshot):Boolean {
+        return documentSnapshot.getTimestamp("timestamp") == null
+    }
+
+    fun timestampsNotNull(querySnapshot: QuerySnapshot):Boolean {
+        return !timestampsIsNull(querySnapshot)
+    }
+
+    fun timestampNotNull(documentSnapshot: DocumentSnapshot):Boolean {
+        return !timestampIsNull(documentSnapshot)
     }
 }

@@ -9,7 +9,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
@@ -70,7 +69,7 @@ class TimetableLoaderFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        filePicker = FilePicker(requireActivity() as AppCompatActivity, this, { result ->
+        filePicker = FilePicker(this, { result ->
             with(result) {
                 if (resultCode == Activity.RESULT_OK && data!!.data != null) {
                     viewModel.onSelectedFile(File(requireContext().path(data!!.data!!)))

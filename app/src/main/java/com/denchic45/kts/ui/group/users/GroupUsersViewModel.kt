@@ -16,6 +16,7 @@ import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
 import io.reactivex.rxjava3.disposables.Disposable
+import java.util.HashMap
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -85,9 +86,9 @@ class GroupUsersViewModel @Inject constructor(
             }
             OPTION_EDIT_USER -> {
                 val args: MutableMap<String, String> = HashMap()
-                args[UserEditorActivity.USER_ROLE] = selectedUser.role
-                args[UserEditorActivity.USER_ID] = selectedUser.id
-                args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId!!
+                args[UserEditorActivity.USER_ROLE] = selectedUser!!.role
+                args[UserEditorActivity.USER_ID] = selectedUser!!.id
+                args[UserEditorActivity.USER_GROUP_ID] = selectedUser!!.groupId!!
                 openUserEditor.setValue(args)
             }
             OPTION_DELETE_USER -> interactor.removeStudent(selectedUser)
@@ -130,7 +131,7 @@ class GroupUsersViewModel @Inject constructor(
     }
 
     init {
-        uiPermissions.addPermissions(
+        uiPermissions.putPermissions(
             Permission(ALLOW_EDIT_USERS, { isTeacher }, { hasAdminPerms() })
         )
     }

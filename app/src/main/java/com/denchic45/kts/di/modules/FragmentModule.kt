@@ -8,9 +8,12 @@ import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.lessonEditor.
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment
 import com.denchic45.kts.ui.adminPanel.timetableEditor.finder.TimetableFinderFragment
 import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.TimetableLoaderFragment
+import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.ui.course.CourseFragment
-import com.denchic45.kts.ui.course.TaskFragment
+import com.denchic45.kts.ui.course.content.ContentFragment
+import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.denchic45.kts.ui.course.sectionPicker.SectionPickerFragment
+import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.creater.CreatorDialog
@@ -116,5 +119,14 @@ interface FragmentModule {
     fun contributeCreatorDialog(): CreatorDialog
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
-    fun contributeTaskFragment(): TaskFragment
+    fun contributeContentFragment(): ContentFragment
+
+    @ContributesAndroidInjector(modules = [IntentModule::class])
+    fun contributeTaskFragment(): TaskInfoFragment
+
+    @ContributesAndroidInjector(modules = [IntentModule::class])
+    fun contributeSubmissionsFragment(): SubmissionsFragment
+
+    @ContributesAndroidInjector
+    fun contributeConfirmFragment(): ConfirmDialog
 }

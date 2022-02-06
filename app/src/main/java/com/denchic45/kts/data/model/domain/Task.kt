@@ -72,7 +72,7 @@ data class Task(
         object NotSubmitted : SubmissionStatus()
 
         data class Submitted(
-            val submittedDate: LocalDateTime
+            val submittedDate: LocalDateTime = LocalDateTime.now()
         ) : SubmissionStatus()
 
         data class Graded(
@@ -111,4 +111,13 @@ data class SubmissionSettings(
     val attachmentsAvailable: Boolean,
     val attachmentsLimit: Int,
     val attachmentsSizeLimit: Int
-)
+) {
+
+    private constructor() :this(false, 100, true, 16, 200)
+
+    fun onlyTextAvailable(): Boolean = textAvailable && !attachmentsAvailable
+
+    fun onlyAttachmentsAvailable(): Boolean = !textAvailable && attachmentsAvailable
+
+    fun allAvailable(): Boolean = textAvailable && attachmentsAvailable
+}

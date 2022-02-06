@@ -1,26 +1,26 @@
 [
   {
-    "uuid": "ITEM_COURSE_1",
+    "id": "ITEM_COURSE_1",
     "title": "course_1",
     "content": 1
   },
   {
-    "uuid": "ITEM_COURSE_2",
+    "id": "ITEM_COURSE_2",
     "title": "course_2",
     "content": 2
   },
   {
-    "uuid": "ITEM_COURSE_3",
+    "id": "ITEM_COURSE_3",
     "title": "course_3",
     "content": 3
   },
   {
-    "uuid": "ITEM_COURSE_4",
+    "id": "ITEM_COURSE_4",
     "title": "course_4",
     "content": 4
   },
   {
-    "uuid": "ITEM_COURSE_5",
+    "id": "ITEM_COURSE_5",
     "title": "course_5",
     "content": 5
   }

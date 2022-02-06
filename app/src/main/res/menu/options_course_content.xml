@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:visible="false"
+        android:id="@+id/option_task_edit"
+        android:title="Редактировать" />
+    <item
+        android:visible="false"
+        android:id="@+id/options_task_delete"
+        android:title="Удалить" />
+</menu>

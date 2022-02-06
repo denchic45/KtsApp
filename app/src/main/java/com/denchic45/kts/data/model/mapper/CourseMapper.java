@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.denchic45.kts.data.model.domain.Course;
 import com.denchic45.kts.data.model.domain.CourseGroup;
+import com.denchic45.kts.data.model.domain.CourseHeader;
 import com.denchic45.kts.data.model.firestore.CourseDoc;
 import com.denchic45.kts.data.model.room.CourseEntity;
 import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacherEntities;
@@ -33,9 +34,9 @@ public interface CourseMapper {
     @Mapping(qualifiedByName = "addGroupId", source = "groups", target = "groupIds")
     CourseDoc domainToDoc(Course course);
 
-    Course docToDomain(CourseDoc doc);
+    CourseHeader docToDomain(CourseDoc doc);
 
-    List<Course> docToDomain(List<CourseDoc> docs);
+    List<CourseHeader> docToDomain(List<CourseDoc> docs);
 
     @Mapping(source = "groupEntities", target = "groups")
 
@@ -49,8 +50,22 @@ public interface CourseMapper {
     @IterableMapping(qualifiedByName = "entityToDomain2")
     List<Course> entityToDomain2(List<CourseWithSubjectWithTeacherAndGroupsEntities> entity);
 
-    @InheritConfiguration(name = "entityToDomain")
-    Course entityToDomain(CourseWithSubjectAndTeacherEntities entity);
+
+    @Mapping(source = "courseEntity.name", target = "name")
+    @Mapping(source = "courseEntity.id", target = "id")
+    @Mapping(source = "subjectEntity", target = "subject")
+    @Mapping(source = "teacherEntity", target = "teacher")
+    @Named("entityToDomainHeaders")
+    CourseHeader entityToDomainHeaders(CourseWithSubjectAndTeacherEntities entity);
+
+    @IterableMapping(qualifiedByName = "entityToDomainHeaders")
+    List<CourseHeader> entityToDomainHeaders(List<CourseWithSubjectAndTeacherEntities> entity);
+
+//    @Mapping(source = "courseEntity.name", target = "name")
+//    @Mapping(source = "courseEntity.id", target = "id")
+//    @Mapping(source = "subjectEntity", target = "subject")
+//    @Mapping(source = "teacherEntity", target = "teacher")
+//    Course entityToDomain(CourseWithSubjectAndTeacherEntities entity);
 
     @Mapping(source = "subject.id", target = "subjectId")
     @Mapping(source = "teacher.id", target = "teacherId")

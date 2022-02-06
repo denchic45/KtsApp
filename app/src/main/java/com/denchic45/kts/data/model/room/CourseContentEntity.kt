@@ -19,7 +19,8 @@ data class CourseContentEntity @Default @JvmOverloads constructor(
     @field:TypeConverters(ListConverter::class)
     val attachments: List<String>,
     val description: String,
-    val details: String,
+    @ColumnInfo(name = "content_details")
+    val contentDetails: String,
     val commentsEnabled: Boolean,
     val contentType: ContentType,
     @field:TypeConverters(DateConverter::class)

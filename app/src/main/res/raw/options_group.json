@@ -1,16 +1,16 @@
 [
   {
-    "id": "OPTION_SHOW_GROUP",
+    "_id": "OPTION_SHOW_GROUP",
     "title": "Посмотреть",
     "iconUrl": "ic_group"
   },
   {
-    "id": "OPTION_EDIT_GROUP",
+    "_id": "OPTION_EDIT_GROUP",
     "title": "Редактировать",
     "iconUrl": "ic_edit"
   },
   {
-    "id": "OPTION_DELETE_GROUP",
+    "_id": "OPTION_DELETE_GROUP",
     "title": "Удалить",
     "iconUrl": "ic_delete"
   }

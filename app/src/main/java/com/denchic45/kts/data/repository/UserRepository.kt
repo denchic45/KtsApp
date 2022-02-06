@@ -57,7 +57,7 @@ open class UserRepository @Inject constructor(
             }
         }
 
-    fun getUsersByRole(vararg roles: String) {
+    private fun getUsersByRole(vararg roles: String) {
         usersRef.whereIn("role", listOf(*roles))
             .get().addOnSuccessListener { snapshot: QuerySnapshot ->
                 val users = snapshot.toObjects(
@@ -220,7 +220,7 @@ open class UserRepository @Inject constructor(
         }
     }
 
-    val thisUserObserver: Flow<Optional<User>> = callbackFlow {
+    val thisUserObserver: Flow<User?> = callbackFlow {
         usersRef.whereEqualTo("id", userPreference.id)
             .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if (error != null) {
@@ -228,7 +228,7 @@ open class UserRepository @Inject constructor(
                     return@addSnapshotListener
                 }
                 if (value!!.isEmpty) {
-                    trySend(Optional.empty())
+                    trySend(null)
                     Unit
                 } else {
                     val user = value.documents[0].toObject(
@@ -236,7 +236,7 @@ open class UserRepository @Inject constructor(
                     )!!
                     if (user.timestamp != null) {
                         loadUserPreference(user)
-                        trySend(Optional.of(user))
+                        trySend(user)
                     }
                 }
             }
@@ -256,7 +256,7 @@ open class UserRepository @Inject constructor(
                             return@addSnapshotListener
                         }
                         coroutineScope.launch(dispatcher) {
-                            userDao.upsert(value!!.toObject(UserEntity::class.java)!!)
+                            userDao.upsert(userMapper.docToEntity(value!!.toObject(UserDoc::class.java)!!))
                         }
                     }
             }

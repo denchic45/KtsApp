@@ -36,7 +36,7 @@ class MainViewModel @Inject constructor(
 
     val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
 
-    private var courseUuids = emptyMap<String, String>()
+    private var courseIds = emptyMap<String, String>()
 
     val goBack = SingleLiveData<Unit>()
 
@@ -94,7 +94,7 @@ class MainViewModel @Inject constructor(
         name.onId {
             onNavItemClickActions.getValue(it).invoke()
         }.onString {
-            openCourse.postValue(courseUuids[it])
+            openCourse.postValue(courseIds[it])
         }
 
 
@@ -125,6 +125,7 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) { interactor.startListeners() }
+
         viewModelScope.launch {
             interactor.observeHasGroup().collect { hasGroup: Boolean ->
                 menuBtnVisibility.value = Pair(R.id.menu_group, hasGroup)
@@ -134,7 +135,7 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             interactor.findOwnCourses()
                 .combine(interactor.observeHasGroup()) { courses, hasGroup ->
-                    courseUuids = courses.associate { it.name to it.id }
+                    courseIds = courses.associate { it.name to it.id }
                     NavMenuState.NavMenu(
                         courses,
                         interactor.findThisUser(),
@@ -151,11 +152,7 @@ class MainViewModel @Inject constructor(
 
         viewModelScope.launch {
             interactor.listenThisUser()
-                .collect { optional: Optional<User> ->
-                    optional.ifPresent { value: User ->
-                        userInfo.setValue(value)
-                    }
-                }
+                .collect { user -> user?.let(userInfo::setValue) }
         }
 
         viewModelScope.launch {
@@ -168,12 +165,12 @@ class MainViewModel @Inject constructor(
         }
 
         uiPermissions = UiPermissions(interactor.findThisUser())
-        uiPermissions.addPermissions(Permission(ALLOW_CONTROL, { hasAdminPerms() }))
+        uiPermissions.putPermissions(Permission(ALLOW_CONTROL, { hasAdminPerms() }))
     }
 
     sealed class NavMenuState {
         data class NavMenu(
-            private val courses: List<Course>,
+            private val courses: List<CourseHeader>,
             private val user: User,
             private val hasGroup: Boolean,
             val expandAllCourse: Boolean = false

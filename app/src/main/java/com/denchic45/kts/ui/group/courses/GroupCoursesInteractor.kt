@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.group.courses
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Course
+import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.CourseRepository
 import com.denchic45.kts.data.repository.GroupRepository
@@ -15,7 +16,7 @@ class GroupCoursesInteractor @Inject constructor(
     private val groupRepository: GroupRepository
 ) : Interactor {
 
-    fun findCoursesByGroupId(groupId: String): Flow<List<Course>> {
+    fun findCoursesByGroupId(groupId: String): Flow<List<CourseHeader>> {
         return courseRepository.findByGroupId(groupId)
     }
 
