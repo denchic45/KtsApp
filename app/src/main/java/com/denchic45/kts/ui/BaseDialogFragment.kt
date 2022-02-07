@@ -18,7 +18,6 @@ abstract class BaseDialogFragment<VM : ViewModel, VB : ViewBinding>(layoutId: In
 
     abstract val binding: VB
 
-
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)

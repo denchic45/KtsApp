@@ -62,7 +62,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
     private lateinit var rvFinderEntities: RecyclerView
     private lateinit var finderEntityAdapter: FinderEntityAdapter
     private lateinit var searchBar: SearchBar
-    private val viewBinding by viewBinding(FragmentFinderBinding::bind)
+    private val viewBinding by viewBinding({ FragmentFinderBinding.bind(it) })
 
     private fun hideMainToolbar() {
         appBarController.toolbar.visibility = View.GONE

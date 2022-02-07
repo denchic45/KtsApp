@@ -14,6 +14,7 @@ import com.denchic45.kts.databinding.FragmentSubmissionsBinding
 import com.denchic45.kts.databinding.ItemSubmissionBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
+import com.denchic45.kts.ui.course.submission.SubmissionFragment
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
@@ -46,7 +47,7 @@ class SubmissionsFragment :
             }
 
             viewModel.openSubmission.observe(viewLifecycleOwner) {
-                findNavController().navigate(R.id.action_contentFragment_to_submissionFragment)
+                SubmissionFragment().show(childFragmentManager,null)
             }
         }
     }
