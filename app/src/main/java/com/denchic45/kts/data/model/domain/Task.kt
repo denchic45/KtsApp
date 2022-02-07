@@ -50,17 +50,38 @@ data class Task(
     }
 
     data class Submission(
+        override var id: String,
         val contentId: String,
         val courseId: String,
         val student: User,
         val content: Content,
         val comments: List<Comment>,
         val status: SubmissionStatus
-    ) {
+    ) : DomainModel() {
+
+
+        companion object {
+            fun createEmpty(contentId: String, courseId: String, student: User): Submission {
+                return Submission(
+                    "",
+                    contentId,
+                    courseId,
+                    student,
+                    Content.createEmpty(),
+                    emptyList(),
+                    SubmissionStatus.NotSubmitted
+                )
+            }
+        }
+
         data class Content(
             val text: String,
             val attachments: List<Attachment>
         ) {
+            companion object {
+                fun createEmpty(): Content = Content("", emptyList())
+            }
+
             fun isEmpty(): Boolean = text.isEmpty() && attachments.isEmpty()
         }
 
@@ -77,6 +98,7 @@ data class Task(
 
         data class Graded(
             val teacher: User,
+            val grade: Int,
             val gradeDate: LocalDateTime
         ) : SubmissionStatus()
 
@@ -113,7 +135,7 @@ data class SubmissionSettings(
     val attachmentsSizeLimit: Int
 ) {
 
-    private constructor() :this(false, 100, true, 16, 200)
+    private constructor() : this(false, 100, true, 16, 200)
 
     fun onlyTextAvailable(): Boolean = textAvailable && !attachmentsAvailable
 

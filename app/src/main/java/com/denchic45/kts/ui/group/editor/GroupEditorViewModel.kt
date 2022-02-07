@@ -188,7 +188,8 @@ class GroupEditorViewModel @Inject constructor(
             }
     }
 
-    fun onCreateOptions() {
+    override fun onCreateOptions() {
+        super.onCreateOptions()
         if (uiEditor.isNew) {
             deleteOptionVisibility.value = false
         }

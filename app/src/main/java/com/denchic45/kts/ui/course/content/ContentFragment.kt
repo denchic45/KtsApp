@@ -8,6 +8,7 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -19,6 +20,8 @@ import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 class ContentFragment :
     BaseFragment<ContentViewModel, FragmentContentBinding>(R.layout.fragment_content) {
@@ -52,19 +55,23 @@ class ContentFragment :
         appBarController.toolbar.title = ""
 
         with(binding) {
-            viewModel.submissionVisibility.observe(viewLifecycleOwner) {
-                vpContent.isUserInputEnabled = it
+            lifecycleScope.launchWhenStarted {
+                viewModel.submissionVisibility
+                    .distinctUntilChanged()
+                    .collect {
+                    vpContent.isUserInputEnabled = it
                     if (it) {
-                    tabLayout.visibility = View.VISIBLE
-                    adapter = ContentAdapter(this@ContentFragment, 2)
-                } else {
-                    tabLayout.visibility = View.GONE
-                    adapter = ContentAdapter(this@ContentFragment, 1)
+                        tabLayout.visibility = View.VISIBLE
+                        adapter = ContentAdapter(this@ContentFragment, 2)
+                    } else {
+                        tabLayout.visibility = View.GONE
+                        adapter = ContentAdapter(this@ContentFragment, 1)
+                    }
+                    vpContent.adapter = adapter
+                    TabLayoutMediator(tabLayout, vpContent) { tab, position ->
+                        tab.text = viewModel.tabNames[position]
+                    }.attach()
                 }
-                vpContent.adapter = adapter
-                TabLayoutMediator(tabLayout, vpContent) { tab, position ->
-                    tab.text = viewModel.tabNames[position]
-                }.attach()
             }
         }
 

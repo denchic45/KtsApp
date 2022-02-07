@@ -5,7 +5,7 @@ import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.data.model.firestore.SubmissionDoc
 import com.denchic45.kts.data.model.room.SubmissionCommentEntity
 import com.denchic45.kts.data.model.room.SubmissionEntity
-import com.denchic45.kts.data.model.room.SubmissionWithStudentUserCommentsEntities
+import com.denchic45.kts.data.model.room.SubmissionWithStudentUserAndCommentsEntities
 import org.mapstruct.Mapper
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -16,13 +16,14 @@ abstract class SubmissionMapper {
     abstract fun docToEntity(submissionDoc: SubmissionDoc): SubmissionEntity
 
     fun entityToDomain(
-        entities: SubmissionWithStudentUserCommentsEntities,
+        entities: SubmissionWithStudentUserAndCommentsEntities,
         attachments: List<Attachment>
     ): Task.Submission {
         val content = Task.Submission.Content(entities.submissionEntity.text, attachments)
         val submissionStatus = getSubmissionStatus(entities)
         val comments = getSubmissionComments(entities.submissionCommentEntities)
         return Task.Submission(
+            entities.submissionEntity.id,
             entities.submissionEntity.contentId,
             entities.submissionEntity.courseId,
             userMapper.entityToDomain(entities.studentEntity),
@@ -34,7 +35,7 @@ abstract class SubmissionMapper {
 
     abstract fun getSubmissionComments(commentEntities: List<SubmissionCommentEntity>): List<Task.Comment>
 
-    fun getSubmissionStatus(entities: SubmissionWithStudentUserCommentsEntities): Task.SubmissionStatus {
+    fun getSubmissionStatus(entities: SubmissionWithStudentUserAndCommentsEntities): Task.SubmissionStatus {
 
         return when (entities.submissionEntity.status) {
             Task.Submission.Status.NOT_SUBMITTED -> Task.SubmissionStatus.NotSubmitted
@@ -47,6 +48,7 @@ abstract class SubmissionMapper {
             Task.Submission.Status.GRADED -> {
                 Task.SubmissionStatus.Graded(
                     userMapper.entityToDomain(entities.teacherEntity),
+                    entities.submissionEntity.grade!!,
                     LocalDateTime.ofInstant(
                         entities.submissionEntity.gradedDate.toInstant(),
                         ZoneId.systemDefault()

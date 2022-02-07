@@ -4,11 +4,28 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.widget.extendedAdapter.DelegationAdapterDsl
 
-inline fun <reified VH : RecyclerView.ViewHolder> DelegationAdapterDsl.ExtensionsBuilder.click(
+inline fun <reified VH : RecyclerView.ViewHolder> DelegationAdapterDsl.ExtensionsBuilder.clickBuilder(
     block: ClickTypeExtensionBuilder<VH>.() -> Unit
 ) {
     return add(
         ClickTypeExtensionBuilder(VH::class.java).apply(block).build()
+    )
+}
+
+inline fun <reified VH : RecyclerView.ViewHolder> DelegationAdapterDsl.ExtensionsBuilder.click(
+    noinline onClick: (position: Int) -> Unit = {},
+    noinline onLongClick: (position: Int) -> Boolean = { false },
+    noinline view: (VH) -> View = { viewHolder -> viewHolder.itemView },
+    noinline predicate: (VH) -> Boolean = { true },
+) {
+    return add(
+        ClickTypeExtension(
+            VH::class.java,
+            predicate,
+            view,
+            onClick,
+            onLongClick
+        )
     )
 }
 

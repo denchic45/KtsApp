@@ -351,7 +351,8 @@ class CourseEditorViewModel @Inject constructor(
         }
     }
 
-    fun onCreateOptions() {
+    override fun onCreateOptions() {
+        super.onCreateOptions()
         optionVisibility.postValue(R.id.option_course_delete to !uiEditor.isNew)
     }
 }

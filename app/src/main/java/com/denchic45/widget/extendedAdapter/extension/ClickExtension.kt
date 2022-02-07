@@ -6,7 +6,7 @@ import com.denchic45.widget.extendedAdapter.AdapterDelegateExtension
 import com.denchic45.widget.extendedAdapter.DelegationAdapterDsl
 import com.denchic45.widget.extendedAdapter.IDelegationAdapterExtended
 
-fun DelegationAdapterDsl.ExtensionsBuilder.click(block: ClickExtensionBuilder.() -> Unit) {
+fun DelegationAdapterDsl.ExtensionsBuilder.clickBuilder(block: ClickExtensionBuilder.() -> Unit) {
     return add(ClickExtensionBuilder().apply(block).build())
 }
 

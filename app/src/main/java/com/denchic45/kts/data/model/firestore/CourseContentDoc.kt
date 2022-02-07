@@ -3,14 +3,12 @@ package com.denchic45.kts.data.model.firestore
 import com.denchic45.kts.data.model.DocModel
 import com.denchic45.kts.data.model.domain.ContentDetails
 import com.denchic45.kts.data.model.domain.ContentType
-import com.denchic45.kts.data.model.domain.SubmissionSettings
 import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.data.model.mapper.Default
 import com.denchic45.kts.data.model.room.ContentCommentEntity
 import com.denchic45.kts.data.model.room.SubmissionCommentEntity
 import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.IgnoreExtraProperties
-import com.google.firebase.firestore.PropertyName
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
@@ -43,6 +41,7 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
 }
 
 data class SubmissionDoc(
+    val id: String,
     val studentId: String,
     val contentId: String,
     val courseId: String,
@@ -57,6 +56,7 @@ data class SubmissionDoc(
     val submittedDate: Date,
 ) {
     private constructor() : this(
+        "",
         "", "",
         "",
         Task.Submission.Status.NOT_SUBMITTED,

@@ -78,4 +78,7 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
 
     @Query("SELECT EXISTS (SELECT * FROM course  WHERE course_id=:courseId AND teacher_id=:teacherId)")
     abstract suspend fun isCourseTeacher(courseId: String, teacherId: String): Boolean
+
+    @Query("SELECT course_id FROM course_content WHERE content_id=:taskId")
+    abstract suspend fun getCourseIdByContentId(taskId: String): String
 }

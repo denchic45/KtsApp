@@ -385,7 +385,8 @@ open class UserEditorViewModel @Inject constructor(
         interactor.removeListeners()
     }
 
-    fun onCreateOptions() {
+    override fun onCreateOptions() {
+        super.onCreateOptions()
         if (uiEditor.isNew) {
             deleteOptionVisibility.value = false
         }

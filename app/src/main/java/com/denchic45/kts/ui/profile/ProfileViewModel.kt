@@ -35,7 +35,6 @@ class ProfileViewModel @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
     private var userOfProfile: User? = null
     private var group: Group? = null
-    fun onCreateOptions() {}
     private fun mapRoleToNameRoleId(@User.Role role: String): Int {
         return when (role) {
             User.STUDENT -> R.string.role_student

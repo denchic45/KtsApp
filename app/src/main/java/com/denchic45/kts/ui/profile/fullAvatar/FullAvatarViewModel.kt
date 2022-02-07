@@ -20,7 +20,8 @@ class FullAvatarViewModel @Inject constructor(
     val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
 
     private var thisUser: User? = null
-    fun onCreateOptions() {
+    override fun onCreateOptions() {
+        super.onCreateOptions()
         thisUser = interactor.findThisUser()
         if (photoUrl != thisUser!!.photoUrl) {
             optionVisibility.value = Pair(R.id.menu_delete_avatar, false)

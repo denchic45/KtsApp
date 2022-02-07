@@ -87,10 +87,6 @@ class CourseViewModel @Inject constructor(
         }
     }
 
-    fun onCreateOptions() {
-
-    }
-
     companion object {
         const val ALLOW_COURSE_EDIT = "PERMISSION_EDIT"
         const val ALLOW_ADD_COURSE_CONTENT = "ALLOW_ADD_COURSE_CONTENT"

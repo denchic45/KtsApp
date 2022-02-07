@@ -1,5 +1,6 @@
 package com.denchic45.kts.ui.adapter
 
+import android.view.ViewParent
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
@@ -18,13 +19,6 @@ abstract class BaseViewHolder<T, VB : ViewBinding>(
             true
         }
     }
-
-//    private fun setOnLongClickHolderListener() {
-//        itemView.setOnLongClickListener {
-//            onItemLongClickListener.onLongItemClick(adapterPosition)
-//            true
-//        }
-//    }
 
     open fun onItemClick() {
         onItemClickListener.onItemClick(adapterPosition)

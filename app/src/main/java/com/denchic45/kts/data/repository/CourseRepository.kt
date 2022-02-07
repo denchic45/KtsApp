@@ -701,13 +701,10 @@ class CourseRepository @Inject constructor(
                         it.submissionEntity.attachments
                     )
                     submissionMapper.entityToDomain(it, attachments)
-                } ?: Task.Submission(
-                    courseContent.id,
-                    courseContent.courseId,
-                    userMapper.entityToDomain(userDao.getSync(userId)),
-                    Task.Submission.Content("", emptyList()),
-                    emptyList(),
-                    Task.SubmissionStatus.NotSubmitted
+                } ?: Task.Submission.createEmpty(
+                    contentId = courseContent.id,
+                    courseId = courseContent.courseId,
+                    student = userMapper.entityToDomain(userDao.getSync(userId))
                 )
             }
             .distinctUntilChanged()
@@ -748,6 +745,31 @@ class CourseRepository @Inject constructor(
 
     suspend fun isCourseTeacher(userId: String, courseId: String): Boolean {
         return courseDao.isCourseTeacher(courseId, userId)
+    }
+
+    fun findTaskSubmissions(taskId: String): Flow<List<Task.Submission>> {
+        return submissionDao.getByTaskId(taskId).map { list ->
+            list.map {
+                val attachments = submissionAttachmentStorage.get(
+                    it.submissionEntity.contentId,
+                    it.submissionEntity.studentId,
+                    it.submissionEntity.attachments
+                )
+                submissionMapper.entityToDomain(it, attachments)
+            }
+        }
+            .mapLatest {
+                val courseId = courseDao.getCourseIdByContentId(taskId)
+                it + submissionDao.getStudentWithoutSubmission(taskId)
+                    .map {
+                        Task.Submission.createEmpty(
+                            taskId,
+                            courseId,
+                            userMapper.entityToDomain(it)
+                        )
+                    }
+            }
+            .distinctUntilChanged()
     }
 }
 

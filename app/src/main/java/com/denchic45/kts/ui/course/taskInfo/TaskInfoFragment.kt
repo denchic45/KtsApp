@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.contains
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Transformations
@@ -30,7 +29,7 @@ import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.ui.course.taskEditor.*
 import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.adapter
-import com.denchic45.widget.extendedAdapter.extension.click
+import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jakewharton.rxbinding4.widget.textChanges
@@ -52,7 +51,7 @@ class TaskInfoFragment :
         adapter {
             delegates(AttachmentAdapterDelegate(false))
             extensions {
-                click<AttachmentHolder> { onClick = { viewModel.onTaskFileClick(it) } }
+                clickBuilder<AttachmentHolder> { onClick = { viewModel.onTaskFileClick(it) } }
             }
         }
 
@@ -60,18 +59,18 @@ class TaskInfoFragment :
         adapter {
             delegates(AttachmentAdapterDelegate(), AddAttachmentAdapterDelegate())
             extensions {
-                click<AttachmentHolder> {
+                clickBuilder<AttachmentHolder> {
                     onClick = {
                         viewModel.onSubmissionAttachmentClick(it)
                     }
                 }
-                click<AttachmentHolder> {
+                clickBuilder<AttachmentHolder> {
                     view = { it.binding.ivFileRemove }
                     onClick = { position ->
                         viewModel.onRemoveSubmissionFileClick(position)
                     }
                 }
-                click<AddAttachmentHolder> {
+                clickBuilder<AddAttachmentHolder> {
                     onClick = {
                         viewModel.onAddAttachmentClick()
                     }

@@ -24,7 +24,7 @@ import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.login.LoginActivity
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.utils.findFragmentContainerNavController
-import com.denchic45.widget.extendedAdapter.extension.click
+import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -48,12 +48,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private val navAdapter = navAdapter {
         extensions {
-            click<NavItemHolder> {
+            clickBuilder<NavItemHolder> {
                 onClick = {
                     viewModel.onNavItemClick(it)
                 }
             }
-            click<NavDropdownItemHolder> {
+            clickBuilder<NavDropdownItemHolder> {
                 onClick = {
                     viewModel.onExpandCoursesClick()
                 }

@@ -1,46 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rl_foreground"
     android:layout_width="match_parent"
     android:layout_height="64dp"
     android:background="?android:windowBackground"
     android:foreground="?attr/selectableItemBackground"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:paddingHorizontal="16dp">
 
     <androidx.constraintlayout.utils.widget.ImageFilterView
         android:id="@+id/iv_avatar"
         android:layout_width="46dp"
         android:layout_height="46dp"
-        android:layout_marginStart="16dp"
         android:background="@color/pale_white"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:roundPercent="1" />
+        app:roundPercent="1"
+        tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/tv_teacher_full_name"
+        android:id="@+id/tv_student"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16sp"
+        android:layout_weight="1"
+        android:textAppearance="@style/TextAppearance.Kts.Body1"
+        app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+        app:layout_constraintTop_toTopOf="@id/iv_avatar"
+        tools:text="Имя Фамилия пользователя" />
+
+
+    <TextView
+        android:id="@+id/tv_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16sp"
-        android:fontFamily="@font/gilroy_medium"
-        android:text="Имя Фамилия пользователя"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@id/textView_user_role"
+        android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
         app:layout_constraintStart_toEndOf="@+id/iv_avatar"
-        app:layout_constraintTop_toTopOf="@id/iv_avatar" />
+        app:layout_constraintTop_toTopOf="@id/iv_avatar"
+        tools:text="Не сдано" />
 
-    <TextView
-        android:id="@+id/textView_user_role"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16sp"
-        android:fontFamily="@font/gilroy_semi_bold"
-        android:text="Староста"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
-        app:layout_constraintStart_toEndOf="@+id/iv_avatar"
-        app:layout_constraintTop_toBottomOf="@id/tv_teacher_full_name" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

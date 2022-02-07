@@ -31,7 +31,7 @@ import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
-import com.denchic45.widget.extendedAdapter.extension.click
+import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.textChanges
 import io.reactivex.rxjava3.internal.util.AppendOnlyLinkedArrayList.NonThrowingPredicate
@@ -52,10 +52,10 @@ class CourseEditorFragment :
     private val adapter = adapter {
         delegates(CourseGroupsAdapterDelegate(), ItemAdapterDelegate())
         extensions {
-            click<ItemAdapterDelegate.ItemHolder> {
+            clickBuilder<ItemAdapterDelegate.ItemHolder> {
                 onClick = { viewModel.onGroupAddClick() }
             }
-            click<CourseGroupsAdapterDelegate.GroupHolder> {
+            clickBuilder<CourseGroupsAdapterDelegate.GroupHolder> {
                 view = { it.itemGroupInCourseBinding.ivRemove }
                 onClick = { position ->
                     viewModel.onGroupRemoveClick(position)

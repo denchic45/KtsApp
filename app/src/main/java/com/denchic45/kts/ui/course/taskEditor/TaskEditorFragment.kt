@@ -11,7 +11,6 @@ import android.view.*
 import android.webkit.MimeTypeMap
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.widget.ImageViewCompat
@@ -38,7 +37,7 @@ import com.denchic45.kts.ui.course.sectionPicker.SectionPickerViewModel
 import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
-import com.denchic45.widget.extendedAdapter.extension.click
+import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -64,13 +63,13 @@ class TaskEditorFragment :
     private val adapter = adapter {
         delegates(AttachmentAdapterDelegate())
         extensions {
-            click<AttachmentHolder> {
+            clickBuilder<AttachmentHolder> {
                 view = { it.binding.ivFileRemove }
                 onClick = { position ->
                     viewModel.onRemoveFileClick(position)
                 }
             }
-            click<AttachmentHolder> {
+            clickBuilder<AttachmentHolder> {
                 onClick = { position: Int -> viewModel.onAttachmentClick(position) }
             }
         }

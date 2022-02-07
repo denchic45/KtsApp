@@ -18,7 +18,7 @@ import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.widget.extendedAdapter.adapter
-import com.denchic45.widget.extendedAdapter.extension.click
+import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -76,7 +76,7 @@ class CourseFragment :
             val adapter = adapter {
                 delegates(TaskAdapterDelegate(), CourseSectionAdapterDelegate())
                 extensions {
-                    click<TaskHolder> {
+                    clickBuilder<TaskHolder> {
                         onClick = {
                             viewModel.onTaskItemClick(it)
                         }

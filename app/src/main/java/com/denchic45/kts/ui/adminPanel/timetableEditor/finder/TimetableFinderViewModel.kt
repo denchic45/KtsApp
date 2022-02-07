@@ -89,7 +89,8 @@ class TimetableFinderViewModel @Inject constructor(
     val lessonTime: Int
         get() = interactor.lessonTime
 
-    fun onCreateOptions() {
+    override fun onCreateOptions() {
+        super.onCreateOptions()
         updateVisibilityTimetableOption()
     }
 

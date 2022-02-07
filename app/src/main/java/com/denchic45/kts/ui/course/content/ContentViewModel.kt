@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.course.content
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
@@ -13,6 +12,7 @@ import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -27,12 +27,11 @@ class ContentViewModel @Inject constructor(
     private val removeCourseContentUseCase: RemoveCourseContentUseCase,
     private val isCourseTeacherUseCase: IsCourseTeacherUseCase
 ) : BaseViewModel() {
-
     val tabNames = listOf("Инфо", "Ответы")
 
     val openTaskEditor = SingleLiveData<Pair<String, String>>()
 
-    val submissionVisibility = MutableLiveData<Boolean>()
+    val submissionVisibility = MutableSharedFlow<Boolean>(replay = 1)
 
     val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
 
@@ -58,7 +57,8 @@ class ContentViewModel @Inject constructor(
         }
     }
 
-    fun onCreateOptions() {
+    override fun onCreateOptions() {
+        super.onCreateOptions()
         viewModelScope.launch {
             val courseTeacherUseCase = isCourseTeacherUseCase(selfUser.id, courseId)
             uiPermissions.putPermissions(
@@ -75,7 +75,7 @@ class ContentViewModel @Inject constructor(
                     { courseTeacherUseCase })
             )
 
-            submissionVisibility.postValue(uiPermissions.isAllowed(ALLOW_SEE_SUBMISSION))
+            submissionVisibility.emit(uiPermissions.isAllowed(ALLOW_SEE_SUBMISSION))
 
             if (uiPermissions.isAllowed(TaskInfoViewModel.ALLOW_EDIT_TASK)) {
                 optionVisibility.value = R.id.option_task_edit to true
