@@ -17,6 +17,7 @@
         <item name="android:textColor">@color/dark_gray</item>
         <item name="buttonTint">@color/checkbox_selector</item>
         <item name="windowNoTitle">true</item>
+        <item name="bottomSheetDialogTheme">@style/BaseBottomSheetMenu</item>
     </style>
 
     <style name="MyAppBar" parent="Widget.Design.AppBarLayout">
@@ -122,8 +123,10 @@
     </style>
 
     <style name="BaseBottomSheetMenu" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
+        <item name="colorPrimary">@color/blue</item>
         <item name="android:windowIsFloating">false</item>
         <item name="bottomSheetStyle">@style/BottomSheetModal</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
 
     </style>

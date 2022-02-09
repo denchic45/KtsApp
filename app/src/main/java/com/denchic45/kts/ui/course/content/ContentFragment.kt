@@ -27,10 +27,7 @@ class ContentFragment :
     BaseFragment<ContentViewModel, FragmentContentBinding>(R.layout.fragment_content) {
     override val viewModel: ContentViewModel by viewModels { viewModelFactory }
     override val binding: FragmentContentBinding by viewBinding(FragmentContentBinding::bind)
-
-    private lateinit var adapter: ContentAdapter
-
-    private lateinit var menu: Menu
+    private var menu: Menu? = null
 
     private val appBarController by lazy {
         AppBarController.findController(requireActivity())
@@ -59,19 +56,20 @@ class ContentFragment :
                 viewModel.submissionVisibility
                     .distinctUntilChanged()
                     .collect {
-                    vpContent.isUserInputEnabled = it
-                    if (it) {
-                        tabLayout.visibility = View.VISIBLE
-                        adapter = ContentAdapter(this@ContentFragment, 2)
-                    } else {
-                        tabLayout.visibility = View.GONE
-                        adapter = ContentAdapter(this@ContentFragment, 1)
+                        vpContent.isUserInputEnabled = it
+                        val adapter: ContentAdapter
+                        if (it) {
+                            tabLayout.visibility = View.VISIBLE
+                            adapter = ContentAdapter(this@ContentFragment, 2)
+                        } else {
+                            tabLayout.visibility = View.GONE
+                            adapter = ContentAdapter(this@ContentFragment, 1)
+                        }
+                        vpContent.adapter = adapter
+                        TabLayoutMediator(tabLayout, vpContent) { tab, position ->
+                            tab.text = viewModel.tabNames[position]
+                        }.attach()
                     }
-                    vpContent.adapter = adapter
-                    TabLayoutMediator(tabLayout, vpContent) { tab, position ->
-                        tab.text = viewModel.tabNames[position]
-                    }.attach()
-                }
             }
         }
 
@@ -86,13 +84,18 @@ class ContentFragment :
         }
 
         viewModel.optionVisibility.observe(viewLifecycleOwner) { (itemId, visibility) ->
-            menu.findItem(itemId).isVisible = visibility
+            menu!!.findItem(itemId).isVisible = visibility
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.onOptionClick(item.itemId)
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        menu = null
     }
 
     companion object {

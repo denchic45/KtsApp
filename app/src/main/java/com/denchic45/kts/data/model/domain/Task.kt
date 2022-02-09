@@ -57,6 +57,7 @@ data class Task(
         val status: SubmissionStatus
     ) : DomainModel() {
 
+      override var id: String = ""
 
         companion object {
             fun createEmpty(contentId: String, student: User): Submission {

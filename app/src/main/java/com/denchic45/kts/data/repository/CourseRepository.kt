@@ -672,9 +672,7 @@ class CourseRepository @Inject constructor(
 
         contentAttachmentStorage.deleteFilesByContentId(taskId)
         submissionAttachmentStorage.deleteFilesByContentId(taskId)
-        coursesRef.document(courseContentDao.getCourseIdByTaskId(taskId))
-            .collection("Contents")
-            .document(taskId)
+        getContentRef(taskId)
             .set(
                 mapOf(
                     "id" to taskId,
@@ -684,6 +682,11 @@ class CourseRepository @Inject constructor(
             )
             .await()
     }
+
+    private suspend fun getContentRef(contentId: String) =
+        coursesRef.document(courseContentDao.getCourseIdByTaskId(contentId))
+            .collection("Contents")
+            .document(contentId)
 
     fun findSectionsByCourseId(courseId: String) =
         sectionDao.getByCourseId(courseId).map { sectionMapper.entityToDomain(it) }
@@ -767,6 +770,39 @@ class CourseRepository @Inject constructor(
             .await()
     }
 
+    suspend fun gradeSubmission(
+        taskId: String,
+        studentId: String,
+        grade: Int,
+        teacherId: String = userPreference.id
+    ) {
+        getContentRef(taskId).update(
+            mapOf(
+                "timestamp" to FieldValue.serverTimestamp(),
+                "submissions.$studentId.status" to Task.Submission.Status.GRADED,
+                "submissions.$studentId.gradedDate" to Date(),
+                "submissions.$studentId.grade" to grade,
+                "submissions.$studentId.teacherId" to teacherId
+            )
+        ).await()
+    }
+
+    suspend fun rejectSubmission(
+        taskId: String,
+        studentId: String,
+        cause: String,
+        teacherId: String = userPreference.id
+    ) {
+        getContentRef(taskId).update(
+            mapOf(
+                "timestamp" to FieldValue.serverTimestamp(),
+                "submissions.$studentId.status" to Task.Submission.Status.REJECTED,
+                "submissions.$studentId.cause" to cause,
+                "submissions.$studentId.teacherId" to teacherId
+            )
+        ).await()
+    }
+
     suspend fun isCourseTeacher(userId: String, courseId: String): Boolean {
         return courseDao.isCourseTeacher(courseId, userId)
     }
@@ -783,17 +819,15 @@ class CourseRepository @Inject constructor(
             }
         }
             .mapLatest {
-                val courseId = courseDao.getCourseIdByContentId(taskId)
                 it + submissionDao.getStudentWithoutSubmission(taskId)
-                    .map {
-                        Task.Submission.createEmpty(
-                            taskId,
-                            userMapper.entityToDomain(it)
-                        )
+                    .map { userEntity ->
+                        Task.Submission.createEmpty(taskId, userMapper.entityToDomain(userEntity))
                     }
             }
             .distinctUntilChanged()
     }
+
+
 }
 
 fun convertToDateViaInstant(dateToConvert: LocalDateTime): Date {

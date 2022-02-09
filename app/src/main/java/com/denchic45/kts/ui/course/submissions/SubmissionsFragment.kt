@@ -15,7 +15,7 @@ import com.denchic45.kts.databinding.FragmentSubmissionsBinding
 import com.denchic45.kts.databinding.ItemSubmissionBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
-import com.denchic45.kts.ui.course.submission.SubmissionFragment
+import com.denchic45.kts.ui.course.submission.SubmissionDialog
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
@@ -49,10 +49,10 @@ class SubmissionsFragment :
 
             viewModel.openSubmission.observe(viewLifecycleOwner) { (taskId, studentId) ->
                 findNavController().navigate(
-                    R.id.action_contentFragment_to_submissionFragment,
+                    R.id.action_global_submissionFragment,
                     bundleOf(
-                        SubmissionFragment.TASK_ID to taskId,
-                        SubmissionFragment.STUDENT_ID to studentId
+                        SubmissionDialog.TASK_ID to taskId,
+                        SubmissionDialog.STUDENT_ID to studentId
                     )
                 )
             }
@@ -84,7 +84,7 @@ class SubmissionAdapterDelegate :
                         tvStatus.text = "Сдано"
                     }
                     is Task.SubmissionStatus.Graded -> {
-                        tvStatus.text = item.status.grade.toString()
+                        tvStatus.text = "${item.status.grade}/5"
                     }
                     is Task.SubmissionStatus.Rejected -> {
                         tvStatus.text = "Отклонено"

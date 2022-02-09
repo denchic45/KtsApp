@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".ui.course.submission.SubmissionFragment">
+
+    tools:context=".ui.course.submission.SubmissionDialog">
 
     <View
         android:id="@+id/v_line_swipe"
@@ -13,184 +14,285 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
         android:background="@drawable/shape_bottomsheet_swipe" />
+
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:paddingBottom="56dp"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cl_root"
+        <ViewFlipper
+            android:id="@+id/vf"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:inAnimation="@anim/fade_in"
+            android:measureAllChildren="false"
+            android:outAnimation="@anim/fade_out">
 
-            <androidx.constraintlayout.utils.widget.ImageFilterView
-                android:id="@+id/iv_avatar"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="24dp"
-                android:background="@color/pale_white"
-                android:scaleType="centerCrop"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:roundPercent="1" />
-
-            <TextView
-                android:id="@+id/tv_student_fullName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16sp"
-                android:text="Петр Петрович"
-                android:textAppearance="@style/TextAppearance.Kts.Body1"
-                app:layout_constraintBottom_toTopOf="@id/tv_status"
-                app:layout_constraintStart_toEndOf="@+id/iv_avatar"
-                app:layout_constraintTop_toTopOf="@id/iv_avatar" />
-
-            <TextView
-                android:id="@+id/tv_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16sp"
-                android:text="Оценено: 5/5"
-                android:textAppearance="@style/TextAppearance.Kts.Body2"
-                app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
-                app:layout_constraintStart_toEndOf="@+id/iv_avatar"
-                app:layout_constraintTop_toBottomOf="@id/tv_student_fullName" />
-
-            <TextView
-                android:text="Sample text"
-                android:id="@+id/tv_answer_text"
+            <FrameLayout
+                android:id="@+id/fl_main"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:paddingTop="16dp"
-                android:textAppearance="@style/TextAppearance.Kts.Body1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/iv_avatar"
-                tools:text="Здесь находится ответ в виде текста.
-Lorem ipsum dolor sit amet, consectetur
-adipiscing elit." />
+                android:layout_height="match_parent">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_attachments"
-                android:layout_width="match_parent"
-                android:layout_height="202dp"
-                android:layout_marginTop="16dp"
-                android:nestedScrollingEnabled="false"
-                android:orientation="horizontal"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_answer_text"
-                tools:listitem="@layout/item_attachment" />
-
-            <TextView
-                android:id="@+id/tv_comments_header"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="16dp"
-                android:gravity="center_vertical"
-                android:text="Личные комментарии"
-                android:textAppearance="@style/TextAppearance.Kts.SubHeader"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rv_attachments" />
-
-            <TextView
-                android:id="@+id/btn_comment_send"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="16dp"
-                android:gravity="center_vertical"
-                android:text="Написать"
-                android:textAppearance="@style/TextAppearance.Kts.SubHeader"
-                android:textColor="@color/blue"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rv_attachments" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_comment_send"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_comments_header">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_comment_send"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/cl_root"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="56dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_comments"
+                    <androidx.constraintlayout.utils.widget.ImageFilterView
+                        android:id="@+id/iv_avatar"
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="24dp"
+                        android:background="@color/pale_white"
+                        android:scaleType="centerCrop"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:roundPercent="1" />
+
+                    <TextView
+                        android:id="@+id/tv_student_fullName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16sp"
+                        android:text="Петр Петрович"
+                        android:textAppearance="@style/TextAppearance.Kts.Body1"
+                        app:layout_constraintBottom_toTopOf="@id/tv_status"
+                        app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+                        app:layout_constraintTop_toTopOf="@id/iv_avatar" />
+
+                    <TextView
+                        android:id="@+id/tv_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16sp"
+                        android:text="Оценено: 5/5"
+                        android:textAppearance="@style/TextAppearance.Kts.Body2"
+                        app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
+                        app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+                        app:layout_constraintTop_toBottomOf="@id/tv_student_fullName" />
+
+                    <TextView
+                        android:id="@+id/tv_answer_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:paddingTop="16dp"
+                        android:text="Sample text"
+                        android:textAppearance="@style/TextAppearance.Kts.Body1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/iv_avatar"
+                        tools:text="Здесь находится ответ в виде текста.
+                        Lorem ipsum dolor sit amet, consectetur
+                        adipiscing elit." />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_attachments"
+                        android:layout_width="match_parent"
+                        android:layout_height="202dp"
+                        android:layout_marginTop="16dp"
+                        android:nestedScrollingEnabled="false"
+                        android:orientation="horizontal"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_answer_text"
+                        tools:listitem="@layout/item_attachment" />
+
+                    <TextView
+                        android:id="@+id/tv_comments_header"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical"
+                        android:text="Личные комментарии"
+                        android:textAppearance="@style/TextAppearance.Kts.SubHeader"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/rv_attachments" />
+
+                    <TextView
+                        android:id="@+id/btn_comment_send"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:gravity="center_vertical"
+                        android:text="Написать"
+                        android:textAppearance="@style/TextAppearance.Kts.SubHeader"
+                        android:textColor="@color/blue"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/rv_attachments"
+                        app:layout_constraintTop_toTopOf="@id/tv_comments_header" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_comment_send"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16sp"
+                        android:visibility="gone"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/tv_comments_header">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_comment_send"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_comments"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipToPadding="false"
+                        android:overScrollMode="never"
+                        android:paddingBottom="56dp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/til_comment_send"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/item_content" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/footer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?colorSurface"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/iv_reject"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_marginVertical="16dp"
+                        android:layout_marginStart="16dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:padding="6dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_cancel" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_grade"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginVertical="16dp"
+                        android:hint="Оценка"
+                        app:endIconDrawable="@drawable/ic_send"
+                        app:endIconMode="custom"
+                        app:errorEnabled="false"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/iv_reject"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:suffixText="/5">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_grade"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:maxLength="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </FrameLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_reject"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/til_comment_send"
-                tools:itemCount="2"
-                android:overScrollMode="never"
-                android:clipToPadding="false"
-                android:paddingBottom="64dp"
-                tools:listitem="@layout/item_content" />
+                android:paddingHorizontal="16dp">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/tv_reject_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Отклонить работу"
+                    android:textAppearance="@style/TextAppearance.Kts.Headline6"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
+                <TextView
+                    android:id="@+id/tv_reject_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Укажите причину"
+                    android:textAppearance="@style/TextAppearance.Kts.Subtitle2"
+                    app:layout_constraintTop_toBottomOf="@id/tv_reject_header" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_cause"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:layout_constraintTop_toBottomOf="@id/tv_reject_subtitle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_cause"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cancel"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    app:layout_constraintTop_toTopOf="@id/btn_reject"
+                    android:layout_marginBottom="16sp"
+                    android:text="Отмена"
+                    android:textAppearance="@style/TextAppearance.Kts.Chip"
+                    android:textColor="?colorControlNormal"
+                    app:cornerRadius="18dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/btn_reject"
+                    app:layout_constraintTop_toBottomOf="@id/til_cause"
+                    app:textEndPadding="8dp"
+                    app:textStartPadding="4dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_reject"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16sp"
+                    android:backgroundTint="@color/red"
+                    android:text="Подтвредить"
+                    android:layout_marginTop="16dp"
+                    android:textAppearance="@style/TextAppearance.Kts.Chip"
+                    app:cornerRadius="18dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/til_cause"
+                    app:textEndPadding="8dp"
+                    app:textStartPadding="4dp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </ViewFlipper>
     </androidx.core.widget.NestedScrollView>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/footer"
-        android:clickable="true"
-        android:layout_width="match_parent"
-        android:background="?colorSurface"
-        android:layout_height="wrap_content"
-        android:focusable="true">
-
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/iv_reject"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_marginVertical="16dp"
-            android:layout_marginStart="16dp"
-            android:background="?selectableItemBackgroundBorderless"
-            android:padding="6dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_arrow_left" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginVertical="16dp"
-            android:hint="Оценка"
-            app:endIconDrawable="@drawable/ic_send"
-            app:endIconMode="custom"
-            app:errorEnabled="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_reject"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:maxLength="1" />
-        </com.google.android.material.textfield.TextInputLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

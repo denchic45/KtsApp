@@ -126,15 +126,12 @@
     <fragment
         android:id="@+id/contentFragment"
         android:name="com.denchic45.kts.ui.course.content.ContentFragment"
-        android:label="ContentFragment" >
-        <action
-            android:id="@+id/action_contentFragment_to_submissionFragment"
-            app:destination="@id/submissionFragment" />
-    </fragment>
+        android:label="ContentFragment" />
     <dialog
         android:id="@+id/submissionFragment"
-        android:name="com.denchic45.kts.ui.course.submission.SubmissionFragment"
+        android:name="com.denchic45.kts.ui.course.submission.SubmissionDialog"
         android:label="fragment_submission"
         tools:layout="@layout/fragment_submission" />
+    <action android:id="@+id/action_global_submissionFragment" app:destination="@id/submissionFragment" />
 
 </navigation>

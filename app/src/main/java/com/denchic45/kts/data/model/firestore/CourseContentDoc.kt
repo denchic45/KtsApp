@@ -27,7 +27,8 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
     val timestamp: Date?,
     val comments: List<ContentCommentEntity>?,
     val submissions: Map<String, SubmissionDoc>?,
-    @field:JvmField val deleted: Boolean = false,
+    @field:JvmField
+    val deleted: Boolean = false,
     val contentType: ContentType,
     val completionDate: Date?,
     @get:Exclude

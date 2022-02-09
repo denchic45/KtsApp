@@ -12,8 +12,9 @@ import androidx.activity.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.kts.*
-import com.denchic45.kts.KeyboardManager.OnKeyboardListener
+import com.denchic45.kts.CustomToolbar
+import com.denchic45.kts.KeyboardManager
+import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.ActivityUserEditorBinding
@@ -268,17 +269,13 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
     override fun onResume() {
         super.onResume()
         with(binding) {
-            keyboardManager.registerKeyboardListener(object : OnKeyboardListener {
-                override fun onKeyboardVisible() {
+            keyboardManager.registerKeyboardListener(findViewById(android.R.id.content)) {
+                if (it) {
                     fab.postDelayed({ fab.hide() }, DELAY_FAB_VISIBILITY.toLong())
-                    Toast.makeText(this@UserEditorActivity, "SHOW", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onKeyboardHidden() {
+                } else {
                     fab.postDelayed({ fab.show() }, DELAY_FAB_VISIBILITY.toLong())
-                    Toast.makeText(this@UserEditorActivity, "HIDE", Toast.LENGTH_SHORT).show()
                 }
-            }, findViewById(android.R.id.content))
+            }
         }
     }
 

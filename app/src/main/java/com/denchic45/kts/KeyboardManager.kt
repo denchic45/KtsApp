@@ -10,7 +10,12 @@ class KeyboardManager {
     private var mContentView: View? = null
     private var mOnGlobalLayoutListener: OnGlobalLayoutListener? = null
     private var mIsKeyboardVisible = false
-    fun registerKeyboardListener(listener: OnKeyboardListener, view: View) {
+    val keyBoardVisible: Boolean
+        get() {
+         return mIsKeyboardVisible
+        }
+
+    fun registerKeyboardListener(view: View, listener: (Boolean)->Unit) {
         mContentView = view
         unregisterKeyboardListener()
         mOnGlobalLayoutListener = object : OnGlobalLayoutListener {
@@ -24,7 +29,7 @@ class KeyboardManager {
                         Log.d(TAG, "onLayoutChangedDown")
                         if (mIsKeyboardVisible) {
                             mIsKeyboardVisible = false
-                            listener.onKeyboardHidden()
+                            listener(false)
                         }
                     } else if (mPreviousHeight > newHeight) {
                         // This block will be called when navigation bar is appeared
@@ -41,7 +46,7 @@ class KeyboardManager {
                             mIsKeyboardVisible = true
                         }
                         if (mIsKeyboardVisible) {
-                            listener.onKeyboardVisible()
+                            listener(true)
                         }
                     }
                 }
@@ -57,10 +62,10 @@ class KeyboardManager {
         }
     }
 
-    interface OnKeyboardListener {
-        fun onKeyboardVisible()
-        fun onKeyboardHidden()
-    }
+//    interface OnKeyboardListener {
+//        fun onKeyboardVisible()
+//        fun onKeyboardHidden()
+//    }
 
     companion object {
         private val TAG = KeyboardManager::class.java.simpleName

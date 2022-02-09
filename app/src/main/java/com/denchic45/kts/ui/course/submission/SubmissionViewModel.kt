@@ -1,24 +1,73 @@
 package com.denchic45.kts.ui.course.submission
 
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.domain.usecase.FindTaskSubmissionUseCase
+import com.denchic45.kts.domain.usecase.GradeSubmissionUseCase
+import com.denchic45.kts.domain.usecase.RejectSubmissionUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.course.content.ContentFragment
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
+import kotlin.properties.Delegates
 
 class SubmissionViewModel @Inject constructor(
-    @Named(SubmissionFragment.TASK_ID) taskId: String,
-    @Named(SubmissionFragment.STUDENT_ID) studentId: String,
-    findTaskSubmissionUseCase: FindTaskSubmissionUseCase
+    @Named(SubmissionDialog.TASK_ID) private val taskId: String,
+    @Named(SubmissionDialog.STUDENT_ID) private val studentId: String,
+    findTaskSubmissionUseCase: FindTaskSubmissionUseCase,
+    private val gradeSubmissionUseCase: GradeSubmissionUseCase,
+    private val rejectSubmissionUseCase: RejectSubmissionUseCase
 ) : BaseViewModel() {
+
     val showSubmission: SharedFlow<Task.Submission> = findTaskSubmissionUseCase(taskId, studentId)
-        .shareIn(
-            viewModelScope,
-            SharingStarted.Lazily, 1
-        )
+        .shareIn(viewModelScope, SharingStarted.Lazily, 1)
+
+    private var grade by Delegates.notNull<Int>()
+
+    private var cause = ""
+
+    val openRejectConfirmation = SingleLiveData<Unit>()
+
+    val closeRejectConfirmation = SingleLiveData<Unit>()
+
+    private suspend fun submission() = showSubmission.first()
+
+    fun onGradeType(grade: Int) {
+        this.grade = grade
+    }
+
+    fun onCauseType(cause: String) {
+        this.cause = cause
+    }
+
+    fun onSendGradeClick() {
+        viewModelScope.launch {
+            val submission = submission()
+            if (submission.status !is Task.SubmissionStatus.Graded || submission.status.grade != grade) {
+                gradeSubmissionUseCase(taskId, studentId, grade)
+            }
+        }
+    }
+
+    fun onRejectClick() {
+        openRejectConfirmation.call()
+    }
+
+    fun onRejectConfirmClick() {
+       viewModelScope.launch {
+           if (cause.isNotEmpty())
+           rejectSubmissionUseCase(taskId, studentId, cause)
+           closeRejectConfirmation.call()
+       }
+    }
+
+    fun onRejectCancelClick() {
+        closeRejectConfirmation.call()
+    }
 }

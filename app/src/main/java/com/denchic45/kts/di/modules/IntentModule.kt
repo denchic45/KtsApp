@@ -4,7 +4,7 @@ import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.course.content.ContentFragment
-import com.denchic45.kts.ui.course.submission.SubmissionFragment
+import com.denchic45.kts.ui.course.submission.SubmissionDialog
 import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
@@ -158,18 +158,18 @@ object IntentModule {
         return submissionsFragment.requireParentFragment().requireArguments().getString(ContentFragment.TASK_ID)!!
     }
 
-    @Named(SubmissionFragment.TASK_ID)
+    @Named(SubmissionDialog.TASK_ID)
     @Provides
-    fun provideTaskIdToSubmission(submissionFragment: SubmissionFragment): String {
-        return submissionFragment
+    fun provideTaskIdToSubmission(submissionDialog: SubmissionDialog): String {
+        return submissionDialog
             .requireArguments()
-            .getString(SubmissionFragment.TASK_ID)!!
+            .getString(SubmissionDialog.TASK_ID)!!
     }
 
-    @Named(SubmissionFragment.STUDENT_ID)
+    @Named(SubmissionDialog.STUDENT_ID)
     @Provides
-    fun provideStudentIdToSubmission(submissionFragment: SubmissionFragment): String {
-        return submissionFragment.requireArguments().getString(SubmissionFragment.STUDENT_ID)!!
+    fun provideStudentIdToSubmission(submissionDialog: SubmissionDialog): String {
+        return submissionDialog.requireArguments().getString(SubmissionDialog.STUDENT_ID)!!
     }
 
 
