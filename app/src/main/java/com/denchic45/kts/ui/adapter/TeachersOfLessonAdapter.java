@@ -32,7 +32,7 @@ public class TeachersOfLessonAdapter extends ArrayAdapter<User> {
         }
         User item = getItem(position);
         ImageView ivAvatar = convertView.findViewById(R.id.iv_avatar);
-        TextView tvUserFullName = convertView.findViewById(R.id.tv_teacher_full_name);
+        TextView tvUserFullName = convertView.findViewById(R.id.tv_student_fullName);
         Glide.with(parent.getContext())
                 .load(item.getPhotoUrl())
                 .into(ivAvatar);

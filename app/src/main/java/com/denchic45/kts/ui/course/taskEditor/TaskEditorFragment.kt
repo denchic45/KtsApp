@@ -442,7 +442,9 @@ class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding,private val 
                     glide.load(R.drawable.ic_unknow_file)
                 }
             }
-            load.into(ivFile)
+            load
+                .placeholder(R.drawable.loading_attachment)
+                .into(ivFile)
         }
     }
 

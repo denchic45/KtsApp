@@ -4,6 +4,7 @@ import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.course.content.ContentFragment
+import com.denchic45.kts.ui.course.submission.SubmissionFragment
 import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
@@ -156,5 +157,20 @@ object IntentModule {
     fun provideTaskIdToSubmissions(submissionsFragment: SubmissionsFragment): String {
         return submissionsFragment.requireParentFragment().requireArguments().getString(ContentFragment.TASK_ID)!!
     }
+
+    @Named(SubmissionFragment.TASK_ID)
+    @Provides
+    fun provideTaskIdToSubmission(submissionFragment: SubmissionFragment): String {
+        return submissionFragment
+            .requireArguments()
+            .getString(SubmissionFragment.TASK_ID)!!
+    }
+
+    @Named(SubmissionFragment.STUDENT_ID)
+    @Provides
+    fun provideStudentIdToSubmission(submissionFragment: SubmissionFragment): String {
+        return submissionFragment.requireArguments().getString(SubmissionFragment.STUDENT_ID)!!
+    }
+
 
 }

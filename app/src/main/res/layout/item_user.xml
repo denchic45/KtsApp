@@ -21,7 +21,7 @@
         app:roundPercent="1" />
 
     <TextView
-        android:id="@+id/tv_teacher_full_name"
+        android:id="@+id/tv_student_fullName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16sp"
@@ -42,5 +42,5 @@
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
         app:layout_constraintStart_toEndOf="@+id/iv_avatar"
-        app:layout_constraintTop_toBottomOf="@id/tv_teacher_full_name" />
+        app:layout_constraintTop_toBottomOf="@id/tv_student_fullName" />
 </androidx.constraintlayout.widget.ConstraintLayout>

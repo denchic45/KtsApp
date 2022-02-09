@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,15 +13,15 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="8dp"
         android:background="@drawable/shape_bottomsheet_swipe" />
-
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:paddingBottom="56dp"
+        android:layout_height="match_parent">
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_root"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="64dp">
+            android:layout_height="match_parent">
 
             <androidx.constraintlayout.utils.widget.ImageFilterView
                 android:id="@+id/iv_avatar"
@@ -36,33 +36,34 @@
                 app:roundPercent="1" />
 
             <TextView
-                android:id="@+id/tv_teacher_full_name"
+                android:id="@+id/tv_student_fullName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16sp"
+                android:text="Петр Петрович"
                 android:textAppearance="@style/TextAppearance.Kts.Body1"
                 app:layout_constraintBottom_toTopOf="@id/tv_status"
                 app:layout_constraintStart_toEndOf="@+id/iv_avatar"
-                app:layout_constraintTop_toTopOf="@id/iv_avatar"
-                android:text="Петр Петрович" />
+                app:layout_constraintTop_toTopOf="@id/iv_avatar" />
 
             <TextView
                 android:id="@+id/tv_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16sp"
+                android:text="Оценено: 5/5"
                 android:textAppearance="@style/TextAppearance.Kts.Body2"
                 app:layout_constraintBottom_toBottomOf="@id/iv_avatar"
                 app:layout_constraintStart_toEndOf="@+id/iv_avatar"
-                app:layout_constraintTop_toBottomOf="@id/tv_teacher_full_name"
-                android:text="Оценено: 5/5" />
+                app:layout_constraintTop_toBottomOf="@id/tv_student_fullName" />
 
             <TextView
+                android:text="Sample text"
                 android:id="@+id/tv_answer_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:paddingTop="16dp"
                 android:textAppearance="@style/TextAppearance.Kts.Body1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -74,80 +75,122 @@ adipiscing elit." />
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_attachments"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="202dp"
+                android:layout_marginTop="16dp"
+                android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_answer_text"
                 tools:listitem="@layout/item_attachment" />
 
+            <TextView
+                android:id="@+id/tv_comments_header"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginHorizontal="16dp"
+                android:gravity="center_vertical"
+                android:text="Личные комментарии"
+                android:textAppearance="@style/TextAppearance.Kts.SubHeader"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rv_attachments" />
+
+            <TextView
+                android:id="@+id/btn_comment_send"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginHorizontal="16dp"
+                android:gravity="center_vertical"
+                android:text="Написать"
+                android:textAppearance="@style/TextAppearance.Kts.SubHeader"
+                android:textColor="@color/blue"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rv_attachments" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_comment_send"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_comments_header">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_comment_send"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/til_comment_send"
+                tools:itemCount="2"
+                android:overScrollMode="never"
+                android:clipToPadding="false"
+                android:paddingBottom="64dp"
+                tools:listitem="@layout/item_content" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.core.widget.NestedScrollView>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/footer"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_gravity="bottom"
-        android:background="?android:colorBackground"
         android:clickable="true"
-        android:focusable="true"
-        android:foreground="?selectableItemBackgroundBorderless">
+        android:layout_width="match_parent"
+        android:background="?colorSurface"
+        android:layout_height="wrap_content"
+        android:focusable="true">
 
-        <View
-            style="@style/Divider"
+        <com.google.android.material.divider.MaterialDivider
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.utils.widget.ImageFilterView
-            android:id="@+id/iv_workspace"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="12dp"
+        <ImageView
+            android:id="@+id/iv_reject"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginVertical="16dp"
+            android:layout_marginStart="16dp"
+            android:background="?selectableItemBackgroundBorderless"
             android:padding="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:round="8dp"
-            app:srcCompat="@drawable/ic_menu"
-            app:tint="@color/blue" />
+            app:srcCompat="@drawable/ic_arrow_left" />
 
-        <androidx.constraintlayout.utils.widget.ImageFilterView
-            android:id="@+id/iv_dropdown"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:foreground="?selectableItemBackgroundBorderless"
-            android:padding="16dp"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="16dp"
+            android:hint="Оценка"
+            app:endIconDrawable="@drawable/ic_send"
+            app:endIconMode="custom"
+            app:errorEnabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:roundPercent="1" />
+            app:layout_constraintStart_toEndOf="@id/iv_reject"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tv_workspace_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_toEndOf="@id/iv_workspace"
-            android:text="My Space"
-            app:layout_constraintBottom_toTopOf="@id/tv_workspace_type"
-            app:layout_constraintStart_toEndOf="@id/iv_workspace"
-            app:layout_constraintTop_toTopOf="@id/iv_workspace" />
-
-        <TextView
-            android:id="@+id/tv_workspace_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_toEndOf="@id/iv_workspace"
-            android:text="My Space"
-            app:layout_constraintBottom_toBottomOf="@id/iv_workspace"
-            app:layout_constraintStart_toEndOf="@id/iv_workspace"
-            app:layout_constraintTop_toBottomOf="@id/tv_workspace_name" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:maxLength="1" />
+        </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

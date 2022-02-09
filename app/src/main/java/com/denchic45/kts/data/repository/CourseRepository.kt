@@ -691,8 +691,11 @@ class CourseRepository @Inject constructor(
     suspend fun findSection(sectionId: String) =
         sectionMapper.entityToDomain(sectionDao.get(sectionId))
 
-    fun findTaskSubmission(courseContent: CourseContent, userId: String): Flow<Task.Submission> {
-        return submissionDao.getByTaskIdAndUserId(courseContent.id, userId)
+    fun findTaskSubmissionByContentIdAndStudentId(
+        taskId: String,
+        studentId: String
+    ): Flow<Task.Submission> {
+        return submissionDao.getByTaskIdAndUserId(taskId, studentId)
             .map {
                 it?.let {
                     val attachments = submissionAttachmentStorage.get(
@@ -702,13 +705,34 @@ class CourseRepository @Inject constructor(
                     )
                     submissionMapper.entityToDomain(it, attachments)
                 } ?: Task.Submission.createEmpty(
-                    contentId = courseContent.id,
-                    courseId = courseContent.courseId,
-                    student = userMapper.entityToDomain(userDao.getSync(userId))
+                    contentId = taskId,
+                    student = userMapper.entityToDomain(userDao.getSync(studentId))
                 )
             }
             .distinctUntilChanged()
     }
+
+
+//    fun findTaskSubmissionByContentAndUserId(
+//        courseContent: CourseContent,
+//        userId: String
+//    ): Flow<Task.Submission> {
+//        return submissionDao.getByTaskIdAndUserId(courseContent.id, userId)
+//            .map {
+//                it?.let {
+//                    val attachments = submissionAttachmentStorage.get(
+//                        it.submissionEntity.contentId,
+//                        it.submissionEntity.studentId,
+//                        it.submissionEntity.attachments
+//                    )
+//                    submissionMapper.entityToDomain(it, attachments)
+//                } ?: Task.Submission.createEmpty(
+//                    contentId = courseContent.id,
+//                    student = userMapper.entityToDomain(userDao.getSync(userId))
+//                )
+//            }
+//            .distinctUntilChanged()
+//    }
 
 
     suspend fun updateSubmissionFromStudent(submission: Task.Submission) {
@@ -729,14 +753,14 @@ class CourseRepository @Inject constructor(
         val updatedFields = mapOf(
             "timestamp" to FieldValue.serverTimestamp(),
             "submissions.$studentId.studentId" to studentId,
-            "submissions.$studentId.courseId" to submission.courseId,
+            "submissions.$studentId.courseId" to courseContentDao.getCourseId(contentId),
             "submissions.$studentId.contentId" to contentId,
             "submissions.$studentId.text" to submission.content.text,
             "submissions.$studentId.attachments" to attachmentUrls,
             "submissions.$studentId.status" to submissionMapper.domainToStatus(submission),
             "submissions.$studentId.submittedDate" to submittedDate
         )
-        coursesRef.document(submission.courseId)
+        coursesRef.document(courseContentDao.getCourseId(contentId))
             .collection("Contents")
             .document(contentId)
             .update(updatedFields)
@@ -764,7 +788,6 @@ class CourseRepository @Inject constructor(
                     .map {
                         Task.Submission.createEmpty(
                             taskId,
-                            courseId,
                             userMapper.entityToDomain(it)
                         )
                     }

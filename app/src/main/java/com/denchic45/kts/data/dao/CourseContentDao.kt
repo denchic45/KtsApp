@@ -22,4 +22,7 @@ abstract class CourseContentDao : BaseDao<CourseContentEntity>() {
 
     @Query("SELECT cc.course_id FROM course_content cc WHERE content_id=:taskId")
     abstract suspend fun getCourseIdByTaskId(taskId: String): String
+
+    @Query("SELECT course_id FROM course_content WHERE course_id=:taskId")
+    abstract fun getCourseId(taskId: String): String
 }

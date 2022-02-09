@@ -50,9 +50,7 @@ data class Task(
     }
 
     data class Submission(
-        override var id: String,
         val contentId: String,
-        val courseId: String,
         val student: User,
         val content: Content,
         val comments: List<Comment>,
@@ -61,11 +59,9 @@ data class Task(
 
 
         companion object {
-            fun createEmpty(contentId: String, courseId: String, student: User): Submission {
+            fun createEmpty(contentId: String, student: User): Submission {
                 return Submission(
-                    "",
                     contentId,
-                    courseId,
                     student,
                     Content.createEmpty(),
                     emptyList(),
@@ -83,6 +79,12 @@ data class Task(
             }
 
             fun isEmpty(): Boolean = text.isEmpty() && attachments.isEmpty()
+
+            fun hasText(): Boolean = text.isNotEmpty()
+
+            fun hasAttachments(): Boolean = attachments.isNotEmpty()
+
+            fun hasAll(): Boolean = text.isNotEmpty() && attachments.isNotEmpty()
         }
 
         enum class Status { NOT_SUBMITTED, SUBMITTED, GRADED, REJECTED }

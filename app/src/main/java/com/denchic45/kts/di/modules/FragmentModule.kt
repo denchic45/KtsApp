@@ -133,4 +133,5 @@ interface FragmentModule {
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
     fun contributeSubmissionFragment(): SubmissionFragment
+
 }

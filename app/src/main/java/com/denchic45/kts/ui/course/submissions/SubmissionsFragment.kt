@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.course.submissions
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -46,11 +47,18 @@ class SubmissionsFragment :
                 viewModel.showSubmissions.collect(adapter::submit)
             }
 
-            viewModel.openSubmission.observe(viewLifecycleOwner) {
-                SubmissionFragment().show(childFragmentManager,null)
+            viewModel.openSubmission.observe(viewLifecycleOwner) { (taskId, studentId) ->
+                findNavController().navigate(
+                    R.id.action_contentFragment_to_submissionFragment,
+                    bundleOf(
+                        SubmissionFragment.TASK_ID to taskId,
+                        SubmissionFragment.STUDENT_ID to studentId
+                    )
+                )
             }
         }
     }
+
     companion object {
         const val TASK_ID = "Submissions TASK_ID"
         const val COURSE_ID = "Submissions COURSE_ID"

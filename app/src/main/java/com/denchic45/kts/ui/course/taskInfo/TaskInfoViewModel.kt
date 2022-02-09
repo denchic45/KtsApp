@@ -87,7 +87,7 @@ class TaskInfoViewModel @Inject constructor(
         viewModelScope.launch {
             if (findSelfUserUseCase().isStudent) {
                 _submissionViewState.emitAll(
-                    findSelfTaskSubmissionUseCase(task())
+                    findSelfTaskSubmissionUseCase(task().id)
                         .onEach {
                             oldContent = it.content
                             content = oldContent

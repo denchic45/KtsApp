@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Task
-import com.denchic45.kts.domain.FindTaskSubmissionsUseCase
+import com.denchic45.kts.domain.usecase.FindTaskSubmissionsUseCase
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
@@ -18,11 +18,12 @@ class SubmissionsViewModel @Inject constructor(
     findTaskSubmissionsUseCase: FindTaskSubmissionsUseCase
 ) : ViewModel() {
 
-    val openSubmission = SingleLiveData<String>()
+    val openSubmission = SingleLiveData<Pair<String, String>>()
 
     fun onSubmissionClick(position: Int) {
         viewModelScope.launch {
-            openSubmission.value = showSubmissions.first()[position].id
+            openSubmission.value =
+                showSubmissions.first()[position].contentId to showSubmissions.first()[position].student.id
         }
     }
 

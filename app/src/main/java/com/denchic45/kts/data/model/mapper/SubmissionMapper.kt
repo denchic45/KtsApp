@@ -23,9 +23,7 @@ abstract class SubmissionMapper {
         val submissionStatus = getSubmissionStatus(entities)
         val comments = getSubmissionComments(entities.submissionCommentEntities)
         return Task.Submission(
-            entities.submissionEntity.id,
             entities.submissionEntity.contentId,
-            entities.submissionEntity.courseId,
             userMapper.entityToDomain(entities.studentEntity),
             content,
             comments,
@@ -35,7 +33,7 @@ abstract class SubmissionMapper {
 
     abstract fun getSubmissionComments(commentEntities: List<SubmissionCommentEntity>): List<Task.Comment>
 
-    fun getSubmissionStatus(entities: SubmissionWithStudentUserAndCommentsEntities): Task.SubmissionStatus {
+    private fun getSubmissionStatus(entities: SubmissionWithStudentUserAndCommentsEntities): Task.SubmissionStatus {
 
         return when (entities.submissionEntity.status) {
             Task.Submission.Status.NOT_SUBMITTED -> Task.SubmissionStatus.NotSubmitted

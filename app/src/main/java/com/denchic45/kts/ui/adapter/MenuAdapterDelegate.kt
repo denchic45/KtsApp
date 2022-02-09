@@ -1,5 +1,6 @@
 package com.denchic45.kts.ui.adapter
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
@@ -89,6 +90,7 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
                             color(
                                 item.color.fold({ colorId -> colorId },
                                     { colorName ->
+                                        Log.d("lol", "onBind colorName: $colorName")
                                         ContextCompat.getColor(
                                             context,
                                             context.resources.getIdentifier(
