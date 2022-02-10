@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?actionBarSize"
+    android:background="?colorSurface"
+    android:stateListAnimator="@animator/item_dragged"
+    tools:ignore="RtlSymmetry">
+
+    <ViewSwitcher
+        android:id="@+id/vs_remove"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_section"
+            android:layout_width="?actionBarSize"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            app:srcCompat="@drawable/ic_menu" />
+
+        <ImageView
+            android:id="@+id/iv_remove"
+            android:layout_width="?actionBarSize"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="16dp"
+            app:srcCompat="@drawable/ic_delete" />
+    </ViewSwitcher>
+
+    <ViewSwitcher
+        android:id="@+id/vs_name"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/vs_edit_with_done"
+        app:layout_constraintStart_toEndOf="@id/vs_remove"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:textAppearance="@style/TextAppearance.Kts.Body1"
+            tools:text="Course section" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:textAppearance="@style/TextAppearance.Kts.Body1"
+            tools:text="Course section" />
+    </ViewSwitcher>
+
+    <ViewSwitcher
+        android:id="@+id/vs_edit_with_done"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_edit"
+            android:layout_width="?actionBarSize"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="16dp"
+            app:srcCompat="@drawable/ic_edit" />
+
+        <ImageView
+            android:id="@+id/iv_done"
+            android:layout_width="?actionBarSize"
+            android:layout_height="match_parent"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="16dp"
+            app:srcCompat="@drawable/ic_tick"
+            app:tint="@color/blue" />
+    </ViewSwitcher>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

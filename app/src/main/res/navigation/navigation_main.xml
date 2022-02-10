@@ -103,6 +103,9 @@
         <action
             android:id="@+id/action_courseFragment_to_contentFragment"
             app:destination="@id/contentFragment" />
+        <action
+            android:id="@+id/action_courseFragment_to_courseSectionsFragment"
+            app:destination="@id/courseSectionsFragment" />
     </fragment>
     <action
         android:id="@+id/action_global_courseFragment"
@@ -133,5 +136,10 @@
         android:label="fragment_submission"
         tools:layout="@layout/fragment_submission" />
     <action android:id="@+id/action_global_submissionFragment" app:destination="@id/submissionFragment" />
+    <fragment
+        android:id="@+id/courseSectionsFragment"
+        android:name="com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment"
+        android:label="fragment_course_sections"
+        tools:layout="@layout/fragment_course_section_editor" />
 
 </navigation>

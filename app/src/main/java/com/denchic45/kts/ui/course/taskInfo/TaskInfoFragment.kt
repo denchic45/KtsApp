@@ -4,7 +4,11 @@ import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputFilter
-import android.view.*
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.Toast
@@ -37,6 +41,7 @@ import kotlinx.coroutines.flow.collect
 import java.io.File
 import java.time.format.DateTimeFormatter
 
+
 class TaskInfoFragment :
     BaseFragment<TaskInfoViewModel, FragmentTaskInfoBinding>(R.layout.fragment_task_info) {
 
@@ -46,6 +51,8 @@ class TaskInfoFragment :
     private val btnActionSubmission: Button by lazy {
         View.inflate(requireContext(), R.layout.btn_action_submission, null) as Button
     }
+
+    private val gestureDetector by lazy { GestureDetector(requireActivity(), GestureListener()) }
 
     private val adapter =
         adapter {
@@ -331,7 +338,6 @@ class TaskInfoFragment :
     }
 
 
-
     private fun setSubmissionContent(content: Task.Submission.Content, allowEditContent: Boolean) {
         submissionAttachmentsAdapter.submit(
             if (allowEditContent)
@@ -357,7 +363,6 @@ class TaskInfoFragment :
             tvTextHeader.visibility = textVisibility
             etText.filters = arrayOf(InputFilter.LengthFilter(submissionSettings.charsLimit))
             tilText.visibility = textVisibility
-
 
             val attachmentsVisibility =
                 if (submissionSettings.attachmentsAvailable) View.VISIBLE
@@ -398,5 +403,32 @@ class TaskInfoFragment :
     companion object {
         const val TASK_ID = "TaskInfo TASK_ID"
         const val COURSE_ID = "TaskInfo COURSE_ID"
+    }
+
+    inner class GestureListener : SimpleOnGestureListener() {
+        private val Y_BUFFER = 10
+        override fun onDown(e: MotionEvent): Boolean {
+            // Prevent ViewPager from intercepting touch events as soon as a DOWN is detected.
+            // If we don't do this the next MOVE event may trigger the ViewPager to switch
+            // tabs before this view can intercept the event.
+            binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(true)
+            return super.onDown(e)
+        }
+
+        override fun onScroll(
+            e1: MotionEvent,
+            e2: MotionEvent,
+            distanceX: Float,
+            distanceY: Float
+        ): Boolean {
+            if (Math.abs(distanceX) > Math.abs(distanceY)) {
+                // Detected a horizontal scroll, allow the viewpager from switching tabs
+                binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(false)
+            } else if (Math.abs(distanceY) > Y_BUFFER) {
+                // Detected a vertical scroll prevent the viewpager from switching tabs
+                binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(true)
+            }
+            return super.onScroll(e1, e2, distanceX, distanceY)
+        }
     }
 }

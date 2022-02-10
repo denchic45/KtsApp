@@ -25,7 +25,11 @@ object CourseContents {
                             when {
                                 o1 is Section && o2 is CourseContent -> -1
                                 o1 is CourseContent && o2 is Section -> 1
-                                o1 is CourseContent && o2 is CourseContent -> o1.order.compareTo(o2.order)
+                                o1 is CourseContent && o2 is CourseContent -> {
+                                    val order1 = o1.order
+                                    val other2 = o2.order
+                                    order1.compareTo(other2)
+                                }
                                 else -> throw IllegalStateException()
                             }
                         }

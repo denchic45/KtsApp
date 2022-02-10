@@ -1,13 +1,20 @@
 package com.denchic45.kts.ui.course.submission
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.content.Context
 import android.os.Bundle
+import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -19,6 +26,7 @@ import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.course.taskEditor.AttachmentAdapterDelegate
 import com.denchic45.kts.utils.KeyboardUtils
+import com.denchic45.kts.utils.ValueFilter
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -26,6 +34,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.android.support.AndroidSupportInjection
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.flow.collect
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -68,7 +78,6 @@ class SubmissionDialog : BottomSheetDialogFragment() {
                 val bottomY =
                     ((bottomSheet.parent as View).measuredHeight - bottomSheet.top - binding.footer.measuredHeight).toFloat()
 
-
                 if (slideOffset < -0)
                     return
                 binding.footer.y = bottomY
@@ -90,11 +99,13 @@ class SubmissionDialog : BottomSheetDialogFragment() {
 
         with(binding) {
 
+            etGrade.filters = arrayOf(ValueFilter(1, 5))
+
             etGrade.textChanges()
                 .skip(1)
-                .filter(CharSequence::isNotEmpty)
-                .compose(EditTextTransformer())
-                .map(String::toInt)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(CharSequence::toString)
                 .subscribe(viewModel::onGradeType)
 
             etCause.textChanges()
@@ -107,10 +118,7 @@ class SubmissionDialog : BottomSheetDialogFragment() {
                 viewModel.onRejectClick()
             }
 
-            tilGrade.setEndIconOnClickListener {
-                Toast.makeText(requireContext(), "click grade", Toast.LENGTH_SHORT).show()
-                viewModel.onSendGradeClick()
-            }
+            tilGrade.setEndIconOnClickListener { viewModel.onSendGradeClick() }
 
             btnCommentSend.setOnClickListener {
                 if (tilCommentSend.visibility == View.GONE) {
@@ -131,6 +139,12 @@ class SubmissionDialog : BottomSheetDialogFragment() {
 
             rvAttachments.adapter = attachmentAdapter
             rvComments.adapter = commentAdapter
+
+            lifecycleScope.launchWhenStarted {
+                viewModel.gradeButtonVisibility.collect {
+                    tilGrade.isEndIconVisible = it
+                }
+            }
 
             lifecycleScope.launchWhenStarted {
                 viewModel.showSubmission.collect {
@@ -176,15 +190,78 @@ class SubmissionDialog : BottomSheetDialogFragment() {
                 }
             }
 
-            viewModel.openRejectConfirmation.observe(viewLifecycleOwner) { vf.displayedChild = 1 }
+            viewModel.openRejectConfirmation.observe(viewLifecycleOwner) {
+                vf.displayedChild = 1
+                animateHeight()
+            }
 
-            viewModel.closeRejectConfirmation.observe(viewLifecycleOwner) { vf.displayedChild = 0 }
+            viewModel.closeRejectConfirmation.observe(viewLifecycleOwner) {
+                vf.displayedChild = 0
+                animateHeight()
+            }
 
             btnCancel.setOnClickListener { viewModel.onRejectCancelClick() }
 
             btnReject.setOnClickListener { viewModel.onRejectConfirmClick() }
         }
     }
+
+    private fun animateHeight() {
+//        val rvExplore = binding.rvExplore
+        val newHeight = preMeasureViewHeight() + binding.vf.paddingBottom
+        val anim = ValueAnimator.ofInt(
+            requireView().height,
+            if (behavior.state == BottomSheetBehavior.STATE_EXPANDED) (windowHeight).coerceAtMost(
+                newHeight
+            )
+            else
+                (windowHeight - windowWidth * 9 / 16).coerceAtMost(newHeight)
+        )
+
+//        updateList = true
+        anim.addUpdateListener { valueAnimator ->
+            val `val` = valueAnimator.animatedValue as Int
+            changeBottomSheetHeight(`val`)
+        }
+        anim.interpolator = DecelerateInterpolator()
+        anim.duration = 300
+        anim.start()
+        anim.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+//                rvExplore.post { updateList = false }
+                changeBottomSheetHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
+//                binding.ivDropdown.isClickable = true
+            }
+        })
+    }
+
+    private fun preMeasureViewHeight(): Int {
+        val currentView = binding.vf.currentView
+        currentView.measure(windowWidth, windowHeight)
+        return currentView.measuredHeight
+
+    }
+
+    private fun changeBottomSheetHeight(`val`: Int) {
+        val layoutParams: ViewGroup.LayoutParams = binding.root.layoutParams
+        layoutParams.height = `val`
+        binding.root.layoutParams = layoutParams
+    }
+
+    private inline val Fragment.windowHeight: Int
+        get() {
+            val view = requireActivity().window.decorView
+            return resources.displayMetrics.heightPixels
+        }
+
+
+    private inline val Fragment.windowWidth: Int
+        get() {
+            val view = requireActivity().window.decorView
+            val insets = WindowInsetsCompat.toWindowInsetsCompat(view.rootWindowInsets, view)
+                .getInsets(WindowInsetsCompat.Type.systemBars())
+            return resources.displayMetrics.widthPixels - insets.left - insets.right
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

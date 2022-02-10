@@ -15,9 +15,11 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentContentBinding
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
+import com.denchic45.kts.utils.setActivityTitle
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.collect
@@ -49,9 +51,10 @@ class ContentFragment :
         super.onViewCreated(view, savedInstanceState)
 
         appBarController.setExpanded(true, true)
-        appBarController.toolbar.title = ""
+        setActivityTitle("")
 
         with(binding) {
+
             lifecycleScope.launchWhenStarted {
                 viewModel.submissionVisibility
                     .distinctUntilChanged()
@@ -85,6 +88,10 @@ class ContentFragment :
 
         viewModel.optionVisibility.observe(viewLifecycleOwner) { (itemId, visibility) ->
             menu!!.findItem(itemId).isVisible = visibility
+        }
+
+        viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
+            ConfirmDialog.newInstance(title, subtitle).show(childFragmentManager, null)
         }
     }
 

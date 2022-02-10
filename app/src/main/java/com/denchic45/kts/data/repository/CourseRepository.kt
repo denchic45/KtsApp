@@ -216,8 +216,8 @@ class CourseRepository @Inject constructor(
                     courseContentMapper.entityToDomain(courseContentEntities),
                     sectionMapper.entityToDomain(sectionEntities)
                 )
-                //todo отсортировать секции с курсами
             }
+            .distinctUntilChanged()
     }
 
     private suspend fun saveCourseContentsLocal(
@@ -300,9 +300,11 @@ class CourseRepository @Inject constructor(
         userDao.upsert(teacherEntities)
         subjectDao.upsert(subjectEntities)
         courseDao.upsert(courseEntities)
+
         sectionDao.upsert(courseDocs.flatMap {
             sectionMapper.docToEntity(it.sections ?: emptyList())
         })
+        sectionDao.deleteMissing(courseDocs.flatMap { it.sections ?: emptyList() }.map { it.id })
         groupCourseDao.upsert(groupWithCourseEntities)
     }
 
@@ -562,7 +564,6 @@ class CourseRepository @Inject constructor(
 
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
 
-
     fun findByTypedName(name: String): Flow<Resource<List<CourseHeader>>> = callbackFlow {
         addListenerRegistration("name") {
             coursesRef
@@ -672,7 +673,7 @@ class CourseRepository @Inject constructor(
 
         contentAttachmentStorage.deleteFilesByContentId(taskId)
         submissionAttachmentStorage.deleteFilesByContentId(taskId)
-        getContentRef(taskId)
+        getContentDocument(taskId)
             .set(
                 mapOf(
                     "id" to taskId,
@@ -683,13 +684,17 @@ class CourseRepository @Inject constructor(
             .await()
     }
 
-    private suspend fun getContentRef(contentId: String) =
+    private suspend fun getContentDocument(contentId: String) =
         coursesRef.document(courseContentDao.getCourseIdByTaskId(contentId))
             .collection("Contents")
             .document(contentId)
 
+
     fun findSectionsByCourseId(courseId: String) =
-        sectionDao.getByCourseId(courseId).map { sectionMapper.entityToDomain(it) }
+        sectionDao.getByCourseId(courseId).map {
+            Log.d("lol", "findSectionsByCourseId MAP: ")
+            sectionMapper.entityToDomain(it)
+        }
 
     suspend fun findSection(sectionId: String) =
         sectionMapper.entityToDomain(sectionDao.get(sectionId))
@@ -776,7 +781,7 @@ class CourseRepository @Inject constructor(
         grade: Int,
         teacherId: String = userPreference.id
     ) {
-        getContentRef(taskId).update(
+        getContentDocument(taskId).update(
             mapOf(
                 "timestamp" to FieldValue.serverTimestamp(),
                 "submissions.$studentId.status" to Task.Submission.Status.GRADED,
@@ -793,7 +798,7 @@ class CourseRepository @Inject constructor(
         cause: String,
         teacherId: String = userPreference.id
     ) {
-        getContentRef(taskId).update(
+        getContentDocument(taskId).update(
             mapOf(
                 "timestamp" to FieldValue.serverTimestamp(),
                 "submissions.$studentId.status" to Task.Submission.Status.REJECTED,
@@ -825,6 +830,52 @@ class CourseRepository @Inject constructor(
                     }
             }
             .distinctUntilChanged()
+    }
+
+    suspend fun updateCourseSections(sections: List<Section>) {
+        coursesRef.document(sections[0].courseId)
+            .update("sections", sections)
+            .await()
+    }
+
+    suspend fun addSection(section: Section) {
+        coursesRef.document(section.courseId)
+            .update("sections", FieldValue.arrayUnion(section))
+            .await()
+    }
+
+    suspend fun removeSection(section: Section) {
+        val courseRef = coursesRef.document(section.courseId)
+
+        val contentsWithThisSection = courseRef.collection("Contents")
+            .whereEqualTo("sectionId", section.id)
+            .get()
+            .await()
+
+        val batch = firestore.batch()
+
+        contentsWithThisSection.forEach {
+            batch.update(
+                courseRef.collection("Contents")
+                    .document(it.getString("id")!!), "sectionId", ""
+            )
+        }
+
+        batch.update(courseRef, "sections", FieldValue.arrayRemove(section))
+
+        batch.commit().await()
+        print("")
+    }
+
+    suspend fun updateContentOrder(contentId: String, order: Long) {
+        getContentDocument(contentId)
+            .update(
+                mapOf(
+                    "order" to order,
+                    timestampFiledPair()
+                )
+            )
+            .await()
     }
 
 

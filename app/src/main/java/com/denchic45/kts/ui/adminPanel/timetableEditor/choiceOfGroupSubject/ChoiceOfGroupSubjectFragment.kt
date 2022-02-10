@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject
 import android.content.Context
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -18,6 +17,7 @@ import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.SubjectAdapter
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.widget.ListStateLayout
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -63,10 +63,8 @@ class ChoiceOfGroupSubjectFragment : Fragment() {
         rv!!.adapter = adapter
         rv!!.layoutManager = LinearLayoutManager(context)
         rv!!.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        viewModel.title.observe(viewLifecycleOwner) { title: String? ->
-            (activity as AppCompatActivity?)!!.supportActionBar!!.title = title
-        }
-        viewModel.openIconPicker.observe(viewLifecycleOwner) { aVoid: Void? ->
+        viewModel.title.observe(viewLifecycleOwner, this::setActivityTitle)
+        viewModel.openIconPicker.observe(viewLifecycleOwner) {
             IconPickerDialog().show(
                 requireActivity().supportFragmentManager, null
             )

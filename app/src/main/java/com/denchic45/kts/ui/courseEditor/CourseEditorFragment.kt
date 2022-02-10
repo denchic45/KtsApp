@@ -27,6 +27,7 @@ import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.confirm.ConfirmDialog
+import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
@@ -136,9 +137,7 @@ class CourseEditorFragment :
                 adapter.submit(it)
             }
 
-            viewModel.title.observe(
-                viewLifecycleOwner
-            ) { title: String -> requireActivity().title = title }
+            viewModel.title.observe(viewLifecycleOwner, this@CourseEditorFragment::setActivityTitle)
 
             viewModel.nameField.observe(viewLifecycleOwner) {
                 if (etCourseName.text.toString() != it) etCourseName.setText(it)

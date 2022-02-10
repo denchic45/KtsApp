@@ -18,6 +18,7 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentGroupEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.confirm.ConfirmDialog
+import com.denchic45.kts.utils.setActivityTitle
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
@@ -69,7 +70,7 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
             }
             viewModel.toolbarTitle.observe(
                 viewLifecycleOwner
-            ) { title: String? -> requireActivity().title = title }
+            ) { title: String -> setActivityTitle(title) }
             viewModel.openChoiceOfCurator.observe(
                 this@GroupEditorFragment
             ) { navController!!.navigate(R.id.action_groupEditorFragment_to_choiceOfCuratorFragment) }

@@ -48,12 +48,8 @@ class ResetPasswordFragment : BaseFragment<ResetPasswordViewModel, FragmentReset
             }
         }
         viewModel.showMessage.observe(viewLifecycleOwner) { s: String? ->
-            Toast.makeText(
-                activity, s, Toast.LENGTH_LONG
-            ).show()
+            requireContext()
         }
-        viewModel.finish.observe(
-            viewLifecycleOwner
-        ) { unused: Void? -> findNavController(view).popBackStack() }
+        viewModel.finish.observe(viewLifecycleOwner) { findNavController(view).popBackStack() }
     }
 }

@@ -121,7 +121,7 @@ abstract class Repository protected constructor(context: Context?) {
     }
 
     fun timestampsIsNull(querySnapshot: QuerySnapshot):Boolean {
-        return querySnapshot.documents.all { timestampIsNull(it) }
+        return querySnapshot.documents.any { timestampIsNull(it) }
     }
 
     fun timestampIsNull(documentSnapshot: DocumentSnapshot):Boolean {

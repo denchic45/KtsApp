@@ -22,6 +22,7 @@ import com.denchic45.kts.rx.AsyncTransformer
 import com.denchic45.kts.ui.BaseActivity
 import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.utils.JsonUtil
+import com.denchic45.kts.utils.toast
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
 
@@ -229,8 +230,8 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
             }
             viewModel.showMessage.observe(
                 this@UserEditorActivity
-            ) { s: String? ->
-                Toast.makeText(this@UserEditorActivity, s, Toast.LENGTH_SHORT).show()
+            ) { s: String ->
+               toast(s)
             }
             viewModel.finish.observe(this@UserEditorActivity) { finish() }
             viewModel.openConfirmation.observe(

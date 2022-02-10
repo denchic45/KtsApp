@@ -29,12 +29,12 @@ object RawModule {
 
     @Named("genders")
     @Provides
-    fun provideGenders(context: Context): MutableList<ListItem> =
+    fun provideGenders(context: Context): List<ListItem> =
         JsonUtil.parseToList(context, R.raw.genders)
 
     @Named("courses")
     @Provides
-    fun provideCourses(context: Context): MutableList<ListItem> =
+    fun provideCourses(context: Context): List<ListItem> =
         JsonUtil.parseToList(context, R.raw.courses)
 
 }
