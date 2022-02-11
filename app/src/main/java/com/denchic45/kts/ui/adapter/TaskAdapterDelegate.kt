@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.adapter
 import android.view.ViewGroup
 import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.databinding.ItemTaskBinding
+import com.denchic45.kts.utils.toString
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 
@@ -22,6 +23,9 @@ class TaskHolder(itemTaskBinding: ItemTaskBinding) :
     override fun onBind(item: Task) {
         with(binding) {
             tvTitle.text = item.name
+            tvSubtitle.text = item.completionDate
+                ?.let { it.toString("dd MMM HH:mm") }
+                ?: run { "Без срока сдачи" }
         }
     }
 

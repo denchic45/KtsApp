@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a70f3ccde6245237f0c603e38c2fffde",
+    "identityHash": "469dffac12e203f0061231314f10844d",
     "entities": [
       {
         "tableName": "subject",
@@ -791,7 +791,7 @@
       },
       {
         "tableName": "submission",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`submission_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `student_id` TEXT NOT NULL, `content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `status` TEXT NOT NULL, `text` TEXT NOT NULL DEFAULT '', `attachments` TEXT NOT NULL, `grading_teacher_id` TEXT, `cause` TEXT NOT NULL DEFAULT '', `grade` INTEGER, `gradedDate` INTEGER NOT NULL DEFAULT 0, `submittedDate` INTEGER DEFAULT 0, FOREIGN KEY(`content_id`) REFERENCES `course_content`(`content_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`student_id`) REFERENCES `user`(`user_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`submission_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `student_id` TEXT NOT NULL, `content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `status` TEXT NOT NULL, `text` TEXT NOT NULL DEFAULT '', `attachments` TEXT NOT NULL, `grading_teacher_id` TEXT, `cause` TEXT NOT NULL DEFAULT '', `grade` INTEGER, `grade_date` INTEGER DEFAULT 0, `rejected_date` INTEGER DEFAULT 0, `submitted_date` INTEGER DEFAULT 0, `content_update_date` INTEGER DEFAULT 0, FOREIGN KEY(`content_id`) REFERENCES `course_content`(`content_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`student_id`) REFERENCES `user`(`user_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
         "fields": [
           {
             "fieldPath": "id",
@@ -857,14 +857,28 @@
           },
           {
             "fieldPath": "gradedDate",
-            "columnName": "gradedDate",
+            "columnName": "grade_date",
             "affinity": "INTEGER",
-            "notNull": true,
+            "notNull": false,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "rejectedDate",
+            "columnName": "rejected_date",
+            "affinity": "INTEGER",
+            "notNull": false,
             "defaultValue": "0"
           },
           {
             "fieldPath": "submittedDate",
-            "columnName": "submittedDate",
+            "columnName": "submitted_date",
+            "affinity": "INTEGER",
+            "notNull": false,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "contentUpdateDate",
+            "columnName": "content_update_date",
             "affinity": "INTEGER",
             "notNull": false,
             "defaultValue": "0"
@@ -906,7 +920,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a70f3ccde6245237f0c603e38c2fffde')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '469dffac12e203f0061231314f10844d')"
     ]
   }
 }

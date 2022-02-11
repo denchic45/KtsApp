@@ -38,6 +38,7 @@ import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
+import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -49,6 +50,7 @@ import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
 import java.io.File
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 
 class TaskEditorFragment :
@@ -59,6 +61,10 @@ class TaskEditorFragment :
         const val COURSE_ID = "TaskEditor COURSE_ID"
         const val SECTION_ID = "SECTION_ID"
     }
+
+    private var oldToolbarScrollFlags by Delegates.notNull<Int>()
+
+    private lateinit var appBarController: AppBarController
 
     private val adapter = adapter {
         delegates(AttachmentAdapterDelegate())
@@ -114,6 +120,12 @@ class TaskEditorFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+         appBarController = AppBarController.findController(requireActivity()).apply {
+             oldToolbarScrollFlags = toolbarScrollFlags
+             setExpanded(true, false)
+             toolbarScrollFlags = 0
+         }
         with(binding) {
 
             rvFiles.adapter = adapter
@@ -362,6 +374,11 @@ class TaskEditorFragment :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.onOptionClick(item.itemId)
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        appBarController.toolbarScrollFlags = oldToolbarScrollFlags
     }
 }
 

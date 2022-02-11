@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.course.taskInfo
 
 import android.app.Activity
-import android.graphics.Color
 import android.os.Bundle
 import android.text.InputFilter
 import android.view.GestureDetector
@@ -14,7 +13,6 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.view.contains
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Transformations
@@ -23,14 +21,17 @@ import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.denchic45.kts.R
+import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.SubmissionSettings
-import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentTaskInfoBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.confirm.ConfirmDialog
-import com.denchic45.kts.ui.course.taskEditor.*
+import com.denchic45.kts.ui.course.taskEditor.AddAttachmentAdapterDelegate
+import com.denchic45.kts.ui.course.taskEditor.AddAttachmentHolder
+import com.denchic45.kts.ui.course.taskEditor.AttachmentAdapterDelegate
+import com.denchic45.kts.ui.course.taskEditor.AttachmentHolder
 import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
@@ -39,7 +40,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
 import java.io.File
-import java.time.format.DateTimeFormatter
 
 
 class TaskInfoFragment :
@@ -182,8 +182,6 @@ class TaskInfoFragment :
             }
         }
 
-
-
         viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
             ConfirmDialog.newInstance(title, subtitle).show(childFragmentManager, null)
         }
@@ -234,7 +232,6 @@ class TaskInfoFragment :
                     }
                     tvComments.text = "Написать комментарий"
                 }
-                setSubmissionContentVisibility(it.submissionSettings)
             }
         }
 
@@ -251,84 +248,125 @@ class TaskInfoFragment :
             btnActionSubmission.setOnClickListener { viewModel.onActionClick() }
             submissionCollapsed.btnAction.setOnClickListener { viewModel.onActionClick() }
 
-            lifecycleScope.launchWhenCreated {
-                viewModel.submissionViewState.collect { submission ->
+            fun setTeacherData(teacher: User?) {
+                teacher?.let {
+                    Glide.with(requireContext())
+                        .load(teacher.photoUrl)
+                        .into(submissionExpanded.ivAvatar)
+                    submissionExpanded.tvTeacherName.text = teacher.fullName
+                    submissionExpanded.grpTeacher.visibility = View.VISIBLE
+                } ?: run {
+                    submissionExpanded.grpTeacher.visibility = View.GONE
+                }
+            }
 
-                    fun setTeacherData(teacher: User) {
-                        Glide.with(requireContext())
-                            .load(teacher.photoUrl)
-                            .into(submissionExpanded.ivAvatar)
-                        submissionExpanded.tvTeacherName.text = teacher.fullName
-                        submissionExpanded.grpTeacher.visibility = View.VISIBLE
+//            lifecycleScope.launchWhenCreated {
+//                viewModel.submissionViewState.collect { submission ->
+//
+//                    when (submission.status) {
+//                        is Task.SubmissionStatus.NotSubmitted -> {
+//                            submissionCollapsed.tvSubmissionState.text = "Не сдано"
+//
+//                            submissionCollapsed.tvSubmissionDescription.text = ""
+//                            submissionCollapsed.tvSubmissionDescription.visibility = View.GONE
+//
+//
+//                            applyActionButtonProperties {
+//                                setTextColor(Color.WHITE)
+//                                text = if (submission.content.isEmpty()) "Добавить" else "Отправить"
+//                                setBackgroundColor(
+//                                    ContextCompat.getColor(requireContext(), R.color.blue)
+//                                )
+//                            }
+//
+//                            submissionExpanded.tvSubmissionState.text = "Не сдано"
+//
+//                            submissionExpanded.tvSubmissionDescription.text = ""
+//                            submissionExpanded.tvSubmissionDescription.visibility = View.GONE
+//
+//                            submissionExpanded.grpTeacher.visibility = View.GONE
+//                            setSubmissionContent(submission.content, true)
+//                        }
+//                        is Task.SubmissionStatus.Submitted -> {
+//                            submissionCollapsed.tvSubmissionState.text = "Сдано на проверку"
+//                            submissionExpanded.tvSubmissionState.text = "Сдано на проверку"
+//
+//                            val description = DateTimeFormatter.ofPattern("dd MMM HH:mm")
+//                                .format(submission.status.submittedDate)
+//
+//                            submissionCollapsed.tvSubmissionDescription.text = description
+//                            submissionCollapsed.tvSubmissionDescription.visibility = View.VISIBLE
+//                            submissionExpanded.tvSubmissionDescription.text = description
+//                            submissionExpanded.tvSubmissionDescription.visibility = View.VISIBLE
+//
+//                            applyActionButtonProperties {
+//                                setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
+//                                text = "Отменить"
+//                                setBackgroundColor(
+//                                    ContextCompat.getColor(
+//                                        requireContext(),
+//                                        R.color.alpha_red_10
+//                                    )
+//                                )
+//                            }
+//                            submissionExpanded.grpTeacher.visibility = View.GONE
+//                            setSubmissionContent(submission.content, false)
+//                        }
+//                        is Task.SubmissionStatus.Graded -> {
+//
+//                            setTeacherData(submission.status.teacher)
+//                            setSubmissionContent(submission.content, false)
+//                        }
+//                        is Task.SubmissionStatus.Rejected -> {
+//
+//                            setTeacherData(submission.status.teacher)
+//                            setSubmissionContent(submission.content, true)
+//                        }
+//                    }
+//
+//                    measureBottomSheetPeek(bsBehavior)
+//                }
+//            }
+
+            lifecycleScope.launchWhenStarted {
+                viewModel.submissionViewState2.collect { viewState ->
+
+                    applyActionButtonProperties {
+                        if (viewState.btnVisibility) {
+                            visibility = View.VISIBLE
+                            setTextColor(requireContext().colors(viewState.btnTextColor))
+                            setBackgroundColor(requireContext().colors(viewState.btnBackgroundColor))
+                            text = viewState.btnText
+
+                        } else {
+                            visibility = View.GONE
+                        }
                     }
 
-                    when (submission.status) {
-                        is Task.SubmissionStatus.NotSubmitted -> {
-                            submissionCollapsed.tvSubmissionState.text = "Не сдано"
+                    submissionCollapsed.tvSubmissionState.text = viewState.title
+                    submissionExpanded.tvSubmissionState.text = viewState.title
 
-                            submissionCollapsed.tvSubmissionDescription.text = ""
-                            submissionCollapsed.tvSubmissionDescription.visibility = View.GONE
-
-
-                            applyActionButtonProperties {
-                                setTextColor(Color.WHITE)
-                                text = if (submission.content.isEmpty()) "Добавить" else "Отправить"
-                                setBackgroundColor(
-                                    ContextCompat.getColor(requireContext(), R.color.blue)
-                                )
-                            }
-
-                            submissionExpanded.tvSubmissionState.text = "Не сдано"
-
-                            submissionExpanded.tvSubmissionDescription.text = ""
-                            submissionExpanded.tvSubmissionDescription.visibility = View.GONE
-
-                            submissionExpanded.grpTeacher.visibility = View.GONE
-                            setSubmissionContent(submission.content, true)
-                        }
-                        is Task.SubmissionStatus.Submitted -> {
-                            submissionCollapsed.tvSubmissionState.text = "Сдано на проверку"
-                            submissionExpanded.tvSubmissionState.text = "Сдано на проверку"
-
-                            val description = DateTimeFormatter.ofPattern("dd MMM HH:mm")
-                                .format(submission.status.submittedDate)
-
-                            submissionCollapsed.tvSubmissionDescription.text = description
-                            submissionCollapsed.tvSubmissionDescription.visibility = View.VISIBLE
-                            submissionExpanded.tvSubmissionDescription.text = description
-                            submissionExpanded.tvSubmissionDescription.visibility = View.VISIBLE
-
-
-                            applyActionButtonProperties {
-                                setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
-                                text = "Отменить"
-                                setBackgroundColor(
-                                    ContextCompat.getColor(
-                                        requireContext(),
-                                        R.color.alpha_red_10
-                                    )
-                                )
-                            }
-                            submissionExpanded.grpTeacher.visibility = View.GONE
-                            setSubmissionContent(submission.content, false)
-                        }
-                        is Task.SubmissionStatus.Graded -> {
-
-                            setTeacherData(submission.status.teacher)
-                            setSubmissionContent(submission.content, false)
-                        }
-                        is Task.SubmissionStatus.Rejected -> {
-
-                            setTeacherData(submission.status.teacher)
-                            setSubmissionContent(submission.content, true)
-                        }
+                    if (viewState.subtitleVisibility) {
+                        submissionCollapsed.tvSubmissionDescription.visibility = View.VISIBLE
+                        submissionExpanded.tvSubmissionDescription.visibility = View.VISIBLE
+                        submissionCollapsed.tvSubmissionDescription.text = viewState.subtitle
+                        submissionExpanded.tvSubmissionDescription.text = viewState.subtitle
+                    } else {
+                        submissionCollapsed.tvSubmissionDescription.visibility = View.GONE
+                        submissionExpanded.tvSubmissionDescription.visibility = View.GONE
                     }
+
+                    setTeacherData(viewState.teacher)
+                    setSubmissionContent(viewState.textContent, viewState.attachments, viewState.allowEditContent)
+                    setSubmissionContentVisibility(viewState.submissionSettings, viewState.attachments.isNotEmpty())
 
                     measureBottomSheetPeek(bsBehavior)
                 }
             }
+
+
             viewModel.focusOnTextField.observe(viewLifecycleOwner) {
-                submissionExpanded.etText.requestFocus()
+                submissionExpanded.etText.showKeyboard()
             }
         }
 
@@ -338,23 +376,22 @@ class TaskInfoFragment :
     }
 
 
-    private fun setSubmissionContent(content: Task.Submission.Content, allowEditContent: Boolean) {
-        submissionAttachmentsAdapter.submit(
-            if (allowEditContent)
-                content.attachments + AddAttachmentItem
-            else
-                content.attachments
-        )
+    private fun setSubmissionContent(
+        textContent: String,
+        attachments: List<DomainModel>,
+        allowEditContent: Boolean
+    ) {
+        submissionAttachmentsAdapter.submit(attachments)
 
         with(binding.submissionExpanded) {
-            if (!etText.text.contentEquals(content.text)) {
-                etText.setText(content.text)
+            if (!etText.text.contentEquals(textContent)) {
+                etText.setText(textContent)
             }
             etText.isEnabled = allowEditContent
         }
     }
 
-    private fun setSubmissionContentVisibility(submissionSettings: SubmissionSettings) {
+    private fun setSubmissionContentVisibility(submissionSettings: SubmissionSettings, isAttachmentsNotEmpty:Boolean) {
         with(binding.submissionExpanded) {
             val textVisibility =
                 if (submissionSettings.textAvailable) View.VISIBLE
@@ -365,14 +402,8 @@ class TaskInfoFragment :
             tilText.visibility = textVisibility
 
             val attachmentsVisibility =
-                if (submissionSettings.attachmentsAvailable) View.VISIBLE
+                if (submissionSettings.attachmentsAvailable && isAttachmentsNotEmpty) View.VISIBLE
                 else View.GONE
-
-            Toast.makeText(
-                requireContext(),
-                submissionSettings.attachmentsAvailable.toString(),
-                Toast.LENGTH_SHORT
-            ).show()
 
             tvAttachmentsHeader.visibility = attachmentsVisibility
             rvSubmissionAttachments.visibility = attachmentsVisibility

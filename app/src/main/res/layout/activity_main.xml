@@ -5,68 +5,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <com.google.android.material.appbar.AppBarLayout
-                    android:id="@+id/app_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?android:windowBackground"
-                    android:minHeight="?actionBarSize"
-                    app:liftOnScroll="true">
-
-                    <com.denchic45.kts.CustomToolbar
-                        android:id="@+id/toolbar_main"
-                        android:layout_width="match_parent"
-                        android:layout_height="?attr/actionBarSize"
-                        app:layout_scrollFlags="scroll|enterAlways|snap" />
-
-                </com.google.android.material.appbar.AppBarLayout>
-
-                <androidx.fragment.app.FragmentContainerView
-                    android:id="@+id/nav_host_fragment"
-                    android:name="androidx.navigation.fragment.NavHostFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:defaultNavHost="true"
-                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                    app:navGraph="@navigation/navigation_main" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fab_main"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="@dimen/fab_margin"
-                    android:visibility="invisible"
-                    app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
-                    app:backgroundTint="@color/blue"
-                    app:srcCompat="@drawable/ic_add"
-                    app:tint="@color/white" />
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/bottom_nav_view"
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/app_bar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/windowBackground"
-                app:font="@font/gilroy_semi_bold"
-                app:itemIconSize="28dp"
-                app:layout_insetEdge="bottom"
-                app:itemTextAppearanceActive="@style/BottomNavigation.ActiveItemTextAppearance"
-                app:labelVisibilityMode="selected"
-                app:menu="@menu/bottom_nav_main" />
+                android:background="?android:windowBackground"
+                android:minHeight="?actionBarSize"
+                app:liftOnScroll="true">
 
-        </LinearLayout>
+                <com.denchic45.kts.CustomToolbar
+                    android:id="@+id/toolbar_main"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/nav_host_fragment"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:defaultNavHost="true"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                app:navGraph="@navigation/navigation_main" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab_main"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/fab_margin"
+                android:visibility="invisible"
+                app:backgroundTint="@color/blue"
+                app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+                app:srcCompat="@drawable/ic_add"
+                app:tint="@color/white" />
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_nav_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/windowBackground"
+            app:font="@font/gilroy_semi_bold"
+            app:itemIconSize="28dp"
+            app:itemTextAppearanceActive="@style/BottomNavigation.ActiveItemTextAppearance"
+            app:labelVisibilityMode="selected"
+            app:layout_insetEdge="bottom"
+            app:menu="@menu/bottom_nav_main" />
+
+    </LinearLayout>
 
 
     <com.google.android.material.navigation.NavigationView

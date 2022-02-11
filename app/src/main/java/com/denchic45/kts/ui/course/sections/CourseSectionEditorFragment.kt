@@ -2,8 +2,6 @@ package com.denchic45.kts.ui.course.sections
 
 import android.graphics.Canvas
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -27,7 +25,6 @@ import com.denchic45.kts.utils.showKeyboard
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
-import com.example.appbarcontroller.appbarcontroller.AppBarController
 import kotlinx.coroutines.flow.collect
 
 class CourseSectionEditorFragment :
@@ -100,7 +97,8 @@ class CourseSectionEditorFragment :
                         actionState,
                         isCurrentlyActive
                     )
-                        viewHolder.itemView.isSelected = actionState == ItemTouchHelper.ACTION_STATE_DRAG  && isCurrentlyActive
+                    viewHolder.itemView.isSelected =
+                        actionState == ItemTouchHelper.ACTION_STATE_DRAG && isCurrentlyActive
                 }
 
                 override fun clearView(

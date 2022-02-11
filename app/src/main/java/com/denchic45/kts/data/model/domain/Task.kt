@@ -54,7 +54,8 @@ data class Task(
         val student: User,
         val content: Content,
         val comments: List<Comment>,
-        val status: SubmissionStatus
+        val status: SubmissionStatus,
+        val contentUpdateDate: LocalDateTime
     ) : DomainModel() {
 
       override var id: String = ""
@@ -66,7 +67,8 @@ data class Task(
                     student,
                     Content.createEmpty(),
                     emptyList(),
-                    SubmissionStatus.NotSubmitted
+                    SubmissionStatus.NotSubmitted,
+                    LocalDateTime.now()
                 )
             }
         }
@@ -80,6 +82,8 @@ data class Task(
             }
 
             fun isEmpty(): Boolean = text.isEmpty() && attachments.isEmpty()
+
+            fun isNotEmpty(): Boolean = text.isNotEmpty() || attachments.isNotEmpty()
 
             fun hasText(): Boolean = text.isNotEmpty()
 
@@ -102,12 +106,13 @@ data class Task(
         data class Graded(
             val teacher: User,
             val grade: Int,
-            val gradeDate: LocalDateTime
+            val gradedDate: LocalDateTime
         ) : SubmissionStatus()
 
         data class Rejected(
             val teacher: User,
-            val cause: String
+            val cause: String,
+            val rejectedDate: LocalDateTime
         ) : SubmissionStatus()
     }
 

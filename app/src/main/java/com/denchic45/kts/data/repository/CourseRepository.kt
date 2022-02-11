@@ -25,6 +25,7 @@ import com.denchic45.kts.data.storage.SubmissionAttachmentStorage
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.CourseContents
 import com.denchic45.kts.utils.FieldsComparator
+import com.denchic45.kts.utils.toDate
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -32,8 +33,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
 import kotlin.reflect.full.memberProperties
@@ -755,23 +754,20 @@ class CourseRepository @Inject constructor(
 
         val submittedDate =
             if (submission.status is Task.SubmissionStatus.Submitted)
-                convertToDateViaInstant(submission.status.submittedDate)
+                submission.status.submittedDate.toDate()
             else null
 
         val updatedFields = mapOf(
-            "timestamp" to FieldValue.serverTimestamp(),
-            "submissions.$studentId.studentId" to studentId,
-            "submissions.$studentId.courseId" to courseContentDao.getCourseId(contentId),
-            "submissions.$studentId.contentId" to contentId,
             "submissions.$studentId.text" to submission.content.text,
             "submissions.$studentId.attachments" to attachmentUrls,
             "submissions.$studentId.status" to submissionMapper.domainToStatus(submission),
+            "submissions.$studentId.contentUpdateDate" to submission.contentUpdateDate.toDate(),
             "submissions.$studentId.submittedDate" to submittedDate
         )
         coursesRef.document(courseContentDao.getCourseId(contentId))
             .collection("Contents")
             .document(contentId)
-            .update(updatedFields)
+            .update(mapOfSubmissionFields(contentId, studentId) + updatedFields)
             .await()
     }
 
@@ -782,13 +778,14 @@ class CourseRepository @Inject constructor(
         teacherId: String = userPreference.id
     ) {
         getContentDocument(taskId).update(
-            mapOf(
-                "timestamp" to FieldValue.serverTimestamp(),
-                "submissions.$studentId.status" to Task.Submission.Status.GRADED,
-                "submissions.$studentId.gradedDate" to Date(),
-                "submissions.$studentId.grade" to grade,
-                "submissions.$studentId.teacherId" to teacherId
-            )
+            mapOfSubmissionFields(taskId, studentId)
+                    +
+                    mapOf(
+                        "submissions.$studentId.status" to Task.Submission.Status.GRADED,
+                        "submissions.$studentId.gradedDate" to Date(),
+                        "submissions.$studentId.grade" to grade,
+                        "submissions.$studentId.teacherId" to teacherId
+                    )
         ).await()
     }
 
@@ -799,14 +796,27 @@ class CourseRepository @Inject constructor(
         teacherId: String = userPreference.id
     ) {
         getContentDocument(taskId).update(
-            mapOf(
-                "timestamp" to FieldValue.serverTimestamp(),
-                "submissions.$studentId.status" to Task.Submission.Status.REJECTED,
-                "submissions.$studentId.cause" to cause,
-                "submissions.$studentId.teacherId" to teacherId
-            )
+            mapOfSubmissionFields(taskId, studentId)
+                    +
+                    mapOf(
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "submissions.$studentId.status" to Task.Submission.Status.REJECTED,
+                        "submissions.$studentId.cause" to cause,
+                        "submissions.$studentId.rejectedDate" to Date(),
+                        "submissions.$studentId.teacherId" to teacherId
+                    )
         ).await()
     }
+
+    private suspend fun mapOfSubmissionFields(
+        taskId: String,
+        studentId: String,
+    ) = mapOf(
+        "timestamp" to FieldValue.serverTimestamp(),
+        "submissions.$studentId.studentId" to studentId,
+        "submissions.$studentId.contentId" to taskId,
+        "submissions.$studentId.courseId" to courseContentDao.getCourseId(taskId),
+    )
 
     suspend fun isCourseTeacher(userId: String, courseId: String): Boolean {
         return courseDao.isCourseTeacher(courseId, userId)
@@ -824,7 +834,7 @@ class CourseRepository @Inject constructor(
             }
         }
             .mapLatest {
-                it + submissionDao.getStudentWithoutSubmission(taskId)
+                it + submissionDao.getStudentsWithoutSubmission(taskId)
                     .map { userEntity ->
                         Task.Submission.createEmpty(taskId, userMapper.entityToDomain(userEntity))
                     }
@@ -864,7 +874,6 @@ class CourseRepository @Inject constructor(
         batch.update(courseRef, "sections", FieldValue.arrayRemove(section))
 
         batch.commit().await()
-        print("")
     }
 
     suspend fun updateContentOrder(contentId: String, order: Long) {
@@ -877,12 +886,6 @@ class CourseRepository @Inject constructor(
             )
             .await()
     }
-
-
-}
-
-fun convertToDateViaInstant(dateToConvert: LocalDateTime): Date {
-    return Date.from(dateToConvert.atZone(ZoneId.systemDefault()).toInstant())
 }
 
 class SameCoursesException : Exception()

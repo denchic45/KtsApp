@@ -18,7 +18,6 @@ import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskHolder
 import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
-import com.denchic45.kts.ui.course.sections.EditSectionAdapterDelegate
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.utils.toast
@@ -128,7 +127,8 @@ class CourseFragment :
                         actionState,
                         isCurrentlyActive
                     )
-                    viewHolder.itemView.isSelected = actionState == ItemTouchHelper.ACTION_STATE_DRAG  && isCurrentlyActive
+                    viewHolder.itemView.isSelected =
+                        actionState == ItemTouchHelper.ACTION_STATE_DRAG && isCurrentlyActive
                 }
 
                 override fun clearView(

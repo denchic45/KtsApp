@@ -57,8 +57,9 @@ class CourseSectionEditorViewModel @Inject constructor(
 
             val prevOrder = if (position == 0) 0 else sections[position - 1].order
 
-            val nextOrder = if (position == sections.size - 1) sections[position -1].order + (1024 * 2)
-            else sections[position + 1].order
+            val nextOrder =
+                if (position == sections.size - 1) sections[position - 1].order + (1024 * 2)
+                else sections[position + 1].order
 
 
 
@@ -78,7 +79,7 @@ class CourseSectionEditorViewModel @Inject constructor(
             )
         }
         oldPosition = -1
-        position = - 1
+        position = -1
     }
 
     fun onSectionAdd(name: String) {
