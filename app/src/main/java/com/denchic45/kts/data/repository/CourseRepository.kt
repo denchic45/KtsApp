@@ -25,6 +25,7 @@ import com.denchic45.kts.data.storage.SubmissionAttachmentStorage
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.CourseContents
 import com.denchic45.kts.utils.FieldsComparator
+import com.denchic45.kts.utils.toDate
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -32,8 +33,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
 import kotlin.reflect.full.memberProperties
@@ -216,8 +215,8 @@ class CourseRepository @Inject constructor(
                     courseContentMapper.entityToDomain(courseContentEntities),
                     sectionMapper.entityToDomain(sectionEntities)
                 )
-                //todo отсортировать секции с курсами
             }
+            .distinctUntilChanged()
     }
 
     private suspend fun saveCourseContentsLocal(
@@ -300,9 +299,11 @@ class CourseRepository @Inject constructor(
         userDao.upsert(teacherEntities)
         subjectDao.upsert(subjectEntities)
         courseDao.upsert(courseEntities)
+
         sectionDao.upsert(courseDocs.flatMap {
             sectionMapper.docToEntity(it.sections ?: emptyList())
         })
+        sectionDao.deleteMissing(courseDocs.flatMap { it.sections ?: emptyList() }.map { it.id })
         groupCourseDao.upsert(groupWithCourseEntities)
     }
 
@@ -562,7 +563,6 @@ class CourseRepository @Inject constructor(
 
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
 
-
     fun findByTypedName(name: String): Flow<Resource<List<CourseHeader>>> = callbackFlow {
         addListenerRegistration("name") {
             coursesRef
@@ -672,7 +672,7 @@ class CourseRepository @Inject constructor(
 
         contentAttachmentStorage.deleteFilesByContentId(taskId)
         submissionAttachmentStorage.deleteFilesByContentId(taskId)
-        getContentRef(taskId)
+        getContentDocument(taskId)
             .set(
                 mapOf(
                     "id" to taskId,
@@ -683,13 +683,17 @@ class CourseRepository @Inject constructor(
             .await()
     }
 
-    private suspend fun getContentRef(contentId: String) =
+    private suspend fun getContentDocument(contentId: String) =
         coursesRef.document(courseContentDao.getCourseIdByTaskId(contentId))
             .collection("Contents")
             .document(contentId)
 
+
     fun findSectionsByCourseId(courseId: String) =
-        sectionDao.getByCourseId(courseId).map { sectionMapper.entityToDomain(it) }
+        sectionDao.getByCourseId(courseId).map {
+            Log.d("lol", "findSectionsByCourseId MAP: ")
+            sectionMapper.entityToDomain(it)
+        }
 
     suspend fun findSection(sectionId: String) =
         sectionMapper.entityToDomain(sectionDao.get(sectionId))
@@ -750,23 +754,20 @@ class CourseRepository @Inject constructor(
 
         val submittedDate =
             if (submission.status is Task.SubmissionStatus.Submitted)
-                convertToDateViaInstant(submission.status.submittedDate)
+                submission.status.submittedDate.toDate()
             else null
 
         val updatedFields = mapOf(
-            "timestamp" to FieldValue.serverTimestamp(),
-            "submissions.$studentId.studentId" to studentId,
-            "submissions.$studentId.courseId" to courseContentDao.getCourseId(contentId),
-            "submissions.$studentId.contentId" to contentId,
             "submissions.$studentId.text" to submission.content.text,
             "submissions.$studentId.attachments" to attachmentUrls,
             "submissions.$studentId.status" to submissionMapper.domainToStatus(submission),
+            "submissions.$studentId.contentUpdateDate" to submission.contentUpdateDate.toDate(),
             "submissions.$studentId.submittedDate" to submittedDate
         )
         coursesRef.document(courseContentDao.getCourseId(contentId))
             .collection("Contents")
             .document(contentId)
-            .update(updatedFields)
+            .update(mapOfSubmissionFields(contentId, studentId) + updatedFields)
             .await()
     }
 
@@ -776,14 +777,15 @@ class CourseRepository @Inject constructor(
         grade: Int,
         teacherId: String = userPreference.id
     ) {
-        getContentRef(taskId).update(
-            mapOf(
-                "timestamp" to FieldValue.serverTimestamp(),
-                "submissions.$studentId.status" to Task.Submission.Status.GRADED,
-                "submissions.$studentId.gradedDate" to Date(),
-                "submissions.$studentId.grade" to grade,
-                "submissions.$studentId.teacherId" to teacherId
-            )
+        getContentDocument(taskId).update(
+            mapOfSubmissionFields(taskId, studentId)
+                    +
+                    mapOf(
+                        "submissions.$studentId.status" to Task.Submission.Status.GRADED,
+                        "submissions.$studentId.gradedDate" to Date(),
+                        "submissions.$studentId.grade" to grade,
+                        "submissions.$studentId.teacherId" to teacherId
+                    )
         ).await()
     }
 
@@ -793,15 +795,28 @@ class CourseRepository @Inject constructor(
         cause: String,
         teacherId: String = userPreference.id
     ) {
-        getContentRef(taskId).update(
-            mapOf(
-                "timestamp" to FieldValue.serverTimestamp(),
-                "submissions.$studentId.status" to Task.Submission.Status.REJECTED,
-                "submissions.$studentId.cause" to cause,
-                "submissions.$studentId.teacherId" to teacherId
-            )
+        getContentDocument(taskId).update(
+            mapOfSubmissionFields(taskId, studentId)
+                    +
+                    mapOf(
+                        "timestamp" to FieldValue.serverTimestamp(),
+                        "submissions.$studentId.status" to Task.Submission.Status.REJECTED,
+                        "submissions.$studentId.cause" to cause,
+                        "submissions.$studentId.rejectedDate" to Date(),
+                        "submissions.$studentId.teacherId" to teacherId
+                    )
         ).await()
     }
+
+    private suspend fun mapOfSubmissionFields(
+        taskId: String,
+        studentId: String,
+    ) = mapOf(
+        "timestamp" to FieldValue.serverTimestamp(),
+        "submissions.$studentId.studentId" to studentId,
+        "submissions.$studentId.contentId" to taskId,
+        "submissions.$studentId.courseId" to courseContentDao.getCourseId(taskId),
+    )
 
     suspend fun isCourseTeacher(userId: String, courseId: String): Boolean {
         return courseDao.isCourseTeacher(courseId, userId)
@@ -819,7 +834,7 @@ class CourseRepository @Inject constructor(
             }
         }
             .mapLatest {
-                it + submissionDao.getStudentWithoutSubmission(taskId)
+                it + submissionDao.getStudentsWithoutSubmission(taskId)
                     .map { userEntity ->
                         Task.Submission.createEmpty(taskId, userMapper.entityToDomain(userEntity))
                     }
@@ -827,11 +842,50 @@ class CourseRepository @Inject constructor(
             .distinctUntilChanged()
     }
 
+    suspend fun updateCourseSections(sections: List<Section>) {
+        coursesRef.document(sections[0].courseId)
+            .update("sections", sections)
+            .await()
+    }
 
-}
+    suspend fun addSection(section: Section) {
+        coursesRef.document(section.courseId)
+            .update("sections", FieldValue.arrayUnion(section))
+            .await()
+    }
 
-fun convertToDateViaInstant(dateToConvert: LocalDateTime): Date {
-    return Date.from(dateToConvert.atZone(ZoneId.systemDefault()).toInstant())
+    suspend fun removeSection(section: Section) {
+        val courseRef = coursesRef.document(section.courseId)
+
+        val contentsWithThisSection = courseRef.collection("Contents")
+            .whereEqualTo("sectionId", section.id)
+            .get()
+            .await()
+
+        val batch = firestore.batch()
+
+        contentsWithThisSection.forEach {
+            batch.update(
+                courseRef.collection("Contents")
+                    .document(it.getString("id")!!), "sectionId", ""
+            )
+        }
+
+        batch.update(courseRef, "sections", FieldValue.arrayRemove(section))
+
+        batch.commit().await()
+    }
+
+    suspend fun updateContentOrder(contentId: String, order: Long) {
+        getContentDocument(contentId)
+            .update(
+                mapOf(
+                    "order" to order,
+                    timestampFiledPair()
+                )
+            )
+            .await()
+    }
 }
 
 class SameCoursesException : Exception()

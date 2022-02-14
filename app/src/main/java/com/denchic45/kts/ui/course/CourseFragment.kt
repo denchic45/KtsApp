@@ -1,12 +1,14 @@
 package com.denchic45.kts.ui.course
 
+import android.graphics.Canvas
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentCourseBinding
@@ -15,8 +17,10 @@ import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskHolder
 import com.denchic45.kts.ui.course.content.ContentFragment
+import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
+import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
@@ -87,9 +91,63 @@ class CourseFragment :
                     }
                 }
             }
+
+            val simpleCallback = object : ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0
+            ) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    val move = viewHolder is TaskHolder && target is TaskHolder
+                    if (move) {
+                        val oldPosition = viewHolder.absoluteAdapterPosition
+                        val position = target.absoluteAdapterPosition
+                        viewModel.onContentMove(oldPosition, position)
+                    }
+                    return move
+                }
+
+                override fun onChildDraw(
+                    c: Canvas,
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    dX: Float,
+                    dY: Float,
+                    actionState: Int,
+                    isCurrentlyActive: Boolean
+                ) {
+                    super.onChildDraw(
+                        c,
+                        recyclerView,
+                        viewHolder,
+                        dX,
+                        dY,
+                        actionState,
+                        isCurrentlyActive
+                    )
+                    viewHolder.itemView.isSelected =
+                        actionState == ItemTouchHelper.ACTION_STATE_DRAG && isCurrentlyActive
+                }
+
+                override fun clearView(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder
+                ) {
+                    super.clearView(recyclerView, viewHolder)
+                    viewModel.onContentMoved()
+                }
+
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+            }
+            val itemTouchHelper = ItemTouchHelper(simpleCallback)
+
+            itemTouchHelper.attachToRecyclerView(rvCourseItems)
+
             rvCourseItems.adapter = adapter
             viewModel.showContents.observe(viewLifecycleOwner) {
-                adapter.submit(it)
+                adapter.submit(it.toList())
             }
             viewModel.courseName.observe(viewLifecycleOwner) {
                 collapsingToolbarLayout!!.title = it
@@ -125,9 +183,14 @@ class CourseFragment :
             )
         }
 
-        viewModel.showMessage.observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
+        viewModel.openCourseSectionEditor.observe(viewLifecycleOwner) {
+            findNavController().navigate(
+                R.id.action_courseFragment_to_courseSectionsFragment,
+                bundleOf(CourseSectionEditorFragment.COURSE_ID to it)
+            )
         }
+
+        viewModel.showMessage.observe(viewLifecycleOwner, this::toast)
 
     }
 
@@ -136,5 +199,6 @@ class CourseFragment :
         super.onDestroyView()
         appBarController.removeView(collapsingToolbarLayout!!)
         appBarController.addView(mainToolbar)
+        appBarController.setExpanded(true, false)
     }
 }

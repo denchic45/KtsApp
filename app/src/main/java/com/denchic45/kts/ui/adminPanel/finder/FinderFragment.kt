@@ -34,6 +34,7 @@ import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
+import com.denchic45.kts.utils.toast
 import com.denchic45.widget.ListStateLayout
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
@@ -137,9 +138,8 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             bundle.putString(GroupFragment.GROUP_ID, groupId)
             navController.navigate(R.id.action_finderFragment_to_group_editor, bundle)
         }
-        viewModel.showMessage.observe(viewLifecycleOwner) { message: String? ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
+        viewModel.showMessage.observe(viewLifecycleOwner, this::toast)
+
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
         ) { args: Map<String, String> ->

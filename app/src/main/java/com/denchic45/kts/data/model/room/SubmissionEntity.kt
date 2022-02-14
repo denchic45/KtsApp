@@ -46,9 +46,15 @@ data class SubmissionEntity(
     val cause: String,
     val grade: Int?,
     @field:TypeConverters(TimestampConverter::class)
-    @ColumnInfo(defaultValue = "0")
-    val gradedDate: Date,
+    @ColumnInfo(name = "grade_date", defaultValue = "0")
+    val gradedDate: Date?,
     @field:TypeConverters(TimestampConverter::class)
-    @ColumnInfo(defaultValue = "0")
+    @ColumnInfo(name = "rejected_date", defaultValue = "0")
+    val rejectedDate: Date?,
+    @field:TypeConverters(TimestampConverter::class)
+    @ColumnInfo(name = "submitted_date", defaultValue = "0")
     val submittedDate: Date?,
+    @field:TypeConverters(TimestampConverter::class)
+    @ColumnInfo(name = "content_update_date", defaultValue = "0")
+    val contentUpdateDate: Date?
 ) : EntityModel

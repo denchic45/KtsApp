@@ -91,7 +91,6 @@ public class WeekCalendarView extends LinearLayout {
                     calendar.setTime(week.getDate(6));
                     calendar.add(Calendar.DATE, 1);
                     loadFewWeeks(calendar);
-                    Toast.makeText(getContext(), "load weeks", Toast.LENGTH_SHORT).show();
                 }
             }
         };

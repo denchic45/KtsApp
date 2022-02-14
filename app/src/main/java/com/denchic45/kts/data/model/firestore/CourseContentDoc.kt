@@ -51,6 +51,8 @@ data class SubmissionDoc(
     val teacherId: String,
     val grade: Int,
     val gradedDate: Date,
+    val contentUpdateDate: Date,
+    val rejectedDate: Date,
     val cause: String,
     val comments: List<SubmissionCommentEntity>,
     val submittedDate: Date,
@@ -63,6 +65,8 @@ data class SubmissionDoc(
         emptyList(),
         "",
         0,
+        Date(),
+        Date(),
         Date(),
         "",
         emptyList(), Date()

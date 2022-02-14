@@ -6,23 +6,26 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentSpecialtyEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseDialogFragment
 import com.denchic45.kts.ui.confirm.ConfirmDialog
+import com.denchic45.kts.utils.strings
+import com.denchic45.kts.utils.toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import by.kirich1409.viewbindingdelegate.viewBinding
 import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.android.support.AndroidSupportInjection
 
 class SpecialtyEditorDialog :
     BaseDialogFragment<SpecialtyEditorViewModel, FragmentSpecialtyEditorBinding>() {
 
-    override val binding: FragmentSpecialtyEditorBinding by viewBinding(FragmentSpecialtyEditorBinding::bind)
+    override val binding: FragmentSpecialtyEditorBinding by viewBinding(
+        FragmentSpecialtyEditorBinding::bind
+    )
     override val viewModel: SpecialtyEditorViewModel by viewModels { viewModelFactory }
     private lateinit var alertDialog: AlertDialog
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -74,13 +77,9 @@ class SpecialtyEditorDialog :
         }
         viewModel.title.observe(
             viewLifecycleOwner
-        ) { name: String? -> alertDialog.setTitle(name) }
-        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int? ->
-            Toast.makeText(
-                context, getString(
-                    resId!!
-                ), Toast.LENGTH_SHORT
-            ).show()
+        ) { name: String -> alertDialog.setTitle(name) }
+        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId ->
+            toast(requireContext().strings(resId))
         }
         viewModel.finish.observe(viewLifecycleOwner) { dismiss() }
         viewModel.openConfirmation.observe(

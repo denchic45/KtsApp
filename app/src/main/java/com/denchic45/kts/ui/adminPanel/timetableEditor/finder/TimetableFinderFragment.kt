@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.AdapterView
-import android.widget.Toast
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -23,6 +22,7 @@ import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.toast
 import com.denchic45.widget.ListStateLayout
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.WeekCalendarView
@@ -161,22 +161,13 @@ class TimetableFinderFragment :
         viewModel.showLessonsOfGroupByDate.observe(
             viewLifecycleOwner,
             EventObserver { lessons: List<Event> ->
-                Log.d("lol1", "showLessonsOfGroupByDate: ")
                 adapter!!.submitList(ArrayList<DomainModel>(lessons))
             })
         viewModel.openEventEditor.observe(viewLifecycleOwner) {
-            startActivity(
-                Intent(
-                    activity, EventEditorActivity::class.java
-                )
-            )
+            startActivity(Intent(requireActivity(), EventEditorActivity::class.java))
         }
         viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int ->
-            Toast.makeText(
-                context, getString(
-                    resId
-                ), Toast.LENGTH_SHORT
-            ).show()
+            toast(getString(resId))
         }
         viewModel.enableEditMode.observe(viewLifecycleOwner) { allow: Boolean ->
             if (allow) {
@@ -209,7 +200,6 @@ class TimetableFinderFragment :
             }
         }
         viewModel.showEditedLessons.observe(viewLifecycleOwner) { lessons: List<DomainModel> ->
-            Log.d("lol1", "showEditedLessons: ")
             adapter!!.submitList(ArrayList(lessons))
         }
         viewModel.editTimetableOptionVisibility.observe(

@@ -149,4 +149,7 @@ interface FragmentModule {
 
     @ContributesAndroidInjector
     fun contributeCompletedTasksFragment(): CompletedTasksFragment
+
+    @ContributesAndroidInjector(modules = [IntentModule::class])
+    fun contributeCourseSectionsFragment(): CourseSectionEditorFragment
 }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Toast
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,6 +21,8 @@ import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
+import com.denchic45.kts.utils.strings
+import com.denchic45.kts.utils.toast
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -90,12 +91,8 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
             bundle.putString(ProfileFragment.USER_ID, userId)
             navController!!.navigate(R.id.action_global_profileFragment, bundle)
         }
-        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int ->
-            Toast.makeText(
-                context, resources.getString(
-                    resId
-                ), Toast.LENGTH_SHORT
-            ).show()
+        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId ->
+            toast(requireContext().strings(resId))
         }
     }
 

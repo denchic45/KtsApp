@@ -10,6 +10,7 @@ import androidx.appcompat.widget.Toolbar
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.avatar.FullImageActivity
+import com.denchic45.kts.utils.toast
 import dagger.android.AndroidInjection
 import javax.inject.Inject
 
@@ -34,9 +35,7 @@ class FullAvatarActivity : FullImageActivity() {
                 idAndVisibility.first
             ).isVisible = idAndVisibility.second
         }
-        viewModel.showMessage.observe(
-            this
-        ) { s: String? -> Toast.makeText(this, s, Toast.LENGTH_SHORT).show() }
+        viewModel.showMessage.observe(this, this::toast)
         viewModel.showMessageRes.observe(
             this
         ) { s: Int? -> Toast.makeText(this, s!!, Toast.LENGTH_SHORT).show() }

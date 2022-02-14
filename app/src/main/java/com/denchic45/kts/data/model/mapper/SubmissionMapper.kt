@@ -6,6 +6,7 @@ import com.denchic45.kts.data.model.firestore.SubmissionDoc
 import com.denchic45.kts.data.model.room.SubmissionCommentEntity
 import com.denchic45.kts.data.model.room.SubmissionEntity
 import com.denchic45.kts.data.model.room.SubmissionWithStudentUserAndCommentsEntities
+import com.denchic45.kts.utils.toLocalDateTime
 import org.mapstruct.Mapper
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -27,7 +28,8 @@ abstract class SubmissionMapper {
             userMapper.entityToDomain(entities.studentEntity),
             content,
             comments,
-            submissionStatus
+            submissionStatus,
+            entities.submissionEntity.contentUpdateDate!!.toLocalDateTime()
         )
     }
 
@@ -47,16 +49,13 @@ abstract class SubmissionMapper {
                 Task.SubmissionStatus.Graded(
                     userMapper.entityToDomain(entities.teacherEntity),
                     entities.submissionEntity.grade!!,
-                    LocalDateTime.ofInstant(
-                        entities.submissionEntity.gradedDate.toInstant(),
-                        ZoneId.systemDefault()
-                    )
+                    entities.submissionEntity.gradedDate!!.toLocalDateTime()
                 )
             }
             Task.Submission.Status.REJECTED -> Task.SubmissionStatus.Rejected(
-                userMapper.entityToDomain(
-                    entities.teacherEntity
-                ), entities.submissionEntity.cause
+                userMapper.entityToDomain(entities.teacherEntity),
+                entities.submissionEntity.cause,
+                entities.submissionEntity.rejectedDate!!.toLocalDateTime()
             )
         }
     }

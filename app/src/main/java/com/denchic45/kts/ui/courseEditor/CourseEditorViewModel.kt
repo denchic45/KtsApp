@@ -44,7 +44,7 @@ class CourseEditorViewModel @Inject constructor(
     val subjectNameTypeEnable = MutableLiveData<Boolean>()
     val teacherNameTypeEnable = MutableLiveData<Boolean>()
     val groupList = MutableLiveData(addAdderGroupItem())
-    val optionVisibility = MutableLiveData<Pair<Int, Boolean>>()
+    val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
     val title = MutableLiveData<String>()
     val openChoiceOfGroup = SingleLiveData<Unit>()
 

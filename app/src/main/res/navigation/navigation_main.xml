@@ -108,7 +108,6 @@
         android:id="@+id/action_global_courseFragment"
         app:destination="@id/courseFragment" />
 
-
     <fragment
         android:id="@+id/courseEditorFragment"
         android:name="com.denchic45.kts.ui.courseEditor.CourseEditorFragment"
@@ -122,9 +121,7 @@
     <action
         android:id="@+id/action_global_courseEditorFragment"
         app:destination="@id/courseEditorFragment" />
-    <action
-        android:id="@+id/action_global_taskEditorFragment"
-        app:destination="@id/taskEditorFragment" />
+    <action android:id="@+id/action_global_taskEditorFragment" app:destination="@id/taskEditorFragment"/>
     <fragment
         android:id="@+id/contentFragment"
         android:name="com.denchic45.kts.ui.course.content.ContentFragment"
@@ -134,15 +131,12 @@
         android:name="com.denchic45.kts.ui.course.submission.SubmissionDialog"
         android:label="fragment_submission"
         tools:layout="@layout/fragment_submission" />
-    <action
-        android:id="@+id/action_global_submissionFragment"
-        app:destination="@id/submissionFragment" />
+    <action android:id="@+id/action_global_submissionFragment" app:destination="@id/submissionFragment" />
     <fragment
-        android:id="@+id/tasksFragment"
-        android:name="com.denchic45.kts.ui.tasks.TasksFragment"
-        android:label="TasksFragment" />
-    <action
-        android:id="@+id/action_global_tasksFragment"
-        app:destination="@id/tasksFragment" />
+        android:id="@+id/courseSectionsFragment"
+        android:name="com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment"
+        android:label="fragment_course_sections"
+        tools:layout="@layout/fragment_course_section_editor" />
+
 
 </navigation>

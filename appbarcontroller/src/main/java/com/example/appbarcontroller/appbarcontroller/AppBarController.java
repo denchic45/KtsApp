@@ -88,6 +88,14 @@ public final class AppBarController {
         views.put(id, view);
     }
 
+    public int getToolbarScrollFlags() {
+       return ((AppBarLayout.LayoutParams) toolbar.getLayoutParams()).getScrollFlags();
+    }
+
+    public void setToolbarScrollFlags(@AppBarLayout.LayoutParams.ScrollFlags int scrollFlags) {
+        setScrollFlags(toolbar, scrollFlags);
+    }
+
     private void setScrollFlags(@NotNull View view, @AppBarLayout.LayoutParams.ScrollFlags int scrollFlags) {
         AppBarLayout.LayoutParams params = new AppBarLayout.LayoutParams(view.getLayoutParams());
         params.setScrollFlags(scrollFlags);

@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-
     tools:context=".ui.course.submission.SubmissionDialog">
 
     <View
@@ -95,6 +94,7 @@
                         android:layout_marginTop="16dp"
                         android:nestedScrollingEnabled="false"
                         android:orientation="horizontal"
+                        android:overScrollMode="never"
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_behavior="@string/appbar_scrolling_view_behavior"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -208,6 +208,7 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_grade"
+                            android:inputType="number"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:maxLength="1" />

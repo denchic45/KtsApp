@@ -7,10 +7,8 @@ import com.denchic45.kts.domain.usecase.FindTaskSubmissionUseCase
 import com.denchic45.kts.domain.usecase.GradeSubmissionUseCase
 import com.denchic45.kts.domain.usecase.RejectSubmissionUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.shareIn
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -31,14 +29,21 @@ class SubmissionViewModel @Inject constructor(
 
     private var cause = ""
 
+    val gradeButtonVisibility = MutableSharedFlow<Boolean>()
+
     val openRejectConfirmation = SingleLiveData<Unit>()
 
     val closeRejectConfirmation = SingleLiveData<Unit>()
 
     private suspend fun submission() = showSubmission.first()
 
-    fun onGradeType(grade: Int) {
-        this.grade = grade
+    fun onGradeType(typedGrade: String) {
+        grade = if (typedGrade.isNotEmpty()) typedGrade.toInt() else 0
+        viewModelScope.launch {
+            val submission = submission()
+            val oldGrade = (submission.status as? Task.SubmissionStatus.Graded)?.grade ?: 0
+            gradeButtonVisibility.emit(oldGrade != grade && grade != 0)
+        }
     }
 
     fun onCauseType(cause: String) {
@@ -59,12 +64,14 @@ class SubmissionViewModel @Inject constructor(
     }
 
     fun onRejectConfirmClick() {
-        viewModelScope.launch {
-            if (cause.isNotEmpty())
-                rejectSubmissionUseCase(taskId, studentId, cause)
-            closeRejectConfirmation.call()
-        }
+       viewModelScope.launch {
+           if (cause.isNotEmpty())
+           rejectSubmissionUseCase(taskId, studentId, cause)
+           closeRejectConfirmation.call()
+       }
     }
 
-    fun onRejectCancelClick() = closeRejectConfirmation.call()
+    fun onRejectCancelClick() {
+        closeRejectConfirmation.call()
+    }
 }

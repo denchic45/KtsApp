@@ -130,16 +130,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_description" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_attachments"
+        <com.denchic45.kts.NestedScrollableHost2
+            android:id="@+id/nsh_attachments"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_attachments_header"
-            tools:listitem="@layout/item_attachment" />
+            app:layout_constraintTop_toBottomOf="@id/tv_attachments_header">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_attachments"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:overScrollMode="never"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_attachment" />
+        </com.denchic45.kts.NestedScrollableHost2>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout
