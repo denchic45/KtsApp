@@ -13,6 +13,7 @@ import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.denchic45.kts.ui.course.sectionPicker.SectionPickerFragment
+import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
 import com.denchic45.kts.ui.course.submission.SubmissionDialog
 import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
