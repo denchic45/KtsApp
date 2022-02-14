@@ -3,6 +3,7 @@ package com.denchic45.kts.data.repository
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
@@ -13,10 +14,7 @@ import com.denchic45.kts.data.dao.CourseDao
 import com.denchic45.kts.data.dao.GroupDao
 import com.denchic45.kts.data.dao.SpecialtyDao
 import com.denchic45.kts.data.dao.UserDao
-import com.denchic45.kts.data.model.domain.CourseGroup
-import com.denchic45.kts.data.model.domain.Group
-import com.denchic45.kts.data.model.domain.GroupCourses
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.CourseMapper
@@ -68,6 +66,7 @@ class GroupInfoRepository @Inject constructor(
 ) : Repository(context), IGroupRepository {
 
     private val compositeDisposable = CompositeDisposable()
+    private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val usersRef: CollectionReference = firestore.collection("Users")
 
@@ -156,6 +155,37 @@ class GroupInfoRepository @Inject constructor(
                 }
             }
         }
+
+
+    fun findBySpecialtyId(specialtyId: String): LiveData<List<CourseGroup>> {
+        val groups = MutableLiveData<List<CourseGroup>>()
+        groupsRef.whereEqualTo("specialty.id", specialtyId).get()
+            .addOnSuccessListener { snapshot: QuerySnapshot ->
+                groups.setValue(snapshot.toObjects(CourseGroup::class.java))
+            }
+            .addOnFailureListener { e: Exception -> Log.d("lol", "err: ", e) }
+        return groups
+    }
+
+    val allSpecialties: MutableLiveData<List<Specialty>>
+        get() {
+            val allSpecialties = MutableLiveData<List<Specialty>>()
+            addListenerRegistration("specials") {
+                specialtiesRef.addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                    if (error != null) {
+                        Log.d("lol", "onEvent error: ", error)
+                    }
+                    Log.d("lol", "getAllSpecialties size: " + snapshot!!.size())
+                    allSpecialties.setValue(snapshot.toObjects(Specialty::class.java))
+                }
+            }
+            return allSpecialties
+        }
+
+    val yourGroupId: String
+        get() = groupPreference.groupId
+    val yourGroupName: String
+        get() = groupPreference.groupName
 
     private fun getQueryOfGroupById(ud: String): Query {
         return groupsRef.whereEqualTo("id", ud)

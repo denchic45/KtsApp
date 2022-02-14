@@ -25,7 +25,7 @@ class MainViewModel @Inject constructor(
 
     private val mainScreenIds: Set<Int> = setOf(R.id.menu_timetable, R.id.menu_group)
     private val onNavItemClickActions = mapOf(
-        R.string.nav_tasks to { open.value = 0 },
+        R.string.nav_tasks to { open.value = R.id.action_global_tasksFragment },
         R.string.nav_duty_roster to { open.value = 0 },
         R.string.nav_schedule to { open.value = 0 },
 

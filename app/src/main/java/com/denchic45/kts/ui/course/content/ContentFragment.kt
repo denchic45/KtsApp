@@ -115,7 +115,5 @@ class ContentFragment :
                 else -> throw IllegalStateException()
             }
         }
-
     }
-
 }

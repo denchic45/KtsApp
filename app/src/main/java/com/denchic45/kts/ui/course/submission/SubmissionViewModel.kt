@@ -7,7 +7,6 @@ import com.denchic45.kts.domain.usecase.FindTaskSubmissionUseCase
 import com.denchic45.kts.domain.usecase.GradeSubmissionUseCase
 import com.denchic45.kts.domain.usecase.RejectSubmissionUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
@@ -60,14 +59,12 @@ class SubmissionViewModel @Inject constructor(
     }
 
     fun onRejectConfirmClick() {
-       viewModelScope.launch {
-           if (cause.isNotEmpty())
-           rejectSubmissionUseCase(taskId, studentId, cause)
-           closeRejectConfirmation.call()
-       }
+        viewModelScope.launch {
+            if (cause.isNotEmpty())
+                rejectSubmissionUseCase(taskId, studentId, cause)
+            closeRejectConfirmation.call()
+        }
     }
 
-    fun onRejectCancelClick() {
-        closeRejectConfirmation.call()
-    }
+    fun onRejectCancelClick() = closeRejectConfirmation.call()
 }

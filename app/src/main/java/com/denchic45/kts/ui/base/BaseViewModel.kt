@@ -13,11 +13,13 @@ open class BaseViewModel : ViewModel() {
     @JvmField
     val finish = SingleLiveData<Void>()
 
+    val openConfirmation = SingleLiveData<Pair<String, String>>()
+
     private var optionsIsCreated: Boolean = false
 
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
     open fun onCreateOptions() {
         if (optionsIsCreated) return
         else optionsIsCreated = true
     }
+
 }

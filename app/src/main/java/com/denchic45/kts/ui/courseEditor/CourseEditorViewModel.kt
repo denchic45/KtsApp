@@ -34,8 +34,7 @@ class CourseEditorViewModel @Inject constructor(
     courseId: String?,
     private val interactor: CourseEditorInteractor,
     var choiceOfGroupInteractor: ChoiceOfGroupInteractor
-) :
-    BaseViewModel() {
+) : BaseViewModel() {
     val selectSubject = MutableLiveData<Subject>()
     val selectTeacher = MutableLiveData<User>()
     val nameField = MutableLiveData<String>()

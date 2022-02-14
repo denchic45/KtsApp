@@ -31,6 +31,10 @@ import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.settings.SettingsFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
+import com.denchic45.kts.ui.tasks.TasksFragment
+import com.denchic45.kts.ui.tasks.completed.CompletedTasksFragment
+import com.denchic45.kts.ui.tasks.overdue.OverdueTasksFragment
+import com.denchic45.kts.ui.tasks.upcoming.UpcomingTasksFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -134,4 +138,15 @@ interface FragmentModule {
     @ContributesAndroidInjector(modules = [IntentModule::class])
     fun contributeSubmissionFragment(): SubmissionDialog
 
+    @ContributesAndroidInjector
+    fun contributeTasksFragment(): TasksFragment
+
+    @ContributesAndroidInjector
+    fun contributeUpcomingTasksFragment(): UpcomingTasksFragment
+
+    @ContributesAndroidInjector
+    fun contributeOverdueTasksFragment(): OverdueTasksFragment
+
+    @ContributesAndroidInjector
+    fun contributeCompletedTasksFragment(): CompletedTasksFragment
 }

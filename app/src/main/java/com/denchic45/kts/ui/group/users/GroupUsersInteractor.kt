@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.GroupInfoRepository
-import com.denchic45.kts.data.repository.GroupRepository
 import com.denchic45.kts.data.repository.StudentRepository
 import com.denchic45.kts.data.repository.UserRepository
 import io.reactivex.rxjava3.core.Completable
@@ -12,13 +11,12 @@ import javax.inject.Inject
 
 class GroupUsersInteractor @Inject constructor(
     private val userRepository: UserRepository,
-    private val groupRepository: GroupRepository,
     private val groupInfoRepository: GroupInfoRepository,
     private val studentRepository: StudentRepository
 ) : Interactor {
 
     val yourGroupId: String
-        get() = groupRepository.yourGroupId
+        get() = groupInfoRepository.yourGroupId
 
     fun getUsersByGroupId(groupId: String): LiveData<List<User>> {
         return userRepository.getByGroupId(groupId)
@@ -35,7 +33,6 @@ class GroupUsersInteractor @Inject constructor(
     override fun removeListeners() {
         studentRepository.removeListeners()
         userRepository.removeListeners()
-        groupRepository.removeListeners()
         groupInfoRepository.removeListeners()
     }
 

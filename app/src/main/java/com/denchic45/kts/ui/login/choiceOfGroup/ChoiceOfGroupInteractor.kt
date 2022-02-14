@@ -5,22 +5,20 @@ import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.repository.GroupInfoRepository
-import com.denchic45.kts.data.repository.GroupRepository
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 
 class ChoiceOfGroupInteractor constructor(
-    private val groupRepository: GroupRepository,
     private val groupInfoRepository: GroupInfoRepository
 ) : Interactor {
 
     private var selectedGroup: PublishSubject<CourseGroup>? = PublishSubject.create()
     fun findGroupsBySpecialtyId(id: String): LiveData<List<CourseGroup>> {
-        return groupRepository.findBySpecialtyId(id)
+        return groupInfoRepository.findBySpecialtyId(id)
     }
 
     val allSpecialties: LiveData<List<Specialty>>
-        get() = groupRepository.allSpecialties
+        get() = groupInfoRepository.allSpecialties
 
     fun findGroupInfoById(groupId: String) {
         groupInfoRepository.findGroupInfoById(groupId)
@@ -30,7 +28,6 @@ class ChoiceOfGroupInteractor constructor(
         selectedGroup!!.onComplete()
         selectedGroup = null
         groupInfoRepository.removeListeners()
-        groupRepository.removeListeners()
     }
 
     fun observeSelectedGroup(): Observable<CourseGroup> {

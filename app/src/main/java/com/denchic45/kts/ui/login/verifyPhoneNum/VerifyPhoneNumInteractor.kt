@@ -4,7 +4,6 @@ import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.repository.*
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.annotations.NonNull
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableEmitter
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -12,7 +11,6 @@ import javax.inject.Inject
 
 class VerifyPhoneNumInteractor @Inject constructor(
     private val authRepository: AuthRepository,
-    private val groupRepository: GroupRepository,
     private val subjectRepository: SubjectRepository,
     private val userRepository: UserRepository,
     private val eventRepository: EventRepository,
@@ -23,9 +21,7 @@ class VerifyPhoneNumInteractor @Inject constructor(
         return Observable.create { emitter: ObservableEmitter<Resource<String>> ->
             authRepository.sendUserPhoneNumber(phoneNum).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ value ->
-                    emitter.onNext((value as @NonNull Resource.Success))
-                }, { error: Throwable -> emitter.onError(error) })
+                .subscribe({ value -> emitter.onNext((value)) }, emitter::onError)
         }
     }
 
@@ -35,7 +31,6 @@ class VerifyPhoneNumInteractor @Inject constructor(
 
     override fun removeListeners() {
         groupInfoRepository.removeListeners()
-        groupRepository.removeListeners()
         authRepository.removeListeners()
         eventRepository.removeListeners()
         subjectRepository.removeListeners()
