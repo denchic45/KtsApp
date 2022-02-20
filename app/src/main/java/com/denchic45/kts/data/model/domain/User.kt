@@ -2,10 +2,11 @@ package com.denchic45.kts.data.model.domain
 
 import androidx.annotation.StringDef
 import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.utils.UUIDS
 import java.util.*
 
 data class User(
-    override var id: String = UUID.randomUUID().toString(),
+    override var id: String = UUIDS.createShort(),
     val firstName: String,
     val surname: String,
     val patronymic: String?,

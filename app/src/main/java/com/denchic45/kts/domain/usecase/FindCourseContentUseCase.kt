@@ -1,4 +1,4 @@
-package com.denchic45.kts.ui.course
+package com.denchic45.kts.domain.usecase
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.DomainModel

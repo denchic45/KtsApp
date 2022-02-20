@@ -95,7 +95,7 @@ class AuthRepository @Inject constructor(
     }
 
     fun signUpNewUser(email: String, password: String) {
-        firebaseAuth.createUserWithEmailAndPassword(email!!, password!!).addOnCompleteListener {
+        firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
             if (it.exception != null) {
                 it.exception!!.printStackTrace()
             }

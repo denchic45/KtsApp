@@ -72,7 +72,7 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
                 viewLifecycleOwner
             ) { title: String -> setActivityTitle(title) }
             viewModel.openChoiceOfCurator.observe(
-                this@GroupEditorFragment
+                viewLifecycleOwner
             ) { navController!!.navigate(R.id.action_groupEditorFragment_to_choiceOfCuratorFragment) }
             viewModel.curatorField.observe(viewLifecycleOwner) { user: User ->
                 Glide.with(this@GroupEditorFragment)
@@ -95,7 +95,7 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
         }
 
         viewModel.openConfirmation.observe(
-            this
+            viewLifecycleOwner
         ) { titleWithSubtitlePair: Pair<String, String> ->
             val dialog = ConfirmDialog.newInstance(
                 titleWithSubtitlePair.first,
@@ -103,7 +103,7 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
             )
             dialog.show(childFragmentManager, null)
         }
-        viewModel.fieldErrorMessage.observe(this) { idWithMessagePair: Pair<Int, String?> ->
+        viewModel.fieldErrorMessage.observe(viewLifecycleOwner) { idWithMessagePair: Pair<Int, String?> ->
             val textInputLayout: TextInputLayout = requireActivity().findViewById(
                 idWithMessagePair.first
             )

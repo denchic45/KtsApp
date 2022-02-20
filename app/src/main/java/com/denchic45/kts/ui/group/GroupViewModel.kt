@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
@@ -17,7 +16,7 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class GroupViewModel @Inject constructor(
-    @Named("Group ${GroupPreference.GROUP_ID}") groupId: String?,
+    @Named(GroupFragment.GROUP_ID) groupId: String?,
     private val interactor: GroupInteractor
 ) : BaseViewModel() {
 

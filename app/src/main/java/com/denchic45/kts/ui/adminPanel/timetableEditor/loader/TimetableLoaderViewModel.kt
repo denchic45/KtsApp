@@ -165,9 +165,9 @@ class TimetableLoaderViewModel @Inject constructor(
     }
 
     fun onPreferenceItemClick(position: Int) {
-        val (clickedItemUuid) = preferenceList[position]
+        val (clickedItemId) = preferenceList[position]
         val firstItem = preferenceList[0]
-        when (clickedItemUuid) {
+        when (clickedItemId) {
             ITEM_PUBLISH -> {
                 firstItem.content = ItemAdapter.PAYLOAD.SHOW_LOADING
                 firstItem.title = "Публикация"

@@ -46,7 +46,9 @@ class ContentViewModel @Inject constructor(
         when (itemId) {
             R.id.option_task_edit -> openTaskEditor.value = taskId to courseId
             R.id.options_task_delete -> {
-                openConfirmation.value = "" to ""
+                openConfirmation.value = "Удалить задание" to
+                        "Вместе с заданием безвозратно будут удалены ответы, " +
+                        "а также их оценки"
                 viewModelScope.launch {
                     if (confirmInteractor.awaitConfirm()) {
                         removeCourseContentUseCase(taskId)

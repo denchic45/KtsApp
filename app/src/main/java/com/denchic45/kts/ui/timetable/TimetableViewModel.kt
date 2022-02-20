@@ -1,13 +1,12 @@
 package com.denchic45.kts.ui.timetable
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.DateFormatUtil
 import com.denchic45.widget.calendar.model.Week
 import java.util.*
@@ -16,10 +15,9 @@ import javax.inject.Inject
 import javax.inject.Named
 
 class TimetableViewModel @Inject constructor(
-    application: Application,
     @Named(TimetableFragment.GROUP_ID) groupId: String?,
     private val interactor: TimetableInteractor
-) : AndroidViewModel(application) {
+) : BaseViewModel() {
     val showLessonsOfDay: LiveData<List<Event>>
     val title = MutableLiveData<String>()
     val showListState = MutableLiveData<String>()
@@ -61,14 +59,12 @@ class TimetableViewModel @Inject constructor(
     }
 
     init {
-
         val role = interactor.role
-
         if (groupId == null) {
             this.groupId = interactor.yourGroupId()
             if (interactor.hasGroup()) {
                 this.groupId = interactor.yourGroupId()
-            } else if(User.isStudent(role)) {
+            } else if (User.isStudent(role)) {
                 throw Exception("Navigation state problem. No group")
             }
         } else {

@@ -9,9 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.CourseHeader
-import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.databinding.FragmentGroupCoursesBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.CourseAdapter
@@ -43,14 +41,10 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
         lifecycleScope.launchWhenStarted {
             viewModel.courses.collect { courses: List<CourseHeader> -> adapter!!.submitList(courses) }
         }
-        viewModel.openConfirmation.observe(
-            viewLifecycleOwner
-        ) { titleWithSubtitlePair: Pair<String, String> ->
-            val dialog = ConfirmDialog.newInstance(
-                titleWithSubtitlePair.first,
-                titleWithSubtitlePair.second
-            )
-            dialog.show(childFragmentManager, null)
+
+        viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
+            ConfirmDialog.newInstance(title, subtitle)
+                .show(childFragmentManager, null)
         }
         viewModel.selectItem.observe(
             viewLifecycleOwner
@@ -91,11 +85,13 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
     }
 
     companion object {
-        @JvmStatic
+
+        const val GROUP_ID = "GroupCourse GROUP_ID"
+
         fun newInstance(groupId: String?): GroupCoursesFragment {
             val fragment = GroupCoursesFragment()
             val args = Bundle()
-            args.putString(GroupPreference.GROUP_ID, groupId)
+            args.putString(GROUP_ID, groupId)
             fragment.arguments = args
             return fragment
         }

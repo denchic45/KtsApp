@@ -31,6 +31,7 @@ data class CourseContentEntity @Default @JvmOverloads constructor(
     @field:TypeConverters(TimestampConverter::class)
     @field:ColumnInfo(name = "completion_date")
     val completionDate: Date?,
+    val weekDate: String?,
     val order: Long,
     @Ignore var deleted: Boolean = false
 ) : EntityModel

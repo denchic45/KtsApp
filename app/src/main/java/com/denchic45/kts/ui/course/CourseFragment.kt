@@ -191,7 +191,6 @@ class CourseFragment :
         }
 
         viewModel.showMessage.observe(viewLifecycleOwner, this::toast)
-
     }
 
 

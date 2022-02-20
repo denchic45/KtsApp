@@ -18,9 +18,9 @@ class SortContentsTest {
         val sectionId3 = "h43grt95f"
 
         val sections = listOf(
-            Section(sectionId3, courseId, "Some Section", 3),
-            Section(sectionId1, courseId, "Divider", 1),
-            Section(sectionId2, courseId, "Other", 2)
+            Section(sectionId3, courseId, 0,"Some Section"),
+            Section(sectionId1, courseId, 0,"Divider"),
+            Section(sectionId2, courseId, 0,"Other")
         )
 
         val contents = listOf(

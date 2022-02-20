@@ -65,7 +65,7 @@ object Events {
     }
 
     fun update(events: MutableList<Event>, editedEvent: Event) {
-        val oldEvent = findByUuid(events, editedEvent.id)
+        val oldEvent = findById(events, editedEvent.id)
         events.remove(oldEvent)
         if (oldEvent.order > editedEvent.order) {
             incrementOrdersIfNecessary(events, editedEvent)
@@ -161,7 +161,7 @@ object Events {
             .orElse(null)
     }
 
-    private fun findByUuid(events: List<Event>, id: String): Event {
+    private fun findById(events: List<Event>, id: String): Event {
         return events.stream()
             .filter { event: Event -> event.id == id }
             .findFirst()

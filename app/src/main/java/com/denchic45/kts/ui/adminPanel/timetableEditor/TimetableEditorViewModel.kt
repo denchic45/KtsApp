@@ -1,13 +1,11 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import com.denchic45.kts.ui.base.BaseViewModel
 import javax.inject.Inject
 
 class TimetableEditorViewModel @Inject constructor(
-    application: Application,
     private val interactor: TimetableEditorInteractor
-) : AndroidViewModel(application) {
+) : BaseViewModel() {
     override fun onCleared() {
         super.onCleared()
         interactor.removeListeners()

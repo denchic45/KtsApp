@@ -11,6 +11,7 @@ import io.reactivex.rxjava3.core.Emitter
 import io.reactivex.rxjava3.disposables.Disposable
 import java.util.*
 import java.util.function.Consumer
+import kotlin.reflect.full.memberProperties
 
 abstract class Repository protected constructor(context: Context?) {
     abstract val networkService: NetworkService
@@ -134,5 +135,10 @@ abstract class Repository protected constructor(context: Context?) {
 
     fun timestampNotNull(documentSnapshot: DocumentSnapshot):Boolean {
         return !timestampIsNull(documentSnapshot)
+    }
+
+    protected inline fun <reified T : Any> T.asMap(): Map<String, Any?> {
+        val props = T::class.memberProperties.associateBy { it.name }
+        return props.keys.associateWith { props[it]?.get(this) }
     }
 }

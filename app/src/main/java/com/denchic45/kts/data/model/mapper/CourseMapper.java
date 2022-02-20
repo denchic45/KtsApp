@@ -14,7 +14,6 @@ import com.denchic45.kts.utils.SearchKeysGenerator;
 
 import org.jetbrains.annotations.NotNull;
 import org.mapstruct.AfterMapping;
-import org.mapstruct.InheritConfiguration;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;

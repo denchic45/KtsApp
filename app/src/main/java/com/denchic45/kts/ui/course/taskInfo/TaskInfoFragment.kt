@@ -40,6 +40,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
 import java.io.File
+import kotlin.math.abs
 
 
 class TaskInfoFragment :
@@ -452,10 +453,10 @@ class TaskInfoFragment :
             distanceX: Float,
             distanceY: Float
         ): Boolean {
-            if (Math.abs(distanceX) > Math.abs(distanceY)) {
+            if (abs(distanceX) > abs(distanceY)) {
                 // Detected a horizontal scroll, allow the viewpager from switching tabs
                 binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(false)
-            } else if (Math.abs(distanceY) > Y_BUFFER) {
+            } else if (abs(distanceY) > Y_BUFFER) {
                 // Detected a vertical scroll prevent the viewpager from switching tabs
                 binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(true)
             }

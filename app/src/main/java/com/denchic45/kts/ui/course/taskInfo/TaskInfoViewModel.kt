@@ -284,7 +284,19 @@ class TaskInfoViewModel @Inject constructor(
                     allowEditContent = allowEditContent,
                 )
 
-            is Task.SubmissionStatus.Submitted ->
+            is Task.SubmissionStatus.Submitted -> {
+                val submittedDate = status.submittedDate
+                val submittedDateText = task().completionDate?.let {
+                    if (it > submittedDate) {
+                        "вовремя: "
+                    } else {
+                        "с опозданием: "
+                    } + submittedDate.toString("dd MMM HH:mm")
+                } ?: run {
+                    submittedDate.toString("dd MMM HH:mm")
+                }
+
+
                 SubmissionViewState(
                     btnVisibility = true,
                     btnText = "Отменить",
@@ -293,7 +305,7 @@ class TaskInfoViewModel @Inject constructor(
 
                     title = "Сдано на проверку",
                     subtitleVisibility = true,
-                    subtitle = status.submittedDate.toString("dd MMM HH:mm"),
+                    subtitle = submittedDateText,
 
                     submissionSettings = submissionSettings,
 
@@ -301,6 +313,7 @@ class TaskInfoViewModel @Inject constructor(
                     attachments = attachments,
                     allowEditContent = allowEditContent,
                 )
+            }
             is Task.SubmissionStatus.Graded ->
                 SubmissionViewState(
                     btnVisibility = contentIsChangeAndNotEmpty(),

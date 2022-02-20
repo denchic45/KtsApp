@@ -31,13 +31,28 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
     val deleted: Boolean = false,
     val contentType: ContentType,
     val completionDate: Date?,
+    val weekDate: String?,
     @get:Exclude
     val contentDetails: ContentDetails
 ) : DocModel {
     private constructor() : this(
-        "", "", "", "", "",
-        false, emptyList(), 0, Date(), null,
-        emptyList(), emptyMap(), false, contentType = ContentType.TASK, null, ContentDetails.Empty
+        "",
+        "",
+        "",
+        "",
+        "",
+        false,
+        emptyList(),
+        0,
+        Date(),
+        null,
+        emptyList(),
+        emptyMap(),
+        false,
+        contentType = ContentType.TASK,
+        null,
+        null,
+        ContentDetails.Empty
     )
 }
 

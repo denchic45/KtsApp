@@ -173,6 +173,6 @@ class GroupFragment : Fragment() {
     }
 
     companion object {
-        const val GROUP_ID = "GROUP_UUID"
+        const val GROUP_ID = "Group GROUP_ID"
     }
 }

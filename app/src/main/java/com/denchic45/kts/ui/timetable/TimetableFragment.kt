@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.timetable
 
 import android.animation.ValueAnimator
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -25,7 +24,6 @@ import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.WeekCalendarListener.OnLoadListener
 import com.denchic45.widget.calendar.model.Week
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import dagger.android.support.AndroidSupportInjection
 import java.util.*
 
 class TimetableFragment :
@@ -76,9 +74,6 @@ class TimetableFragment :
                 val adapter = EventAdapter(viewModel.lessonTime, groupVisibility!!,
 
                     onLessonItemClickListener = object : OnLessonItemClickListener() {
-                        override fun onHomeworkChecked(checked: Boolean) {
-
-                        }
                     })
                 rvLessons.adapter = adapter
                 viewModel.showLessonsOfDay.observe(
@@ -144,7 +139,6 @@ class TimetableFragment :
         const val DAY_OFF_VIEW = "DAY_OFF_VIEW"
         const val GROUP_ID = "GROUP_ID"
 
-        @JvmStatic
         fun newInstance(groupId: String): TimetableFragment {
             val fragment = TimetableFragment()
             val args = Bundle()
@@ -152,11 +146,6 @@ class TimetableFragment :
             fragment.arguments = args
             return fragment
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
     }
 
     override fun onDestroyView() {

@@ -37,7 +37,7 @@ class GroupPreference @Inject constructor(context: Context) :
     companion object {
         const val GROUP_COURSE = "GROUP_COURSE"
         const val GROUP_NAME = "GROUP_NAME"
-        const val GROUP_ID = "GROUP_UUID"
-        const val GROUP_SPECIALTY_ID = "GROUP_SPECIALTY_UUID"
+        const val GROUP_ID = "GROUP_ID"
+        const val GROUP_SPECIALTY_ID = "GROUP_SPECIALTY_ID"
     }
 }

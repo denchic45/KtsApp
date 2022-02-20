@@ -86,9 +86,9 @@ class GroupUsersViewModel @Inject constructor(
             }
             OPTION_EDIT_USER -> {
                 val args: MutableMap<String, String> = HashMap()
-                args[UserEditorActivity.USER_ROLE] = selectedUser!!.role
-                args[UserEditorActivity.USER_ID] = selectedUser!!.id
-                args[UserEditorActivity.USER_GROUP_ID] = selectedUser!!.groupId!!
+                args[UserEditorActivity.USER_ROLE] = selectedUser.role
+                args[UserEditorActivity.USER_ID] = selectedUser.id
+                args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId!!
                 openUserEditor.setValue(args)
             }
             OPTION_DELETE_USER -> interactor.removeStudent(selectedUser)

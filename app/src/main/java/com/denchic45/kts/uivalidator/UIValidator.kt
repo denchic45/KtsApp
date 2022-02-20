@@ -1,7 +1,6 @@
 package com.denchic45.kts.uivalidator
 
 import org.jetbrains.annotations.Contract
-import java.util.*
 import java.util.function.Consumer
 
 class UIValidator {
@@ -30,8 +29,8 @@ class UIValidator {
 
     companion object {
         @Contract("_ -> new")
-        fun of(vararg validations: Validation?): UIValidator {
-            return UIValidator(Arrays.asList(*validations))
+        fun of(vararg validations: Validation): UIValidator {
+            return UIValidator(validations.toMutableList())
         }
     }
 }

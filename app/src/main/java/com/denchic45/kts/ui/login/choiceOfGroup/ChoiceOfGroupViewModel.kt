@@ -1,23 +1,23 @@
 package com.denchic45.kts.ui.login.choiceOfGroup
 
-import android.app.Application
-import androidx.lifecycle.*
-import com.denchic45.kts.SingleLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Specialty
+import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.PredicateUtil
 import org.jetbrains.annotations.Contract
-import java.util.*
 import java.util.stream.Collectors
 import javax.inject.Inject
+import kotlin.collections.set
 
 class ChoiceOfGroupViewModel @Inject constructor(
-    application: Application,
     private val interactor: ChoiceOfGroupInteractor
-) : AndroidViewModel(application) {
-    val finish = SingleLiveData<Void>()
+) : BaseViewModel() {
     private val expandableSpecialties: MutableMap<String, Boolean> = HashMap()
     private var allSpecialties: LiveData<List<Specialty>>
     private var groupsBySpecialty: LiveData<List<CourseGroup>>
@@ -31,7 +31,7 @@ class ChoiceOfGroupViewModel @Inject constructor(
         return list
     }
 
-    private fun getSpecialtyId(o: Any): String {
+    private fun getSpecialtyId(o: DomainModel): String {
         if (o is Specialty) {
             return o.id
         } else if (o is Group) {

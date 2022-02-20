@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "469dffac12e203f0061231314f10844d",
+    "identityHash": "3f95e1b0ba5a3aeabba46d324166fc56",
     "entities": [
       {
         "tableName": "subject",
@@ -130,7 +130,7 @@
       },
       {
         "tableName": "course_content",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `section_id` TEXT NOT NULL, `name` TEXT NOT NULL, `attachments` TEXT NOT NULL, `description` TEXT NOT NULL, `content_details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `created_date` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `completion_date` INTEGER, `order` INTEGER NOT NULL, PRIMARY KEY(`content_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `section_id` TEXT NOT NULL, `name` TEXT NOT NULL, `attachments` TEXT NOT NULL, `description` TEXT NOT NULL, `content_details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `created_date` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `completion_date` INTEGER, `weekDate` TEXT, `order` INTEGER NOT NULL, PRIMARY KEY(`content_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -202,6 +202,12 @@
             "fieldPath": "completionDate",
             "columnName": "completion_date",
             "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "weekDate",
+            "columnName": "weekDate",
+            "affinity": "TEXT",
             "notNull": false
           },
           {
@@ -920,7 +926,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '469dffac12e203f0061231314f10844d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3f95e1b0ba5a3aeabba46d324166fc56')"
     ]
   }
 }

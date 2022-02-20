@@ -25,6 +25,9 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
     abstract fun getCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectAndTeacherEntities>>
 
+    @Query("SELECT gc.course_id FROM group_course gc WHERE gc.group_id =:groupId")
+    abstract fun getCourseIdsByGroupId(groupId: String): Flow<List<String>>
+
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
     abstract fun getCoursesByGroupIdSync(groupId: String): List<CourseWithSubjectWithTeacherAndGroupsEntities>
 

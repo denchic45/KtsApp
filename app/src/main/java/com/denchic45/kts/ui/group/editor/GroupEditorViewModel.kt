@@ -10,7 +10,6 @@ import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorInteractor
@@ -20,19 +19,19 @@ import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.utils.UUIDS
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.observers.DisposableCompletableObserver
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import java.util.*
 import java.util.stream.Collectors
 import javax.inject.Inject
 import javax.inject.Named
 
 class GroupEditorViewModel @Inject constructor(
-    @Named("GroupEditor ${GroupPreference.GROUP_ID}") id: String?,
+    @Named(GroupEditorFragment.GROUP_ID) id: String?,
     private val choiceOfCuratorInteractor: ChoiceOfCuratorInteractor,
     private val interactor: GroupEditorInteractor,
     @Named("courses") val courseList: List<ListItem>
@@ -51,12 +50,16 @@ class GroupEditorViewModel @Inject constructor(
     private val typedSpecialtyByName = MutableSharedFlow<String>()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Group>
-    private val id: String = id ?: UUID.randomUUID().toString()
+    private val id: String = id ?: UUIDS.createShort()
     private var course: Int = 0
 
     private var subscribeConfirmation: Disposable? = null
     private var foundSpecialties: List<Specialty>? = null
     private var specialty: Specialty? = null
+
+    companion object {
+        const val GROUP_ID = "GroupEditor GROUP_ID"
+    }
 
     init {
         viewModelScope.launch {

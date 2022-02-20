@@ -291,8 +291,8 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
 
     companion object {
         const val USER_ROLE = "USER_TYPE"
-        const val USER_ID = "USER_UUID"
-        const val USER_GROUP_ID = "USER_GROUP_UUID"
+        const val USER_ID = "USER_ID"
+        const val USER_GROUP_ID = "USER_GROUP_ID"
         const val DELAY_FAB_VISIBILITY = 300
     }
 }

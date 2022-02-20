@@ -1,16 +1,12 @@
 package com.denchic45.kts.ui.adapter
 
 import android.annotation.SuppressLint
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.drawable.PictureDrawable
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -38,7 +34,6 @@ import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.transition.Elevation
 import com.denchic45.widget.transition.Rotation
-import java.util.*
 
 class EventAdapter(
     private val lessonTime: Int,
@@ -181,17 +176,8 @@ class EventAdapter(
         fun onLessonEditClick(position: Int)
     }
 
-    fun interface OnLessonHomeworkItemClickListener {
-        fun onHomeworkChecked(checked: Boolean)
-    }
-
-    fun interface OnLessonItemClickListener2 {
-        fun onLessonClick(position: Int)
-    }
-
     abstract class OnLessonItemClickListener : OnItemClickListener {
         override fun onItemClick(position: Int) {}
-        open fun onHomeworkChecked(checked: Boolean) {}
     }
 
     abstract class EventHolder<VB : ViewBinding> @SuppressLint("ClickableViewAccessibility") constructor(
@@ -322,7 +308,6 @@ class EventAdapter(
                 itemView.setOnClickListener(null)
             } else {
                 setTextRoom()
-                setHomeworkVisibility()
                 setGroupVisibility()
                 setTitle(subject!!.name)
                 itemView.setOnClickListener { view: View? ->
@@ -363,7 +348,6 @@ class EventAdapter(
                     "color",
                     itemView.context.packageName
                 )
-                setCheckboxColor()
                 setIcon(subject!!.iconUrl, subject!!.colorName)
             }
         }
@@ -377,36 +361,6 @@ class EventAdapter(
         private fun setTextRoom() {
             lessonExpandableContentBinding.etRoom.text =
                 if (event.room == null) "Аудитория не указана" else event.room
-        }
-
-        fun setHomeworkVisibility() {
-            task?.let {
-                lessonExpandableContentBinding.tvHomeworkContent.text = it.description
-//                lessonExpandableContentBinding.cbHomeworkCompleted.isChecked = it.completed
-                lessonExpandableContentBinding.cbHomeworkCompleted.isEnabled = true
-                lessonExpandableContentBinding.cbHomeworkCompleted.setOnCheckedChangeListener { compoundButton: CompoundButton, checked: Boolean ->
-                    if (lessonExpandableContentBinding.cbHomeworkCompleted.isShown) {
-                        if (lessonItemClickListener != null) {
-                            Log.d("lol", "CHECK HOMEWORK: ")
-                            (onItemClickListener as OnLessonItemClickListener).onHomeworkChecked(
-                                checked
-                            )
-                        }
-                    }
-                }
-            } ?: run { lessonExpandableContentBinding.rlHomework.visibility = View.GONE }
-        }
-
-        fun setCheckboxColor() {
-            lessonExpandableContentBinding.cbHomeworkCompleted.buttonTintList = ColorStateList(
-                arrayOf(
-                    intArrayOf(-android.R.attr.state_checked),
-                    intArrayOf(android.R.attr.state_checked)
-                ), intArrayOf(
-                    Color.GRAY,
-                    ContextCompat.getColor(itemView.context, color)
-                )
-            )
         }
 
         fun expandContent() {

@@ -2,6 +2,7 @@ package com.denchic45.kts.data.model.domain
 
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.utils.getExtension
+import com.denchic45.kts.utils.toString
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*
@@ -15,6 +16,7 @@ data class Task(
     override val description: String,
     override val order: Long,
     val completionDate: LocalDateTime?,
+
     val disabledSendAfterDate: Boolean,
     override val attachments: List<Attachment>,
     val submissionSettings: SubmissionSettings,
@@ -22,6 +24,9 @@ data class Task(
     override val createdDate: Date,
     override val timestamp: Date,
 ) : CourseContent() {
+
+    val weekDate: String?
+        get() = completionDate?.toString("w_y")
 
     private constructor() : this(
         "",
@@ -58,7 +63,7 @@ data class Task(
         val contentUpdateDate: LocalDateTime
     ) : DomainModel() {
 
-      override var id: String = ""
+        override var id: String = ""
 
         companion object {
             fun createEmpty(contentId: String, student: User): Submission {

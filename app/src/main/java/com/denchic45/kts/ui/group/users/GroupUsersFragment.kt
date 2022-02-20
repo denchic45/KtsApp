@@ -69,7 +69,7 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
             }
         }
         navController = findNavController(navHostFragment!!.requireView())
-        viewModel.onGroupIdReceived(requireArguments().getString(GROUP_UUID))
+        viewModel.onGroupIdReceived(requireArguments().getString(GROUP_ID))
         viewModel.users!!.observe(
             viewLifecycleOwner
         ) { users: List<DomainModel?> -> adapter!!.submitList(users) }
@@ -107,13 +107,13 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
     }
 
     companion object {
-        private const val GROUP_UUID = "GROUP_UUID"
+        private const val GROUP_ID = "GROUP_ID"
 
         @JvmStatic
         fun newInstance(groupId: String?): GroupUsersFragment {
             val fragment = GroupUsersFragment()
             val args = Bundle()
-            args.putString(GROUP_UUID, groupId)
+            args.putString(GROUP_ID, groupId)
             fragment.arguments = args
             return fragment
         }

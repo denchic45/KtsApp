@@ -112,5 +112,15 @@ abstract class CourseContentMapper {
         }
     }
 
-    abstract fun entityToDomain(courseContentEntities: List<CourseContentEntity>): List<CourseContent>
+    @Named("entityToDomainAssignment")
+    fun entityToDomainAssignment(entity: CourseContentEntity): Task {
+        return when (entity.contentType) {
+            ContentType.TASK -> entityToTaskDomain(entity)
+            else -> throw IllegalStateException()
+        }
+    }
+
+    abstract fun entityToDomain(courseContentEntities: List<CourseContentEntity>): List<Task>
+
+    abstract fun entityToDomainAssignment(courseContentEntities: List<CourseContentEntity>): List<Task>
 }

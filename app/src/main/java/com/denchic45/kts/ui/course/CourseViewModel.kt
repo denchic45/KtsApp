@@ -8,9 +8,7 @@ import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.CourseContent
 import com.denchic45.kts.data.model.domain.Task
-import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
-import com.denchic45.kts.domain.usecase.RemoveCourseContentUseCase
-import com.denchic45.kts.domain.usecase.UpdateCourseContentOrderUseCase
+import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
