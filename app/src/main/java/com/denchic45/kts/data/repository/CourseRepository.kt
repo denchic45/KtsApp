@@ -652,7 +652,7 @@ class CourseRepository @Inject constructor(
                             contentsRef.whereIn("courseId", courseIds)
                                 .whereGreaterThanOrEqualTo(
                                     "completionDate",
-                                    LocalDate.now().toDate()
+                                    Date()
                                 )
                                 .limit(10)
                                 .get()
@@ -662,10 +662,8 @@ class CourseRepository @Inject constructor(
                         )
                     }
 
-                    emitAll(courseContentDao.getByGroupIdAndCurrentWeekAndNextWeek(
-                        groupPreference.groupId,
-                        currentWeek,
-                        nextWeek
+                    emitAll(courseContentDao.getByGroupIdAndGreaterCompletionDate(
+                        groupPreference.groupId
                     ).map { courseContentMapper.entityToDomainAssignment(it) })
                 }
         }

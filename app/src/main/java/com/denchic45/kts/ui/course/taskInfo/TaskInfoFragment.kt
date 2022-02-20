@@ -3,10 +3,7 @@ package com.denchic45.kts.ui.course.taskInfo
 import android.app.Activity
 import android.os.Bundle
 import android.text.InputFilter
-import android.view.GestureDetector
-import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
@@ -40,8 +37,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
 import java.io.File
-import kotlin.math.abs
-
 
 class TaskInfoFragment :
     BaseFragment<TaskInfoViewModel, FragmentTaskInfoBinding>(R.layout.fragment_task_info) {
@@ -52,9 +47,6 @@ class TaskInfoFragment :
     private val btnActionSubmission: Button by lazy {
         View.inflate(requireContext(), R.layout.btn_action_submission, null) as Button
     }
-
-    private val gestureDetector by lazy { GestureDetector(requireActivity(), GestureListener()) }
-
     private val adapter =
         adapter {
             delegates(AttachmentAdapterDelegate(false))
@@ -261,74 +253,6 @@ class TaskInfoFragment :
                 }
             }
 
-//            lifecycleScope.launchWhenCreated {
-//                viewModel.submissionViewState.collect { submission ->
-//
-//                    when (submission.status) {
-//                        is Task.SubmissionStatus.NotSubmitted -> {
-//                            submissionCollapsed.tvSubmissionState.text = "Не сдано"
-//
-//                            submissionCollapsed.tvSubmissionDescription.text = ""
-//                            submissionCollapsed.tvSubmissionDescription.visibility = View.GONE
-//
-//
-//                            applyActionButtonProperties {
-//                                setTextColor(Color.WHITE)
-//                                text = if (submission.content.isEmpty()) "Добавить" else "Отправить"
-//                                setBackgroundColor(
-//                                    ContextCompat.getColor(requireContext(), R.color.blue)
-//                                )
-//                            }
-//
-//                            submissionExpanded.tvSubmissionState.text = "Не сдано"
-//
-//                            submissionExpanded.tvSubmissionDescription.text = ""
-//                            submissionExpanded.tvSubmissionDescription.visibility = View.GONE
-//
-//                            submissionExpanded.grpTeacher.visibility = View.GONE
-//                            setSubmissionContent(submission.content, true)
-//                        }
-//                        is Task.SubmissionStatus.Submitted -> {
-//                            submissionCollapsed.tvSubmissionState.text = "Сдано на проверку"
-//                            submissionExpanded.tvSubmissionState.text = "Сдано на проверку"
-//
-//                            val description = DateTimeFormatter.ofPattern("dd MMM HH:mm")
-//                                .format(submission.status.submittedDate)
-//
-//                            submissionCollapsed.tvSubmissionDescription.text = description
-//                            submissionCollapsed.tvSubmissionDescription.visibility = View.VISIBLE
-//                            submissionExpanded.tvSubmissionDescription.text = description
-//                            submissionExpanded.tvSubmissionDescription.visibility = View.VISIBLE
-//
-//                            applyActionButtonProperties {
-//                                setTextColor(ContextCompat.getColor(requireContext(), R.color.red))
-//                                text = "Отменить"
-//                                setBackgroundColor(
-//                                    ContextCompat.getColor(
-//                                        requireContext(),
-//                                        R.color.alpha_red_10
-//                                    )
-//                                )
-//                            }
-//                            submissionExpanded.grpTeacher.visibility = View.GONE
-//                            setSubmissionContent(submission.content, false)
-//                        }
-//                        is Task.SubmissionStatus.Graded -> {
-//
-//                            setTeacherData(submission.status.teacher)
-//                            setSubmissionContent(submission.content, false)
-//                        }
-//                        is Task.SubmissionStatus.Rejected -> {
-//
-//                            setTeacherData(submission.status.teacher)
-//                            setSubmissionContent(submission.content, true)
-//                        }
-//                    }
-//
-//                    measureBottomSheetPeek(bsBehavior)
-//                }
-//            }
-
             lifecycleScope.launchWhenStarted {
                 viewModel.submissionViewState2.collect { viewState ->
 
@@ -358,8 +282,15 @@ class TaskInfoFragment :
                     }
 
                     setTeacherData(viewState.teacher)
-                    setSubmissionContent(viewState.textContent, viewState.attachments, viewState.allowEditContent)
-                    setSubmissionContentVisibility(viewState.submissionSettings, viewState.attachments.isNotEmpty())
+                    setSubmissionContent(
+                        viewState.textContent,
+                        viewState.attachments,
+                        viewState.allowEditContent
+                    )
+                    setSubmissionContentVisibility(
+                        viewState.submissionSettings,
+                        viewState.attachments.isNotEmpty()
+                    )
 
                     measureBottomSheetPeek(bsBehavior)
                 }
@@ -392,7 +323,10 @@ class TaskInfoFragment :
         }
     }
 
-    private fun setSubmissionContentVisibility(submissionSettings: SubmissionSettings, isAttachmentsNotEmpty:Boolean) {
+    private fun setSubmissionContentVisibility(
+        submissionSettings: SubmissionSettings,
+        isAttachmentsNotEmpty: Boolean
+    ) {
         with(binding.submissionExpanded) {
             val textVisibility =
                 if (submissionSettings.textAvailable) View.VISIBLE
@@ -435,32 +369,5 @@ class TaskInfoFragment :
     companion object {
         const val TASK_ID = "TaskInfo TASK_ID"
         const val COURSE_ID = "TaskInfo COURSE_ID"
-    }
-
-    inner class GestureListener : SimpleOnGestureListener() {
-        private val Y_BUFFER = 10
-        override fun onDown(e: MotionEvent): Boolean {
-            // Prevent ViewPager from intercepting touch events as soon as a DOWN is detected.
-            // If we don't do this the next MOVE event may trigger the ViewPager to switch
-            // tabs before this view can intercept the event.
-            binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(true)
-            return super.onDown(e)
-        }
-
-        override fun onScroll(
-            e1: MotionEvent,
-            e2: MotionEvent,
-            distanceX: Float,
-            distanceY: Float
-        ): Boolean {
-            if (abs(distanceX) > abs(distanceY)) {
-                // Detected a horizontal scroll, allow the viewpager from switching tabs
-                binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(false)
-            } else if (abs(distanceY) > Y_BUFFER) {
-                // Detected a vertical scroll prevent the viewpager from switching tabs
-                binding.rvAttachments.parent.requestDisallowInterceptTouchEvent(true)
-            }
-            return super.onScroll(e1, e2, distanceX, distanceY)
-        }
     }
 }

@@ -55,4 +55,16 @@ abstract class CourseContentDao : BaseDao<CourseContentEntity>() {
         currentWeek: String,
         nextWeek: String
     ): Flow<List<CourseContentEntity>>
+
+    @Query(
+        """
+            SELECT cc.* FROM course_content cc 
+            INNER JOIN group_course gc ON gc.course_id = cc.course_id
+            WHERE cc.completion_date >:startDate AND gc.group_id=:groupId
+            """
+    )
+    abstract fun getByGroupIdAndGreaterCompletionDate(
+        groupId: String,
+        @TypeConverters(TimestampConverter::class) startDate: Date = Date()
+    ): Flow<List<CourseContentEntity>>
 }
