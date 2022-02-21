@@ -66,14 +66,17 @@ abstract class UserDao : BaseDao<UserEntity>() {
     abstract fun isExistByIdAndGroupId(id: String, groupId: String?): Boolean
 
     @Query("DELETE FROM user WHERE user_group_id =:groupId AND user_id NOT IN(:availableStudents) ")
-    abstract fun deleteMissingStudentsByGroup(availableStudents: List<String>, groupId: String)
+    abstract suspend fun deleteMissingStudentsByGroup(availableStudents: List<String>, groupId: String)
 
     @Query("SELECT * FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u INNER JOIN course c INNER JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
-    abstract fun findUnrelatedTeachersByCourseOrGroupAsCurator(): List<UserEntity>
+    abstract suspend fun findUnrelatedTeachersByCourseOrGroupAsCurator(): List<UserEntity>
 
     @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u LEFT JOIN course c LEFT JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
-    abstract fun deleteUnrelatedTeachersByCourseOrGroupAsCurator()
+    abstract suspend fun deleteUnrelatedTeachersByCourseOrGroupAsCurator()
 
     @Query("SELECT EXISTS(SELECT * FROM user WHERE user_id=:userId AND role IN('STUDENT','DEPUTY_HEADMAN','HEADMAN'))")
-    abstract fun isStudent(userId: String): Boolean
+    abstract suspend fun isStudent(userId: String): Boolean
+
+    @Query("SELECT u.user_id FROM user u JOIN group_course gc ON u.user_group_id = gc.group_id WHERE gc.course_id=:courseId")
+    abstract suspend fun getStudentIdsOfCourseByCourseId(courseId: String): List<String>
 }

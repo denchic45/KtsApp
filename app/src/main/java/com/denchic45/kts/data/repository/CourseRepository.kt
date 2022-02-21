@@ -16,6 +16,7 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.firestore.CourseContentDoc
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.model.firestore.SubmissionDoc
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.*
 import com.denchic45.kts.data.prefs.*
@@ -26,7 +27,6 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.CourseContents
 import com.denchic45.kts.utils.FieldsComparator
 import com.denchic45.kts.utils.toDate
-import com.denchic45.kts.utils.toString
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +34,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
@@ -119,7 +118,7 @@ class CourseRepository @Inject constructor(
     }
 
 
-    suspend fun observeByYouGroup() {
+    suspend fun observeByYourGroup() {
         timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
             .filter { it != 0L }
             .drop(if (appPreference.coursesLoadedFirstTime) 1 else 0)
@@ -245,7 +244,7 @@ class CourseRepository @Inject constructor(
         deleteMissingCoursesOfTeacher(courseDocs, teacherId)
     }
 
-    private fun deleteMissingCoursesOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
+    private suspend fun deleteMissingCoursesOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
         courseDao.deleteMissingByTeacher(courseDocs.map(CourseDoc::id), teacherId)
         subjectDao.deleteUnrelatedByCourse()
         groupDao.deleteUnrelatedByCourse()
@@ -256,7 +255,7 @@ class CourseRepository @Inject constructor(
         deleteMissingCoursesOfGroup(courseDocs, groupId)
     }
 
-    private fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
+    private suspend fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
         groupCourseDao.deleteMissingByGroup(courseDocs.map(CourseDoc::id), groupId)
         courseDao.deleteUnrelatedByGroup()
         subjectDao.deleteUnrelatedByCourse()
@@ -307,7 +306,7 @@ class CourseRepository @Inject constructor(
     }
 
 
-    fun findByYouGroup(): LiveData<List<CourseHeader>> {
+    fun findByYourGroup(): LiveData<List<CourseHeader>> {
         return Transformations.map(
             courseDao.getCoursesByGroupId(groupPreference.groupId)
         ) { entity ->
@@ -410,7 +409,19 @@ class CourseRepository @Inject constructor(
             .set(courseContentMapper.domainToTaskDoc(task).apply {
                 this.attachments = attachments
                 this.order = order
-            }.asMap())
+            }.asMutableMap().apply {
+                val mapOfEmptySubmissions =
+                    userDao.getStudentIdsOfCourseByCourseId(task.courseId)
+                        .associateWith { studentId ->
+                            SubmissionDoc.createNotSubmitted(
+                                studentId,
+                                task.id,
+                                task.courseId
+                            )
+                        }
+                put("submissions", mapOfEmptySubmissions)
+            }
+            )
             .await()
     }
 
@@ -537,7 +548,7 @@ class CourseRepository @Inject constructor(
                         "submissions.$studentId.status" to Task.Submission.Status.GRADED,
                         "submissions.$studentId.gradedDate" to Date(),
                         "submissions.$studentId.grade" to grade,
-                        "submissions.$studentId.teacherId" to teacherId
+                        "submissions.$studentId.teacherId" to teacherId,
                     )
         ).await()
     }
@@ -556,7 +567,7 @@ class CourseRepository @Inject constructor(
                         "submissions.$studentId.status" to Task.Submission.Status.REJECTED,
                         "submissions.$studentId.cause" to cause,
                         "submissions.$studentId.rejectedDate" to Date(),
-                        "submissions.$studentId.teacherId" to teacherId
+                        "submissions.$studentId.teacherId" to teacherId,
                     )
         ).await()
     }
@@ -639,11 +650,8 @@ class CourseRepository @Inject constructor(
             .await()
     }
 
-    fun findTasksForThisGroupAndThisWeekAndNextWeek(): Flow<List<Task>> {
+    fun findUpcomingTasksForYourGroup(): Flow<List<Task>> {
         return flow {
-            val currentWeek = LocalDate.now().toString("w_y")
-            val nextWeek = LocalDate.now().plusWeeks(1).toString("w_y")
-
             courseDao.getCourseIdsByGroupId(groupPreference.groupId)
                 .map { it.chunked(10) }
                 .collect { courseIdsLists ->
@@ -664,6 +672,38 @@ class CourseRepository @Inject constructor(
 
                     emitAll(courseContentDao.getByGroupIdAndGreaterCompletionDate(
                         groupPreference.groupId
+                    ).map { courseContentMapper.entityToDomainAssignment(it) })
+                }
+        }
+    }
+
+    fun findOverdueTasksForYourGroup(): Flow<List<Task>> {
+        return flow {
+            courseDao.getCourseIdsByGroupId(groupPreference.groupId)
+                .map { it.chunked(10) }
+                .collect { courseIdsLists ->
+                    courseIdsLists.forEach { courseIds ->
+                        val contentsQuerySnapshot =
+                            contentsRef.whereIn("courseId", courseIds)
+                                .whereLessThanOrEqualTo(
+                                    "completionDate",
+                                    Date()
+                                )
+                                .whereEqualTo(
+                                    "submissions.${userPreference.id}.status",
+                                    Task.Submission.Status.NOT_SUBMITTED
+                                )
+                                .limit(10)
+                                .get()
+                                .await()
+                        saveCourseContentsLocal(
+                            courseContentMapper.docToEntity(contentsQuerySnapshot)
+                        )
+                    }
+
+                    emitAll(courseContentDao.getByGroupIdAndNotSubmittedUser(
+                        groupPreference.groupId,
+                        userPreference.id
                     ).map { courseContentMapper.entityToDomainAssignment(it) })
                 }
         }

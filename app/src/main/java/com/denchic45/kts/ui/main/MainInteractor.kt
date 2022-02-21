@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asFlow
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.TimestampPreference
@@ -105,7 +104,7 @@ class MainInteractor @Inject constructor(
                 } else if (user.isStudent) {
                     groupInfoRepository.listenYourGroup()
                 }
-                courseRepository.observeByYouGroup()
+                courseRepository.observeByYourGroup()
             } ?: run {
                 clearAllData(context)
                 authRepository.signOut()
@@ -117,7 +116,7 @@ class MainInteractor @Inject constructor(
         val thisUser = findThisUser()
         return when {
             thisUser.isTeacher -> courseRepository.findByYourAsTeacher()
-            thisUser.isStudent -> courseRepository.findByYouGroup().asFlow()
+            thisUser.isStudent -> courseRepository.findByYourGroup().asFlow()
             else -> emptyFlow()
         }
     }

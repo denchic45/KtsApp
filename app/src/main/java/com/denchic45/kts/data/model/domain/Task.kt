@@ -63,6 +63,9 @@ data class Task(
         val contentUpdateDate: LocalDateTime
     ) : DomainModel() {
 
+        val submitted: Boolean
+            get() = status !is SubmissionStatus.NotSubmitted
+
         override var id: String = ""
 
         companion object {

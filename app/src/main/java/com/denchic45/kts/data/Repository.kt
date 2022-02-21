@@ -141,4 +141,8 @@ abstract class Repository protected constructor(context: Context?) {
         val props = T::class.memberProperties.associateBy { it.name }
         return props.keys.associateWith { props[it]?.get(this) }
     }
+
+    protected inline fun <reified T : Any> T.asMutableMap(): MutableMap<String, Any?> {
+        return asMap().toMutableMap()
+    }
 }

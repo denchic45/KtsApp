@@ -17,5 +17,5 @@ abstract class SubjectDao : BaseDao<SubjectEntity>() {
     abstract fun getByGroupId(groupId: String): LiveData<List<SubjectEntity>>
 
     @Query("DELETE FROM subject WHERE subject_id NOT IN(SELECT s.subject_id FROM subject s INNER JOIN course c ON c.subject_id == s.subject_id)")
-    abstract fun deleteUnrelatedByCourse()
+    abstract suspend fun deleteUnrelatedByCourse()
 }

@@ -12,9 +12,6 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentListBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
-import com.denchic45.kts.ui.course.CourseFragment
-import com.denchic45.kts.ui.course.content.ContentFragment
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.adapter
 import kotlinx.coroutines.flow.collect
 
@@ -44,10 +41,7 @@ class UpcomingTasksFragment :
             }
             rvList.adapter = adapter
             lifecycleScope.launchWhenStarted {
-                viewModel.tasks.collect {
-                    adapter.submit(it)
-                    toast("loaded: ${it.size}")
-                }
+                viewModel.tasks.collect(adapter::submit)
             }
         }
     }

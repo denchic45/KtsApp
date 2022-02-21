@@ -72,9 +72,35 @@ data class SubmissionDoc(
     val comments: List<SubmissionCommentEntity>,
     val submittedDate: Date,
 ) {
-    private constructor() : this(
-        "", "",
+    private constructor(
+    ) : this(
+        "", "", "",
+        Task.Submission.Status.NOT_SUBMITTED,
         "",
+        emptyList(),
+        "",
+        0,
+        Date(),
+        Date(),
+        Date(),
+        "",
+        emptyList(), Date()
+    )
+
+    companion object {
+        fun createNotSubmitted(
+            studentId: String,
+            contentId: String,
+            courseId: String
+        ): SubmissionDoc {
+            return SubmissionDoc(studentId, contentId, courseId)
+        }
+    }
+
+    constructor(studentId: String, contentId: String, courseId: String) : this(
+        studentId,
+        contentId,
+        courseId,
         Task.Submission.Status.NOT_SUBMITTED,
         "",
         emptyList(),

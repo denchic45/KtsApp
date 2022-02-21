@@ -71,7 +71,7 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     abstract fun deleteUnrelatedByGroup()
 
     @Query("DELETE FROM course WHERE teacher_id =:teacherId AND course_id NOT IN(:availableCourseIds)")
-    abstract fun deleteMissingByTeacher(availableCourseIds: List<String>, teacherId: String)
+    abstract suspend fun deleteMissingByTeacher(availableCourseIds: List<String>, teacherId: String)
 
     @Query("SELECT * FROM course WHERE teacher_id=:id")
     abstract fun getByTeacherId(id: String): Flow<List<CourseWithSubjectAndTeacherEntities>>
