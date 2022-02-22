@@ -57,6 +57,7 @@ data class CourseContentDoc @Default @JvmOverloads constructor(
 }
 
 data class SubmissionDoc(
+    val id: String,
     val studentId: String,
     val contentId: String,
     val courseId: String,
@@ -74,7 +75,7 @@ data class SubmissionDoc(
 ) {
     private constructor(
     ) : this(
-        "", "", "",
+        "", "", "","",
         Task.Submission.Status.NOT_SUBMITTED,
         "",
         emptyList(),
@@ -98,6 +99,7 @@ data class SubmissionDoc(
     }
 
     constructor(studentId: String, contentId: String, courseId: String) : this(
+        "",
         studentId,
         contentId,
         courseId,

@@ -84,4 +84,19 @@ abstract class CourseContentDao : BaseDao<CourseContentEntity>() {
         studentId: String,
         @TypeConverters(TimestampConverter::class) endDate: Date = Date(),
     ): Flow<List<CourseContentEntity>>
+
+    @Query(
+        """
+        SELECT cc.* FROM course_content cc 
+            INNER JOIN group_course gc ON gc.course_id = cc.course_id
+            JOIN submission s ON s.course_id = gc.course_id
+            WHERE gc.group_id=:groupId
+                AND s.student_id=:studentId
+                AND s.status IN('SUBMITTED','GRADED', 'REJECTED')
+    """
+    )
+    abstract fun getByGroupIdAndSubmittedUser(
+        groupId: String,
+        studentId: String,
+    ): Flow<List<CourseContentEntity>>
 }

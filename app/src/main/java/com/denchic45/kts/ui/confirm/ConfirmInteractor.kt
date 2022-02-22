@@ -6,15 +6,15 @@ import kotlin.coroutines.resume
 
 class ConfirmInteractor {
 
-    private lateinit var eventChannel: (Boolean) -> Unit
+    private lateinit var continuation: CancellableContinuation<Boolean>
 
-    fun onConfirm(confirm: Boolean) = eventChannel(confirm)
+    fun onConfirm(confirm: Boolean) {
+        continuation.resume(confirm)
+    }
 
     suspend fun awaitConfirm(): Boolean {
         return suspendCancellableCoroutine { continuation: CancellableContinuation<Boolean> ->
-            eventChannel = {
-                continuation.resume(it)
-            }
+            this.continuation = continuation
         }
     }
 }

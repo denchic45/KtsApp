@@ -63,10 +63,10 @@ data class Task(
         val contentUpdateDate: LocalDateTime
     ) : DomainModel() {
 
+        override var id: String = ""
+
         val submitted: Boolean
             get() = status !is SubmissionStatus.NotSubmitted
-
-        override var id: String = ""
 
         companion object {
             fun createEmpty(contentId: String, student: User): Submission {
@@ -125,11 +125,11 @@ data class Task(
     }
 
     data class Comment(
-        override var id: String,
         val content: String,
         val author: User,
         val createdDate: LocalDateTime
-    ) : DomainModel()
+    ) : DomainModel() {
+    }
 }
 
 data class Attachment(

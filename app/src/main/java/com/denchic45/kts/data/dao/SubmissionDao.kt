@@ -13,9 +13,6 @@ abstract class SubmissionDao : BaseDao<SubmissionEntity>() {
     @Query("DELETE FROM submission WHERE content_id=:id")
     abstract fun deleteByContentId(id: String)
 
-    @Query("SELECT * FROM submission WHERE submission_id=:submissionId")
-    abstract fun get(submissionId: String): Flow<SubmissionWithStudentUserAndCommentsEntities?>
-
     @Query("SELECT * FROM submission WHERE content_id=:contentId AND student_id=:studentId")
     abstract fun getByTaskIdAndUserId(
         contentId: String,

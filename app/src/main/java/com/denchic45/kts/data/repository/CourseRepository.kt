@@ -244,7 +244,10 @@ class CourseRepository @Inject constructor(
         deleteMissingCoursesOfTeacher(courseDocs, teacherId)
     }
 
-    private suspend fun deleteMissingCoursesOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
+    private suspend fun deleteMissingCoursesOfTeacher(
+        courseDocs: List<CourseDoc>,
+        teacherId: String
+    ) {
         courseDao.deleteMissingByTeacher(courseDocs.map(CourseDoc::id), teacherId)
         subjectDao.deleteUnrelatedByCourse()
         groupDao.deleteUnrelatedByCourse()
@@ -410,8 +413,10 @@ class CourseRepository @Inject constructor(
                 this.attachments = attachments
                 this.order = order
             }.asMutableMap().apply {
-                val mapOfEmptySubmissions =
+                val studentIdsOfCourseByCourseId =
                     userDao.getStudentIdsOfCourseByCourseId(task.courseId)
+                val mapOfEmptySubmissions =
+                    studentIdsOfCourseByCourseId
                         .associateWith { studentId ->
                             SubmissionDoc.createNotSubmitted(
                                 studentId,
@@ -420,6 +425,7 @@ class CourseRepository @Inject constructor(
                             )
                         }
                 put("submissions", mapOfEmptySubmissions)
+                put("notSubmittedByStudentIds", studentIdsOfCourseByCourseId)
             }
             )
             .await()
@@ -526,7 +532,17 @@ class CourseRepository @Inject constructor(
             "submissions.$studentId.attachments" to attachmentUrls,
             "submissions.$studentId.status" to submissionMapper.domainToStatus(submission),
             "submissions.$studentId.contentUpdateDate" to submission.contentUpdateDate.toDate(),
-            "submissions.$studentId.submittedDate" to submittedDate
+            "submissions.$studentId.submittedDate" to submittedDate,
+            "submittedByStudentIds" to
+                    if (submission.submitted)
+                        FieldValue.arrayUnion(studentId)
+                    else
+                        FieldValue.arrayRemove(studentId),
+            "notSubmittedByStudentIds" to
+                    if (submission.submitted)
+                        FieldValue.arrayRemove(studentId)
+                    else
+                        FieldValue.arrayUnion(studentId)
         )
         coursesRef.document(courseContentDao.getCourseId(contentId))
             .collection("Contents")
@@ -549,6 +565,9 @@ class CourseRepository @Inject constructor(
                         "submissions.$studentId.gradedDate" to Date(),
                         "submissions.$studentId.grade" to grade,
                         "submissions.$studentId.teacherId" to teacherId,
+
+                        "submittedByStudentIds" to FieldValue.arrayUnion(studentId),
+                        "notSubmittedByStudentIds" to FieldValue.arrayRemove(studentId),
                     )
         ).await()
     }
@@ -568,6 +587,9 @@ class CourseRepository @Inject constructor(
                         "submissions.$studentId.cause" to cause,
                         "submissions.$studentId.rejectedDate" to Date(),
                         "submissions.$studentId.teacherId" to teacherId,
+
+                        "submittedByStudentIds" to FieldValue.arrayRemove(studentId),
+                        "notSubmittedByStudentIds" to FieldValue.arrayUnion(studentId),
                     )
         ).await()
     }
@@ -657,10 +679,15 @@ class CourseRepository @Inject constructor(
                 .collect { courseIdsLists ->
                     courseIdsLists.forEach { courseIds ->
                         val contentsQuerySnapshot =
-                            contentsRef.whereIn("courseId", courseIds)
+                            contentsRef
+//                                .whereIn("courseId", courseIds)
                                 .whereGreaterThanOrEqualTo(
                                     "completionDate",
                                     Date()
+                                )
+                                .whereArrayContains(
+                                    "notSubmittedByStudentIds",
+                                    userPreference.id
                                 )
                                 .limit(10)
                                 .get()
@@ -684,14 +711,15 @@ class CourseRepository @Inject constructor(
                 .collect { courseIdsLists ->
                     courseIdsLists.forEach { courseIds ->
                         val contentsQuerySnapshot =
-                            contentsRef.whereIn("courseId", courseIds)
+                            contentsRef
+//                                .whereIn("courseId", courseIds)
                                 .whereLessThanOrEqualTo(
                                     "completionDate",
                                     Date()
                                 )
-                                .whereEqualTo(
-                                    "submissions.${userPreference.id}.status",
-                                    Task.Submission.Status.NOT_SUBMITTED
+                                .whereArrayContains(
+                                    "notSubmittedByStudentIds",
+                                    userPreference.id
                                 )
                                 .limit(10)
                                 .get()
@@ -702,6 +730,35 @@ class CourseRepository @Inject constructor(
                     }
 
                     emitAll(courseContentDao.getByGroupIdAndNotSubmittedUser(
+                        groupPreference.groupId,
+                        userPreference.id
+                    ).map { courseContentMapper.entityToDomainAssignment(it) })
+                }
+        }
+    }
+
+    fun findCompletedTasksForYourGroup(): Flow<List<Task>> {
+        return flow {
+            courseDao.getCourseIdsByGroupId(groupPreference.groupId)
+                .map { it.chunked(10) }
+                .collect { courseIdsLists ->
+                    courseIdsLists.forEach { courseIds ->
+                        val contentsQuerySnapshot =
+                            contentsRef
+//                                .whereIn("courseId", courseIds)
+                                .whereArrayContains(
+                                    "submittedByStudentIds",
+                                    userPreference.id
+                                )
+                                .limit(10)
+                                .get()
+                                .await()
+                        saveCourseContentsLocal(
+                            courseContentMapper.docToEntity(contentsQuerySnapshot)
+                        )
+                    }
+
+                    emitAll(courseContentDao.getByGroupIdAndSubmittedUser(
                         groupPreference.groupId,
                         userPreference.id
                     ).map { courseContentMapper.entityToDomainAssignment(it) })
