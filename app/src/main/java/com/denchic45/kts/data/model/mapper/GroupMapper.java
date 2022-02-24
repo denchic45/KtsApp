@@ -58,6 +58,7 @@ public interface GroupMapper extends
     @Override
     Group docToDomain(GroupDoc doc);
 
+    @Mapping(source = "specialty.id", target = "specialtyId")
     CourseGroup docToCourseGroupDomain(GroupDoc groupDoc);
 
     List<CourseGroup> docToCourseGroupDomain(List<GroupDoc> groupDocs);

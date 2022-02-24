@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
@@ -13,15 +14,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentViewHolder
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentTimetableLoaderBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.*
@@ -30,11 +30,14 @@ import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorAc
 import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.lessonsOfDay.LessonsOfDayFragment
 import com.denchic45.kts.utils.FilePicker
 import com.denchic45.kts.utils.path
+import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
+import com.denchic45.widget.extendedAdapter.extension.check
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.flow.collect
 import java.io.File
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -53,7 +56,7 @@ class TimetableLoaderFragment :
     )
     override val viewModel: TimetableLoaderViewModel by viewModels { viewModelFactory }
     private lateinit var groupLessonsAdapter: GroupLessonsAdapter2
-    private lateinit var itemAdapter: ItemAdapter
+    private lateinit var preferenceAdapter: DelegationAdapterExtended
     private val viewBinding: FragmentTimetableLoaderBinding by viewBinding(
         FragmentTimetableLoaderBinding::bind
     )
@@ -96,7 +99,7 @@ class TimetableLoaderFragment :
                 tlTimetableGroup,
                 vpTimetablePreview
             ) { tab: TabLayout.Tab, position: Int ->
-                tab.text = viewModel.showTimetable.value!!.first[position]
+                tab.text = viewModel.timetables.value.groupNames[position]
             }.attach()
             tlTimetableGroup.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
@@ -106,18 +109,24 @@ class TimetableLoaderFragment :
                 override fun onTabUnselected(tab: TabLayout.Tab) {}
                 override fun onTabReselected(tab: TabLayout.Tab) {}
             })
-            itemAdapter = ItemAdapter(R.layout.item_icon_content_2)
-            rvPreference.adapter = itemAdapter
-            itemAdapter.itemClickListener =
-                OnItemClickListener { position: Int -> viewModel.onPreferenceItemClick(position) }
-            itemAdapter.itemCheckListener =
-                OnItemCheckListener { position: Int, isChecked: Boolean ->
-                    viewModel.onPreferenceItemCheck(
-                        position,
-                        isChecked
+            preferenceAdapter = preferenceAdapter {
+                onClick(viewModel::onPreferenceItemClick)
+
+                extensions {
+                    check<ItemAdapter.SwitchItemHolder>(
+                        view = { it.binding.sw },
+                        onCheck = { position, checked ->
+                            viewModel.onPreferenceItemCheck(
+                                position,
+                                checked
+                            )
+                        }
                     )
                 }
-            rvPreference.layoutManager = LinearLayoutManager(activity)
+            }
+
+            rvPreference.adapter = preferenceAdapter
+
             btnTimetableLoad.setOnClickListener {
                 viewModel.onLoadTimetableDocClick()
             }
@@ -149,29 +158,42 @@ class TimetableLoaderFragment :
                         ).time
                     ).build()
                 picker.show(childFragmentManager, null)
-                picker.addOnPositiveButtonClickListener { selection: Long? ->
-                    viewModel.onFirstDateOfNewTimetableSelect(
-                        selection
-                    )
+                picker.addOnPositiveButtonClickListener { selection ->
+                    viewModel.onFirstDateOfNewTimetableSelect(selection)
                 }
             }
 
-            viewModel.showTimetable.observe(
-                viewLifecycleOwner
-            ) { lessonsWithGroupNamePair ->
-                for (i in lessonsWithGroupNamePair.first.indices) {
-                    tlTimetableGroup.addTab(tlTimetableGroup.newTab())
+//            viewModel.showTimetable.observe(
+//                viewLifecycleOwner
+//            ) { lessonsWithGroupNamePair ->
+
+//                groupLessonsAdapter.list = lessonsWithGroupNamePair.second
+//                groupLessonsAdapter.notifyItemRangeInserted(
+//                    0,
+//                    lessonsWithGroupNamePair.second.size
+//                )
+//            }
+
+            lifecycleScope.launchWhenStarted {
+                viewModel.timetables.collect {
+
+                    for (i in it.groupNames.indices) {
+                        tlTimetableGroup.addTab(tlTimetableGroup.newTab())
+                    }
+
+                    groupLessonsAdapter.list =
+                        it.groupEvents.map(List<DomainModel>::toMutableList).toMutableList()
+                    groupLessonsAdapter.notifyItemRangeInserted(
+                        0,
+                        it.groupEvents.size
+                    )
                 }
-                groupLessonsAdapter.list = lessonsWithGroupNamePair.second
-                groupLessonsAdapter.notifyItemRangeInserted(
-                    0,
-                    lessonsWithGroupNamePair.second.size
-                )
             }
-            viewModel.showPublishingTimetable.observe(viewLifecycleOwner) {
-                itemAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.SHOW_LOADING)
-                itemAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.CHANGE_TITLE)
-            }
+//            viewModel.showPublishingTimetable.observe(viewLifecycleOwner) {
+//                preferenceAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.SHOW_LOADING)
+//                preferenceAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.CHANGE_TITLE)
+//            }
+
             viewModel.enableEditMode.observe(viewLifecycleOwner) { enable: Boolean ->
                 vpTimetablePreview.post {
                     groupLessonsAdapter.notifyItemRangeChanged(
@@ -183,7 +205,7 @@ class TimetableLoaderFragment :
 
             viewModel.showPage.observe(
                 viewLifecycleOwner
-            ) { position: Int? -> vsTimetableLoader.displayedChild = position!! }
+            ) { position -> vsTimetableLoader.displayedChild = position }
 
 
             vpTimetablePreview.adapter = groupLessonsAdapter
@@ -191,7 +213,8 @@ class TimetableLoaderFragment :
                 tlTimetableGroup,
                 vpTimetablePreview
             ) { tab: TabLayout.Tab, position: Int ->
-                tab.text = viewModel.showTimetable.value!!.first[position]
+//                tab.text = viewModel.showTimetable.value!!.first[position]
+                tab.text = viewModel.timetables.value.groupNames[position]
             }.attach()
             tlTimetableGroup.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
@@ -201,55 +224,8 @@ class TimetableLoaderFragment :
                 override fun onTabUnselected(tab: TabLayout.Tab) {}
                 override fun onTabReselected(tab: TabLayout.Tab) {}
             })
-            itemAdapter = ItemAdapter(R.layout.item_icon_content_2)
-            rvPreference.adapter = itemAdapter
-            itemAdapter.itemClickListener =
-                OnItemClickListener { position: Int -> viewModel.onPreferenceItemClick(position) }
-            itemAdapter.itemCheckListener =
-                OnItemCheckListener { position: Int, isChecked: Boolean ->
-                    viewModel.onPreferenceItemCheck(
-                        position,
-                        isChecked
-                    )
-                }
-            rvPreference.layoutManager = LinearLayoutManager(activity)
-            btnTimetableLoad.setOnClickListener {
-                viewModel.onLoadTimetableDocClick()
-            }
-            btnCreateEmpty.setOnClickListener {
-                val picker = MaterialDatePicker.Builder.datePicker()
-                    .setTitleText("Выберите первый день необходимой недели")
-                    .setCalendarConstraints(
-                        CalendarConstraints.Builder()
-                            .setValidator(object : CalendarConstraints.DateValidator {
-                                override fun isValid(date: Long): Boolean {
-                                    val cal = Calendar.getInstance()
-                                    cal.timeInMillis = date
-                                    val dayOfWeek = cal[Calendar.DAY_OF_WEEK]
-                                    return dayOfWeek == Calendar.MONDAY
-                                }
 
-                                override fun describeContents(): Int {
-                                    return 0
-                                }
 
-                                override fun writeToParcel(dest: Parcel, flags: Int) {}
-                            }).build()
-                    )
-                    .setSelection(
-                        Date.from(
-                            LocalDate.now()
-                                .with(TemporalAdjusters.next(DayOfWeek.MONDAY))
-                                .atStartOfDay(ZoneId.systemDefault()).toInstant()
-                        ).time
-                    ).build()
-                picker.show(childFragmentManager, null)
-                picker.addOnPositiveButtonClickListener { selection: Long? ->
-                    viewModel.onFirstDateOfNewTimetableSelect(
-                        selection
-                    )
-                }
-            }
             btnAddGroup.setOnClickListener { v: View? -> viewModel.onAddGroupClick() }
         }
         val navHostFragment = requireActivity().supportFragmentManager.primaryNavigationFragment
@@ -258,14 +234,15 @@ class TimetableLoaderFragment :
 
             filePicker.selectFiles()
         }
-        viewModel.allowEditTimetable.observe(
-            viewLifecycleOwner
-        ) { itemAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.SHOW_IMAGE) }
+//        viewModel.allowEditTimetable.observe(
+//            viewLifecycleOwner
+//        ) { preferenceAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.SHOW_IMAGE) }
 
-        viewModel.showDone.observe(viewLifecycleOwner) {
-            itemAdapter.notifyItemRangeRemoved(0, 2)
-            itemAdapter.notifyItemChanged(1)
-        }
+//        viewModel.showDone.observe(viewLifecycleOwner) {
+//            preferenceAdapter.notifyItemRangeRemoved(0, 2)
+//            preferenceAdapter.notifyItemChanged(1)
+//        }
+
         viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int? ->
             Toast.makeText(
                 context, getString(
@@ -280,10 +257,8 @@ class TimetableLoaderFragment :
                 .setPositiveButton("ОК") { dialog: DialogInterface, which: Int -> }.show()
         }
 
-        viewModel.showPreferenceList.observe(
-            viewLifecycleOwner
-        ) { listItems: List<ListItem?> -> itemAdapter.submitList(listItems) }
-        viewModel.updateLessonsOfGroup.observe(
+
+        viewModel.updateEventsOfGroup.observe(
             viewLifecycleOwner
         ) { integerListPair: Pair<Int, MutableList<DomainModel>> ->
             groupLessonsAdapter.updateList(
@@ -291,6 +266,16 @@ class TimetableLoaderFragment :
                 integerListPair.second
             )
         }
+
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.preferences.collect {
+                Log.d("lol", "onViewCreated submit: $it")
+                preferenceAdapter.submit(it)
+            }
+        }
+
+
         viewModel.openLessonEditor.observe(viewLifecycleOwner) {
             startActivity(Intent(activity, EventEditorActivity::class.java))
         }
@@ -300,7 +285,8 @@ class TimetableLoaderFragment :
         viewModel.finish.observe(
             viewLifecycleOwner
         ) { navController!!.popBackStack() }
-        viewModel.showAddedGroup.observe(viewLifecycleOwner) {
+
+        viewModel.addGroup.observe(viewLifecycleOwner) {
             groupLessonsAdapter.notifyItemInserted(
                 groupLessonsAdapter.itemCount
             )

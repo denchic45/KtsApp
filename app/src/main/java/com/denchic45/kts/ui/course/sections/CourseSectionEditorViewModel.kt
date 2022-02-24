@@ -1,12 +1,12 @@
 package com.denchic45.kts.ui.course.sections
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.domain.usecase.AddCourseSectionsUseCase
 import com.denchic45.kts.domain.usecase.FindCourseSectionsUseCase
 import com.denchic45.kts.domain.usecase.RemoveCourseSectionsUseCase
 import com.denchic45.kts.domain.usecase.UpdateCourseSectionsUseCase
+import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.Orders
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
@@ -23,7 +23,7 @@ class CourseSectionEditorViewModel @Inject constructor(
     private val addCourseSectionsUseCase: AddCourseSectionsUseCase,
     val updateCourseSectionsUseCase: UpdateCourseSectionsUseCase,
     val removeCourseSectionsUseCase: RemoveCourseSectionsUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     var oldPosition = -1
     var position = -1

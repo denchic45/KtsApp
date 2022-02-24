@@ -2,6 +2,8 @@ package com.denchic45.kts.ui.base
 
 import androidx.lifecycle.ViewModel
 import com.denchic45.kts.SingleLiveData
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 
 open class BaseViewModel : ViewModel() {
     @JvmField
@@ -12,6 +14,9 @@ open class BaseViewModel : ViewModel() {
 
     @JvmField
     val finish = SingleLiveData<Void>()
+
+
+    val showToast = MutableSharedFlow<String>()
 
     val openConfirmation = SingleLiveData<Pair<String, String>>()
 

@@ -11,11 +11,12 @@ import com.denchic45.widget.extendedAdapter.action.ActionHistory
 class AdapterDelegatesManger(
     vararg delegates: AdapterDelegate,
     override val adapterEventEmitter: AdapterEventEmitter = AdapterEventEmitter(),
-    val changePayload : (DomainModel, DomainModel) -> Any?
+    val changePayload: (DomainModel, DomainModel) -> Any?
 ) : IDelegationAdapterExtended {
 
 
-    class AdapterDiffUtil(private val changePayload: (DomainModel, DomainModel) -> Any?) : DiffUtil.Callback() {
+    class AdapterDiffUtil(private val changePayload: (DomainModel, DomainModel) -> Any?) :
+        DiffUtil.Callback() {
 
         lateinit var oldList: List<DomainModel>
         lateinit var newList: List<DomainModel>
@@ -26,7 +27,7 @@ class AdapterDelegatesManger(
         override fun getNewListSize(): Int = newList.size
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            return changePayload(oldList[oldItemPosition],newList[newItemPosition])
+            return changePayload(oldList[oldItemPosition], newList[newItemPosition])
         }
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {

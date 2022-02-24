@@ -45,5 +45,8 @@ data class Group @Default constructor(
 
 data class CourseGroup(
     override var id: String,
-    val name: String
-) : DomainModel()
+    val name: String,
+    val specialtyId: String
+) : DomainModel() {
+    private constructor() : this("", "", "")
+}

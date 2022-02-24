@@ -5,17 +5,17 @@ import com.denchic45.kts.data.model.domain.Event.Companion.empty
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.dinner
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.practice
 import com.denchic45.kts.utils.DateFormatUtil
-import com.denchic45.kts.utils.Events
+import com.denchic45.kts.utils.toLocalDate
 import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.core.SingleEmitter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import org.apache.poi.xwpf.usermodel.XWPFTable
 import org.apache.poi.xwpf.usermodel.XWPFTableCell
 import java.io.File
 import java.io.FileInputStream
-import java.io.IOException
+import java.time.LocalDate
 import java.util.*
-import java.util.function.Function
 import java.util.stream.Collectors
 
 class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
@@ -33,46 +33,44 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
     private var currentRow = 0
     private var currentDayOfWeek = 0
     private var currentGroup: GroupCourses? = null
-    private lateinit var emitter: SingleEmitter<List<GroupWeekLessons>>
-    fun parseDoc(
+
+    suspend fun parseDoc(
         docFile: File,
-        callbackGroupInfo: Function<Int, Single<List<GroupCourses>>>
-    ): Single<List<GroupWeekLessons>> {
-        return Single.create { emitter: SingleEmitter<List<GroupWeekLessons>> ->
-            this@TimetableParser.emitter = emitter
-            val wordDoc: XWPFDocument = try {
-                XWPFDocument(FileInputStream(docFile))
-            } catch (e: IOException) {
-                e.printStackTrace()
-                emitter.onError(Exception("Произошла проблема при извлечении документа"))
-                return@create
-            }
+        callbackGroupInfo: suspend (Int) -> List<GroupCourses>
+    ): List<GroupTimetable> {
+
+        val groupTimetableList: MutableList<GroupTimetable> = ArrayList()
+
+        try {
+            val wordDoc = XWPFDocument(FileInputStream(docFile))
             table = wordDoc.tables[0]
             val cellsInGroups: MutableList<XWPFTableCell> = ArrayList()
             cellsInGroups.addAll(table.getRow(1).tableCells)
             cellsInGroups.addAll(table.getRow(2).tableCells)
-            val groupWeekLessonsList: MutableList<GroupWeekLessons> = ArrayList()
-            callbackGroupInfo.apply(findCourseNumber())
-                .subscribe { groupCours: List<GroupCourses> ->
-                    val cellsCount = table.getRow(1).tableCells.size
-                    for (group in groupCours) {
-                        if (emitter.isDisposed) return@subscribe
-                        currentGroup = group
-                        cellOfGroupPos = cellsInGroups.indexOf(
-                            getCellByGroupName(
-                                cellsInGroups,
-                                group.group.name
-                            )
-                        )
-                        if (cellOfGroupPos == -1) continue
-                        cellOfGroupPos =
-                            if (cellOfGroupPos > cellsCount) cellOfGroupPos - cellsCount else cellOfGroupPos
-                        groupWeekLessonsList.add(GroupWeekLessons(group.group, lessonsOfGroup))
-                    }
-                    if (emitter.isDisposed) return@subscribe
-                    emitter.onSuccess(groupWeekLessonsList)
-                }
+
+            val groupCourses = callbackGroupInfo(findCourseNumber())
+
+            val cellsCount = table.getRow(1).tableCells.size
+            for (group in groupCourses) {
+                currentGroup = group
+                cellOfGroupPos = cellsInGroups.indexOf(
+                    getCellByGroupName(
+                        cellsInGroups,
+                        group.group.name
+                    )
+                )
+                if (cellOfGroupPos == -1) continue
+                cellOfGroupPos =
+                    if (cellOfGroupPos > cellsCount) cellOfGroupPos - cellsCount else cellOfGroupPos
+                groupTimetableList.add(GroupTimetable(group.group, lessonsOfGroup))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw Exception("Произошла проблема при извлечении документа")
         }
+
+
+        return groupTimetableList
     }
 
     private fun findCourseNumber(): Int {
@@ -100,7 +98,6 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
             currentDayOfWeek = 0
             while (!table.getRow(currentRow).getCell(0).text.contains("ПОНЕДЕЛЬНИК")) currentRow++
             for (i in 0 until STUDY_DAY_COUNT) {
-                if (emitter.isDisposed) break
                 val dateInCell = table.getRow(currentRow).getCell(0).text
                 currentRow++
                 val date = dateInCell.substring(dateInCell.lastIndexOf(" ") + 1)
@@ -108,14 +105,14 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
                     weekLessons.add(getEventsOfTheDay(date))
                     currentDayOfWeek++
                 } else {
-                    emitter.onError(TimetableInvalidDateException("Некоректная дата: $dateInCell"))
+                    throw  TimetableInvalidDateException("Некоректная дата: $dateInCell")
                 }
             }
             return weekLessons
         }
 
     private fun getEventsOfTheDay(dateText: String): EventsOfTheDay {
-        val date = DateFormatUtil.convertStringToDateUTC(dateText, DateFormatUtil.DD_MM_yy)
+        val date = dateText.toLocalDate(DateFormatUtil.DD_MM_yy)
         val eventsOfTheDay = EventsOfTheDay(date)
         if (currentRow == table.rows.size) return eventsOfTheDay
         var cells = table.getRow(currentRow).tableCells
@@ -129,21 +126,19 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
                 cells = table.getRow(currentRow).tableCells
             }
             if (orderText.isNotEmpty()) {
-                eventsOfTheDay.add(createEvent(orderText.toInt(), subjectAndRoomText, date))
+                eventsOfTheDay.addSimple(createEvent(orderText.toInt(), subjectAndRoomText, date))
             } else if (subjectAndRoomText.isNotEmpty()) {
-                emitter.onError(
-                    TimetableOrderLessonException(
-                        """
+                throw TimetableOrderLessonException(
+                    """
     У урока нет порядкового номера! 
     Дата: $dateText
     Поле урока: $subjectAndRoomText
     Группа: ${currentGroup!!.group.name}
     """.trimIndent()
-                    )
                 )
             }
         }
-        if (eventsOfTheDay.events.isNotEmpty()) Events.removeRedundantEmptyEvents(eventsOfTheDay.events)
+        if (eventsOfTheDay.events.isNotEmpty()) eventsOfTheDay.removeRedundantEmptyEvents()
         return eventsOfTheDay
     }
 
@@ -156,7 +151,7 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
             )
     }
 
-    private fun createEvent(order: Int, subjectAndRoom: String, date: Date): Event {
+    private fun createEvent(order: Int, subjectAndRoom: String, date: LocalDate): Event {
         var subjectAndRoom = subjectAndRoom
         if (subjectAndRoom.isEmpty()) {
             return empty(group = currentGroup!!.group, order = order, date = date)

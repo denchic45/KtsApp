@@ -2,9 +2,9 @@ package com.denchic45.kts.ui.login.verifyPhoneNum
 
 import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
+import com.denchic45.kts.ui.base.BaseViewModel
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -14,26 +14,20 @@ import javax.inject.Inject
 
 class VerifyPhoneNumViewModel @Inject constructor(
     private val interactor: VerifyPhoneNumInteractor
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val compositeDisposable = CompositeDisposable()
 
-    @JvmField
     val btnAuthVisibility = SingleLiveData(false)
 
-    @JvmField
     val authSuccessful = SingleLiveData<String>()
 
-    @JvmField
     val errorToManyRequest: SingleLiveData<*> = SingleLiveData<Any>()
 
-    @JvmField
     val errorInvalidRequest: SingleLiveData<*> = SingleLiveData<Any>()
 
-    @JvmField
     val showProgressTimeOut = MutableLiveData<Int>()
 
-    @JvmField
     val enableResendCode = MutableLiveData<Boolean>()
     fun onVerifyClick(phoneNum: String) {
         val subscribe = interactor.sendUserPhoneNumber(phoneNum).subscribeOn(Schedulers.io())

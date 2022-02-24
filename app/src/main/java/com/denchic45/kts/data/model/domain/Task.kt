@@ -35,7 +35,7 @@ data class Task(
         "",
         "",
         0,
-        LocalDateTime.now(),
+        LocalDateTime.MIN,
         false,
         emptyList(),
         SubmissionSettings(
@@ -46,8 +46,8 @@ data class Task(
             200
         ),
         false,
-        Date(),
-        Date()
+        Date(0),
+        Date(0)
     )
 
     companion object {

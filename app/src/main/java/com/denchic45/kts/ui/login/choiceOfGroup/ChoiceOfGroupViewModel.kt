@@ -34,10 +34,10 @@ class ChoiceOfGroupViewModel @Inject constructor(
     private fun getSpecialtyId(o: DomainModel): String {
         if (o is Specialty) {
             return o.id
-        } else if (o is Group) {
-            return o.specialty.id
+        } else if (o is CourseGroup) {
+            return o.specialtyId
         }
-        throw IllegalStateException()
+        throw IllegalStateException("Not correct type: $o")
     }
 
     fun onSpecialtyItemClick(position: Int) {

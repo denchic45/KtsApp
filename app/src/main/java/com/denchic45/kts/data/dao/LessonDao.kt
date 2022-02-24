@@ -7,7 +7,9 @@ import androidx.room.TypeConverters
 import com.denchic45.kts.data.model.room.DateConverter
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.data.model.room.EventTaskSubjectTeachersEntities
+import com.denchic45.kts.data.model.room.LocalDateConverter
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import java.util.*
 
 @Dao
@@ -33,9 +35,11 @@ abstract class LessonDao : BaseDao<EventEntity>() {
 
     @Query("DELETE FROM event WHERE date BETWEEN :start AND :end AND group_id =:groupId")
     abstract fun deleteByGroupAndDateRange(
-        groupId: String, @TypeConverters(
-            DateConverter::class
-        ) start: Date, @TypeConverters(DateConverter::class) end: Date
+        groupId: String,
+        @TypeConverters(LocalDateConverter::class)
+        start: LocalDate,
+        @TypeConverters(LocalDateConverter::class)
+        end: LocalDate
     )
 
     @Query("DELETE FROM event WHERE date =:date AND group_id =:groupId")

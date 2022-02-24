@@ -81,6 +81,7 @@ public interface CourseMapper {
 
     @Mapping(source = "groupEntity.id", target = "id")
     @Mapping(source = "groupEntity.name", target = "name")
+    @Mapping(source = "specialtyEntity.id", target = "specialtyId")
     CourseGroup entityToCourseGroup(GroupWithCuratorAndSpecialtyEntity groupWithCuratorAndSpecialtyEntity);
 
 //    @InheritConfiguration(name = "entityToDomain")

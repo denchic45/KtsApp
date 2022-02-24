@@ -9,9 +9,7 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorInteractor
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.DateFormatUtil
-import com.denchic45.kts.utils.Events
-import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.utils.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.apache.commons.lang3.time.DateUtils
@@ -171,7 +169,7 @@ class TimetableFinderViewModel @Inject constructor(
             Event.empty(
                 group = selectedGroup.value!!,
                 order = order,
-                date = selectedDate,
+                date = selectedDate.toLocalDate(),
                 details = Lesson.createEmpty()
             )
         eventEditorInteractor.setEditedEvent(createdLesson, true)

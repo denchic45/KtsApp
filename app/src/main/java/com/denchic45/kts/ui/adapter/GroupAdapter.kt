@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.databinding.ItemIconContentBinding
@@ -17,7 +18,6 @@ import com.denchic45.kts.utils.viewBinding
 class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> {
     private lateinit var specialtyItemClickListener: OnItemClickListener
 
-    constructor() : super(DIFF_CALLBACK)
     constructor(itemClickListener: OnItemClickListener) : super(
         DIFF_CALLBACK,
         itemClickListener
@@ -59,7 +59,7 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
 
     override fun getItemViewType(position: Int): Int {
         val o = getItem(position)
-        if (o is Group) {
+        if (o is CourseGroup) {
             return TYPE_GROUP
         } else if (o is Specialty) {
             return TYPE_SPECIALTY
@@ -98,19 +98,18 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
         itemIconContentBinding: ItemIconContentBinding,
         clickListener: OnItemClickListener,
         longClickListener: OnItemLongClickListener
-    ) : BaseViewHolder<Group, ItemIconContentBinding>(
+    ) : BaseViewHolder<CourseGroup, ItemIconContentBinding>(
         itemIconContentBinding,
         clickListener,
         longClickListener
     ) {
         private val tvName: TextView = itemView.findViewById(R.id.tv_content)
-        private val ivIcon: ImageView
-        override fun onBind(item: Group) {
+        private val ivIcon: ImageView = itemView.findViewById(R.id.iv_ic)
+        override fun onBind(item: CourseGroup) {
             tvName.text = item.name
         }
 
         init {
-            ivIcon = itemView.findViewById(R.id.iv_ic)
             ivIcon.setImageDrawable(
                 ContextCompat.getDrawable(
                     itemView.context,

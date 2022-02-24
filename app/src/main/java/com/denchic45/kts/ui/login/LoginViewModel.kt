@@ -2,10 +2,10 @@ package com.denchic45.kts.ui.login
 
 import android.telephony.PhoneNumberUtils
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.rx.AsyncCompletableTransformer
+import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.Validations
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthException
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 class LoginViewModel @Inject constructor(
     private val interactor: LoginInteractor
-) : ViewModel() {
+) : BaseViewModel() {
 
     val backToFragment = SingleLiveData<Void>()
 
@@ -46,8 +46,7 @@ class LoginViewModel @Inject constructor(
 
     val openResetPassword = SingleLiveData<Void>()
 
-    val showMessage = SingleLiveData<String>()
-    private val addedProgress = Stack<Float?>()
+    private val addedProgress = Stack<Float>()
     private val testNumbers = Stream.of(arrayOf("+16505553434", "+79510832144")).collect(
         Collectors.toMap(
             { data: Array<String> -> data[0] },

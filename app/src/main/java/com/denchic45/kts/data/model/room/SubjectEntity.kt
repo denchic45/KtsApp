@@ -13,4 +13,11 @@ data class SubjectEntity(
     var name: String,
     var iconUrl: String,
     var colorName: String
-) : EntityModel
+) : EntityModel {
+    private constructor() : this(
+        "",
+        "",
+        "",
+        ""
+    )
+}

@@ -15,6 +15,7 @@ import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.DateFormatUtil
+import com.denchic45.kts.utils.toDate
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
@@ -56,7 +57,7 @@ class EventEditorViewModel @Inject constructor(
                         roomField.value = room!!
                     }
                     dateField.value =
-                        DateFormatUtil.convertDateToString(date, DateFormatUtil.dd_MMMM)
+                        DateFormatUtil.convertDateToString(date.toDate(), DateFormatUtil.dd_MMMM)
                     orderField.value = order.toString()
                 }
             }

@@ -17,7 +17,6 @@ data class DayDoc(
     @ServerTimestamp
     var timestamp: Date? = null,
     var groupId: String
-
 ) : DocModel {
 
     private constructor(): this("", Date(), emptyList(), emptyList(), emptyList(), emptyList(), Date(), "")

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="56dp"
+    xmlns:tools="http://schemas.android.com/tools"
     android:foreground="?selectableItemBackgroundBorderless"
     android:orientation="horizontal">
 
@@ -15,7 +16,7 @@
         android:layout_toStartOf="@id/vs_ic"
         android:fontFamily="@font/roboto_medium"
         android:gravity="center_vertical"
-        android:text="Опубликовать"
+        tools:text="Sample text"
         android:textSize="16sp" />
 
     <ViewSwitcher

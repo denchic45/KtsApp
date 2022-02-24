@@ -6,11 +6,13 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
+import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.databinding.FragmentCourseBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
@@ -26,6 +28,7 @@ import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.delay
 
 class CourseFragment :
     BaseFragment<CourseViewModel, FragmentCourseBinding>(R.layout.fragment_course) {

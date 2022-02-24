@@ -9,8 +9,7 @@ import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Event
-import com.denchic45.kts.data.model.domain.EventsOfTheDay
-import com.denchic45.kts.data.model.domain.GroupWeekLessons
+import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.model.firestore.DayDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SubjectDoc
@@ -23,12 +22,11 @@ import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.DateFormatUtil
 import com.denchic45.kts.utils.NetworkException
-import com.google.android.gms.tasks.OnSuccessListener
+import com.denchic45.kts.utils.toDate
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.*
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.CompletableEmitter
-import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -41,7 +39,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
 import java.util.*
-import java.util.stream.Collectors
 import javax.inject.Inject
 
 class EventRepository @Inject constructor(
@@ -332,97 +329,83 @@ class EventRepository @Inject constructor(
                     }
                     emitter.onComplete()
                 }
-                .addOnFailureListener { t: Exception? -> emitter.onError(t) }
-        }
-    }
-
-    fun addLessonsOfWeekForGroups(groupWeekLessonsList: List<GroupWeekLessons>): Completable {
-        if (isNetworkNotAvailable) return Completable.error(NetworkException())
-        val batch = firestore.batch()
-        return Completable.concat(groupWeekLessonsList.stream()
-            .map { groupWeekLessons: GroupWeekLessons ->
-                addLessonsOfWeekForGroup(
-                    batch,
-                    groupWeekLessons
-                )
-            }
-            .collect(Collectors.toList()))
-            .doOnComplete { batch.commit() }
-    }
-
-    private fun addLessonsOfWeekForGroup(
-        batch: WriteBatch,
-        groupWeekLessons: GroupWeekLessons
-    ): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            val weekLessons = groupWeekLessons.weekLessons
-            val dayRef = groupsRef.document(groupWeekLessons.group.id).collection("Days")
-            coroutineScope.launch(dispatcher) {
-                lessonDao.deleteByGroupAndDateRange(
-                    groupWeekLessons.group.id,
-                    weekLessons[0].date,
-                    weekLessons[5].date
-                )
-            }
-            getQueryOfWeekDays(groupWeekLessons, dayRef)
-                .addOnSuccessListener(object : OnSuccessListener<QuerySnapshot> {
-                    private var dayDocs: List<DayDoc>? = null
-                    override fun onSuccess(querySnapshot: QuerySnapshot) {
-                        dayDocs = querySnapshot.toObjects(DayDoc::class.java)
-                        for (eventsOfTheDay in weekLessons) {
-                            setLessonsOfDays(eventsOfTheDay)
-                        }
-                        emitter.onComplete()
-                    }
-
-                    private fun setLessonsOfDays(eventsOfTheDay: EventsOfTheDay) {
-                        val optionalDayDoc = findByDate(dayDocs!!, eventsOfTheDay.date)
-                        // todo ВАЖНО СРАВНИТЬ ДАТУ!!!
-                        val addableEvents = eventMapper.domainToDoc(eventsOfTheDay.events)
-                        val dayDoc: DayDoc
-                        if (optionalDayDoc.isPresent) {
-                            dayDoc = optionalDayDoc.get()
-                            dayDoc.events = addableEvents
-                            dayDoc.timestamp = null
-                        } else {
-                            dayDoc = DayDoc(
-                                date = eventsOfTheDay.date,
-                                _events = addableEvents,
-                                groupId = groupWeekLessons.group.id
-                            )
-                        }
-                        batch[dayRef.document(dayDoc.id), dayDoc] = SetOptions.merge()
-                        coroutineScope.launch(dispatcher) {
-                            dayDao.upsert(
-                                DayEntity(
-                                    dayDoc.id,
-                                    dayDoc.date,
-                                    groupWeekLessons.group.id
-                                )
-                            )
-                        }
-                    }
-
-                    private fun findByDate(dayDocs: List<DayDoc>, date: Date): Optional<DayDoc> {
-                        return dayDocs.stream()
-                            .filter { dayDoc: DayDoc -> dayDoc.date == date }
-                            .findFirst()
-                    }
-                })
                 .addOnFailureListener { t: Exception -> emitter.onError(t) }
         }
     }
 
+    suspend fun addLessonsOfWeekForGroups(groupTimetableList: List<GroupTimetable>) {
+        if (isNetworkNotAvailable) throw NetworkException()
+        val batch = firestore.batch()
+        groupTimetableList
+            .map { groupTimetable: GroupTimetable ->
+                addLessonsOfWeekForGroup(batch, groupTimetable)
+            }
+        batch.commit().await()
+    }
+
+    private suspend fun addLessonsOfWeekForGroup(
+        batch: WriteBatch,
+        groupTimetable: GroupTimetable
+    ) {
+        val weekLessons = groupTimetable.weekEvents
+        val dayRef = groupsRef.document(groupTimetable.group.id).collection("Days")
+        coroutineScope.launch(dispatcher) {
+            lessonDao.deleteByGroupAndDateRange(
+                groupTimetable.group.id,
+                weekLessons[0].date,
+                weekLessons[5].date
+            )
+        }
+        val dayDocs: List<DayDoc> = getQueryOfWeekDays(groupTimetable, dayRef)
+            .await()
+            .toObjects(DayDoc::class.java)
+
+        for (eventsOfTheDay in weekLessons) {
+            val optionalDayDoc = findByDate(dayDocs, eventsOfTheDay.date.toDate())
+            // todo ВАЖНО СРАВНИТЬ ДАТУ!!!
+            val addableEvents = eventMapper.domainToDoc(eventsOfTheDay.events)
+            val dayDoc: DayDoc
+            if (optionalDayDoc.isPresent) {
+                dayDoc = optionalDayDoc.get()
+                dayDoc.events = addableEvents
+                dayDoc.timestamp = null
+            } else {
+                dayDoc = DayDoc(
+                    date = eventsOfTheDay.date.toDate(),
+                    _events = addableEvents,
+                    groupId = groupTimetable.group.id
+                )
+            }
+            batch[dayRef.document(dayDoc.id), dayDoc] = SetOptions.merge()
+            coroutineScope.launch(dispatcher) {
+                dayDao.upsert(
+                    DayEntity(
+                        dayDoc.id,
+                        dayDoc.date,
+                        groupTimetable.group.id
+                    )
+                )
+            }
+        }
+    }
+
+    private fun findByDate(dayDocs: List<DayDoc>, date: Date): Optional<DayDoc> {
+        return dayDocs.stream()
+            .filter { dayDoc: DayDoc -> dayDoc.date == date }
+            .findFirst()
+    }
+
     private fun getQueryOfWeekDays(
-        groupWeekLessons: GroupWeekLessons,
+        groupTimetable: GroupTimetable,
         daysRef: CollectionReference
     ): Task<QuerySnapshot> {
-        val monday = DateFormatUtil.convertDateToDateUTC(groupWeekLessons.weekLessons[0].date)
-        val saturday = DateFormatUtil.convertDateToDateUTC(groupWeekLessons.weekLessons[5].date)
+        val monday = DateFormatUtil.convertDateToDateUTC(groupTimetable.weekEvents[0].date.toDate())
+        val saturday = DateFormatUtil.convertDateToDateUTC(groupTimetable.weekEvents[5].date.toDate())
         return daysRef.whereGreaterThanOrEqualTo("date", monday)
             .whereLessThanOrEqualTo("date", saturday)
             .get()
     }
+
 
     suspend fun updateEventsOfDay(events: List<Event>, date: Date, group: CourseGroup) {
         val dayDocId = dayDao.getIdByDateAndGroupId(date, group.id)

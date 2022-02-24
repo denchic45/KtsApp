@@ -18,6 +18,14 @@ fun String.toLocalDateTime(pattern: String): LocalDateTime =
 fun Date.toLocalDateTime(): LocalDateTime =
     LocalDateTime.ofInstant(toInstant(), ZoneId.systemDefault())
 
+fun String.toLocalDate(pattern: String): LocalDate =
+    LocalDate.parse(this, DateTimeFormatter.ofPattern(pattern))
+
+fun Date.toLocalDate(): LocalDate =
+    toInstant()
+        .atZone(ZoneId.systemDefault())
+        .toLocalDate()
+
 fun LocalDateTime.toDate(): Date = Date.from(atZone(ZoneId.systemDefault()).toInstant())
 
 fun LocalDate.toDate(): Date = Date.from(

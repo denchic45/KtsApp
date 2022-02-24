@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
@@ -347,96 +346,93 @@ class GroupInfoRepository @Inject constructor(
         return groupDao.isExist(groupId)
     }
 
-    fun findGroupsWithCoursesByCourse(course: Int): Single<List<GroupCourses>> {
-        return Single.create { emitter: SingleEmitter<List<GroupCourses>> ->
-            groupsRef
-                .whereEqualTo("course", course)
-                .get()
-                .addOnSuccessListener { snapshots: QuerySnapshot ->
-                    val groupDocs = snapshots.toObjects(GroupDoc::class.java)
-                    val groupsInfo: MutableList<GroupCourses> = ArrayList()
-                    coroutineScope.launch(dispatcher) {
-                        groupDocs.forEach(Consumer { groupDoc: GroupDoc ->
-                            launch {
-                                upsertGroupInfo(groupDoc)
-                                groupsInfo.add(
-                                    GroupCourses(
-                                        groupMapper.docToCourseGroupDomain(groupDoc),
-                                        courseMapper.entityToDomain2(
-                                            courseDao.getCoursesByGroupIdSync(groupDoc.id)
-                                        )
-                                    )
-                                )
-                            }
-                        })
-                    }.invokeOnCompletion { emitter.onSuccess(groupsInfo) }
+    suspend fun findGroupsWithCoursesByCourse(course: Int): List<GroupCourses> {
+        val snapshots = groupsRef
+            .whereEqualTo("course", course)
+            .get()
+            .await()
+
+        val groupDocs = snapshots.toObjects(GroupDoc::class.java)
+        val groupsInfo: MutableList<GroupCourses> = ArrayList()
+
+        groupDocs.forEach { groupDoc: GroupDoc ->
+            coroutineScope.launch {
+                upsertGroupInfo(groupDoc)
+                groupsInfo.add(
+                    GroupCourses(
+                        groupMapper.docToCourseGroupDomain(groupDoc),
+                        courseMapper.entityToDomain2(
+                            courseDao.getCoursesByGroupIdSync(groupDoc.id)
+                        )
+                    )
+                )
+            }
+        }
+        return groupsInfo
+    }
+
+fun observeHasGroup(): Flow<Boolean> {
+    return groupPreference.observeValue(GroupPreference.GROUP_ID, "")
+        .map(String::isNotEmpty)
+}
+
+fun findGroupByStudent(user: User): Observable<Group> {
+    return Observable.create { emitter: ObservableEmitter<Group> ->
+        if (!userDao.isExistByIdAndGroupId(user.id, user.groupId)) findGroupById(
+            user.groupId!!,
+            emitter
+        )
+        addListenerDisposable("GROUP_BY_STUDENT: " + user.id) {
+            groupDao.getByStudentId(user.id)
+                .subscribe { groupEntity: GroupWithCuratorAndSpecialtyEntity ->
+                    emitter.onNext(
+                        groupMapper.entityToDomain(groupEntity)
+                    )
                 }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
         }
     }
+}
 
-    fun observeHasGroup(): Flow<Boolean> {
-        return groupPreference.observeValue(GroupPreference.GROUP_ID, "")
-            .map(String::isNotEmpty)
-    }
-
-    fun findGroupByStudent(user: User): Observable<Group> {
-        return Observable.create { emitter: ObservableEmitter<Group> ->
-            if (!userDao.isExistByIdAndGroupId(user.id, user.groupId)) findGroupById(
-                user.groupId!!,
-                emitter
-            )
-            addListenerDisposable("GROUP_BY_STUDENT: " + user.id) {
-                groupDao.getByStudentId(user.id)
-                    .subscribe { groupEntity: GroupWithCuratorAndSpecialtyEntity ->
-                        emitter.onNext(
-                            groupMapper.entityToDomain(groupEntity)
+fun findGroupByCurator(user: User): Observable<Group> {
+    return Observable.create { emitter: ObservableEmitter<Group> ->
+        getQueryOfGroupByCurator(user.id)
+            .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                if (error != null) {
+                    emitter.onError(error)
+                    return@addSnapshotListener
+                }
+                if (!value!!.isEmpty && timestampsNotNull(value))
+                    coroutineScope.launch(dispatcher) {
+                        saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
+                            value.documents[0].toObject(GroupDoc::class.java)!!
                         )
                     }
             }
+        addListenerDisposable("GROUP_BY_CURATOR: " + user.id) {
+            groupDao.getByCuratorId(user.id)
+                .map { domain: GroupWithCuratorAndSpecialtyEntity ->
+                    groupMapper.entityToDomain(domain)
+                }
+                .subscribe { value: Group -> emitter.onNext(value) }
         }
     }
+}
 
-    fun findGroupByCurator(user: User): Observable<Group> {
-        return Observable.create { emitter: ObservableEmitter<Group> ->
-            getQueryOfGroupByCurator(user.id)
-                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                    if (error != null) {
-                        emitter.onError(error)
-                        return@addSnapshotListener
-                    }
-                    if (!value!!.isEmpty && timestampsNotNull(value))
-                        coroutineScope.launch(dispatcher) {
-                            saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
-                                value.documents[0].toObject(GroupDoc::class.java)!!
-                            )
-                        }
-                }
-            addListenerDisposable("GROUP_BY_CURATOR: " + user.id) {
-                groupDao.getByCuratorId(user.id)
-                    .map { domain: GroupWithCuratorAndSpecialtyEntity ->
-                        groupMapper.entityToDomain(domain)
-                    }
-                    .subscribe { value: Group -> emitter.onNext(value) }
+private fun findGroupById(groupId: String, emitter: ObservableEmitter<Group>) {
+    groupsRef.document(groupId)
+        .get()
+        .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
+            coroutineScope.launch(dispatcher) {
+                saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
+                    documentSnapshot.toObject(GroupDoc::class.java)!!
+                )
             }
         }
-    }
+        .addOnFailureListener { error: Exception -> emitter.onError(error) }
+}
 
-    private fun findGroupById(groupId: String, emitter: ObservableEmitter<Group>) {
-        groupsRef.document(groupId)
-            .get()
-            .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
-                coroutineScope.launch(dispatcher) {
-                    saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
-                        documentSnapshot.toObject(GroupDoc::class.java)!!
-                    )
-                }
-            }
-            .addOnFailureListener { error: Exception -> emitter.onError(error) }
-    }
-
-    override fun removeListeners() {
-        super.removeListeners()
-        compositeDisposable.clear()
-    }
+override fun removeListeners() {
+    super.removeListeners()
+    compositeDisposable.clear()
+}
 }

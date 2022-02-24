@@ -2,14 +2,11 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.loader
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.TimetableParser
-import com.denchic45.kts.data.model.domain.GroupWeekLessons
+import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.repository.EventRepository
 import com.denchic45.kts.data.repository.GroupInfoRepository
 import com.denchic45.kts.data.repository.SubjectRepository
-import com.denchic45.kts.rx.AsyncTransformer
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.subjects.PublishSubject
+import kotlinx.coroutines.delay
 import java.io.File
 import javax.inject.Inject
 
@@ -19,22 +16,10 @@ class TimetableLoaderInteractor @Inject constructor(
     private val subjectRepository: SubjectRepository
 ) : Interactor {
 
-    private lateinit var listPublishSubject: PublishSubject<List<GroupWeekLessons>>
-    fun parseDocumentTimetable(docFile: File): Observable<List<GroupWeekLessons>> {
-        listPublishSubject = PublishSubject.create()
-        TimetableParser(subjectRepository.findSpecialSubjects()).parseDoc(docFile) { course: Int ->
+    suspend fun parseDocumentTimetable(docFile: File): List<GroupTimetable> {
+        return TimetableParser(subjectRepository.findSpecialSubjects()).parseDoc(docFile) { course: Int ->
             groupInfoRepository.findGroupsWithCoursesByCourse(course)
         }
-            .compose(AsyncTransformer())
-            .subscribe { groupWeekLessons: List<GroupWeekLessons>, throwable: Throwable? ->
-                if (throwable != null) {
-                    throwable.printStackTrace()
-                    listPublishSubject.onError(throwable)
-                } else {
-                    listPublishSubject.onNext(groupWeekLessons)
-                }
-            }
-        return listPublishSubject
     }
 
     override fun removeListeners() {
@@ -43,7 +28,9 @@ class TimetableLoaderInteractor @Inject constructor(
         subjectRepository.removeListeners()
     }
 
-    fun addLessonsOfWeek(groupWeekLessons: List<GroupWeekLessons>): Completable {
-        return eventRepository.addLessonsOfWeekForGroups(groupWeekLessons)
+   suspend fun addLessonsOfWeek(groupWeekLessons: List<GroupTimetable>) {
+       delay(1500)
+       //TODO РАСКОММЕНТИРОВАТЬ!!!
+//       eventRepository.addLessonsOfWeekForGroups(groupWeekLessons)
     }
 }
