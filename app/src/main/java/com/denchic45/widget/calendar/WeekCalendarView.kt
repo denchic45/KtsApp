@@ -14,6 +14,7 @@ import com.denchic45.widget.calendar.WeekCalendarListener.OnLoadListener
 import com.denchic45.widget.calendar.model.WeekItem
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.ceil
 import kotlin.properties.Delegates
@@ -77,7 +78,7 @@ class WeekCalendarView : LinearLayout {
     }
 
     private fun addFirstWeeks() {
-        val date = LocalDate.now()
+        val date = LocalDate.now(ZoneId.of("Europe/Moscow"))
             .with(DayOfWeek.MONDAY)
             .plusWeeks((-CENTRAL_ITEM_POSITION).toLong())
 

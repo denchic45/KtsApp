@@ -18,15 +18,22 @@ data class GroupTimetable(
 
     companion object {
         fun createEmpty(courseGroup: CourseGroup, mondayDate: LocalDate): GroupTimetable {
+
             return GroupTimetable(
-                courseGroup, listOf(
-                    EventsOfTheDay(mondayDate),
-                    EventsOfTheDay(mondayDate.plusDays(1)),
-                    EventsOfTheDay(mondayDate.plusDays(2)),
-                    EventsOfTheDay(mondayDate.plusDays(3)),
-                    EventsOfTheDay(mondayDate.plusDays(5))
+                courseGroup,
+                List(6) { EventsOfTheDay(mondayDate.plusDays(it.toLong())) }
                 )
-            )
+
+//            return GroupTimetable(
+//                courseGroup, listOf(
+//                    EventsOfTheDay(mondayDate),
+//                    EventsOfTheDay(mondayDate.plusDays(1)),
+//                    EventsOfTheDay(mondayDate.plusDays(2)),
+//                    EventsOfTheDay(mondayDate.plusDays(3)),
+//                    EventsOfTheDay(mondayDate.plusDays(4)),
+//                    EventsOfTheDay(mondayDate.plusDays(5))
+//                )
+//            )
         }
     }
 }

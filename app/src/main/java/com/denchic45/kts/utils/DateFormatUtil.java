@@ -13,8 +13,8 @@ public final class DateFormatUtil {
 
     private static final Calendar calToday = Calendar.getInstance();
     public static String yyy_MM_dd = "yyyy-MM-dd";
-    public static String MMMM = "MMMM";
-    public static String MMMM_yyyy = "MMMM yyyy";
+    public static String LLLL = "LLLL";
+    public static String LLLL_yyyy = "LLLL yyyy";
     public static String DD_MM_yy = "dd.MM.yy";
     public static final String dd_MMM = "dd MMM";
     public static final String dd_MMMM = "dd MMMM";
@@ -60,9 +60,9 @@ public final class DateFormatUtil {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         if (cal.get(Calendar.YEAR) == calToday.get(Calendar.YEAR)) {
-            return StringUtils.capitalize(convertDateToString(date, MMMM));
+            return StringUtils.capitalize(convertDateToString(date, LLLL));
         } else {
-            return StringUtils.capitalize(convertDateToString(date, MMMM_yyyy));
+            return StringUtils.capitalize(convertDateToString(date, LLLL_yyyy));
         }
     }
 

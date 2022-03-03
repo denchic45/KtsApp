@@ -25,7 +25,6 @@ class ChoiceOfGroupViewModel @Inject constructor(
     var groupAndSpecialtyList = MediatorLiveData<MutableList<DomainModel>>()
 
 
-    @Contract("_ -> param1")
     private fun sortedList(list: MutableList<DomainModel>): MutableList<DomainModel> {
         list.sortWith(Comparator.comparing { o: DomainModel -> getSpecialtyId(o) })
         return list

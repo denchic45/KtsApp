@@ -1,10 +1,7 @@
 package com.denchic45.kts.utils
 
-import org.apache.commons.lang3.StringUtils
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.Year
-import java.time.ZoneId
+import java.text.SimpleDateFormat
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -36,12 +33,20 @@ fun LocalDate.toDate(): Date = Date.from(
         .toInstant()
 )
 
+fun LocalDate.toDateUTC(): Date = Date.from(
+    atStartOfDay()
+        .atOffset(ZoneOffset.UTC)
+        .toInstant()
+)
+
 object Dates {
     fun toStringHidingCurrentYear(date: LocalDate): String {
         return if (Year.now().value == date.year) {
-            date.toString(DateFormatUtil.MMMM)
+            val sdf = SimpleDateFormat(DateFormatUtil.LLLL, Locale.getDefault())
+            sdf.format(date.toDate())
         } else {
-            date.toString(DateFormatUtil.MMMM_yyyy)
+            val sdf = SimpleDateFormat(DateFormatUtil.LLLL_yyyy, Locale.getDefault())
+            return sdf.format(date.toDate())
         }
     }
 }

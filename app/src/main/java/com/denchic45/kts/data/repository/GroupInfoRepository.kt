@@ -162,7 +162,7 @@ class GroupInfoRepository @Inject constructor(
         val groups = MutableLiveData<List<CourseGroup>>()
         groupsRef.whereEqualTo("specialty.id", specialtyId).get()
             .addOnSuccessListener { snapshot: QuerySnapshot ->
-                groups.setValue(snapshot.toObjects(CourseGroup::class.java))
+                groups.setValue(groupMapper.docToCourseGroupDomain(snapshot.toObjects(GroupDoc::class.java)))
             }
             .addOnFailureListener { e: Exception -> Log.d("lol", "err: ", e) }
         return groups
