@@ -63,6 +63,15 @@ public interface GroupMapper extends
 
     List<CourseGroup> docToCourseGroupDomain(List<GroupDoc> groupDocs);
 
+    CourseGroup entityToCourseGroupDomain(GroupEntity groupEntity);
+
+    @Mapping(source = "groupEntity.id", target = "id")
+    @Mapping(source = "groupEntity.name", target = "name")
+    @Mapping(source = "specialtyEntity.id", target = "specialtyId")
+    CourseGroup entityToCourseGroup(GroupWithCuratorAndSpecialtyEntity groupWithCuratorAndSpecialtyEntity);
+
+//    CourseGroup entityToCourseGroupDomain(GroupWithCuratorAndSpecialtyEntity groupWithCuratorAndSpecialtyEntity);
+
     @Mapping(source = "curator.id", target = "curatorId")
     @Mapping(source = "specialty.id", target = "specialtyId")
     @Override

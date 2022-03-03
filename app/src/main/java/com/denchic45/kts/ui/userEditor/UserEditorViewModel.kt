@@ -324,7 +324,7 @@ open class UserEditorViewModel @Inject constructor(
         }
     }
 
-    fun onOptionClick(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         when (itemId) {
             R.id.option_delete_user -> confirmDelete()
         }

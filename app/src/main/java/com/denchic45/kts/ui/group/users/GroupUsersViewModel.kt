@@ -58,6 +58,7 @@ class GroupUsersViewModel @Inject constructor(
             interactor.getUsersByGroupId(groupId),
             interactor.getCurator(groupId)
         )
+
         users = Transformations.map(groupUsers) { studentsWithCurator: Pair<List<User>, User> ->
             students = studentsWithCurator.first
             val userList: MutableList<DomainModel> = ArrayList(students)

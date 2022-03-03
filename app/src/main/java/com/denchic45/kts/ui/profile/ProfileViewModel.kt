@@ -60,7 +60,7 @@ class ProfileViewModel @Inject constructor(
         if (!userOfProfile!!.generatedAvatar) openFullImage.value = showAvatar.value
     }
 
-    fun onOptionClick(id: Int) {
+    override fun onOptionClick(id: Int) {
         when (id) {
             R.id.menu_select_avatar -> openGallery.call()
         }

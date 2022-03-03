@@ -8,9 +8,9 @@ data class GroupTimetable(
 ) {
 
 
-    fun findEventByAbsolutelyPosition(positionEvent: Int): Event {
-      return  weekEvents.flatMap { it.events }[positionEvent]
-    }
+//    fun findEventByAbsolutelyPosition(positionEvent: Int): Event {
+//      return  weekEvents.flatMap { it.events }[positionEvent]
+//    }
 
     val lastEvent: Event?
         get() = weekEvents.last().events.lastOrNull()

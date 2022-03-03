@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
@@ -23,28 +22,22 @@ import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.toast
-import com.denchic45.widget.ListStateLayout
 import com.denchic45.widget.calendar.WeekCalendarListener
-import com.denchic45.widget.calendar.WeekCalendarView
-import com.denchic45.widget.calendar.model.Week
+import com.denchic45.widget.calendar.model.WeekItem
 import com.example.searchbar.SearchBar
-import org.jetbrains.annotations.Contract
+import java.time.LocalDate
 import java.util.*
 
 class TimetableFinderFragment :
-    BaseFragment<TimetableFinderViewModel, FragmentTimetableFinderBinding>() {
+    BaseFragment<TimetableFinderViewModel, FragmentTimetableFinderBinding>(R.layout.fragment_timetable_finder) {
     override val binding: FragmentTimetableFinderBinding by viewBinding(
         FragmentTimetableFinderBinding::bind
     )
     override val viewModel: TimetableFinderViewModel by viewModels { viewModelFactory }
-    private lateinit var searchBar: SearchBar
     private var popupWindow: ListPopupWindow? = null
-    private var rv: RecyclerView? = null
     private var adapter: EventAdapter? = null
     private lateinit var menu: Menu
     private var actionMode: ActionMode? = null
-    private lateinit var wcv: WeekCalendarView
-    private var listStateLayout: ListStateLayout? = null
     private var popupAdapter: ListPopupWindowAdapter? = null
 
     override fun onResume() {
@@ -52,33 +45,6 @@ class TimetableFinderFragment :
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_timetable_finder, container, false)
-        searchBar = root.findViewById(R.id.sb_group)
-        rv = root.findViewById(R.id.rv_timetable)
-        wcv = root.findViewById(R.id.wcv)
-        listStateLayout = root.findViewById(R.id.listStateLayout)
-        wcv.setListener(object : WeekCalendarListener {
-            override fun onDaySelect(date: Date) {
-                viewModel.onDateSelect(date)
-            }
-
-            override fun onWeekSelect(week: Week) {}
-        })
-        searchBar.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
-            override fun onQueryTextChange(groupName: String) {
-                viewModel.onGroupNameType(groupName)
-            }
-
-            override fun onQueryTextSubmit(groupName: String) {
-                viewModel.onGroupNameType(groupName)
-            }
-        })
-        return root
-    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
@@ -124,40 +90,104 @@ class TimetableFinderFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         popupWindow = ListPopupWindow(requireActivity())
-        viewModel.showFoundGroups.observe(viewLifecycleOwner) { groups: List<ListItem> ->
-            if (groups.isEmpty()) {
-                popupWindow!!.dismiss()
-                return@observe
-            }
-            popupAdapter = ListPopupWindowAdapter(requireContext(), groups)
-            popupWindow!!.setAdapter(popupAdapter)
-            popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-                popupWindow!!.dismiss()
-                searchBar.setIgnoreText(true)
-                searchBar.setText(popupAdapter!!.getItem(position).title)
-                searchBar.setIgnoreText(false)
-                viewModel.onGroupClick(position)
-            }
-            if (popupWindow!!.isShowing) return@observe
-            popupWindow!!.anchorView = searchBar
-            popupWindow!!.show()
-            popupWindow!!.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
-        }
+
         adapter = EventAdapter(
             viewModel.lessonTime, false,
             onCreateLessonClickListener = { viewModel.onCreateEventItemClick() },
-            onEditEventItemClickListener = { position ->
-                viewModel.onLessonItemEditClick(
-                    position
-                )
+            onEditEventItemClickListener = { position, _ ->
+                viewModel.onLessonItemEditClick(position)
             },
-            onItemTouchListener = { viewHolder: RecyclerView.ViewHolder? ->
+            onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
                 itemTouchHelper.startDrag(
-                    viewHolder!!
+                    viewHolder
                 )
             }
         )
-        rv!!.adapter = adapter
+
+        with(binding) {
+            wcv.setWeekCalendarListener(object : WeekCalendarListener {
+                override fun onDaySelect(date: LocalDate) {
+                    viewModel.onDateSelect(date)
+                }
+
+                override fun onWeekSelect(weekItem: WeekItem) {}
+            })
+
+            searchBar.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
+                override fun onQueryTextChange(groupName: String) {
+                    viewModel.onGroupNameType(groupName)
+                }
+
+                override fun onQueryTextSubmit(groupName: String) {
+                    viewModel.onGroupNameType(groupName)
+                }
+            })
+
+            rvTimetable.adapter = adapter
+
+            viewModel.showFoundGroups.observe(viewLifecycleOwner) { groups: List<ListItem> ->
+                if (groups.isEmpty()) {
+                    popupWindow!!.dismiss()
+                    return@observe
+                }
+                popupAdapter = ListPopupWindowAdapter(requireContext(), groups)
+                popupWindow!!.setAdapter(popupAdapter)
+                popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+                    popupWindow!!.dismiss()
+                    searchBar.setIgnoreText(true)
+                    searchBar.setText(popupAdapter!!.getItem(position).title)
+                    searchBar.setIgnoreText(false)
+                    viewModel.onGroupClick(position)
+                }
+                if (popupWindow!!.isShowing) return@observe
+                popupWindow!!.anchorView = searchBar
+                popupWindow!!.show()
+                popupWindow!!.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
+            }
+
+            viewModel.enableEditMode.observe(viewLifecycleOwner) { allow: Boolean ->
+                adapter!!.enableEditMode = allow
+                if (allow) {
+                    wcv.isEnabled = false
+
+                    actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
+                        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                            mode.menuInflater.inflate(R.menu.action_timetable_editor, menu)
+                            return true
+                        }
+
+                        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+                            return true
+                        }
+
+                        override fun onActionItemClicked(
+                            mode: ActionMode,
+                            item: MenuItem
+                        ): Boolean {
+                            viewModel.onActionItemClick(item.itemId)
+                            return true
+                        }
+
+                        override fun onDestroyActionMode(mode: ActionMode) {
+                            viewModel.onDestroyActionMode()
+                            actionMode = null
+                            wcv.isEnabled = true
+                        }
+                    })
+                } else if (actionMode != null) {
+                    actionMode!!.finish()
+                }
+            }
+            viewModel.showEditedLessons.observe(viewLifecycleOwner) { lessons: List<DomainModel> ->
+                adapter!!.submitList(ArrayList(lessons))
+            }
+            viewModel.editTimetableOptionVisibility.observe(
+                viewLifecycleOwner
+            ) { visible: Boolean -> menu.getItem(0).isVisible = visible }
+
+            itemTouchHelper.attachToRecyclerView(rvTimetable)
+        }
+
         viewModel.showLessonsOfGroupByDate.observe(
             viewLifecycleOwner,
             EventObserver { lessons: List<Event> ->
@@ -169,48 +199,9 @@ class TimetableFinderFragment :
         viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int ->
             toast(getString(resId))
         }
-        viewModel.enableEditMode.observe(viewLifecycleOwner) { allow: Boolean ->
-            if (allow) {
-                wcv.isEnabled = false
-                adapter!!.enableEditMode()
-                actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
-                    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                        mode.menuInflater.inflate(R.menu.action_timetable_editor, menu)
-                        return true
-                    }
-
-                    override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-                        return true
-                    }
-
-                    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-                        viewModel.onActionItemClick(item.itemId)
-                        return true
-                    }
-
-                    override fun onDestroyActionMode(mode: ActionMode) {
-                        viewModel.onDestroyActionMode()
-                        actionMode = null
-                        wcv.isEnabled = true
-                    }
-                })
-            } else if (actionMode != null) {
-                adapter!!.disableEditMode()
-                actionMode!!.finish()
-            }
-        }
-        viewModel.showEditedLessons.observe(viewLifecycleOwner) { lessons: List<DomainModel> ->
-            adapter!!.submitList(ArrayList(lessons))
-        }
-        viewModel.editTimetableOptionVisibility.observe(
-            viewLifecycleOwner
-        ) { visible: Boolean -> menu.getItem(0).isVisible = visible }
-
-        itemTouchHelper.attachToRecyclerView(rv)
     }
 
     companion object {
-        @Contract(" -> new")
         fun newInstance(): TimetableFinderFragment {
             return TimetableFinderFragment()
         }

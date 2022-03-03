@@ -23,13 +23,13 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     abstract fun getSync(id: String): CourseWithSubjectWithTeacherAndGroupsEntities
 
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
-    abstract fun getCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectAndTeacherEntities>>
+    abstract fun observeCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectAndTeacherEntities>>
 
     @Query("SELECT gc.course_id FROM group_course gc WHERE gc.group_id =:groupId")
     abstract fun getCourseIdsByGroupId(groupId: String): Flow<List<String>>
 
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
-    abstract fun getCoursesByGroupIdSync(groupId: String): List<CourseWithSubjectWithTeacherAndGroupsEntities>
+    abstract suspend fun getCoursesByGroupId(groupId: String): List<CourseWithSubjectWithTeacherAndGroupsEntities>
 
     @Query("SELECT EXISTS(SELECT * FROM course c JOIN group_course gc ON gc.group_id =:groupId WHERE c.teacher_id= :teacherId)")
     abstract fun isGroupHasSuchTeacher(teacherId: String, groupId: String): Boolean

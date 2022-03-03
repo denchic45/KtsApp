@@ -68,9 +68,9 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
             viewModel.enableSpecialtyField.observe(viewLifecycleOwner) { enable: Boolean ->
                 etSpecialty.isEnabled = enable
             }
-            viewModel.toolbarTitle.observe(
-                viewLifecycleOwner
-            ) { title: String -> setActivityTitle(title) }
+//            viewModel.toolbarTitle.observe(
+//                viewLifecycleOwner
+//            ) { title: String -> setActivityTitle(title) }
             viewModel.openChoiceOfCurator.observe(
                 viewLifecycleOwner
             ) { navController!!.navigate(R.id.action_groupEditorFragment_to_choiceOfCuratorFragment) }

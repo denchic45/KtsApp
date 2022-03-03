@@ -2,10 +2,10 @@ package com.denchic45.kts.data.model.firestore
 
 import com.denchic45.kts.data.model.DocModel
 import com.denchic45.kts.data.model.room.CourseContentEntity
+import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.utils.UUIDS
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
-import java.util.stream.Collectors
 
 data class DayDoc(
     val id: String = UUIDS.createShort(),
@@ -19,20 +19,28 @@ data class DayDoc(
     var groupId: String
 ) : DocModel {
 
-    private constructor(): this("", Date(), emptyList(), emptyList(), emptyList(), emptyList(), Date(), "")
+    private constructor() : this(
+        "",
+        Date(),
+        emptyList(),
+        emptyList(),
+        emptyList(),
+        emptyList(),
+        Date(),
+        ""
+    )
 
     var events: List<EventDoc>
         set(value) {
             _events = value
-            teacherIds = events.stream()
-                .filter { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.type == "LESSON" }
-                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.teacherIds }
-                .flatMap { obj: List<String> -> obj.stream() }
-                .collect(Collectors.toList())
-            subjectIds = events.stream()
-                .filter { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.type == "LESSON" }
-                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.subjectId }
-                .collect(Collectors.toList())
+            teacherIds = events
+                .filter { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.type == EventEntity.TYPE.LESSON }
+                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.teacherIds!! }
+                .flatten()
+
+            subjectIds = events
+                .filter { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.type == EventEntity.TYPE.LESSON }
+                .map { eventDoc: EventDoc -> eventDoc.eventDetailsDoc.subjectId!! }
         }
         get() = _events
 }

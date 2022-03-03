@@ -23,6 +23,7 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.DateFormatUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.toDate
+import com.denchic45.kts.utils.toLocalDate
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.*
 import io.reactivex.rxjava3.core.Completable
@@ -36,7 +37,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 import javax.inject.Inject
@@ -70,7 +70,7 @@ class EventRepository @Inject constructor(
     private val groupsRef = firestore.collection("Groups")
     private val daysRef: Query = firestore.collectionGroup("Days")
 
-    fun findLessonsOfGroupByDate(date: Date, groupId: String): Flow<List<Event>> {
+    fun findLessonsOfGroupByDate(date: LocalDate, groupId: String): Flow<List<Event>> {
         addListenerRegistrationIfNotExist("$date of $groupId") {
             getQueryOfLessonsOfGroupByDate(
                 date,
@@ -92,8 +92,8 @@ class EventRepository @Inject constructor(
             .map { eventMapper.entityToDomain(it) }
     }
 
-    fun findLessonOfYourGroupByDate(date: Date, groupId: String): Flow<List<Event>> {
-        if (date.after(nextSaturday) || date.before(previousMonday)) {
+    fun findLessonOfYourGroupByDate(date: LocalDate, groupId: String): Flow<List<Event>> {
+        if (date.toDate() > nextSaturday || date.toDate() < previousMonday) {
             addListenerRegistrationIfNotExist("$date of $groupId") {
                 getQueryOfLessonsOfGroupByDate(
                     date,
@@ -117,7 +117,7 @@ class EventRepository @Inject constructor(
             .map { eventMapper.entityToDomain(it) }
     }
 
-    fun findLessonsForTeacherByDate(date: Date): Flow<List<Event>> {
+    fun findLessonsForTeacherByDate(date: LocalDate): Flow<List<Event>> {
         val teacherId = userPreference.id
         addListenerRegistrationIfNotExist("$date of teacher") {
             getListenerOfLessonsOfTeacherByDate(date, teacherId)
@@ -128,11 +128,11 @@ class EventRepository @Inject constructor(
             .map { eventMapper.entityToDomain(it) }
     }
 
-    private fun getQueryOfLessonsOfGroupByDate(date: Date, groupId: String): Query {
+    private fun getQueryOfLessonsOfGroupByDate(date: LocalDate, groupId: String): Query {
         return groupsRef
             .document(groupId)
             .collection("Days")
-            .whereEqualTo("date", DateFormatUtil.convertDateToDateUTC(date))
+            .whereEqualTo("date", date.toDate())
     }
 
 //    private fun saveDay(dayDoc: DayDoc) {
@@ -229,7 +229,7 @@ class EventRepository @Inject constructor(
         dataBase.withTransaction {
             dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date, dayDoc.groupId))
             val eventEntities = eventMapper.docToEntity(dayDoc.events)
-            lessonDao.replaceByDateAndGroup(eventEntities, dayDoc.date, dayDoc.groupId)
+            lessonDao.replaceByDateAndGroup(eventEntities, dayDoc.date.toLocalDate(), dayDoc.groupId)
             val teacherEventCrossRefs =
                 eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
             teacherEventDao.upsert(teacherEventCrossRefs)
@@ -238,12 +238,12 @@ class EventRepository @Inject constructor(
     }
 
     private fun getListenerOfLessonsOfTeacherByDate(
-        date: Date,
+        date: LocalDate,
         teacherId: String
     ): ListenerRegistration {
         return firestore.collectionGroup("Days")
             .whereArrayContains("teacherIds", teacherId)
-            .whereEqualTo("date", DateFormatUtil.convertDateToDateUTC(date))
+            .whereEqualTo("date", DateFormatUtil.convertDateToDateUTC(date.toDate()))
             .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if (error != null) {
                     Log.d("lol", "getLessonsOfTeacherByDateListener: ", error)
@@ -301,19 +301,19 @@ class EventRepository @Inject constructor(
     }
 
     private val nextSaturday: Date
-        get() = Date.from(
-            LocalDate.now()
-                .with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
-                .plusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
-        )
-    private val previousMonday: Date
-        get() = Date.from(
-            LocalDate.now()
-                .with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
-                .minusWeeks(1).atStartOfDay(ZoneId.systemDefault()).toInstant()
-        )
+        get() = LocalDate.now()
+            .with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
+            .plusWeeks(1)
+            .toDate()
 
-    fun loadLessonsInDateRange(startDate: Date?): Completable {
+    private val previousMonday: Date
+        get() = LocalDate.now()
+            .with(TemporalAdjusters.previous(DayOfWeek.MONDAY))
+            .minusWeeks(1)
+            .toDate()
+
+
+    fun loadLessonsInDateRange(startDate: Date): Completable {
         return Completable.create { emitter: CompletableEmitter ->
             daysRef
                 .whereGreaterThanOrEqualTo("date", startDate!!)
@@ -400,20 +400,22 @@ class EventRepository @Inject constructor(
         daysRef: CollectionReference
     ): Task<QuerySnapshot> {
         val monday = DateFormatUtil.convertDateToDateUTC(groupTimetable.weekEvents[0].date.toDate())
-        val saturday = DateFormatUtil.convertDateToDateUTC(groupTimetable.weekEvents[5].date.toDate())
+        val saturday =
+            DateFormatUtil.convertDateToDateUTC(groupTimetable.weekEvents[5].date.toDate())
         return daysRef.whereGreaterThanOrEqualTo("date", monday)
             .whereLessThanOrEqualTo("date", saturday)
             .get()
     }
 
 
-    suspend fun updateEventsOfDay(events: List<Event>, date: Date, group: CourseGroup) {
-        val dayDocId = dayDao.getIdByDateAndGroupId(date, group.id)
+    suspend fun updateEventsOfDay(events: List<Event>, date: LocalDate, group: CourseGroup) {
+        val dayDocId = dayDao.getIdByDateAndGroupId(date.toDate(), group.id)
         if (isNetworkNotAvailable) return
         val daysRef = groupsRef.document(group.id)
             .collection("Days")
         if (dayDocId != null) {
-            val snapshot = daysRef.whereEqualTo("date", date)
+            val toDate = date.toDate()
+            val snapshot = daysRef.whereEqualTo("date", toDate)
                 .get()
                 .await()
 
@@ -433,7 +435,7 @@ class EventRepository @Inject constructor(
         } else {
             // todo ВАЖНО СРАВНИТЬ ДАТУ!!!
             val dayDoc = DayDoc(
-                date = date,
+                date = date.toDate(),
                 _events = eventMapper.domainToDoc(events),
                 groupId = group.id,
             )

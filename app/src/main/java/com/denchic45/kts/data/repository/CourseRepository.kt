@@ -288,7 +288,7 @@ class CourseRepository @Inject constructor(
     fun findByGroupId(groupId: String): Flow<List<CourseHeader>> {
         if (groupId != groupPreference.groupId)
             getCoursesByGroupIdRemotely(groupId)
-        return courseDao.getCoursesByGroupId(groupId).asFlow()
+        return courseDao.observeCoursesByGroupId(groupId).asFlow()
             .map { courseMapper.entityToDomainHeaders(it) }
     }
 
@@ -311,7 +311,7 @@ class CourseRepository @Inject constructor(
 
     fun findByYourGroup(): LiveData<List<CourseHeader>> {
         return Transformations.map(
-            courseDao.getCoursesByGroupId(groupPreference.groupId)
+            courseDao.observeCoursesByGroupId(groupPreference.groupId)
         ) { entity ->
             courseMapper.entityToDomainHeaders(entity)
         }

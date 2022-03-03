@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "36bb9fd5d6c613e0a0fdcd2c4f5bc7a7",
+    "identityHash": "8cbb7ea534982e89d50c5398f4b28e87",
     "entities": [
       {
         "tableName": "subject",
@@ -44,18 +44,12 @@
       },
       {
         "tableName": "event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `order` INTEGER NOT NULL, `date` TEXT NOT NULL, `room` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `teacher_ids` TEXT NOT NULL, `group_id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `icon_url` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`event_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `order` INTEGER NOT NULL, `date` TEXT NOT NULL, `room` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `teacher_ids` TEXT NOT NULL, `group_id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `icon_url` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`event_id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "event_id",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "timestamp",
-            "columnName": "timestamp",
-            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -926,7 +920,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '36bb9fd5d6c613e0a0fdcd2c4f5bc7a7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8cbb7ea534982e89d50c5398f4b28e87')"
     ]
   }
 }

@@ -258,7 +258,7 @@ class TaskEditorViewModel @Inject constructor(
         postCompletionDate()
     }
 
-    fun onOptionClick(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         when (itemId) {
             R.id.option_attachment -> {
                 openFileChooser.call()

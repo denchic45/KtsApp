@@ -9,9 +9,8 @@ import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.data.repository.EventRepository
 import com.denchic45.kts.data.repository.SubjectRepository
-import com.denchic45.kts.utils.DateFormatUtil
 import com.denchic45.kts.utils.Events.addMissingEmptyEvents
-import java.util.*
+import java.time.LocalDate
 import javax.inject.Inject
 
 class TimetableInteractor @Inject constructor(
@@ -21,19 +20,18 @@ class TimetableInteractor @Inject constructor(
     private val userPreference: UserPreference
 ) : Interactor {
 
-    fun findEventsOfYourGroupByDate(date: Date): LiveData<List<Event>> {
+    fun findEventsOfYourGroupByDate(date: LocalDate): LiveData<List<Event>> {
         return eventRepository.findLessonOfYourGroupByDate(date, groupPreference.groupId)
             .asLiveData()
     }
 
-    fun findEventsOfGroupByDate(date: Date, groupId: String): LiveData<List<Event>> {
+    fun findEventsOfGroupByDate(date: LocalDate, groupId: String): LiveData<List<Event>> {
         return eventRepository.findLessonOfYourGroupByDate(date, groupId).asLiveData()
     }
 
-    fun findEventsForTeacherByDate(date: Date): LiveData<List<Event>> {
+    fun findEventsForTeacherByDate(date: LocalDate): LiveData<List<Event>> {
         return Transformations.map(
-            eventRepository.findLessonsForTeacherByDate(DateFormatUtil.convertDateToDateUTC(date))
-                .asLiveData()
+            eventRepository.findLessonsForTeacherByDate(date).asLiveData()
         ) { addMissingEmptyEvents(it.toMutableList()) }
     }
 

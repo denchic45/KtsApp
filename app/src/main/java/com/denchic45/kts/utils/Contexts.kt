@@ -8,3 +8,6 @@ fun Context.path(uri: Uri): String = Files.getPath(this, uri)
 
 fun Context.toast(message: CharSequence, duration: Int = Toast.LENGTH_SHORT) =
     Toast.makeText(this, message, duration).show()
+
+fun Context.toast(messageRes: Int, duration: Int = Toast.LENGTH_SHORT) =
+    Toast.makeText(this, getString(messageRes), duration).show()

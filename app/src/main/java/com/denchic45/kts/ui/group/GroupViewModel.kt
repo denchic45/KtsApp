@@ -10,7 +10,10 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -24,7 +27,7 @@ class GroupViewModel @Inject constructor(
 
     val menuItemVisibility = SingleLiveData<Pair<Int, Boolean>>()
 
-    val title = MutableStateFlow("")
+//    val title = MutableStateFlow("")
 
     val openUserEditor = SingleLiveData<Pair<String, String>>()
 
@@ -70,7 +73,7 @@ class GroupViewModel @Inject constructor(
 
     fun onPageSelect(position: Int) {
         if (position == 0 || position == 1) {
-            title.value = title.value
+            toolbarTitle = toolbarTitle
         }
     }
 
@@ -82,7 +85,9 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            groupNameByGroupId.collect { title.value = it }
+            groupNameByGroupId.collect {
+                toolbarTitle = it
+            }
         }
         isExistGroup = interactor.isExistGroup(this.groupId)
         isExistGroupObserver = Observer { exist: Boolean ->

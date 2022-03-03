@@ -5,15 +5,15 @@ import androidx.room.Junction
 import androidx.room.Relation
 import com.denchic45.kts.data.model.EntityModel
 
-data class EventTaskSubjectTeachersEntities(
+data class EventWithSubjectAndTeachersEntities(
     @Embedded
-    var eventEntity: EventEntity?,
+    var eventEntity: EventEntity,
 
-    @Relation(parentColumn = "date", entityColumn = "completion_date")
-    var courseContentEntity: CourseContentEntity,
+//    @Relation(parentColumn = "date", entityColumn = "completion_date")
+//    var courseContentEntity: CourseContentEntity,
 
     @Relation(parentColumn = "subject_id", entityColumn = "subject_id")
-    var subjectEntity: SubjectEntity,
+    var subjectEntity: SubjectEntity?,
 
     @Relation(entity = GroupEntity::class, parentColumn = "group_id", entityColumn = "group_id")
     var groupEntity: GroupWithCuratorAndSpecialtyEntity,

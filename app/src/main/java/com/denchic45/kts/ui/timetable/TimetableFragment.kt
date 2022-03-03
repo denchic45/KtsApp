@@ -4,11 +4,12 @@ import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.animation.LinearInterpolator
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.EventObserver
@@ -22,9 +23,10 @@ import com.denchic45.kts.ui.main.MainViewModel
 import com.denchic45.widget.ListStateLayout
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.WeekCalendarListener.OnLoadListener
-import com.denchic45.widget.calendar.model.Week
+import com.denchic45.widget.calendar.model.WeekItem
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import java.util.*
+import kotlinx.coroutines.flow.collect
+import java.time.LocalDate
 
 class TimetableFragment :
     BaseFragment<TimetableViewModel, FragmentTimetableBinding>(R.layout.fragment_timetable),
@@ -48,13 +50,13 @@ class TimetableFragment :
 
     override fun onResume() {
         super.onResume()
-        viewModel.title.value = viewModel.title.value
+//        viewModel.toolbarTitle.value = viewModel.toolbarTitle.value
 
         appBarController.setLiftOnScroll(false)
         appBarController.setExpandableIfViewCanScroll(this.binding.rvLessons, viewLifecycleOwner)
-        viewModel.title.observe(
-            viewLifecycleOwner
-        ) { title -> (requireActivity() as AppCompatActivity).supportActionBar!!.title = title }
+//        viewModel.toolbarTitle.observe(
+//            viewLifecycleOwner
+//        ) { title -> (requireActivity() as AppCompatActivity).supportActionBar!!.title = title }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,16 +64,19 @@ class TimetableFragment :
         with(this.binding) {
             val listStateLayout: ListStateLayout = view.findViewById(R.id.listStateLayout)
             listStateLayout.addView(R.layout.state_lessons_day_off, DAY_OFF_VIEW)
-            viewModel.initTimetable.observe(viewLifecycleOwner) { groupVisibility: Boolean? ->
+            viewModel.initTimetable.observe(viewLifecycleOwner) { groupVisibility: Boolean ->
                 appBarController = AppBarController.findController(
                     requireActivity()
                 )
 
-                mainViewModel.selectedDate.observe(viewLifecycleOwner) { selectDate ->
-                    wcv.setSelectDate(selectDate)
+                binding.wcv.setWeekCalendarListener(this@TimetableFragment)
+
+                lifecycleScope.launchWhenStarted {
+                    viewModel.selectedDate.collect { selectDate ->
+                        wcv.setSelectDate(selectDate)
+                    }
                 }
-                binding.wcv.setListener(this@TimetableFragment)
-                val adapter = EventAdapter(viewModel.lessonTime, groupVisibility!!,
+                val adapter = EventAdapter(viewModel.lessonTime, groupVisibility,
 
                     onLessonItemClickListener = object : OnLessonItemClickListener() {
                     })
@@ -106,16 +111,17 @@ class TimetableFragment :
         }
     }
 
+
+
     private fun startLiftOnScrollElevationOverlayAnimation(lifted: Boolean) {
-        val appBarElevation = resources.getDimension(R.dimen.design_appbar_elevation)
+        val appBarElevation = 4F
         val fromElevation: Float = if (lifted) 0F else appBarElevation
         val toElevation: Float = if (lifted) appBarElevation else 0F
         if (lifted && this.binding.wcv.elevation == appBarElevation
-            || !lifted && this.binding.wcv.elevation == 0f
+            || !lifted && this.binding.wcv.elevation == 0F
         ) return
         val elevationOverlayAnimator = ValueAnimator.ofFloat(fromElevation, toElevation)
-        elevationOverlayAnimator.duration =
-            resources.getInteger(R.integer.app_bar_elevation_anim_duration).toLong()
+        elevationOverlayAnimator.duration = 150
         elevationOverlayAnimator.interpolator = LinearInterpolator()
         elevationOverlayAnimator.addUpdateListener { valueAnimator: ValueAnimator ->
             this.binding.wcv.elevation = valueAnimator.animatedValue as Float
@@ -123,16 +129,16 @@ class TimetableFragment :
         elevationOverlayAnimator.start()
     }
 
-    override fun onDaySelect(date: Date) {
+    override fun onDaySelect(date: LocalDate) {
         viewModel.onDaySelect(date)
     }
 
-    override fun onWeekSelect(week: Week) {
-        viewModel.onWeekSelect(week)
+    override fun onWeekSelect(weekItem: WeekItem) {
+        viewModel.onWeekSelect(weekItem)
     }
 
-    override fun onWeekLoad(week: Week) {
-        viewModel.onWeekLoad(week)
+    override fun onWeekLoad(weekItem: WeekItem) {
+        viewModel.onWeekLoad(weekItem)
     }
 
     companion object {

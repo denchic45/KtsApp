@@ -42,7 +42,7 @@ class ContentViewModel @Inject constructor(
         const val ALLOW_SEE_SUBMISSION = "ALLOW_SEE_SUBMISSION"
     }
 
-    fun onOptionClick(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         when (itemId) {
             R.id.option_task_edit -> openTaskEditor.value = taskId to courseId
             R.id.options_task_delete -> {

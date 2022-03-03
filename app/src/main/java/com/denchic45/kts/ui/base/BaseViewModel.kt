@@ -1,11 +1,12 @@
 package com.denchic45.kts.ui.base
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
-open class BaseViewModel : ViewModel() {
+abstract class BaseViewModel : ViewModel() {
     @JvmField
     val showMessage = SingleLiveData<String>()
 
@@ -15,10 +16,25 @@ open class BaseViewModel : ViewModel() {
     @JvmField
     val finish = SingleLiveData<Void>()
 
-
     val showToast = MutableSharedFlow<String>()
 
     val openConfirmation = SingleLiveData<Pair<String, String>>()
+
+    internal val showToolbarTitle = MutableSharedFlow<String>(replay = 1)
+
+    protected var toolbarTitle: String
+        get() = showToolbarTitle.replayCache[0]
+        set(value) {
+            viewModelScope.launch {
+                showToolbarTitle.emit(value)
+            }
+        }
+
+//    protected fun setToolbarTitle(title: String) {
+//        viewModelScope.launch {
+//            _toolbarTitle.emit(title)
+//        }
+//    }
 
     private var optionsIsCreated: Boolean = false
 
@@ -27,4 +43,5 @@ open class BaseViewModel : ViewModel() {
         else optionsIsCreated = true
     }
 
+    open fun onOptionClick(itemId: Int) {}
 }

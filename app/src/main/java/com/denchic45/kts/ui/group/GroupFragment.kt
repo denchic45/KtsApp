@@ -3,20 +3,19 @@ package com.denchic45.kts.ui.group
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.di.viewmodel.ViewModelFactory
+import com.denchic45.kts.databinding.FragmentGroupBinding
+import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorActivity
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
@@ -26,14 +25,11 @@ import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.tabs.TabLayout
 import dagger.android.support.AndroidSupportInjection
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.filter
-import javax.inject.Inject
 
-class GroupFragment : Fragment() {
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<GroupViewModel>
-    private val viewModel: GroupViewModel by viewModels { viewModelFactory }
+class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
+
+    override val binding: FragmentGroupBinding by viewBinding(FragmentGroupBinding::bind)
+    override val viewModel: GroupViewModel by viewModels { viewModelFactory }
     private var viewPager: ViewPager? = null
     private var menu: Menu? = null
     private var navController: NavController? = null
@@ -76,13 +72,6 @@ class GroupFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         navController = findNavController(view)
-        lifecycleScope.launchWhenStarted {
-            viewModel.title
-                .filter(String::isNotEmpty)
-                .collect { title: String ->
-                    (requireActivity() as AppCompatActivity).supportActionBar!!.title = title
-                }
-        }
         viewModel.menuItemVisibility.observe(
             viewLifecycleOwner
         ) { idAndVisiblePair: Pair<Int, Boolean> ->

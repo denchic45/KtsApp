@@ -1,17 +1,17 @@
 package com.denchic45.widget.calendar;
 
-import com.denchic45.widget.calendar.model.Week;
+import com.denchic45.widget.calendar.model.WeekItem;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public interface WeekCalendarListener {
 
-    void onDaySelect(Date date);
+    void onDaySelect(LocalDate date);
 
-    void onWeekSelect(Week week);
+    void onWeekSelect(WeekItem weekItem);
 
     interface OnLoadListener {
 
-        void onWeekLoad(Week week);
+        void onWeekLoad(WeekItem weekItem);
     }
 }

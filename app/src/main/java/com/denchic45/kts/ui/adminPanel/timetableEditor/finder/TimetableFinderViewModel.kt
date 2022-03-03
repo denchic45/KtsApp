@@ -12,7 +12,7 @@ import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import org.apache.commons.lang3.time.DateUtils
+import java.time.LocalDate
 import java.util.*
 import java.util.stream.Collectors
 import javax.inject.Inject
@@ -45,7 +45,7 @@ class TimetableFinderViewModel @Inject constructor(
 
     private var saveEditedLessons = false
     private var foundGroups: List<CourseGroup>? = null
-    private var selectedDate = DateUtils.truncate(Date(), Calendar.DAY_OF_MONTH)
+    private var selectedDate = LocalDate.now()
     fun onGroupNameType(groupName: String) {
         viewModelScope.launch {
             typedGroupName.emit(groupName)
@@ -57,15 +57,15 @@ class TimetableFinderViewModel @Inject constructor(
         updateVisibilityTimetableOption()
     }
 
-    fun onDateSelect(date: Date?) {
-        selectedDate = DateFormatUtil.convertDateToDateUTC(date)
+    fun onDateSelect(date: LocalDate) {
+        selectedDate = date
         if (selectedGroup.value != null) {
             selectedGroup.value = selectedGroup.value
             editTimetableOptionVisibility.value = true
         }
     }
 
-    fun onOptionClick(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         if (itemId == R.id.menu_timetable_edit) {
             enableEditMode.value = true
             editingEvents.addAll(
@@ -169,7 +169,7 @@ class TimetableFinderViewModel @Inject constructor(
             Event.empty(
                 group = selectedGroup.value!!,
                 order = order,
-                date = selectedDate.toLocalDate(),
+                date = selectedDate,
                 details = Lesson.createEmpty()
             )
         eventEditorInteractor.setEditedEvent(createdLesson, true)

@@ -15,8 +15,4 @@ class UpcomingTasksViewModel @Inject constructor(
         viewModelScope,
         SharingStarted.Lazily
     )
-
-    fun onOptionClick(itemId: Int) {
-        TODO("Not yet implemented")
-    }
 }

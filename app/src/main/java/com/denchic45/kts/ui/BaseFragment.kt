@@ -2,13 +2,16 @@ package com.denchic45.kts.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.kts.utils.toast
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.coroutines.flow.collect
@@ -35,6 +38,22 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int 
         lifecycleScope.launchWhenStarted {
             viewModel.showToast.collect(this@BaseFragment::toast)
         }
+        collectOnShowToolbarTitle()
+    }
+
+  open  fun collectOnShowToolbarTitle() {
+        lifecycleScope.launchWhenResumed {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.showToolbarTitle.collect {
+                    setActivityTitle(it)
+                }
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.onOptionClick(item.itemId)
+        return true
     }
 
     override fun onAttach(context: Context) {

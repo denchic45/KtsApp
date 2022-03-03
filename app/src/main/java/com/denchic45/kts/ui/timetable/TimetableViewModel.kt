@@ -1,14 +1,18 @@
 package com.denchic45.kts.ui.timetable
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.DateFormatUtil
-import com.denchic45.widget.calendar.model.Week
+import com.denchic45.kts.utils.Dates
+import com.denchic45.kts.utils.capitalized
+import com.denchic45.kts.utils.toDate
+import com.denchic45.widget.calendar.model.WeekItem
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.time.LocalDate
 import java.util.*
 import java.util.function.Function
 import javax.inject.Inject
@@ -19,35 +23,30 @@ class TimetableViewModel @Inject constructor(
     private val interactor: TimetableInteractor
 ) : BaseViewModel() {
     val showLessonsOfDay: LiveData<List<Event>>
-    val title = MutableLiveData<String>()
-    val showListState = MutableLiveData<String>()
-    private val lessonsDate = MutableLiveData<Date>()
+    val showListState = MutableLiveData<String?>()
+    private val lessonsDate = MutableLiveData<LocalDate>()
     val initTimetable = MutableLiveData<Boolean>()
+    var selectedDate = MutableStateFlow(LocalDate.now())
+
     private var groupId: String
 
-    private var findEventsByDate: Function<Date, LiveData<List<Event>>>
-    fun onWeekSelect(week: Week) {
-        val selectedDay = week.selectedDay
-        if (selectedDay == -1) {
-            title.setValue(DateFormatUtil.convertDateToStringHidingCurrentYear(week.getDate(3)))
+    private var findEventsByDate: Function<LocalDate, LiveData<List<Event>>>
+    fun onWeekSelect(weekItem: WeekItem) {
+        val selectedDay = weekItem.selectedDay
+        toolbarTitle = if (selectedDay == -1) {
+            Dates.toStringHidingCurrentYear(weekItem[3]).capitalized()
         } else {
-            title.setValue(
-                DateFormatUtil.convertDateToStringHidingCurrentYear(
-                    week.getDate(
-                        selectedDay
-                    )
-                )
-            )
+            Dates.toStringHidingCurrentYear(weekItem[selectedDay]).capitalized()
         }
     }
 
-    fun onWeekLoad(week: Week) {
-        Log.d("lol", "onWeekLoad: $week")
+    fun onWeekLoad(weekItem: WeekItem) {
+        //Nothing
     }
 
-    fun onDaySelect(date: Date) {
+    fun onDaySelect(date: LocalDate) {
         lessonsDate.value = date
-        title.value = DateFormatUtil.convertDateToStringHidingCurrentYear(date)
+        toolbarTitle = Dates.toStringHidingCurrentYear(date)
     }
 
     val lessonTime: Int
@@ -73,14 +72,14 @@ class TimetableViewModel @Inject constructor(
 
         findEventsByDate = if (User.isStudent(role)) {
             initTimetable.value = false
-            Function { date: Date -> interactor.findEventsOfGroupByDate(date, this.groupId) }
+            Function { date -> interactor.findEventsOfGroupByDate(date, this.groupId) }
         } else {
             initTimetable.value = true
             Function { date -> interactor.findEventsForTeacherByDate(date) }
         }
         showLessonsOfDay = Transformations.switchMap(lessonsDate) { date ->
             val cal = Calendar.getInstance()
-            cal.time = date
+            cal.time = date.toDate()
             if (cal[Calendar.DAY_OF_WEEK] == Calendar.SUNDAY) {
                 showListState.value = TimetableFragment.DAY_OFF_VIEW
                 return@switchMap MutableLiveData<List<Event>>()
@@ -88,7 +87,16 @@ class TimetableViewModel @Inject constructor(
             showListState.value = null
             findEventsByDate.apply(date)
         }
-        lessonsDate.value = Date()
-        title.value = DateFormatUtil.convertDateToStringHidingCurrentYear(Date())
+        lessonsDate.value = LocalDate.now()
+        toolbarTitle = Dates.toStringHidingCurrentYear(LocalDate.now()).capitalized()
+
+    }
+
+    override fun onOptionClick(itemId: Int) {
+        when (itemId) {
+            R.id.option_select_today -> {
+                selectedDate.value = LocalDate.now()
+            }
+        }
     }
 }

@@ -49,7 +49,6 @@ public interface CourseMapper {
     @IterableMapping(qualifiedByName = "entityToDomain2")
     List<Course> entityToDomain2(List<CourseWithSubjectWithTeacherAndGroupsEntities> entity);
 
-
     @Mapping(source = "courseEntity.name", target = "name")
     @Mapping(source = "courseEntity.id", target = "id")
     @Mapping(source = "subjectEntity", target = "subject")
@@ -78,11 +77,6 @@ public interface CourseMapper {
 //    List<Course> entityToDomain(List<CourseWithSubjectWithTeacherAndGroupsEntities> entities);
 
     List<Course> entityToDomain(List<CourseWithSubjectAndTeacherEntities> entities);
-
-    @Mapping(source = "groupEntity.id", target = "id")
-    @Mapping(source = "groupEntity.name", target = "name")
-    @Mapping(source = "specialtyEntity.id", target = "specialtyId")
-    CourseGroup entityToCourseGroup(GroupWithCuratorAndSpecialtyEntity groupWithCuratorAndSpecialtyEntity);
 
 //    @InheritConfiguration(name = "entityToDomain")
 //    Course entityToDomainInfo(CourseWithSubjectWithTeacherAndGroupsEntities entity);

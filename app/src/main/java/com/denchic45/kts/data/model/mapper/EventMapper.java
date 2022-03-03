@@ -11,7 +11,7 @@ import com.denchic45.kts.data.model.domain.User;
 import com.denchic45.kts.data.model.firestore.EventDetailsDoc;
 import com.denchic45.kts.data.model.firestore.EventDoc;
 import com.denchic45.kts.data.model.room.EventEntity;
-import com.denchic45.kts.data.model.room.EventTaskSubjectTeachersEntities;
+import com.denchic45.kts.data.model.room.EventWithSubjectAndTeachersEntities;
 import com.denchic45.kts.data.model.room.TeacherEventCrossRef;
 import com.denchic45.kts.utils.DateFormatUtil;
 
@@ -55,7 +55,7 @@ public interface EventMapper extends
 
 
     @Named("mapDetails")
-    default EventDetails mapDetails(EventTaskSubjectTeachersEntities entities) {
+    default EventDetails mapDetails(EventWithSubjectAndTeachersEntities entities) {
         EventEntity.TYPE type = entities.getEventEntity().getType();
         if (type.equals(EventEntity.TYPE.LESSON)) {
             return eventEntityToLesson(entities);
@@ -70,13 +70,13 @@ public interface EventMapper extends
 
     @Mapping(source = "teacherEntities", target = "teachers")
     @Mapping(source = "subjectEntity", target = "subject")
-    @Mapping(source = "courseContentEntity", target = "task")
-    Lesson eventEntityToLesson(EventTaskSubjectTeachersEntities entities);
+//    @Mapping(source = "courseContentEntity", target = "task")
+    Lesson eventEntityToLesson(EventWithSubjectAndTeachersEntities entities);
 
     @Mapping(source = "eventEntity", target = ".")
-    SimpleEventDetails eventEntityToSimple(EventTaskSubjectTeachersEntities entities);
+    SimpleEventDetails eventEntityToSimple(EventWithSubjectAndTeachersEntities entities);
 
-    EmptyEventDetails eventEntityToEmpty(EventTaskSubjectTeachersEntities entities);
+    EmptyEventDetails eventEntityToEmpty(EventWithSubjectAndTeachersEntities entities);
 
     @Mapping(source = "group.id", target = "groupId")
     @Mapping(source = "details", target = ".", qualifiedByName = "mapDetails")
@@ -85,8 +85,8 @@ public interface EventMapper extends
     @InheritInverseConfiguration
     EventEntity eventEntityToEvent(Event domain);
 
-    default List<Event> entityToDomain(@NonNull List<EventTaskSubjectTeachersEntities> eventTaskSubjectTeachersEntities) {
-        return eventTaskSubjectTeachersEntities.stream()
+    default List<Event> entityToDomain(@NonNull List<EventWithSubjectAndTeachersEntities> eventWithSubjectAndTeachersEntities) {
+        return eventWithSubjectAndTeachersEntities.stream()
                 .map(this::eventEntityToEvent)
                 .collect(Collectors.toList());
     }
@@ -94,7 +94,7 @@ public interface EventMapper extends
     @Mapping(source = "groupEntity", target = "group")
     @Mapping(source = "eventEntity", target = ".")
     @Mapping(target = "details", qualifiedByName = "mapDetails", source = ".")
-    Event eventEntityToEvent(EventTaskSubjectTeachersEntities eventEntity);
+    Event eventEntityToEvent(EventWithSubjectAndTeachersEntities eventEntity);
 
     @Named("mapTeacherList")
     default List<String> mapTeacherList(@NotNull List<User> teachers) {
@@ -116,6 +116,7 @@ public interface EventMapper extends
     }
 
     @Mapping(source = "group.id", target = "groupId")
+    @Mapping(source = "details", target = "eventDetailsDoc", qualifiedByName = "detailsToDetailsDoc")
     EventDoc eventToEventDoc(Event domain);
 
     default List<EventDoc> domainToDoc(@NonNull List<Event> docs) {
@@ -124,13 +125,14 @@ public interface EventMapper extends
                 .collect(Collectors.toList());
     }
 
+    @Named("detailsToDetailsDoc")
     default EventDetailsDoc detailsToDetailsDoc(@NonNull EventDetails eventDetails) {
         if (eventDetails.getType().equals(EventEntity.TYPE.LESSON))
             return lessonToDetailsDoc((Lesson) eventDetails);
         else if (eventDetails.getType().equals(EventEntity.TYPE.SIMPLE))
             return simpleToDetailsDoc((SimpleEventDetails) eventDetails);
         else if (eventDetails.getType().equals(EventEntity.TYPE.EMPTY))
-            return emptyToDetailsDoc(eventDetails);
+            return emptyToDetailsDoc();
         throw new IllegalArgumentException();
     }
 
@@ -140,7 +142,9 @@ public interface EventMapper extends
 
     EventDetailsDoc simpleToDetailsDoc(SimpleEventDetails eventDetails);
 
-    EventDetailsDoc emptyToDetailsDoc(EventDetails eventDetails);
+    default EventDetailsDoc emptyToDetailsDoc() {
+        return EventDetailsDoc.Companion.createEmpty();
+    }
 
     @Mapping(source = "date", target = "date", qualifiedByName = "toUTC")
     @Mapping(source = "eventDetailsDoc", target = ".")

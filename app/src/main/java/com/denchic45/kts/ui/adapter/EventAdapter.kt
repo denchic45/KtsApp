@@ -34,42 +34,52 @@ import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.transition.Elevation
 import com.denchic45.widget.transition.Rotation
+import java.time.LocalDate
 
 class EventAdapter(
     private val lessonTime: Int,
     private val groupVisibility: Boolean,
-    var onEditEventItemClickListener: OnEditEventItemClickListener = OnEditEventItemClickListener {},
+    var onEditEventItemClickListener: OnEditEventItemClickListener = OnEditEventItemClickListener { _, _ -> },
     var onLessonItemClickListener: OnLessonItemClickListener = object :
         OnLessonItemClickListener() {},
-    var onCreateLessonClickListener: OnCreateLessonClickListener = OnCreateLessonClickListener {},
-    var onItemTouchListener: OnItemTouchListener = OnItemTouchListener { }
-) :
-    ListAdapter<DomainModel, BaseViewHolder<DomainModel, *>>(
-        DIFF_CALLBACK
-    ) {
-    private var enableEditMode = false
+    var onCreateLessonClickListener: OnCreateLessonClickListener = OnCreateLessonClickListener { },
+    var onItemMoveListener: (viewHolder: RecyclerView.ViewHolder) -> Unit = { }
+) : ListAdapter<DomainModel, BaseViewHolder<DomainModel, *>>(DIFF_CALLBACK) {
 
-    fun enableEditMode() {
-        enableEditMode = true
-        Handler(Looper.getMainLooper()).postDelayed({
-            notifyItemRangeChanged(
-                0,
-                itemCount,
-                PAYLOAD.ENABLE_EDIT_MODE
-            )
-        }, 300)
-    }
+    var enableEditMode = false
+        set(value) {
+            val payLoad = if (value) PAYLOAD.ENABLE_EDIT_MODE else PAYLOAD.DISABLE_EDIT_MODE
+            field = value
+            Handler(Looper.getMainLooper()).postDelayed({
+                notifyItemRangeChanged(
+                    0,
+                    itemCount,
+                    payLoad
+                )
+            }, 300)
+        }
 
-    fun disableEditMode() {
-        enableEditMode = false
-        Handler(Looper.getMainLooper()).postDelayed({
-            notifyItemRangeChanged(
-                0,
-                itemCount,
-                PAYLOAD.DISABLE_EDIT_MODE
-            )
-        }, 300)
-    }
+//    fun enableEditMode() {
+//        enableEditMode = true
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            notifyItemRangeChanged(
+//                0,
+//                itemCount,
+//                PAYLOAD.ENABLE_EDIT_MODE
+//            )
+//        }, 300)
+//    }
+//
+//    fun disableEditMode() {
+//        enableEditMode = false
+//        Handler(Looper.getMainLooper()).postDelayed({
+//            notifyItemRangeChanged(
+//                0,
+//                itemCount,
+//                PAYLOAD.DISABLE_EDIT_MODE
+//            )
+//        }, 300)
+//    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -79,9 +89,8 @@ class EventAdapter(
             TYPE_LESSON -> {
                 return LessonHolder(
                     parent.viewBinding(ItemLessonBinding::inflate),
-                    onLessonItemClickListener,
                     onEditEventItemClickListener,
-                    onItemTouchListener,
+                    onItemMoveListener,
                     lessonTime,
                     groupVisibility
                 ) as BaseViewHolder<DomainModel, *>
@@ -99,7 +108,7 @@ class EventAdapter(
                 return EmptyEventHolder(
                     parent.viewBinding(ItemEventEmptyBinding::inflate),
                     onEditEventItemClickListener,
-                    onItemTouchListener,
+                    onItemMoveListener,
                     lessonTime
                 ) as BaseViewHolder<DomainModel, *>
             }
@@ -107,7 +116,7 @@ class EventAdapter(
                 return SimpleEventHolder(
                     parent.viewBinding(ItemEventBinding::inflate),
                     onEditEventItemClickListener,
-                    onItemTouchListener,
+                    onItemMoveListener,
                     lessonTime
                 ) as BaseViewHolder<DomainModel, *>
             }
@@ -124,11 +133,11 @@ class EventAdapter(
 
     override fun getItemViewType(position: Int): Int {
         if (getItem(position) is Event) {
-            if ((getItem(position) as Event?)!!.details.type == EventEntity.TYPE.LESSON) return TYPE_LESSON
-            if ((getItem(position) as Event?)!!.details.type == EventEntity.TYPE.SIMPLE) return TYPE_SIMPLE
-            if ((getItem(position) as Event?)!!.details.type == EventEntity.TYPE.EMPTY) return TYPE_EMPTY
+            if ((getItem(position) as Event).details.type == EventEntity.TYPE.LESSON) return TYPE_LESSON
+            if ((getItem(position) as Event).details.type == EventEntity.TYPE.SIMPLE) return TYPE_SIMPLE
+            if ((getItem(position) as Event).details.type == EventEntity.TYPE.EMPTY) return TYPE_EMPTY
         } else if (getItem(position) is ListItem) {
-            return (getItem(position) as ListItem?)!!.type
+            return (getItem(position) as ListItem).type
         }
         throw IllegalStateException()
     }
@@ -169,11 +178,11 @@ class EventAdapter(
     }
 
     fun interface OnCreateLessonClickListener {
-        fun onLessonCreateClick(position: Int)
+        fun onLessonCreateClick(dayOfWeek: Int)
     }
 
     fun interface OnEditEventItemClickListener {
-        fun onLessonEditClick(position: Int)
+        fun onLessonEditClick(position: Int, dayOfWeek: Int)
     }
 
     abstract class OnLessonItemClickListener : OnItemClickListener {
@@ -182,10 +191,11 @@ class EventAdapter(
 
     abstract class EventHolder<VB : ViewBinding> @SuppressLint("ClickableViewAccessibility") constructor(
         itemEventBinding: VB,
-        onEditEventItemClickListener: OnEditEventItemClickListener?,
-        itemTouchListener: OnItemTouchListener?,
+        private val onEditEventItemClickListener: OnEditEventItemClickListener,
+        private val onItemMoveListener: (viewHolder: RecyclerView.ViewHolder) -> Unit,
         private val lessonTime: Int
     ) : BaseViewHolder<Event, VB>(itemEventBinding) {
+
         protected val ivEdit: ImageView = itemView.findViewById(R.id.iv_lesson_edit)
         private val ivDrag: ImageView = itemView.findViewById(R.id.iv_lesson_drag)
         private val tvOrder: TextView =
@@ -194,9 +204,24 @@ class EventAdapter(
         protected val ivIcon: ImageView? =
             itemView.findViewById(R.id.imageView_lesson_icon)
         protected val tvTitle: TextView = itemView.findViewById(R.id.textView_lesson_name)
+
         override fun onBind(item: Event) {
             tvTime.text = LessonTimeCalculator().getCalculatedTime(item.order, lessonTime)
             tvOrder.text = item.order.toString()
+
+            ivEdit.setOnClickListener {
+                onEditEventItemClickListener.onLessonEditClick(
+                    bindingAdapterPosition,
+                    item.date.dayOfWeek.value - 1
+                )
+            }
+
+            ivDrag.setOnTouchListener { _, event: MotionEvent ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    onItemMoveListener(this)
+                }
+                false
+            }
         }
 
         fun setEnableEditMode(enableEditMode: Boolean) {
@@ -246,23 +271,14 @@ class EventAdapter(
         }
 
         init {
-            ivEdit.setOnClickListener {
-                onEditEventItemClickListener!!.onLessonEditClick(absoluteAdapterPosition)
-            }
-            ivDrag.setOnTouchListener { _: View?, event: MotionEvent ->
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    itemTouchListener!!.onTouch(this)
-                }
-                false
-            }
+
         }
     }
 
     class LessonHolder(
         itemLessonBinding: ItemLessonBinding,
-        private val lessonItemClickListener: OnLessonItemClickListener?,
-        onEditEventItemClickListener: OnEditEventItemClickListener?,
-        itemTouchListener: OnItemTouchListener?,
+        onEditEventItemClickListener: OnEditEventItemClickListener,
+        itemTouchListener: (viewHolder: RecyclerView.ViewHolder) -> Unit,
         lessonTime: Int,
         private val groupVisibility: Boolean
     ) : EventHolder<ItemLessonBinding>(
@@ -379,19 +395,21 @@ class EventAdapter(
 
     class LessonCreateHolder(
         itemLessonCreateBinding: ItemIconContentBinding,
-        listener: OnCreateLessonClickListener
+        private val listener: OnCreateLessonClickListener
     ) :
         BaseViewHolder<ListItem, ItemIconContentBinding>(itemLessonCreateBinding) {
         override fun onBind(item: ListItem) {
-            // Nothing
+            itemView.setOnClickListener { v: View? ->
+                listener.onLessonCreateClick(
+                    (item.content as LocalDate).dayOfWeek.value - 1
+                )
+            }
         }
 
         init {
             val ivIcon = itemView.findViewById<ImageView>(R.id.iv_ic)
             val tvTitle: TextView = itemView.findViewById(R.id.tv_content)
-            itemView.setOnClickListener { v: View? ->
-                listener.onLessonCreateClick(absoluteAdapterPosition)
-            }
+
             ivIcon.setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.ic_add))
             tvTitle.text = "Добавить урок"
         }
@@ -400,12 +418,12 @@ class EventAdapter(
     internal class SimpleEventHolder(
         itemEventBinding: ItemEventBinding,
         onEditEventItemClickListener: OnEditEventItemClickListener,
-        itemTouchListener: OnItemTouchListener,
+        onItemMoveListener: (viewHolder: RecyclerView.ViewHolder) -> Unit,
         lessonTime: Int
     ) : EventHolder<ItemEventBinding>(
         itemEventBinding,
         onEditEventItemClickListener,
-        itemTouchListener,
+        onItemMoveListener,
         lessonTime
     ) {
         override fun onBind(item: Event) {
@@ -423,8 +441,8 @@ class EventAdapter(
 
     internal class EmptyEventHolder(
         itemEventEmptyBinding: ItemEventEmptyBinding,
-        onEditEventItemClickListener: OnEditEventItemClickListener?,
-        itemTouchListener: OnItemTouchListener?,
+        onEditEventItemClickListener: OnEditEventItemClickListener,
+        itemTouchListener: (viewHolder: RecyclerView.ViewHolder) -> Unit,
         lessonTime: Int
     ) : EventHolder<ItemEventEmptyBinding>(
         itemEventEmptyBinding,
@@ -452,7 +470,7 @@ class EventAdapter(
                     return if (oldItem is Event && newItem is Event) {
                         oldItem == newItem
                     } else oldItem is ListItem && newItem is ListItem
-                            && oldItem.type == TYPE_CREATE && newItem.type == TYPE_CREATE
+                            && oldItem == newItem
                 }
 
                 override fun getChangePayload(oldItem: DomainModel, newItem: DomainModel): Any? {

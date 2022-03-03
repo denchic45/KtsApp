@@ -37,7 +37,6 @@ class GroupEditorViewModel @Inject constructor(
     @Named("courses") val courseList: List<ListItem>
 ) : BaseViewModel() {
     val enableSpecialtyField = MutableLiveData<Boolean>()
-    val toolbarTitle = MutableLiveData<String>()
     val showMessageId = SingleLiveData<Int>()
     val nameField = MutableLiveData<String>()
     val specialtyField = MutableLiveData<String>()
@@ -107,17 +106,22 @@ class GroupEditorViewModel @Inject constructor(
             Validation(Rule({ curatorField.value != null }, R.string.error_not_curator))
                 .sendMessageIdResult(showMessageId)
         )
-        if (uiEditor.isNew) setupForNewItem() else setupForExistItem()
+
+        if (uiEditor.isNew)
+            setupForNewItem()
+        else
+            setupForExistItem()
+
     }
 
     private fun setupForNewItem() {
-        toolbarTitle.value = "Создать группу"
+        toolbarTitle = "Создать группу"
     }
 
     private fun setupForExistItem() {
         existGroup
         enableSpecialtyField.value = false
-        toolbarTitle.value = "Редактировать группу"
+        toolbarTitle = "Редактировать группу"
     }
 
     private val existGroup: Unit
@@ -163,7 +167,7 @@ class GroupEditorViewModel @Inject constructor(
         )
     }
 
-    fun onOptionClick(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         when (itemId) {
             R.id.option_delete_group -> confirmDelete()
         }

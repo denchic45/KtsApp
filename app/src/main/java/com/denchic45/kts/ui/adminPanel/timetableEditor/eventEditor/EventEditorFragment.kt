@@ -66,8 +66,6 @@ class EventEditorFragment :
                 false
             )
         tvTitleBar = toolbarEventEditor.findViewById(R.id.tv_toolbar)
-        navHostFragment = childFragmentManager.findFragmentById(R.id.nav_host_fragment)
-        childNavController = findNavController(navHostFragment!!.requireView())
         viewModel.title.observe(requireActivity()) { s: String -> tvTitleBar.text = s }
 
         with(binding) {
@@ -176,6 +174,9 @@ class EventEditorFragment :
         controller = AppBarController.findController(requireActivity())
         (activity as AppCompatActivity?)!!.supportActionBar?.title = null
         controller!!.toolbar.addView(toolbarEventEditor)
+
+        navHostFragment = childFragmentManager.findFragmentById(R.id.nav_host_fragment)
+        childNavController = findNavController(navHostFragment!!.requireView())
     }
 
     private fun setStartFragment(fragmentId: Int) {

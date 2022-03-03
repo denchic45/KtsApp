@@ -16,7 +16,4 @@ class OverdueTasksViewModel @Inject constructor(
         SharingStarted.Lazily
     )
 
-    fun onOptionClick(itemId: Int) {
-        TODO("Not yet implemented")
-    }
 }

@@ -9,6 +9,7 @@ import com.denchic45.kts.data.repository.EventRepository
 import com.denchic45.kts.data.repository.GroupInfoRepository
 import com.denchic45.kts.utils.DateFormatUtil
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
@@ -23,17 +24,17 @@ class TimetableFinderInteractor @Inject constructor(
 
     override fun removeListeners() {}
 
-    fun findLessonsOfGroupByDate(date: Date, groupId: String): Flow<List<Event>> {
+    fun findLessonsOfGroupByDate(date: LocalDate, groupId: String): Flow<List<Event>> {
         return eventRepository.findLessonsOfGroupByDate(date, groupId)
     }
 
     val lessonTime: Int
         get() = appPreference.lessonTime
 
-    suspend fun updateGroupLessonOfDay(lessons: List<Event>, date: Date, group: CourseGroup) {
+    suspend fun updateGroupLessonOfDay(lessons: List<Event>, date: LocalDate, group: CourseGroup) {
         eventRepository.updateEventsOfDay(
             lessons,
-            DateFormatUtil.convertDateToDateUTC(date),
+            date,
             group
         )
     }

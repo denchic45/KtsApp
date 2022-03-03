@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
@@ -24,12 +23,16 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentTimetableLoaderBinding
 import com.denchic45.kts.ui.BaseFragment
-import com.denchic45.kts.ui.adapter.*
+import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.EventAdapter.*
+import com.denchic45.kts.ui.adapter.OnItemMoveListener
+import com.denchic45.kts.ui.adapter.PreferenceSwitchAdapterDelegate
+import com.denchic45.kts.ui.adapter.preferenceAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
-import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.lessonsOfDay.LessonsOfDayFragment
+import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.lessonsOfDay.EventsFragment
 import com.denchic45.kts.utils.FilePicker
 import com.denchic45.kts.utils.path
+import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.extension.check
 import com.google.android.material.datepicker.CalendarConstraints
@@ -55,7 +58,7 @@ class TimetableLoaderFragment :
         FragmentTimetableLoaderBinding::bind
     )
     override val viewModel: TimetableLoaderViewModel by viewModels { viewModelFactory }
-    private lateinit var groupLessonsAdapter: GroupLessonsAdapter2
+    private lateinit var groupTimetablesAdapter: GroupTimetablesAdapter
     private lateinit var preferenceAdapter: DelegationAdapterExtended
     private val viewBinding: FragmentTimetableLoaderBinding by viewBinding(
         FragmentTimetableLoaderBinding::bind
@@ -88,22 +91,24 @@ class TimetableLoaderFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        groupLessonsAdapter = GroupLessonsAdapter2(childFragmentManager, lifecycle)
         with(viewBinding) {
-            groupLessonsAdapter = GroupLessonsAdapter2(childFragmentManager, lifecycle)
-            groupLessonsAdapter.setOnEditEventItemClickListener(this@TimetableLoaderFragment)
-            groupLessonsAdapter.setOnCreateLessonClickListener(this@TimetableLoaderFragment)
-            groupLessonsAdapter.setOnItemMoveListener(this@TimetableLoaderFragment)
-            vpTimetablePreview.adapter = groupLessonsAdapter
+            groupTimetablesAdapter = GroupTimetablesAdapter(
+                childFragmentManager,
+                lifecycle,
+                this@TimetableLoaderFragment,
+                this@TimetableLoaderFragment,
+                this@TimetableLoaderFragment
+            )
+            vpTimetablePreview.adapter = groupTimetablesAdapter
             TabLayoutMediator(
                 tlTimetableGroup,
                 vpTimetablePreview
             ) { tab: TabLayout.Tab, position: Int ->
-                tab.text = viewModel.timetables.value.groupNames[position]
+                tab.text = viewModel.groupNames[position]
             }.attach()
             tlTimetableGroup.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
-                    viewModel.onGroupSelect(tab.position)
+                    viewModel.onGroupTimetableSelect(tab.position)
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -113,7 +118,7 @@ class TimetableLoaderFragment :
                 onClick(viewModel::onPreferenceItemClick)
 
                 extensions {
-                    check<ItemAdapter.SwitchItemHolder>(
+                    check<PreferenceSwitchAdapterDelegate.PreferenceSwitchItemHolder>(
                         view = { it.binding.sw },
                         onCheck = { position, checked ->
                             viewModel.onPreferenceItemCheck(
@@ -130,6 +135,7 @@ class TimetableLoaderFragment :
             btnTimetableLoad.setOnClickListener {
                 viewModel.onLoadTimetableDocClick()
             }
+
             btnCreateEmpty.setOnClickListener {
                 val picker = MaterialDatePicker.Builder.datePicker()
                     .setTitleText("Выберите первый день необходимой недели")
@@ -163,43 +169,33 @@ class TimetableLoaderFragment :
                 }
             }
 
-//            viewModel.showTimetable.observe(
-//                viewLifecycleOwner
-//            ) { lessonsWithGroupNamePair ->
-
-//                groupLessonsAdapter.list = lessonsWithGroupNamePair.second
-//                groupLessonsAdapter.notifyItemRangeInserted(
-//                    0,
-//                    lessonsWithGroupNamePair.second.size
-//                )
-//            }
-
             lifecycleScope.launchWhenStarted {
                 viewModel.timetables.collect {
-
-                    for (i in it.groupNames.indices) {
-                        tlTimetableGroup.addTab(tlTimetableGroup.newTab())
-                    }
-
-                    groupLessonsAdapter.list =
-                        it.groupEvents.map(List<DomainModel>::toMutableList).toMutableList()
-                    groupLessonsAdapter.notifyItemRangeInserted(
-                        0,
-                        it.groupEvents.size
-                    )
+                    groupTimetablesAdapter.updateTimetable(it)
                 }
             }
-//            viewModel.showPublishingTimetable.observe(viewLifecycleOwner) {
-//                preferenceAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.SHOW_LOADING)
-//                preferenceAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.CHANGE_TITLE)
-//            }
+
+            lifecycleScope.launchWhenStarted {
+                viewModel.tabs.collect { groupNames ->
+                    toast("tabs ${groupNames.size}")
+                    TabLayoutMediator(
+                        tlTimetableGroup,
+                        vpTimetablePreview
+                    ) { tab: TabLayout.Tab, position: Int ->
+                        tab.text = groupNames[position]
+                    }.attach()
+
+                    tlTimetableGroup.removeAllTabs()
+                    for (i in groupNames) {
+                        tlTimetableGroup.addTab(tlTimetableGroup.newTab())
+                    }
+                }
+
+            }
 
             viewModel.enableEditMode.observe(viewLifecycleOwner) { enable: Boolean ->
                 vpTimetablePreview.post {
-                    groupLessonsAdapter.notifyItemRangeChanged(
-                        0, groupLessonsAdapter.itemCount,
-                        if (enable) EventAdapter.PAYLOAD.ENABLE_EDIT_MODE else EventAdapter.PAYLOAD.DISABLE_EDIT_MODE
-                    )
+                    groupTimetablesAdapter.editMode = enable
                 }
             }
 
@@ -208,17 +204,12 @@ class TimetableLoaderFragment :
             ) { position -> vsTimetableLoader.displayedChild = position }
 
 
-            vpTimetablePreview.adapter = groupLessonsAdapter
-            TabLayoutMediator(
-                tlTimetableGroup,
-                vpTimetablePreview
-            ) { tab: TabLayout.Tab, position: Int ->
-//                tab.text = viewModel.showTimetable.value!!.first[position]
-                tab.text = viewModel.timetables.value.groupNames[position]
-            }.attach()
+            vpTimetablePreview.adapter = groupTimetablesAdapter
+            vpTimetablePreview.offscreenPageLimit = 5
+
             tlTimetableGroup.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: TabLayout.Tab) {
-                    viewModel.onGroupSelect(tab.position)
+                    viewModel.onGroupTimetableSelect(tab.position)
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -226,42 +217,30 @@ class TimetableLoaderFragment :
             })
 
 
-            btnAddGroup.setOnClickListener { v: View? -> viewModel.onAddGroupClick() }
+            btnAddGroup.setOnClickListener { viewModel.onAddGroupClick() }
         }
         val navHostFragment = requireActivity().supportFragmentManager.primaryNavigationFragment
         navController = findNavController(navHostFragment!!.requireView())
-        viewModel.openFilePicker.observe(viewLifecycleOwner) {
 
+        viewModel.openFilePicker.observe(viewLifecycleOwner) {
             filePicker.selectFiles()
         }
-//        viewModel.allowEditTimetable.observe(
-//            viewLifecycleOwner
-//        ) { preferenceAdapter.notifyItemChanged(0, ItemAdapter.PAYLOAD.SHOW_IMAGE) }
 
-//        viewModel.showDone.observe(viewLifecycleOwner) {
-//            preferenceAdapter.notifyItemRangeRemoved(0, 2)
-//            preferenceAdapter.notifyItemChanged(1)
-//        }
-
-        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int? ->
-            Toast.makeText(
-                context, getString(
-                    resId!!
-                ), Toast.LENGTH_SHORT
-            ).show()
+        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int ->
+            requireContext().toast(resId)
         }
         viewModel.showErrorDialog.observe(viewLifecycleOwner) { s: String ->
             MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
                 .setTitle("Произошла ошибка")
                 .setMessage(s)
-                .setPositiveButton("ОК") { dialog: DialogInterface, which: Int -> }.show()
+                .setPositiveButton("ОК") { _: DialogInterface, _: Int -> }.show()
         }
 
 
         viewModel.updateEventsOfGroup.observe(
             viewLifecycleOwner
-        ) { integerListPair: Pair<Int, MutableList<DomainModel>> ->
-            groupLessonsAdapter.updateList(
+        ) { integerListPair: Pair<Int, List<List<DomainModel>>> ->
+            groupTimetablesAdapter.updateTimetable(
                 integerListPair.first,
                 integerListPair.second
             )
@@ -287,43 +266,38 @@ class TimetableLoaderFragment :
         ) { navController!!.popBackStack() }
 
         viewModel.addGroup.observe(viewLifecycleOwner) {
-            groupLessonsAdapter.notifyItemInserted(
-                groupLessonsAdapter.itemCount
+            groupTimetablesAdapter.notifyItemInserted(
+                groupTimetablesAdapter.itemCount
             )
         }
 
     }
 
-    internal class GroupLessonsAdapter2(
+    internal class GroupTimetablesAdapter(
         private val fragmentManager: FragmentManager,
-        lifecycle: Lifecycle
+        lifecycle: Lifecycle,
+        private var onEditEventItemClickListener: OnEditEventItemClickListener =
+            OnEditEventItemClickListener { _, _ -> },
+        private var onItemMoveListener: OnItemMoveListener,
+        private var onCreateLessonClickListener: OnCreateLessonClickListener =
+            OnCreateLessonClickListener { },
+        private var onLessonItemClickListener: OnLessonItemClickListener =
+            object : OnLessonItemClickListener() {}
     ) : FragmentStateAdapter(
         fragmentManager, lifecycle
     ) {
-        var list: MutableList<MutableList<DomainModel>> = ArrayList()
-        private var onItemMoveListener: OnItemMoveListener? = null
-        private var onCreateLessonClickListener: OnCreateLessonClickListener =
-            OnCreateLessonClickListener { }
-        private var onLessonItemClickListener: OnLessonItemClickListener =
-            object : OnLessonItemClickListener() {}
-        private var onEditEventItemClickListener: OnEditEventItemClickListener =
-            OnEditEventItemClickListener { }
 
-        fun setOnEditEventItemClickListener(onEditEventItemClickListener: OnEditEventItemClickListener) {
-            this.onEditEventItemClickListener = onEditEventItemClickListener
-        }
+        var editMode: Boolean = false
+            set(value) {
+                field = value
+                notifyItemRangeChanged(
+                    0, itemCount,
+                    if (value) EventAdapter.PAYLOAD.ENABLE_EDIT_MODE else EventAdapter.PAYLOAD.DISABLE_EDIT_MODE
+                )
+            }
 
-        fun setOnCreateLessonClickListener(onCreateLessonClickListener: OnCreateLessonClickListener) {
-            this.onCreateLessonClickListener = onCreateLessonClickListener
-        }
 
-        fun setOnLessonItemClickListener(onLessonItemClickListener: OnLessonItemClickListener) {
-            this.onLessonItemClickListener = onLessonItemClickListener
-        }
-
-        fun setOnItemMoveListener(onItemMoveListener: OnItemMoveListener?) {
-            this.onItemMoveListener = onItemMoveListener
-        }
+        var list: MutableList<List<List<DomainModel>>> = ArrayList()
 
         override fun onBindViewHolder(
             holder: FragmentViewHolder,
@@ -334,66 +308,67 @@ class TimetableLoaderFragment :
                 onBindViewHolder(holder, position)
             } else {
                 val tag = "f" + holder.itemId
-                val fragment = fragmentManager.findFragmentByTag(tag) as LessonsOfDayFragment
+                val fragment = fragmentManager.findFragmentByTag(tag) as EventsFragment
                 for (payload in payloads) {
                     when {
                         payload === EventAdapter.PAYLOAD.ENABLE_EDIT_MODE -> {
-                            fragment.enableEditMode()
+                            fragment.setEditMode(true)
                         }
                         payload === EventAdapter.PAYLOAD.DISABLE_EDIT_MODE -> {
-                            fragment.disableEditMode()
+                            fragment.setEditMode(false)
                         }
-                        payload === PAYLOAD.UPDATE_LESSONS -> {
-                            fragment.updateList(list[position])
+                        payload === PAYLOAD.UPDATE_EVENTS -> {
+                            fragment.submitList(list[position])
                         }
                     }
                 }
             }
         }
 
+
         override fun createFragment(position: Int): Fragment {
-            val fragment = LessonsOfDayFragment()
+            val fragment = EventsFragment()
 
             fragment.setOnEditEventItemClickListener(onEditEventItemClickListener)
             fragment.setOnCreateLessonClickListener(onCreateLessonClickListener)
             fragment.setOnLessonItemClickListener(onLessonItemClickListener)
 
-            fragment.setList(this.list[position])
+            fragment.submitList(this.list[position])
             fragment.setOnItemMoveListener(onItemMoveListener)
             return fragment
         }
 
         override fun getItemCount(): Int = list.size
 
-
-        fun updateList(position: Int, list: MutableList<DomainModel>) {
+        fun updateTimetable(position: Int, list: List<List<DomainModel>>) {
             this.list[position] = list
-            notifyItemChanged(position, PAYLOAD.UPDATE_LESSONS)
+            notifyItemChanged(position, PAYLOAD.UPDATE_EVENTS)
         }
 
-        internal enum class PAYLOAD { UPDATE_LESSONS }
+        fun updateTimetable(list: List<List<List<DomainModel>>>) {
+            this.list.clear()
+            this.list.addAll(list)
+            notifyItemRangeChanged(0, list.size, PAYLOAD.UPDATE_EVENTS)
+        }
+
+        internal enum class PAYLOAD { UPDATE_EVENTS }
     }
 
     companion object {
         const val PICK_FILE_RESULT_CODE = 1
     }
 
-    override fun onLessonEditClick(position: Int) {
-        viewModel.onLessonItemEditClick(
-            position,
-            binding.tlTimetableGroup.selectedTabPosition
-        )
+    override fun onLessonEditClick(position: Int, dayOfWeek: Int) {
+        viewModel.onLessonItemEditClick(position - 1, dayOfWeek)
     }
 
-    override fun onLessonCreateClick(position: Int) {
-        viewModel.onCreateLessonItemClick(
-            position
-        )
+    override fun onLessonCreateClick(dayOfWeek: Int) {
+        viewModel.onCreateLessonItemClick(dayOfWeek)
     }
 
-    override fun onMove(oldPosition: Int, targetPosition: Int) {
+    override fun onMove(oldPosition: Int, targetPosition: Int, dayOfWeek: Int) {
         viewModel.onLessonItemMove(
-            binding.vpTimetablePreview.currentItem, oldPosition, targetPosition
+            oldPosition - 1, targetPosition - 1, dayOfWeek
         )
     }
 

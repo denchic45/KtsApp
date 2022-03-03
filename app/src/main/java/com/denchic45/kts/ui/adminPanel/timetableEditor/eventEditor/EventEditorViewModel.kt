@@ -96,7 +96,7 @@ class EventEditorViewModel @Inject constructor(
         orderField.postValue(order.toString())
     }
 
-    fun onOptionClick(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         if (itemId == R.id.option_duplicate_lesson) {
             uiValidator.runValidates { saveChanges() }
             if (uiValidator.runValidates()) {

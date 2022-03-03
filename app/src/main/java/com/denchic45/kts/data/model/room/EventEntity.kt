@@ -12,8 +12,8 @@ data class EventEntity(
     @PrimaryKey
     @ColumnInfo(name = "event_id")
     var id: String,
-    @field:TypeConverters(TimestampConverter::class)
-    var timestamp: Date,
+//    @field:TypeConverters(TimestampConverter::class)
+//    var timestamp: Date,
     var order: Int = 0,
     @field:TypeConverters(DateConverter::class)
     var date: Date,

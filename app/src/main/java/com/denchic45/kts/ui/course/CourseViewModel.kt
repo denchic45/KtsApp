@@ -96,7 +96,7 @@ class CourseViewModel @Inject constructor(
         findCourseContentUseCase.removeListeners()
     }
 
-    fun onOptionClick(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         when (itemId) {
             R.id.option_edit_course -> openCourseEditor.value = courseId
             R.id.option_edit_sections -> openCourseSectionEditor.value = courseId

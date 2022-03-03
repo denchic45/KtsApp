@@ -1,5 +1,6 @@
 package com.denchic45.kts.data
 
+import android.util.Log
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.Event.Companion.empty
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.dinner
@@ -7,13 +8,10 @@ import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.practice
 import com.denchic45.kts.utils.DateFormatUtil
 import com.denchic45.kts.utils.toLocalDate
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import org.apache.poi.xwpf.usermodel.XWPFTable
 import org.apache.poi.xwpf.usermodel.XWPFTableCell
 import java.io.File
-import java.io.FileInputStream
 import java.time.LocalDate
 import java.util.*
 import java.util.stream.Collectors
@@ -42,8 +40,9 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
         val groupTimetableList: MutableList<GroupTimetable> = ArrayList()
 
         try {
-            val wordDoc = XWPFDocument(FileInputStream(docFile))
+            val wordDoc = XWPFDocument(docFile.inputStream())
             table = wordDoc.tables[0]
+
             val cellsInGroups: MutableList<XWPFTableCell> = ArrayList()
             cellsInGroups.addAll(table.getRow(1).tableCells)
             cellsInGroups.addAll(table.getRow(2).tableCells)
@@ -51,6 +50,7 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
             val groupCourses = callbackGroupInfo(findCourseNumber())
 
             val cellsCount = table.getRow(1).tableCells.size
+
             for (group in groupCourses) {
                 currentGroup = group
                 cellOfGroupPos = cellsInGroups.indexOf(
@@ -70,6 +70,7 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
         }
 
 
+        Log.d("lol", "return timetables: ${groupTimetableList.size}")
         return groupTimetableList
     }
 

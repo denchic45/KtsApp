@@ -7,7 +7,7 @@
     tools:context=".ui.adminPanel.timetableEditor.finder.TimetableFinderFragment">
 
     <com.example.searchbar.SearchBar
-        android:id="@+id/sb_group"
+        android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -22,7 +22,7 @@
         android:id="@+id/wcv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/sb_group" />
+        android:layout_below="@id/search_bar" />
 
     <com.denchic45.widget.ListStateLayout
         android:id="@+id/listStateLayout"

@@ -1,7 +1,9 @@
 package com.denchic45.kts.utils
 
+import org.apache.commons.lang3.StringUtils
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Year
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -33,3 +35,13 @@ fun LocalDate.toDate(): Date = Date.from(
         .atZone(ZoneId.systemDefault())
         .toInstant()
 )
+
+object Dates {
+    fun toStringHidingCurrentYear(date: LocalDate): String {
+        return if (Year.now().value == date.year) {
+            date.toString(DateFormatUtil.MMMM)
+        } else {
+            date.toString(DateFormatUtil.MMMM_yyyy)
+        }
+    }
+}

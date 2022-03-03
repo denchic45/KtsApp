@@ -26,8 +26,6 @@ class LoginViewModel @Inject constructor(
 
     val errorNum = SingleLiveData<String>()
 
-    private val toolbarTitle = MutableLiveData<String>()
-
     val showProgress = MutableLiveData(0f)
 
     val fabVisibility = MutableLiveData<Boolean>()
@@ -62,7 +60,7 @@ class LoginViewModel @Inject constructor(
                 {
                     fabVisibility.value = false
                     incrementProgress(0.65f)
-                    toolbarTitle.value = "Проверка"
+                    toolbarTitle = "Проверка"
                     openVerifyPhoneNum.call()
                     verifyUser.setValue(normalizeNumber)
                 }
@@ -141,6 +139,6 @@ class LoginViewModel @Inject constructor(
     }
 
     init {
-        toolbarTitle.value = "Начало"
+        toolbarTitle = "Начало"
     }
 }

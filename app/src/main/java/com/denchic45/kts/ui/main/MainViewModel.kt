@@ -12,6 +12,7 @@ import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
@@ -57,7 +58,6 @@ class MainViewModel @Inject constructor(
     val userInfo = MutableLiveData<User>()
 
     private val uiPermissions: UiPermissions
-    var selectedDate = SingleLiveData<Date>()
 
     var openLogin = SingleLiveData<Void>()
 
@@ -67,7 +67,6 @@ class MainViewModel @Inject constructor(
 
     fun onOptionItemSelect(itemId: Int) {
         when (itemId) {
-            R.id.option_select_today -> selectedDate.setValue(Date())
             android.R.id.home -> goBack.call()
         }
     }

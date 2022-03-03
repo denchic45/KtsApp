@@ -1,144 +1,115 @@
-package com.denchic45.widget.calendar;
+package com.denchic45.widget.calendar
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.GridView;
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.GridView
+import androidx.recyclerview.widget.RecyclerView
+import com.denchic45.kts.R
+import com.denchic45.widget.calendar.WeekPageAdapter.WeekHolder
+import com.denchic45.widget.calendar.model.WeekItem
+import org.apache.commons.lang3.time.DateUtils
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.denchic45.kts.R;
-import com.denchic45.widget.calendar.model.Week;
-
-import org.apache.commons.lang3.time.DateUtils;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-public class WeekPageAdapter extends RecyclerView.Adapter<WeekPageAdapter.WeekHolder> {
-
-    private List<Week> weekList = new ArrayList<>();
-    private WeekCalendarListener listener;
-    private RecyclerView recyclerView;
-
-    private int weekItemOfCheckedDayItemPos = 3;
-
-    public List<Week> getData() {
-        return weekList;
+class WeekPageAdapter : RecyclerView.Adapter<WeekHolder>() {
+    var data: MutableList<WeekItem> = mutableListOf()
+    private var listener: WeekCalendarListener? = null
+    private var recyclerView: RecyclerView? = null
+    private var weekItemOfCheckedDayItemPos = 3
+    fun setListener(listener: WeekCalendarListener?) {
+        this.listener = listener
     }
 
-    public void setData(List<Week> weekList) {
-        this.weekList = weekList;
+    fun setCheckDay(position: Int) {
+        data[weekItemOfCheckedDayItemPos].selectedDay = -1
+        val week = data[position]
+        week.findAndSetCurrentDay()
+        notifyItemChanged(position)
+        notifyItemChanged(weekItemOfCheckedDayItemPos)
+        weekItemOfCheckedDayItemPos = position
     }
 
-    public void setListener(WeekCalendarListener listener) {
-        this.listener = listener;
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeekHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_week, parent, false)
+        return WeekHolder(view)
     }
 
-    public void setCheckDay(int position) {
-        weekList.get(weekItemOfCheckedDayItemPos).setSelectedDay(-1);
-        Week week = weekList.get(position);
-        week.findAndSetCurrentDay();
-        notifyItemChanged(position);
-        notifyItemChanged(weekItemOfCheckedDayItemPos);
-        weekItemOfCheckedDayItemPos = position;
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        this.recyclerView = recyclerView
     }
 
-    @NonNull
-    @Override
-    public WeekHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_week, parent, false);
-        return new WeekHolder(view);
+    override fun onBindViewHolder(holder: WeekHolder, position: Int) {
+        holder.onBind(position)
     }
 
-    @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        this.recyclerView = recyclerView;
+    override fun getItemCount(): Int {
+        return data.size
     }
 
-
-    @Override
-    public void onBindViewHolder(@NonNull WeekHolder holder, int position) {
-        holder.onBind(position);
+    fun getItem(position: Int): WeekItem {
+        return data[position]
     }
 
-    @Override
-    public long getItemId(int position) {
-        return super.getItemId(position);
+    fun notifyGriViewAdapter(position: Int) {
+        if (getWeekHolder(position) != null) getWeekHolder(position)!!.notifyGridViewAdapter()
     }
 
-    @Override
-    public int getItemCount() {
-        return weekList.size();
+    fun getWeekHolder(position: Int): WeekHolder? {
+        return recyclerView!!.findViewHolderForAdapterPosition(position) as WeekHolder?
     }
 
-    public Week getItem(int position) {
-        return weekList.get(position);
-    }
-
-    public void notifyGriViewAdapter(int position) {
-        if (getWeekHolder(position) != null)
-            getWeekHolder(position).notifyGridViewAdapter();
-    }
-
-    public WeekHolder getWeekHolder(int position) {
-        return (WeekHolder) recyclerView.findViewHolderForAdapterPosition(position);
-    }
-
-    class WeekHolder extends RecyclerView.ViewHolder {
-
-        private final GridView gridView;
-        private DayAdapter adapter;
-
-        public WeekHolder(@NonNull final View itemView) {
-            super(itemView);
-            gridView = itemView.findViewById(R.id.grid_days);
-
-            gridView.setOnItemClickListener((adapterView, view, position, l) -> {
-                if (weekItemOfCheckedDayItemPos != getBindingAdapterPosition()) {
-                    weekList.get(weekItemOfCheckedDayItemPos).setSelectedDay(-1);
-                    notifyItemChanged(weekItemOfCheckedDayItemPos);
-                    weekItemOfCheckedDayItemPos = getBindingAdapterPosition();
-                }
-                weekList.get(weekItemOfCheckedDayItemPos).setSelectedDay(position);
-                setCheckedItem(position, true);
-                listener.onDaySelect(DateUtils.truncate(adapter.getItem(position), Calendar.DAY_OF_MONTH));
-            });
+    inner class WeekHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val gridView: GridView = itemView.findViewById(R.id.grid_days)
+        private var adapter: DayAdapter? = null
+        fun setEnable(enable: Boolean) {
+            gridView.isEnabled = enable
+            adapter!!.enable = enable
+            gridView.invalidateViews()
         }
 
-        public void setEnable(boolean enable) {
-            gridView.setEnabled(enable);
-            adapter.setEnable(enable);
-            gridView.invalidateViews();
-        }
-
-        public void onBind(int position) {
-            addDaysOfWeek(weekList.get(position));
-            int selectedDay = weekList.get(position).getSelectedDay();
+        fun onBind(position: Int) {
+            addDaysOfWeek(data[position])
+            val selectedDay = data[position].selectedDay
             if (selectedDay != -1) {
-                weekItemOfCheckedDayItemPos = position;
-                setCheckedItem(selectedDay, true);
+                weekItemOfCheckedDayItemPos = position
+                setCheckedItem(selectedDay, true)
             }
         }
 
-        public void setCheckedItem(int position, boolean checked) {
-            gridView.setItemChecked(position, checked);
+        private fun setCheckedItem(position: Int, checked: Boolean) {
+            gridView.setItemChecked(position, checked)
         }
 
-        public void notifyGridViewAdapter() {
-            adapter.notifyDataSetChanged();
+        fun notifyGridViewAdapter() {
+            adapter!!.notifyDataSetChanged()
         }
 
+        private fun addDaysOfWeek(weekItem: WeekItem) {
+            val daysList = weekItem.daysOfWeek
+            adapter = DayAdapter(itemView.context, R.layout.item_date, daysList)
+            gridView.adapter = adapter
+        }
 
-        public void addDaysOfWeek(@NotNull Week week) {
-            List<Date> daysList = week.getDayOfWeekList();
-            adapter = new DayAdapter(itemView.getContext(), R.layout.item_date, daysList);
-            gridView.setAdapter(adapter);
+        init {
+            gridView.onItemClickListener =
+                AdapterView.OnItemClickListener { _, _, _, position ->
+                    if (weekItemOfCheckedDayItemPos != bindingAdapterPosition) {
+                        data[weekItemOfCheckedDayItemPos].selectedDay = -1
+                        notifyItemChanged(weekItemOfCheckedDayItemPos)
+                        weekItemOfCheckedDayItemPos = bindingAdapterPosition
+                    }
+                    data[weekItemOfCheckedDayItemPos].selectedDay =position.toInt()
+                    setCheckedItem(position.toInt(), true)
+                    listener!!.onDaySelect(
+
+                            adapter!!.getItem(
+                                position.toInt()
+                            )
+
+                    )
+                }
         }
     }
 }

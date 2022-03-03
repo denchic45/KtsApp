@@ -275,7 +275,7 @@ class CourseEditorViewModel @Inject constructor(
         enablePositiveBtn()
     }
 
-    fun onOptionClick(id: Int) {
+    override fun onOptionClick(id: Int) {
         when (id) {
             android.R.id.home -> {
                 confirmFinish()

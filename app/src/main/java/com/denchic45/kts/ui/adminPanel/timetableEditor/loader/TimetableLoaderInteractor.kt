@@ -28,9 +28,9 @@ class TimetableLoaderInteractor @Inject constructor(
         subjectRepository.removeListeners()
     }
 
-   suspend fun addLessonsOfWeek(groupWeekLessons: List<GroupTimetable>) {
-       delay(1500)
+   suspend fun addTimetables(groupWeekLessons: List<GroupTimetable>) {
+//       delay(1500)
        //TODO РАСКОММЕНТИРОВАТЬ!!!
-//       eventRepository.addLessonsOfWeekForGroups(groupWeekLessons)
+       eventRepository.addLessonsOfWeekForGroups(groupWeekLessons)
     }
 }

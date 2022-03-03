@@ -28,7 +28,7 @@ data class EventsOfTheDay(
     }
 
     fun update(editedEvent: Event) {
-        val oldEvent = findById(events, editedEvent.id)
+        val oldEvent = findById(editedEvent.id)
         _events.remove(oldEvent)
         if (oldEvent.order > editedEvent.order) {
             incrementOrdersIfNecessary(editedEvent)
@@ -60,11 +60,8 @@ data class EventsOfTheDay(
         }
     }
 
-    private fun findById(events: List<Event>, id: String): Event {
-        return events.stream()
-            .filter { event: Event -> event.id == id }
-            .findFirst()
-            .orElse(null)
+    private fun findById(id: String): Event {
+        return _events.first { event: Event -> event.id == id }
     }
 
     private fun addEmptyEventsIfNecessary(
@@ -95,6 +92,10 @@ data class EventsOfTheDay(
                 _events.remove(eventWithConflictedOrder)
             }
         }
+    }
+
+    fun swap(old:Int, new:Int) {
+        swap(events[old], events[new])
     }
 
     fun swap(shiftedEvent: Event, movedEvent: Event) {
@@ -176,6 +177,9 @@ data class EventsOfTheDay(
             _events[events.indexOf(event)] = event.copy(order = event.order - 1)
         }
     }
+
+    fun isEmpty(): Boolean = _events.isEmpty()
+    fun last(): Event = _events.last()
 
     val weekName: String
         get() = date.toString("EEE")
