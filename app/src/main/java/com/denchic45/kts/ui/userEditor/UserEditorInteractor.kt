@@ -31,7 +31,7 @@ class UserEditorInteractor @Inject constructor(
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 
-    fun getGroupsByTypedName(name: String): Flow<Resource<List<CourseGroup>>> {
+    fun getGroupsByTypedName(name: String): Flow<List<CourseGroup>> {
         return groupInfoRepository.findByTypedName(name)
     }
 

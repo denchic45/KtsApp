@@ -25,7 +25,6 @@ class ChoiceOfSubjectFragment :
     BaseFragment<ChoiceOfSubjectViewModel, FragmentChoiceOfSubjectBinding>() {
     private var appBarController: AppBarController? = null
     private var searchBar: SearchBar? = null
-    private var navController: NavController? = null
     private lateinit var listStateLayout: ListStateLayout
     override val binding: FragmentChoiceOfSubjectBinding by viewBinding(
         FragmentChoiceOfSubjectBinding::bind
@@ -40,7 +39,6 @@ class ChoiceOfSubjectFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController = findNavController(view)
         appBarController = AppBarController.findController(requireActivity())
         appBarController!!.toolbar.visibility = View.GONE
         searchBar = SearchBar(requireActivity())
@@ -66,7 +64,6 @@ class ChoiceOfSubjectFragment :
                 }
             }
         }
-        viewModel.finish.observe(viewLifecycleOwner) { navController!!.popBackStack() }
     }
 
     override fun onDestroy() {

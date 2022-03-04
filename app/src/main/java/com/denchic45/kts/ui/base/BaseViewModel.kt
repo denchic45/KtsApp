@@ -3,7 +3,9 @@ package com.denchic45.kts.ui.base
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 abstract class BaseViewModel : ViewModel() {
@@ -13,12 +15,13 @@ abstract class BaseViewModel : ViewModel() {
     @JvmField
     val showMessageRes = SingleLiveData<Int>()
 
-    @JvmField
-    val finish = SingleLiveData<Void>()
+    val finish = MutableSharedFlow<Nothing?>()
 
     val showToast = MutableSharedFlow<String>()
 
-    val openConfirmation = SingleLiveData<Pair<String, String>>()
+    private val _openConfirmation = Channel<Pair<String, String>>()
+
+    val openConfirmation = _openConfirmation.receiveAsFlow()
 
     internal val showToolbarTitle = MutableSharedFlow<String>(replay = 1)
 
@@ -30,6 +33,15 @@ abstract class BaseViewModel : ViewModel() {
             }
         }
 
+    protected fun finish() {
+        viewModelScope.launch { finish.emit(null) }
+    }
+
+    protected fun openConfirmation(titleWithText: Pair<String, String>) {
+        viewModelScope.launch {
+            _openConfirmation.send(titleWithText)
+        }
+    }
 //    protected fun setToolbarTitle(title: String) {
 //        viewModelScope.launch {
 //            _toolbarTitle.emit(title)

@@ -7,8 +7,10 @@ import android.view.*
 import android.view.View.OnFocusChangeListener
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
+import android.widget.Toast
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -26,7 +28,6 @@ import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
-import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
@@ -180,10 +181,6 @@ class CourseEditorFragment :
                 etSubjectName.setText("")
             }
 
-            viewModel.finish.observe(viewLifecycleOwner) {
-                findNavController().popBackStack()
-            }
-
             viewModel.selectTeacher.observe(viewLifecycleOwner) { teacher: User ->
                 Glide.with(requireActivity())
                     .load(teacher.photoUrl)
@@ -217,18 +214,10 @@ class CourseEditorFragment :
                 }
                 popupWindow!!.show()
             }
-            viewModel.openConfirmation.observe(viewLifecycleOwner) { titleWithSubtitlePair: Pair<String, String> ->
-                val dialog = ConfirmDialog.newInstance(
-                    titleWithSubtitlePair.first,
-                    titleWithSubtitlePair.second
-                )
-                dialog.show(childFragmentManager, null)
-            }
+
             viewModel.openChoiceOfGroup.observe(viewLifecycleOwner) {
                 findNavController().navigate(R.id.action_global_choiceOfGroupFragment)
             }
-
-            viewModel.finish.observe(viewLifecycleOwner) { findNavController().popBackStack() }
 
             viewModel.optionVisibility.observe(viewLifecycleOwner) { (id, visibility) ->
                 menu.findItem(id)?.isVisible = visibility

@@ -14,8 +14,6 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -45,7 +43,6 @@ class LessonEditorFragment : BaseFragment<LessonEditorViewModel, FragmentLessonE
     private var ivSubjectIc: ImageView? = null
     private var rlSubject: RelativeLayout? = null
     private var cpTeachers: ChipGroup? = null
-    private var navController: NavController? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -100,10 +97,10 @@ class LessonEditorFragment : BaseFragment<LessonEditorViewModel, FragmentLessonE
         }
         viewModel.openChoiceOfGroupSubject.observe(
             viewLifecycleOwner
-        ) { navController!!.navigate(R.id.action_lessonEditorFragment_to_choiceOfGroupSubjectFragment) }
+        ) { navController.navigate(R.id.action_lessonEditorFragment_to_choiceOfGroupSubjectFragment) }
         viewModel.openChoiceOfTeacher.observe(
             viewLifecycleOwner
-        ) { navController!!.navigate(R.id.action_lessonEditorFragment_to_choiceOfCuratorFragment) }
+        ) { navController.navigate(R.id.action_lessonEditorFragment_to_choiceOfCuratorFragment) }
         viewModel.showMessage.observe(
             viewLifecycleOwner,
             EventObserver { message: String? ->
@@ -164,11 +161,6 @@ class LessonEditorFragment : BaseFragment<LessonEditorViewModel, FragmentLessonE
                 }
             }).preload()
         return chip
-    }
-
-    override fun onStart() {
-        super.onStart()
-        navController = findNavController(requireActivity(), R.id.nav_host_fragment)
     }
 
     override fun onAttach(context: Context) {

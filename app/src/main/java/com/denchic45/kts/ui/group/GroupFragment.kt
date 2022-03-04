@@ -4,12 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -17,7 +16,6 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentGroupBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
-import com.denchic45.kts.ui.group.editor.GroupEditorActivity
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.group.users.GroupUsersFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
@@ -32,7 +30,6 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
     override val viewModel: GroupViewModel by viewModels { viewModelFactory }
     private var viewPager: ViewPager? = null
     private var menu: Menu? = null
-    private var navController: NavController? = null
     private var tabLayout: TabLayout? = null
     private lateinit var appBarController: AppBarController
 
@@ -71,7 +68,6 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        navController = findNavController(view)
         viewModel.menuItemVisibility.observe(
             viewLifecycleOwner
         ) { idAndVisiblePair: Pair<Int, Boolean> ->
@@ -104,14 +100,12 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
             intent.putExtra(UserEditorActivity.USER_GROUP_ID, groupId)
             startActivity(intent)
         }
-        viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId: String? ->
-            val intent = Intent(activity, GroupEditorActivity::class.java)
-            intent.putExtra(GroupEditorFragment.GROUP_ID, groupId)
-            requireActivity().startActivity(intent)
+        viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId ->
+            navController.navigate(
+                R.id.action_global_groupEditorFragment,
+                bundleOf(GroupEditorFragment.GROUP_ID to groupId)
+            )
         }
-        viewModel.finish.observe(
-            viewLifecycleOwner
-        ) { navController!!.popBackStack() }
     }
 
     override fun onDestroyView() {

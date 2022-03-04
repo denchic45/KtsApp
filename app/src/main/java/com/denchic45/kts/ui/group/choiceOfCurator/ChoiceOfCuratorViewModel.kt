@@ -23,7 +23,7 @@ class ChoiceOfCuratorViewModel @Inject constructor(
     fun onTeacherClick(position: Int) {
         val user = showFoundTeachers.value!![position]
         interactor.postSelectedCurator(user)
-        finish.call()
+         finish()
     }
 
     override fun onCleared() {

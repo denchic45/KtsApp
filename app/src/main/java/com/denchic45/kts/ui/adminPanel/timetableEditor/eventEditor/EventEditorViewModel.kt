@@ -76,7 +76,7 @@ class EventEditorViewModel @Inject constructor(
                         if (uiEditor.isNew) EventEditorInteractor.LESSON_CREATED else EventEditorInteractor.LESSON_EDITED
             )
         )
-        finish.call()
+         finish()
     }
 
     fun onDateSelected(selection: Long) {
@@ -111,10 +111,10 @@ class EventEditorViewModel @Inject constructor(
                     )
                 )
             }
-//            finish.call() # может нужен
+//             finish() # может нужен
         } else if (itemId == R.id.option_delete_lesson) {
             interactor.postEvent(Resource.Success(uiEditor.item to EventEditorInteractor.LESSON_REMOVED))
-            finish.call()
+             finish()
         } else if (itemId == R.id.option_clear_lesson) {
             interactor.postEvent(
                 Resource.Success(
@@ -126,7 +126,7 @@ class EventEditorViewModel @Inject constructor(
                     ) to EventEditorInteractor.LESSON_EDITED
                 )
             )
-            finish.call()
+             finish()
         }
     }
 

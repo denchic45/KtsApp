@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor
 
 import android.os.Bundle
-import android.view.Menu
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -12,7 +11,6 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class EventEditorActivity :
     BaseActivity<EventEditorViewModel, ActivityEventEditorBinding>(R.layout.activity_event_editor) {
-    private val menu: Menu? = null
     override val viewModel: EventEditorViewModel by viewModels { viewModelFactory }
     override val binding: ActivityEventEditorBinding by viewBinding(ActivityEventEditorBinding::bind)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +19,5 @@ class EventEditorActivity :
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        viewModel.finish.observe(this) { finish() }
     }
 }

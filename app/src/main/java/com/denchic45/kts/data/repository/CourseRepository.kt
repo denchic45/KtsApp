@@ -353,7 +353,7 @@ class CourseRepository @Inject constructor(
 
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
 
-    fun findByTypedName(name: String): Flow<Resource<List<CourseHeader>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<List<CourseHeader>> = callbackFlow {
         addListenerRegistration("name") {
             coursesRef
                 .whereArrayContains("searchKeys", name.lowercase())
@@ -361,7 +361,7 @@ class CourseRepository @Inject constructor(
                     val courseDocs = value!!.toObjects(CourseDoc::class.java)
                     externalScope.launch(dispatcher) { saveCourses(courseDocs) }
                     trySend(
-                        Resource.Success(courseMapper.docToDomain(courseDocs))
+                        courseMapper.docToDomain(courseDocs)
                     )
                 }
         }

@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Toast
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -23,10 +22,8 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentFinderBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.*
-import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
-import com.denchic45.kts.ui.group.editor.GroupEditorActivity
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
@@ -136,7 +133,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         viewModel.openGroup.observe(viewLifecycleOwner) { groupId: String? ->
             val bundle = Bundle()
             bundle.putString(GroupFragment.GROUP_ID, groupId)
-            navController.navigate(R.id.action_finderFragment_to_group_editor, bundle)
+            navController.navigate(R.id.action_finderFragment_to_group, bundle)
         }
         viewModel.showMessage.observe(viewLifecycleOwner, this::toast)
 
@@ -159,20 +156,16 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
                 childFragmentManager, null
             )
         }
-        viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId: String? ->
-            val intent = Intent(activity, GroupEditorActivity::class.java)
-            intent.putExtra(GroupEditorFragment.GROUP_ID, groupId)
-            requireActivity().startActivity(intent)
+        viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId ->
+            findNavController().navigate(
+                R.id.action_global_groupEditorFragment,
+                bundleOf(GroupEditorFragment.GROUP_ID to groupId)
+            )
         }
         viewModel.openSpecialtyEditor.observe(viewLifecycleOwner) { id ->
             SpecialtyEditorDialog.newInstance(id).show(
                 childFragmentManager, null
             )
-        }
-        viewModel.openConfirmation.observe(viewLifecycleOwner) { (first, second) ->
-            ConfirmDialog.newInstance(
-                first, second
-            ).show(childFragmentManager, null)
         }
 
         viewModel.openCourse.observe(viewLifecycleOwner) {

@@ -54,7 +54,7 @@ class ChoiceOfGroupViewModel @Inject constructor(
         val groupId = groupAndSpecialtyList.value!![position].id
         interactor.findGroupInfoById(groupId)
         interactor.postSelectGroupEvent((groupAndSpecialtyList.value!![position] as CourseGroup))
-        finish.call()
+         finish()
     }
 
     private fun getGroupListBySpecialtyId(specialtyId: String): List<Group> {

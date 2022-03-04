@@ -209,7 +209,7 @@ class TimetableLoaderViewModel @Inject constructor(
                         e.printStackTrace()
                     }
                 }
-                ITEM_BACK -> finish.call()
+                ITEM_BACK ->  finish()
                 ITEM_SHOW -> {
                 }
             }

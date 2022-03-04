@@ -81,13 +81,6 @@ class SpecialtyEditorDialog :
         viewModel.showMessageRes.observe(viewLifecycleOwner) { resId ->
             toast(requireContext().strings(resId))
         }
-        viewModel.finish.observe(viewLifecycleOwner) { dismiss() }
-        viewModel.openConfirmation.observe(
-            viewLifecycleOwner
-        ) { titleWithSubtitlePair: Pair<String, String> ->
-            ConfirmDialog.newInstance(titleWithSubtitlePair.first, titleWithSubtitlePair.second)
-                .show(childFragmentManager, null)
-        }
     }
 
     override fun onAttach(context: Context) {

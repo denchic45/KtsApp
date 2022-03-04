@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.domain.usecase.FindSubjectByTypedNameUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -13,7 +14,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ChoiceOfSubjectViewModel @Inject constructor(
-    private val interactor: ChoiceOfSubjectInteractor
+    private val interactor: ChoiceOfSubjectInteractor,
+    private  val findSubjectByTypedNameUseCase: FindSubjectByTypedNameUseCase
 ) : BaseViewModel() {
     val showFoundSubjects = MutableLiveData<Resource<List<Subject>>>()
     private val querySubjectsByName = MutableSharedFlow<String>()
@@ -26,13 +28,13 @@ class ChoiceOfSubjectViewModel @Inject constructor(
 
     fun onSubjectClick(position: Int) {
         interactor.postSelectedSubject((showFoundSubjects.value!! as Resource.Success).data[position])
-        finish.call()
+        finish()
     }
 
     init {
         viewModelScope.launch {
             querySubjectsByName.filter { s: String -> s.length > 2 }
-                .flatMapLatest { name: String -> interactor.findSubjectByTypedName(name) }
+                .flatMapLatest { name: String -> findSubjectByTypedNameUseCase(name) }
                 .collect { value: Resource<List<Subject>> -> showFoundSubjects.setValue(value) }
         }
     }

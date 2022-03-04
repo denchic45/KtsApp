@@ -17,7 +17,6 @@ import androidx.core.widget.ImageViewCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
@@ -304,11 +303,6 @@ class TaskEditorFragment :
                 adapter.submit(it)
             }
 
-            viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
-                ConfirmDialog.newInstance(title, subtitle)
-                    .show(childFragmentManager, null)
-            }
-
             viewModel.disabledSendAfterDate.observe(viewLifecycleOwner) {
                 if (cbAvailabilitySend.isChecked != it)
                     cbAvailabilitySend.isChecked = it
@@ -318,8 +312,6 @@ class TaskEditorFragment :
                 if (cbCommentsEnable.isChecked != it)
                     cbCommentsEnable.isChecked = it
             }
-
-            viewModel.finish.observe(viewLifecycleOwner) { findNavController().popBackStack() }
 
             lifecycleScope.launchWhenStarted {
                 viewModel.submissionSettings.collect {

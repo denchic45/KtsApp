@@ -50,7 +50,6 @@ class IconPickerDialog : BaseDialogFragment<IconPickerViewModel, FragmentIconPic
         super.onViewCreated(view, savedInstanceState)
         adapter = IconPickerAdapter(requireActivity())
         gvIconPicker!!.adapter = adapter
-        viewModel.finish.observe(viewLifecycleOwner) { dismiss() }
         viewModel.showIcons.observe(
             viewLifecycleOwner
         ) { collection: List<Uri?> -> adapter!!.addAll(collection) }

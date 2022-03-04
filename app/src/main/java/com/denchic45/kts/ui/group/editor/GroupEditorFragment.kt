@@ -2,9 +2,10 @@ package com.denchic45.kts.ui.group.editor
 
 import android.os.Bundle
 import android.view.View
-import android.widget.*
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import android.widget.AdapterView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -17,25 +18,22 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentGroupEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
-import com.denchic45.kts.ui.confirm.ConfirmDialog
-import com.denchic45.kts.utils.setActivityTitle
+import com.denchic45.kts.ui.BaseFragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
-import java.util.*
 
-class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
+class GroupEditorFragment :
+    BaseFragment<GroupEditorViewModel, FragmentGroupEditorBinding>(R.layout.fragment_group_editor) {
 
-    val binding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
-    val viewModel: GroupEditorViewModel by activityViewModels()
+    override val binding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
+    override val viewModel: GroupEditorViewModel by viewModels { viewModelFactory }
     private val viewBinding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
     private var specialtyAdapter: ListPopupWindowAdapter? = null
-    private var navController: NavController? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController = findNavController(view)
-        viewModel //need for init before in activity
+        //viewModel // TODO need for init before in activity
         val curatorHeader = view.findViewById<TextView>(R.id.tv_header)
         specialtyAdapter = ListPopupWindowAdapter(requireContext(), ArrayList())
         viewBinding.apply {
@@ -68,9 +66,7 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
             viewModel.enableSpecialtyField.observe(viewLifecycleOwner) { enable: Boolean ->
                 etSpecialty.isEnabled = enable
             }
-//            viewModel.toolbarTitle.observe(
-//                viewLifecycleOwner
-//            ) { title: String -> setActivityTitle(title) }
+
             viewModel.openChoiceOfCurator.observe(
                 viewLifecycleOwner
             ) { navController!!.navigate(R.id.action_groupEditorFragment_to_choiceOfCuratorFragment) }
@@ -86,7 +82,11 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
             ) { text: String -> if (etGroupName.text.toString() != text) etGroupName.setText(text) }
             viewModel.specialtyField.observe(
                 viewLifecycleOwner
-            ) { text: String -> if (etSpecialty.text.toString() != text) etSpecialty.setText(text) }
+            ) { specialty ->
+                if (etSpecialty.text.toString() != specialty.name) etSpecialty.setText(
+                    specialty.name
+                )
+            }
             viewModel.courseField.observe(viewLifecycleOwner) { courseResName: String? ->
                 val resId =
                     resources.getIdentifier(courseResName, "string", requireActivity().packageName)
@@ -94,15 +94,6 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
             }
         }
 
-        viewModel.openConfirmation.observe(
-            viewLifecycleOwner
-        ) { titleWithSubtitlePair: Pair<String, String> ->
-            val dialog = ConfirmDialog.newInstance(
-                titleWithSubtitlePair.first,
-                titleWithSubtitlePair.second
-            )
-            dialog.show(childFragmentManager, null)
-        }
         viewModel.fieldErrorMessage.observe(viewLifecycleOwner) { idWithMessagePair: Pair<Int, String?> ->
             val textInputLayout: TextInputLayout = requireActivity().findViewById(
                 idWithMessagePair.first
@@ -126,6 +117,6 @@ class GroupEditorFragment : Fragment(R.layout.fragment_group_editor) {
     }
 
     companion object {
-        const val GROUP_ID = "GROUP_UUID"
+        const val GROUP_ID = "GroupEditorFragment GROUP_ID"
     }
 }

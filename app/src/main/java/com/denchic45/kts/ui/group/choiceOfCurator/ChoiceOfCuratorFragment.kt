@@ -55,9 +55,7 @@ class ChoiceOfCuratorFragment : Fragment() {
         viewModel.showFoundTeachers.observe(viewLifecycleOwner) { users: List<User> ->
             adapter!!.submitList(ArrayList<DomainModel>(users))
         }
-        viewModel.finish.observe(
-            viewLifecycleOwner
-        ) { navController!!.popBackStack() }
+
         viewModel.showErrorNetworkState.observe(
             viewLifecycleOwner
         ) { show: Boolean -> if (show) listStateLayout!!.showView(ListStateLayout.NETWORK_VIEW) else listStateLayout!!.showList() }

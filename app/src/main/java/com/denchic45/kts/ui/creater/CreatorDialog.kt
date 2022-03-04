@@ -23,7 +23,7 @@ import com.denchic45.kts.ui.HasViewModel
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
-import com.denchic45.kts.ui.group.editor.GroupEditorActivity
+import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
@@ -52,13 +52,16 @@ class CreatorDialog : BottomSheetDialogFragment(), HasViewModel<CreatorViewModel
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter!!.setData(viewModel.createEntityList())
         adapter!!.setOnItemClickListener { position: Int -> viewModel.onEntityClick(position) }
+
         viewModel.openUserEditor.observe(viewLifecycleOwner) { args: Map<String, String> ->
             val intent = Intent(activity, UserEditorActivity::class.java)
-            args.forEach { (name: String?, value: String?) -> intent.putExtra(name, value) }
+            args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
             startActivity(intent)
         }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) {
-            startActivity(Intent(activity, GroupEditorActivity::class.java))
+            findNavController().navigate(
+                R.id.action_global_groupEditorFragment, Bundle.EMPTY
+            )
         }
         viewModel.openSubjectEditor.observe(viewLifecycleOwner) {
             SubjectEditorDialog.newInstance(null).show(
@@ -76,7 +79,6 @@ class CreatorDialog : BottomSheetDialogFragment(), HasViewModel<CreatorViewModel
                 bundleOf(CourseEditorFragment.COURSE_ID to it)
             )
         }
-        viewModel.finish.observe(viewLifecycleOwner) { dismiss() }
     }
 
     override fun getTheme(): Int = R.style.BaseBottomSheetMenu

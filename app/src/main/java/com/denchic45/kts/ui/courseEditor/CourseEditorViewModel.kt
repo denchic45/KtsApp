@@ -5,19 +5,17 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.repository.SameCoursesException
-import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.login.choiceOfGroup.ChoiceOfGroupInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.NetworkException
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
@@ -25,7 +23,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.stream.Collectors
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -33,6 +30,7 @@ class CourseEditorViewModel @Inject constructor(
     @Named(CourseEditorFragment.COURSE_ID)
     courseId: String?,
     private val interactor: CourseEditorInteractor,
+    private val confirmInteractor: ConfirmInteractor,
     var choiceOfGroupInteractor: ChoiceOfGroupInteractor
 ) : BaseViewModel() {
     val selectSubject = MutableLiveData<Subject>()
@@ -47,8 +45,6 @@ class CourseEditorViewModel @Inject constructor(
     val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
     val title = MutableLiveData<String>()
     val openChoiceOfGroup = SingleLiveData<Unit>()
-
-    private var subscribeConfirmation: Disposable? = null
 
     private val courseId: String = courseId ?: UUID.randomUUID().toString()
     var foundTeachers: List<User>? = null
@@ -107,17 +103,15 @@ class CourseEditorViewModel @Inject constructor(
             try {
                 typedSubjectName
                     .flatMapLatest { name: String -> interactor.findSubjectByTypedName(name) }
-                    .map { resource ->
-                        foundSubjects = (resource as Resource.Success).data
-                        resource.data.stream()
-                            .map { (id, name, iconUrl) ->
-                                ListItem(
-                                    id = id,
-                                    title = name,
-                                    icon = EitherResource.String(iconUrl)
-                                )
-                            }
-                            .collect(Collectors.toList())
+                    .map { list ->
+                        foundSubjects = list
+                        list.map { (id, name, iconUrl) ->
+                            ListItem(
+                                id = id,
+                                title = name,
+                                icon = EitherResource.String(iconUrl)
+                            )
+                        }
                     }
                     .collect { t: List<ListItem> -> showFoundSubjects.setValue(t) }
             } catch (e: Exception) {
@@ -165,7 +159,7 @@ class CourseEditorViewModel @Inject constructor(
             try {
                 if (uiEditor.isNew) interactor.addCourse(uiEditor.item)
                 else interactor.updateCourse(uiEditor.item)
-                finish.call()
+                finish()
             } catch (e: Exception) {
                 when (e) {
                     is NetworkException -> {
@@ -271,8 +265,8 @@ class CourseEditorViewModel @Inject constructor(
         enablePositiveBtn()
     }
 
-    override fun onOptionClick(id: Int) {
-        when (id) {
+    override fun onOptionClick(itemId: Int) {
+        when (itemId) {
             android.R.id.home -> {
                 confirmFinish()
             }
@@ -286,62 +280,50 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private fun onDeleteClick() {
-        if (uiEditor.hasBeenChanged() || !uiEditor.isNew) {
-            openConfirmation.value =
-                Pair(
-                    "Удаление курса",
-                    "Удаленный курс нельзя будет восстановить"
+        viewModelScope.launch {
+            if (uiEditor.hasBeenChanged() || !uiEditor.isNew) {
+                openConfirmation(
+                    "Удаление курса" to "Удаленный курс нельзя будет восстановить"
                 )
-            subscribeConfirmation = RxBusConfirm.getInstance()
-                .event
-                .subscribe { confirm: Boolean ->
-                    if (confirm) {
-                        deleteCourse()
-                    }
-                    subscribeConfirmation!!.dispose()
+                if (confirmInteractor.awaitConfirm()) {
+                    deleteCourse()
                 }
-        } else {
-            deleteCourse()
+            } else {
+                deleteCourse()
+            }
         }
     }
 
     private fun confirmFinish() {
-        when {
-            uiEditor.isNew -> {
-                openConfirmation.value =
-                    Pair("Закрыть редактор курса", "Новый курс не будет сохранен")
-                subscribeConfirmation = RxBusConfirm.getInstance()
-                    .event.subscribe { confirm: Boolean ->
-                        if (confirm) {
-                            finish.call()
-                        }
-                        subscribeConfirmation!!.dispose()
+        viewModelScope.launch {
+            when {
+                uiEditor.isNew -> {
+                    openConfirmation(Pair("Закрыть редактор курса", "Новый курс не будет сохранен"))
+                    if (confirmInteractor.awaitConfirm()) {
+                        finish()
                     }
-            }
-            uiEditor.hasBeenChanged() -> {
-                openConfirmation.value =
-                    Pair("Закрыть редактор курса", "Изменения курса не будут сохранены")
-                subscribeConfirmation = RxBusConfirm.getInstance()
-                    .event.subscribe { confirm: Boolean ->
-                        if (confirm) {
-                            finish.call()
-                        }
-                        subscribeConfirmation!!.dispose()
+                }
+                uiEditor.hasBeenChanged() -> {
+                    openConfirmation(
+                        "Закрыть редактор курса" to
+                                "Изменения курса не будут сохранены"
+                    )
+                    if (confirmInteractor.awaitConfirm()) {
+                        finish()
                     }
+                }
+                else -> finish()
             }
-            else -> finish.call()
         }
     }
 
-    private fun deleteCourse() {
-        viewModelScope.launch {
-            try {
-                interactor.removeCourse(uiEditor.item)
-                finish.call()
-            } catch (e: Exception) {
-                if (e is NetworkException) {
-                    showMessageRes.value = R.string.error_check_network
-                }
+    private suspend fun deleteCourse() {
+        try {
+            interactor.removeCourse(uiEditor.item)
+            finish()
+        } catch (e: Exception) {
+            if (e is NetworkException) {
+                showMessageRes.value = R.string.error_check_network
             }
         }
     }

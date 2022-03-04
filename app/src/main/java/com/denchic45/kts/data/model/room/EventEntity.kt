@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.denchic45.kts.data.model.EntityModel
+import java.time.LocalDate
 import java.util.*
 
 @Entity(tableName = "event")
@@ -12,11 +13,9 @@ data class EventEntity(
     @PrimaryKey
     @ColumnInfo(name = "event_id")
     var id: String,
-//    @field:TypeConverters(TimestampConverter::class)
-//    var timestamp: Date,
     var order: Int = 0,
-    @field:TypeConverters(DateConverter::class)
-    var date: Date,
+    @field:TypeConverters(LocalDateConverter::class)
+    var date: LocalDate,
     var room: String,
     @ColumnInfo(name = "subject_id")
     var subjectId: String,

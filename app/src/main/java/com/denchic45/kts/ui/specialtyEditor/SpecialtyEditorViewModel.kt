@@ -2,11 +2,12 @@ package com.denchic45.kts.ui.specialtyEditor
 
 import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.repository.SpecialtyRepository
-import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
@@ -14,13 +15,15 @@ import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import io.reactivex.rxjava3.core.Completable
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
 class SpecialtyEditorViewModel @Inject constructor(
     @Named(SpecialtyEditorDialog.SPECIALTY_ID) id: String?,
-    private val specialtyRepository: SpecialtyRepository
+    private val specialtyRepository: SpecialtyRepository,
+    private val confirmInteractor: ConfirmInteractor
 ) :
     BaseViewModel() {
     @JvmField
@@ -59,7 +62,7 @@ class SpecialtyEditorViewModel @Inject constructor(
         } else {
             specialtyRepository.update(uiEditor.item)
         }
-        saveSubjectCompletable.subscribe({ finish.call() }) { throwable: Throwable? ->
+        saveSubjectCompletable.subscribe({ finish() }) { throwable: Throwable? ->
             if (throwable is NetworkException) {
                 showMessageRes.value = R.string.error_check_network
             }
@@ -71,19 +74,17 @@ class SpecialtyEditorViewModel @Inject constructor(
     }
 
     fun onDeleteClick() {
-        openConfirmation.value = Pair("Удалить несколько предметов группы", "Вы точно уверены???")
-        RxBusConfirm.getInstance()
-            .event
-            .subscribe { confirm: Boolean ->
-                if (confirm) {
-                    specialtyRepository.remove(uiEditor.item)
-                        .subscribe({ finish.call() }) { throwable: Throwable? ->
-                            if (throwable is NetworkException) {
-                                showMessageRes.value = R.string.error_check_network
-                            }
+        viewModelScope.launch {
+            openConfirmation(Pair("Удалить несколько предметов группы", "Вы точно уверены???"))
+            if (confirmInteractor.awaitConfirm()) {
+                specialtyRepository.remove(uiEditor.item)
+                    .subscribe({ finish() }) { throwable: Throwable? ->
+                        if (throwable is NetworkException) {
+                            showMessageRes.value = R.string.error_check_network
                         }
-                }
+                    }
             }
+        }
     }
 
     fun onNameType(name: String) {

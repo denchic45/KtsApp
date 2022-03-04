@@ -21,23 +21,23 @@ class FinderInteractor @Inject constructor(
     private val specialtyRepository: SpecialtyRepository
 ) : Interactor {
 
-    fun findUserByTypedName(name: String): Flow<Resource<List<User>>> {
+    fun findUserByTypedName(name: String): Flow<List<User>> {
         return userRepository.getByTypedName(name)
     }
 
-    fun findGroupByTypedName(name: String): Flow<Resource<List<CourseGroup>>> {
+    fun findGroupByTypedName(name: String): Flow<List<CourseGroup>> {
         return groupInfoRepository.findByTypedName(name)
     }
 
-    fun findSubjectByTypedName(name: String): Flow<Resource<List<Subject>>> {
+    fun findSubjectByTypedName(name: String): Flow<List<Subject>> {
         return subjectRepository.findByTypedName(name)
     }
 
-    fun findSpecialtyByTypedName(name: String): Flow<Resource<List<Specialty>>> {
+    fun findSpecialtyByTypedName(name: String): Flow<List<Specialty>> {
         return specialtyRepository.findByTypedName(name)
     }
 
-    fun findCourseByTypedName(name: String): Flow<Resource<List<CourseHeader>>> {
+    fun findCourseByTypedName(name: String): Flow<List<CourseHeader>> {
         return courseRepository.findByTypedName(name)
     }
 

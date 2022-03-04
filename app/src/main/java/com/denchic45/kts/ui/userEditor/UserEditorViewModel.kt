@@ -25,7 +25,6 @@ import com.denchic45.kts.utils.Validations
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.stream.Collectors
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -181,10 +180,8 @@ open class UserEditorViewModel @Inject constructor(
         fieldGenders.value = genderList
         viewModelScope.launch {
             typedNameGroup.flatMapLatest { name: String -> interactor.getGroupsByTypedName(name) }
-                .map { resource ->
-                    (resource as Resource.Success).data.stream()
-                        .map { group -> ListItem(id = group.id, title = group.name) }
-                        .collect(Collectors.toList())
+                .map { list ->
+                    list.map { group -> ListItem(id = group.id, title = group.name) }
                 }
                 .collect { value: List<ListItem> -> groupList.setValue(value) }
         }
@@ -310,7 +307,7 @@ open class UserEditorViewModel @Inject constructor(
             }
             saveUserObservable.collect { resource: Resource<User> ->
                 when (resource) {
-                    is Resource.Success -> finish.call()
+                    is Resource.Success -> finish()
                     is Resource.Next -> {
                         if (resource.status == "LOAD_AVATAR") avatarUser.value =
                             resource.data.photoUrl
@@ -341,13 +338,17 @@ open class UserEditorViewModel @Inject constructor(
                 Pair("Отменить редактирование?", "Внесенные изменения не будут сохранены")
             )
         } else {
-            finish.call()
+            finish()
         }
     }
 
     private fun confirmDelete() {
-        openConfirmation.value =
-            Pair("Удаление пользователя", "Удаленного пользователя нельзя будет восстановить")
+        openConfirmation(
+            Pair(
+                "Удаление пользователя",
+                "Удаленного пользователя нельзя будет восстановить"
+            )
+        )
 
         viewModelScope.launch {
             if (confirmInteractor.awaitConfirm()) {
@@ -356,16 +357,16 @@ open class UserEditorViewModel @Inject constructor(
                         role!!
                     )
                 ) interactor.removeTeacher(uiEditor.item).subscribe()
-                finish.call()
+                finish()
             }
         }
     }
 
     private fun confirmExit(titleWithSubtitlePair: Pair<String, String>) {
-        openConfirmation.value = titleWithSubtitlePair
         viewModelScope.launch {
+            openConfirmation(titleWithSubtitlePair)
             if (confirmInteractor.awaitConfirm()) {
-                finish.call()
+                finish()
             }
         }
     }

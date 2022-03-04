@@ -5,8 +5,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,7 +28,6 @@ class ChoiceOfGroupSubjectFragment : Fragment() {
     private var rv: RecyclerView? = null
     private var listStateLayout: ListStateLayout? = null
     private var adapter: SubjectAdapter? = null
-    private var navController: NavController? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -58,7 +56,6 @@ class ChoiceOfGroupSubjectFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        navController = findNavController(view)
         adapter = SubjectAdapter { position: Int -> viewModel.onSubjectClick(position) }
         rv!!.adapter = adapter
         rv!!.layoutManager = LinearLayoutManager(context)
@@ -71,13 +68,10 @@ class ChoiceOfGroupSubjectFragment : Fragment() {
         }
         viewModel.openChoiceOfSubject.observe(
             viewLifecycleOwner
-        ) { navController!!.navigate(R.id.action_choiceOfGroupSubjectFragment_to_choiceOfSubjectFragment) }
+        ) { findNavController().navigate(R.id.action_choiceOfGroupSubjectFragment_to_choiceOfSubjectFragment) }
         viewModel.updateIconEventSubject.observe(
             viewLifecycleOwner
         ) { adapter!!.notifyItemChanged(0, SubjectAdapter.PAYLOAD.UPDATE_ICON) }
-        viewModel.finish.observe(
-            viewLifecycleOwner
-        ) { navController!!.popBackStack() }
         viewModel.showSubjectsOfGroup.observe(
             viewLifecycleOwner
         ) { resource: Resource<List<Subject>> ->

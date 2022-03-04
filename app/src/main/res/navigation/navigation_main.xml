@@ -55,7 +55,7 @@
         android:label="fragment_finder"
         tools:layout="@layout/fragment_finder">
         <action
-            android:id="@+id/action_finderFragment_to_group_editor"
+            android:id="@+id/action_finderFragment_to_group"
             app:destination="@id/group" />
     </fragment>
     <fragment
@@ -149,6 +149,15 @@
         android:name="com.denchic45.kts.ui.teacherChooser.TeacherChooserFragment"
         android:label="fragment_teacher_chooser"
         tools:layout="@layout/fragment_teacher_chooser" /><action android:id="@+id/action_global_teacherChooserFragment" app:destination="@id/teacherChooserFragment"/>
+    <dialog
+        android:id="@+id/confirmDialog"
+        android:name="com.denchic45.kts.ui.confirm.ConfirmDialog"
+        android:label="ConfirmDialog" /><action android:id="@+id/action_global_confirmDialog" app:destination="@id/confirmDialog"/>
+    <fragment
+        android:id="@+id/groupEditorFragment2"
+        android:name="com.denchic45.kts.ui.group.editor.GroupEditorFragment"
+        android:label="GroupEditorFragment" />
+    <action android:id="@+id/action_global_groupEditorFragment" app:destination="@id/groupEditorFragment2"/>
 
 
 </navigation>

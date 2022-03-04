@@ -89,10 +89,6 @@ class ContentFragment :
         viewModel.optionVisibility.observe(viewLifecycleOwner) { (itemId, visibility) ->
             menu!!.findItem(itemId).isVisible = visibility
         }
-
-        viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
-            ConfirmDialog.newInstance(title, subtitle).show(childFragmentManager, null)
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

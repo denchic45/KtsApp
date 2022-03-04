@@ -32,7 +32,7 @@ class ChoiceOfSubjectInteractor @Inject constructor(
         selectedSubject.onNext(subject)
     }
 
-    fun findSubjectByTypedName(name: String): Flow<Resource<List<Subject>>> {
+    fun findSubjectByTypedName(name: String): Flow<List<Subject>> {
         return subjectRepository.findByTypedName(name)
     }
 }

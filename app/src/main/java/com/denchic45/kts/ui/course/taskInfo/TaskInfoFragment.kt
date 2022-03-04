@@ -14,7 +14,6 @@ import androidx.core.view.contains
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.denchic45.kts.R
@@ -173,14 +172,6 @@ class TaskInfoFragment :
                     }
                 }
             }
-        }
-
-        viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
-            ConfirmDialog.newInstance(title, subtitle).show(childFragmentManager, null)
-        }
-
-        viewModel.finish.observe(viewLifecycleOwner) {
-            findNavController().navigateUp()
         }
 
         viewModel.showMessage.observe(viewLifecycleOwner) {

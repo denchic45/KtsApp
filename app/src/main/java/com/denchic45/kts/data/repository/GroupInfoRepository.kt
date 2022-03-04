@@ -29,8 +29,6 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.SearchKeysGenerator
 import com.google.firebase.firestore.*
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableEmitter
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -223,10 +221,10 @@ class GroupInfoRepository @Inject constructor(
         return groupPreference.groupId.isNotEmpty()
     }
 
-    fun find(groupId: String): LiveData<Group> {
+    fun find(groupId: String): Flow<Group> {
         getGroupByIdRemotely(groupId)
-        return Transformations.map(groupDao.get(groupId)) { domain: GroupWithCuratorAndSpecialtyEntity ->
-            groupMapper.entityToDomain(domain)
+        return groupDao.get(groupId).map {
+            groupMapper.entityToDomain(it)
         }
     }
 
@@ -248,7 +246,7 @@ class GroupInfoRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(name: String): Flow<Resource<List<CourseGroup>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<List<CourseGroup>> = callbackFlow {
         val registration = groupsRef
             .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
             .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
@@ -262,7 +260,7 @@ class GroupInfoRepository @Inject constructor(
                             for (groupDoc in groupDocs) {
                                 saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
                             }
-                            trySend(Resource.Success(groupMapper.docToCourseGroupDomain(groupDocs)))
+                            trySend(groupMapper.docToCourseGroupDomain(groupDocs))
                         }
                     }
                 }
@@ -274,30 +272,18 @@ class GroupInfoRepository @Inject constructor(
     }
 
 
-    fun add(group: Group): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            if (!networkService.isNetworkAvailable) {
-                emitter.onError(NetworkException())
-                return@create
-            }
-            val groupDoc = groupMapper.domainToDoc(group)
-            groupsRef.document(groupDoc.id).set(groupDoc, SetOptions.merge())
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
-        }
+    suspend fun add(group: Group) {
+        checkInternetConnection()
+        val groupDoc = groupMapper.domainToDoc(group)
+        groupsRef.document(groupDoc.id).set(groupDoc, SetOptions.merge())
+            .await()
     }
 
-    fun update(group: Group): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            if (!networkService.isNetworkAvailable) {
-                emitter.onError(NetworkException())
-                return@create
-            }
-            val updatedGroupMap = groupMapper.domainToMap(group)
-            groupsRef.document(group.id).update(updatedGroupMap)
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
-        }
+    suspend fun update(group: Group) {
+        checkInternetConnection()
+        val updatedGroupMap = groupMapper.domainToMap(group)
+        groupsRef.document(group.id).update(updatedGroupMap)
+            .await()
     }
 
     suspend fun remove(group: Group) {
@@ -314,15 +300,15 @@ class GroupInfoRepository @Inject constructor(
         batch.commit().await()
     }
 
-  suspend  fun updateGroupCurator(groupId: String, teacher: User) {
-      if (!networkService.isNetworkAvailable) {
-          throw NetworkException()
-      }
-      val updatedGroupMap: MutableMap<String, Any> = HashMap()
-      updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
-      updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
-      groupsRef.document(groupId).update(updatedGroupMap)
-          .await()
+    suspend fun updateGroupCurator(groupId: String, teacher: User) {
+        if (!networkService.isNetworkAvailable) {
+            throw NetworkException()
+        }
+        val updatedGroupMap: MutableMap<String, Any> = HashMap()
+        updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
+        updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
+        groupsRef.document(groupId).update(updatedGroupMap)
+            .await()
     }
 
     fun findCurator(groupId: String): LiveData<User> {

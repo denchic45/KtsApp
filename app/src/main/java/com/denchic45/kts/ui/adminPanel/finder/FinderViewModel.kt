@@ -2,17 +2,14 @@ package com.denchic45.kts.ui.adminPanel.finder
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.denchic45.Action
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.NetworkException
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
@@ -25,7 +22,8 @@ class FinderViewModel @Inject constructor(
     @Named("options_user") userOptions: List<ListItem>,
     @Named("options_group") groupOptions: List<ListItem>,
     @Named("options_subject") subjectOptions: List<ListItem>,
-    private val interactor: FinderInteractor
+    private val interactor: FinderInteractor,
+    private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
     @JvmField
     val finderEntities = MutableLiveData<List<ListItem>>()
@@ -82,7 +80,7 @@ class FinderViewModel @Inject constructor(
         startEmptyList
     )
 
-    private val onOptionItemClickActions: Map<String, Action>
+    private val onOptionItemClickActions: Map<String, () -> Unit>
 
     private val findByTypedNameActions = listOf(
         { name: String -> interactor.findUserByTypedName(name) },
@@ -92,7 +90,6 @@ class FinderViewModel @Inject constructor(
         { name: String -> interactor.findCourseByTypedName(name) })
     private val optionsList: List<List<ListItem>>
     private var selectedEntity: DomainModel? = null
-    private var subscribeConfirmation: Disposable? = null
     fun onQueryTextSubmit(queryName: String) {
         viewModelScope.launch {
             queryTexts[currentSelectedEntity.value!!] = queryName
@@ -118,7 +115,7 @@ class FinderViewModel @Inject constructor(
     }
 
     fun onOptionClick(optionId: String) {
-        onOptionItemClickActions[optionId]!!.run()
+        onOptionItemClickActions[optionId]!!()
     }
 
     fun onFinderItemClick(position: Int) {
@@ -173,23 +170,19 @@ class FinderViewModel @Inject constructor(
         viewModelScope.launch {
             queryByName.flatMapLatest { name: String ->
                 findByTypedNameActions[currentSelectedEntity.value!!].invoke(name)
-            }.collect { resource ->
-                showFoundItems.value = ArrayList(
-                    (resource as Resource.Success).data
-                )
-                foundEntities[currentSelectedEntity.value!!] = ArrayList(
-                    resource.data
-                )
+            }.collect { list ->
+                showFoundItems.value = list
+                foundEntities[currentSelectedEntity.value!!] = list
             }
         }
 
         onOptionItemClickActions = mapOf(
-            "OPTION_SHOW_PROFILE" to Action {
+            "OPTION_SHOW_PROFILE" to {
                 openProfile.setValue(
                     selectedEntity!!.id
                 )
             },
-            "OPTION_EDIT_USER" to Action {
+            "OPTION_EDIT_USER" to {
                 val selectedUser = selectedEntity as User
                 val args: MutableMap<String, String> = HashMap()
                 args[UserEditorActivity.USER_ROLE] = selectedUser.role
@@ -197,73 +190,69 @@ class FinderViewModel @Inject constructor(
                 args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId ?: ""
                 openUserEditor.setValue(args)
             },
-            "OPTION_DELETE_USER" to Action {
-                val selectedUser = selectedEntity as User
-                openConfirmation.value = Pair(
-                    "Удаление пользователя",
-                    "Удаленного пользователя нельзя будет восстановить"
-                )
-                subscribeConfirmation = RxBusConfirm.getInstance()
-                    .event
-                    .subscribe { confirm: Boolean ->
-                        if (confirm) {
-                            interactor.removeUser(selectedUser)
-                                .subscribe({}) { throwable: Throwable ->
-                                    if (throwable is NetworkException) {
-                                        showMessage.value = "Проверьте подключение к интернету"
-                                    }
+            "OPTION_DELETE_USER" to {
+                viewModelScope.launch {
+                    val selectedUser = selectedEntity as User
+                    openConfirmation(
+                        Pair(
+                            "Удаление пользователя",
+                            "Удаленного пользователя нельзя будет восстановить"
+                        )
+                    )
+
+                    if (confirmInteractor.awaitConfirm()) {
+                        interactor.removeUser(selectedUser)
+                            .subscribe({}) { throwable: Throwable ->
+                                if (throwable is NetworkException) {
+                                    showMessage.value = "Проверьте подключение к интернету"
                                 }
-                        }
-                        subscribeConfirmation!!.dispose()
+                            }
                     }
+                }
             },
-            "OPTION_SHOW_GROUP" to Action { openGroup.setValue(selectedEntity!!.id) },
-            "OPTION_EDIT_GROUP" to Action {
+            "OPTION_SHOW_GROUP" to { openGroup.setValue(selectedEntity!!.id) },
+            "OPTION_EDIT_GROUP" to {
                 openGroupEditor.setValue(
                     selectedEntity!!.id
                 )
             },
-            "OPTION_DELETE_GROUP" to Action {
-                openConfirmation.value = Pair("Удалить группу", "Вы точно уверены???")
-                RxBusConfirm.getInstance()
-                    .event
-                    .subscribe { confirm: Boolean ->
-                        if (confirm) {
-                            viewModelScope.launch {
-                                try {
-                                    interactor.removeGroup(selectedEntity as Group)
-                                } catch (e: Exception) {
-                                    if (e is NetworkException) {
-                                        showMessage.value = "Проверьте подключение к интернету"
-                                    }
+            "OPTION_DELETE_GROUP" to {
+                viewModelScope.launch {
+                    openConfirmation(Pair("Удалить группу", "Вы точно уверены???"))
+                    if (confirmInteractor.awaitConfirm()) {
+                        viewModelScope.launch {
+                            try {
+                                interactor.removeGroup(selectedEntity as Group)
+                            } catch (e: Exception) {
+                                if (e is NetworkException) {
+                                    showMessage.value = "Проверьте подключение к интернету"
                                 }
                             }
                         }
                     }
+                }
             },
-            "OPTION_SHOW_SUBJECT" to Action {},
-            "OPTION_EDIT_SUBJECT" to Action {
+            "OPTION_SHOW_SUBJECT" to {},
+            "OPTION_EDIT_SUBJECT" to {
                 openSubjectEditor.setValue(
                     selectedEntity!!.id
                 )
             },
-            "OPTION_DELETE_SUBJECT" to Action {
-                openConfirmation.value = Pair("Удалить предмет", "Вы точно уверены???")
-                RxBusConfirm.getInstance()
-                    .event
-                    .subscribe { confirm: Boolean ->
-                        if (confirm) {
-                            viewModelScope.launch {
-                                try {
-                                    interactor.removeSubject(selectedEntity as Subject)
-                                } catch (e: Exception) {
-                                    if (e is NetworkException) {
-                                        showMessage.value = "Проверьте подключение к интернету"
-                                    }
+            "OPTION_DELETE_SUBJECT" to {
+                viewModelScope.launch {
+                    openConfirmation(Pair("Удалить предмет", "Вы точно уверены???"))
+                    if (confirmInteractor.awaitConfirm()) {
+                        viewModelScope.launch {
+                            try {
+                                interactor.removeSubject(selectedEntity as Subject)
+                            } catch (e: Exception) {
+                                if (e is NetworkException) {
+                                    showMessage.value = "Проверьте подключение к интернету"
                                 }
                             }
                         }
                     }
+                }
             }
         )
     }

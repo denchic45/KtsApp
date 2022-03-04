@@ -9,8 +9,8 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.onId
 import com.denchic45.kts.data.repository.SameSubjectIconException
-import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.iconPicker.IconPickerInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
@@ -29,7 +29,8 @@ import javax.inject.Named
 class SubjectEditorViewModel @Inject constructor(
     @Named(SubjectEditorDialog.SUBJECT_ID) subjectId: String?,
     private val interactor: SubjectEditorInteractor,
-    private var iconPickerInteractor: IconPickerInteractor
+    private val iconPickerInteractor: IconPickerInteractor,
+    private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
 
     val title = MutableLiveData<String>()
@@ -70,7 +71,7 @@ class SubjectEditorViewModel @Inject constructor(
             } else {
                 interactor.update(uiEditor.item)
             }
-            finish.call()
+            finish()
         } catch (e: Exception) {
             when (e) {
                 is NetworkException -> {
@@ -134,23 +135,19 @@ class SubjectEditorViewModel @Inject constructor(
     }
 
     fun onDeleteClick() {
-        openConfirmation.value = Pair("Удалить несколько предметов группы", "Вы точно уверены???")
-        RxBusConfirm.getInstance()
-            .event
-            .subscribe { confirm: Boolean ->
-                viewModelScope.launch {
-                    if (confirm) {
-                        try {
-                            interactor.remove(uiEditor.oldItem!!)
-                            finish.call()
-                        } catch (e: Exception) {
-                            if (e is NetworkException) {
-                                showMessage.value = "Проверьте подключение к интернету"
-                            }
-                        }
+        openConfirmation(Pair("Удалить несколько предметов группы", "Вы точно уверены???"))
+        viewModelScope.launch {
+            if (confirmInteractor.awaitConfirm()) {
+                try {
+                    interactor.remove(uiEditor.oldItem!!)
+                    finish()
+                } catch (e: Exception) {
+                    if (e is NetworkException) {
+                        showMessage.value = "Проверьте подключение к интернету"
                     }
                 }
             }
+        }
     }
 
     fun onIconClick() {

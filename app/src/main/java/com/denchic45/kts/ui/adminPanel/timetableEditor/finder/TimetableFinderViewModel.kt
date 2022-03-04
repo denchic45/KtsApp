@@ -203,8 +203,8 @@ class TimetableFinderViewModel @Inject constructor(
             typedGroupName.filter { s -> s.length > 1 }
                 .flatMapLatest { groupName -> interactor.findGroupByTypedName(groupName) }
                 .map { resource ->
-                    foundGroups = (resource as Resource.Success).data
-                    resource.data.stream()
+                    foundGroups = resource
+                    resource
                         .map { (id, name) ->
                             ListItem(
                                 id = id,
@@ -212,7 +212,6 @@ class TimetableFinderViewModel @Inject constructor(
                                 icon = EitherResource.Id(R.drawable.ic_group)
                             )
                         }
-                        .collect(Collectors.toList())
                 }
                 .collect(showFoundGroups::postValue)
         }

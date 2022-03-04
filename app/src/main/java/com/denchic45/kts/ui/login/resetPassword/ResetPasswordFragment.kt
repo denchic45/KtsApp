@@ -50,6 +50,5 @@ class ResetPasswordFragment : BaseFragment<ResetPasswordViewModel, FragmentReset
         viewModel.showMessage.observe(viewLifecycleOwner) { s: String? ->
             requireContext()
         }
-        viewModel.finish.observe(viewLifecycleOwner) { findNavController(view).popBackStack() }
     }
 }

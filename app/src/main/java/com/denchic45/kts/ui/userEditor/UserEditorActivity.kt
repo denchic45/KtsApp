@@ -7,7 +7,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Toast
 import androidx.activity.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
@@ -233,16 +232,8 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
             ) { s: String ->
                toast(s)
             }
-            viewModel.finish.observe(this@UserEditorActivity) { finish() }
-            viewModel.openConfirmation.observe(
-                this@UserEditorActivity
-            ) { titleWithSubtitlePair: Pair<String, String> ->
-                val dialog = ConfirmDialog.newInstance(
-                    titleWithSubtitlePair.first,
-                    titleWithSubtitlePair.second
-                )
-                dialog.show(supportFragmentManager, null)
-            }
+
+
         }
     }
 

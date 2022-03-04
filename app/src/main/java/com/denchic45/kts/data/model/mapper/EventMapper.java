@@ -13,7 +13,6 @@ import com.denchic45.kts.data.model.firestore.EventDoc;
 import com.denchic45.kts.data.model.room.EventEntity;
 import com.denchic45.kts.data.model.room.EventWithSubjectAndTeachersEntities;
 import com.denchic45.kts.data.model.room.TeacherEventCrossRef;
-import com.denchic45.kts.utils.DateFormatUtil;
 
 import org.jetbrains.annotations.NotNull;
 import org.mapstruct.AfterMapping;
@@ -23,7 +22,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,7 +47,7 @@ public interface EventMapper extends
             SimpleEventDetails simpleEventDetails = (SimpleEventDetails) event.getDetails();
             eventEntity.setName(simpleEventDetails.getName());
         } else if (event.getType().equals(EventEntity.TYPE.EMPTY)) {
-
+            //Nothing
         } else throw new IllegalArgumentException();
     }
 
@@ -146,15 +144,15 @@ public interface EventMapper extends
         return EventDetailsDoc.Companion.createEmpty();
     }
 
-    @Mapping(source = "date", target = "date", qualifiedByName = "toUTC")
+    //    @Mapping(source = "date", target = "date", qualifiedByName = "toUTC")
     @Mapping(source = "eventDetailsDoc", target = ".")
     @Override
     EventEntity docToEntity(EventDoc doc);
 
-    @Named("toUTC")
-    default Date toUTC(Date date) {
-        return DateFormatUtil.convertDateToDateUTC(date);
-    }
+//    @Named("toUTC")
+//    default Date toUTC(Date date) {
+//        return DateFormatUtil.convertDateToDateUTC(date);
+//    }
 
     @Override
     EventDoc entityToDoc(EventEntity entity);

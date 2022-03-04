@@ -104,13 +104,13 @@ class TimetableFinderFragment :
         )
 
         with(binding) {
-            wcv.setWeekCalendarListener(object : WeekCalendarListener {
+            wcv.weekCalendarListener = object : WeekCalendarListener {
                 override fun onDaySelect(date: LocalDate) {
                     viewModel.onDateSelect(date)
                 }
 
                 override fun onWeekSelect(weekItem: WeekItem) {}
-            })
+            }
 
             searchBar.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
                 override fun onQueryTextChange(groupName: String) {

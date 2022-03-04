@@ -9,7 +9,6 @@ import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.data.model.domain.SubmissionSettings
 import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.domain.usecase.*
-import com.denchic45.kts.rx.bus.RxBusConfirm
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.uieditor.UIEditor
@@ -172,7 +171,7 @@ class TaskEditorViewModel @Inject constructor(
     private fun setupForExist() {
         viewModelScope.launch {
             findTaskUseCase(taskId)
-                .onEach { if (it == null) finish.call() }
+                .onEach { if (it == null)  finish() }
                 .filterNotNull()
                 .collect {
                     uiEditor.oldItem = it
@@ -273,7 +272,7 @@ class TaskEditorViewModel @Inject constructor(
     }
 
     fun onRemoveFileClick(position: Int) {
-        openConfirmation.postValue("Убрать файл" to "подтвердите ваш выбор")
+        openConfirmation("Убрать файл" to "подтвердите ваш выбор")
         viewModelScope.launch {
             if (confirmInteractor.awaitConfirm()) {
                 attachments.removeAt(position)
@@ -344,7 +343,7 @@ class TaskEditorViewModel @Inject constructor(
                 } else {
                     updateTaskUseCase(uiEditor.item)
                 }
-                finish.call()
+                 finish()
             }
         }
     }

@@ -30,12 +30,12 @@ class FullAvatarViewModel @Inject constructor(
 
     override fun onOptionClick(itemId: Int) {
         when (itemId) {
-            android.R.id.home -> finish.call()
+            android.R.id.home ->  finish()
             R.id.menu_delete_avatar -> {
                 viewModelScope.launch {
                     try {
                         interactor.removeUserAvatar(thisUser!!)
-                        finish.call()
+                         finish()
                     } catch (e: Exception) {
                         if (e is NetworkException) {
                             showMessageRes.setValue(R.string.error_check_network)

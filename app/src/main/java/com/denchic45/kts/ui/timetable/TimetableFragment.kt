@@ -54,7 +54,7 @@ class TimetableFragment :
 
             appBarController = AppBarController.findController(requireActivity())
 
-            binding.wcv.setWeekCalendarListener(this@TimetableFragment)
+            binding.wcv.weekCalendarListener = this@TimetableFragment
 
             lifecycleScope.launchWhenStarted {
                 viewModel.initTimetable.collect { groupVisibility: Boolean ->
@@ -175,7 +175,7 @@ class TimetableFragment :
 
     companion object {
         const val DAY_OFF_VIEW = "DAY_OFF_VIEW"
-        const val GROUP_ID = "GROUP_ID"
+        const val GROUP_ID = "TimetableFragment GROUP_ID"
 
         fun newInstance(groupId: String): TimetableFragment {
             val fragment = TimetableFragment()
@@ -186,8 +186,8 @@ class TimetableFragment :
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onDestroy() {
+        super.onDestroy()
         binding.wcv.removeListeners()
     }
 }

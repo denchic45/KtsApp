@@ -47,7 +47,7 @@ class TaskInfoViewModel @Inject constructor(
     val taskAttachments = findTaskAttachmentsUseCase(taskId)
     val taskViewState = taskFlow.onEach {
         if (it == null) {
-            finish.call()
+             finish()
         }
     }
         .filterNotNull()
@@ -175,7 +175,7 @@ class TaskInfoViewModel @Inject constructor(
             showSubmissionToolbar.value = false
             expandBottomSheet.value = BottomSheetBehavior.STATE_COLLAPSED
         } else {
-            finish.call()
+             finish()
         }
     }
 

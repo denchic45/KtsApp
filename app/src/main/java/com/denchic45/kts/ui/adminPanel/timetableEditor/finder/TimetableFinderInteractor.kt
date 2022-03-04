@@ -18,7 +18,7 @@ class TimetableFinderInteractor @Inject constructor(
     private val eventRepository: EventRepository,
     private val appPreference: AppPreference
 ) : Interactor {
-    fun findGroupByTypedName(groupName: String): Flow<Resource<List<CourseGroup>>> {
+    fun findGroupByTypedName(groupName: String): Flow<List<CourseGroup>> {
         return groupInfoRepository.findByTypedName(groupName)
     }
 

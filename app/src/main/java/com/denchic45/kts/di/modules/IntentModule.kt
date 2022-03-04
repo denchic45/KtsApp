@@ -11,7 +11,6 @@ import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
-import com.denchic45.kts.ui.group.editor.GroupEditorActivity
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
@@ -40,8 +39,8 @@ object IntentModule {
 
     @Named(GroupEditorFragment.GROUP_ID)
     @Provides
-    fun provideGroupIdFromGroupEditor(activity: GroupEditorActivity): String? {
-        return activity.intent.getStringExtra(GroupEditorFragment.GROUP_ID)
+    fun provideGroupIdFromGroupEditor(groupEditorFragment: GroupEditorFragment): String? {
+        return groupEditorFragment.requireArguments().getString(GroupEditorFragment.GROUP_ID)
     }
 
     @Named(SubjectEditorDialog.SUBJECT_ID)

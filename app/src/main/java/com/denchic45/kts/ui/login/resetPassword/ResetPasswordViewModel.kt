@@ -21,7 +21,7 @@ class ResetPasswordViewModel @Inject constructor(
             .subscribe(
                 {
                     showMessage.value = "Письмо успешно отправлено на почту"
-                    finish.call()
+                     finish()
                 }
             ) {
                 showErrorFieldEmail.value = true

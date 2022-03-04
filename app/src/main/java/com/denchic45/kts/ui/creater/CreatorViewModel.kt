@@ -32,7 +32,7 @@ class CreatorViewModel @Inject constructor() : BaseViewModel() {
             4 -> openSpecialtyEditor.call()
             5 -> openCourseEditor.call()
         }
-        finish.call()
+         finish()
     }
 
     fun createEntityList(): List<ListItem> {

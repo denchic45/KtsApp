@@ -16,7 +16,7 @@ abstract class GroupDao : BaseDao<GroupEntity>() {
 
     @Transaction
     @Query("SELECT * FROM `group` WHERE group_id=:id")
-    abstract fun get(id: String): LiveData<GroupWithCuratorAndSpecialtyEntity>
+    abstract fun get(id: String): Flow<GroupWithCuratorAndSpecialtyEntity>
 
     @Transaction
     @Query("SELECT * FROM `group` WHERE group_id=:id")

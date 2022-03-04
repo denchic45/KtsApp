@@ -1,20 +1,16 @@
 package com.denchic45.kts.ui.confirm
 
-import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
+import kotlinx.coroutines.channels.Channel
 
 class ConfirmInteractor {
 
-    private lateinit var continuation: CancellableContinuation<Boolean>
+    private val confirmation = Channel<Boolean>()
 
-    fun onConfirm(confirm: Boolean) {
-        continuation.resume(confirm)
+    suspend fun onConfirm(confirm: Boolean) {
+        confirmation.send(confirm)
     }
 
     suspend fun awaitConfirm(): Boolean {
-        return suspendCancellableCoroutine { continuation: CancellableContinuation<Boolean> ->
-            this.continuation = continuation
-        }
+        return confirmation.receive()
     }
 }

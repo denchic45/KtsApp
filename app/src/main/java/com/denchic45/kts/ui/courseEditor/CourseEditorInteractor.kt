@@ -31,7 +31,7 @@ class CourseEditorInteractor @Inject constructor(
         return teacherRepository.findByTypedName(name)
     }
 
-    fun findSubjectByTypedName(name: String): Flow<Resource<List<Subject>>> {
+    fun findSubjectByTypedName(name: String): Flow<List<Subject>> {
         return subjectRepository.findByTypedName(name)
     }
 
@@ -59,9 +59,5 @@ class CourseEditorInteractor @Inject constructor(
         groupInfoRepository.removeListeners()
         teacherRepository.removeListeners()
         subjectRepository.removeListeners()
-    }
-
-    fun findGroup(groupId: String): LiveData<Group> {
-        return groupInfoRepository.find(groupId)
     }
 }

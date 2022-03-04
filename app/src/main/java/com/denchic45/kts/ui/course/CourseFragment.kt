@@ -162,14 +162,14 @@ class CourseFragment :
         }
 
         viewModel.openTask.observe(viewLifecycleOwner) { (taskId, courseId) ->
-            findNavController().navigate(
+            navController.navigate(
                 R.id.action_courseFragment_to_contentFragment,
                 bundleOf(ContentFragment.TASK_ID to taskId, ContentFragment.COURSE_ID to courseId)
             )
         }
 
         viewModel.openTaskEditor.observe(viewLifecycleOwner) { (taskId, courseId, sectionId) ->
-            findNavController().navigate(
+            navController.navigate(
                 R.id.action_courseFragment_to_taskEditorFragment,
                 bundleOf(
                     TaskEditorFragment.TASK_ID to taskId,
@@ -180,14 +180,14 @@ class CourseFragment :
         }
 
         viewModel.openCourseEditor.observe(viewLifecycleOwner) {
-            findNavController().navigate(
+            navController.navigate(
                 R.id.action_global_courseEditorFragment,
                 bundleOf(CourseEditorFragment.COURSE_ID to it)
             )
         }
 
         viewModel.openCourseSectionEditor.observe(viewLifecycleOwner) {
-            findNavController().navigate(
+            navController.navigate(
                 R.id.action_courseFragment_to_courseSectionsFragment,
                 bundleOf(CourseSectionEditorFragment.COURSE_ID to it)
             )

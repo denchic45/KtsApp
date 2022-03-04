@@ -14,8 +14,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentViewHolder
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -65,8 +63,6 @@ class TimetableLoaderFragment :
     )
 
     private lateinit var filePicker: FilePicker
-
-    private var navController: NavController? = null
 
     override fun onResume() {
         super.onResume()
@@ -220,8 +216,6 @@ class TimetableLoaderFragment :
             btnAddGroup.setOnClickListener { viewModel.onAddGroupClick() }
         }
         val navHostFragment = requireActivity().supportFragmentManager.primaryNavigationFragment
-        navController = findNavController(navHostFragment!!.requireView())
-
         viewModel.openFilePicker.observe(viewLifecycleOwner) {
             filePicker.selectFiles()
         }
@@ -260,10 +254,7 @@ class TimetableLoaderFragment :
         }
         viewModel.openChoiceOfGroup.observe(
             viewLifecycleOwner
-        ) { navController!!.navigate(R.id.action_global_choiceOfGroupFragment) }
-        viewModel.finish.observe(
-            viewLifecycleOwner
-        ) { navController!!.popBackStack() }
+        ) { navController.navigate(R.id.action_global_choiceOfGroupFragment) }
 
         viewModel.addGroup.observe(viewLifecycleOwner) {
             groupTimetablesAdapter.notifyItemInserted(

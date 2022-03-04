@@ -23,15 +23,15 @@ class WeekCalendarView : LinearLayout {
     private val adapter = WeekPageAdapter(object : WeekCalendarListener {
         override fun onDaySelect(date: LocalDate) {
             selectDate = date
-            listener!!.onDaySelect(date)
+            weekCalendarListener!!.onDaySelect(date)
         }
 
         override fun onWeekSelect(weekItem: WeekItem) {
-            listener!!.onWeekSelect(weekItem)
+            weekCalendarListener!!.onWeekSelect(weekItem)
         }
     })
     private var viewPagerWeek: ViewPager2? = null
-    private var listener: WeekCalendarListener? = null
+    var weekCalendarListener: WeekCalendarListener? = null
     private var loadListener: OnLoadListener? = null
     private var pageChangeCallback: OnPageChangeCallback? = null
 
@@ -44,7 +44,7 @@ class WeekCalendarView : LinearLayout {
             if (field == value) return
 
             field = value
-            listener!!.onDaySelect(field)
+            weekCalendarListener!!.onDaySelect(field)
             adapter.setCheckDay(offsetWeeks, field)
 
         }
@@ -79,7 +79,7 @@ class WeekCalendarView : LinearLayout {
 
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                if (listener != null) listener!!.onWeekSelect(adapter.data[position])
+                if (weekCalendarListener != null) weekCalendarListener!!.onWeekSelect(adapter.data[position])
                 viewPagerWeek!!.postOnAnimation {
                     adapter.notifyGriViewAdapter(position)
                 }
@@ -123,12 +123,8 @@ class WeekCalendarView : LinearLayout {
         viewPagerWeek = findViewById(R.id.viewpager_week)
     }
 
-    fun setWeekCalendarListener(listener: WeekCalendarListener) {
-        this.listener = listener
-    }
-
     fun removeListeners() {
-        listener = null
+        weekCalendarListener = null
         loadListener = null
         viewPagerWeek!!.adapter = null
     }

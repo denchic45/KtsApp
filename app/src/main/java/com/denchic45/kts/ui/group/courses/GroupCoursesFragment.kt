@@ -42,10 +42,6 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
             viewModel.courses.collect { courses: List<CourseHeader> -> adapter!!.submitList(courses) }
         }
 
-        viewModel.openConfirmation.observe(viewLifecycleOwner) { (title, subtitle) ->
-            ConfirmDialog.newInstance(title, subtitle)
-                .show(childFragmentManager, null)
-        }
         viewModel.selectItem.observe(
             viewLifecycleOwner
         ) { positionWithSelectPair: Pair<Int, Boolean> ->

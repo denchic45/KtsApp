@@ -1,7 +1,6 @@
 package com.denchic45.kts.di.modules
 
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
-import com.denchic45.kts.ui.group.editor.GroupEditorActivity
 import com.denchic45.kts.ui.login.LoginActivity
 import com.denchic45.kts.ui.main.MainActivity
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
@@ -29,8 +28,4 @@ interface ActivityModule {
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
     fun contributeFullAvatarActivity(): FullAvatarActivity
-
-    @ContributesAndroidInjector(modules = [IntentModule::class])
-    fun contributeGroupEditorActivity(): GroupEditorActivity
-
 }

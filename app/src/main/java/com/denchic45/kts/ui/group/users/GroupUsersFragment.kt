@@ -13,7 +13,6 @@ import androidx.navigation.Navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
-import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentGroupUsersBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.UserAdapter
@@ -29,7 +28,6 @@ import javax.inject.Inject
 
 class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
     private val viewBinding by viewBinding(FragmentGroupUsersBinding::bind)
-    private var adapter: UserAdapter? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory<GroupUsersViewModel>
@@ -48,10 +46,10 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val navHostFragment = requireActivity().supportFragmentManager.primaryNavigationFragment
+        val userAdapter = UserAdapter({ position -> viewModel.onUserItemClick(position) },
+            { position -> viewModel.onUserItemLongClick(position) })
         with(viewBinding) {
-            adapter = UserAdapter({ position -> viewModel.onUserItemClick(position) },
-                { position -> viewModel.onUserItemLongClick(position) })
-            rvUsers.adapter = adapter
+            rvUsers.adapter = userAdapter
             viewModel.showUserOptions.observe(
                 viewLifecycleOwner
             ) {
@@ -72,7 +70,7 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
         viewModel.onGroupIdReceived(requireArguments().getString(GROUP_ID))
         viewModel.users!!.observe(
             viewLifecycleOwner
-        ) { users: List<DomainModel?> -> adapter!!.submitList(users) }
+        ) { users -> userAdapter!!.submitList(users) }
         viewModel.openChoiceOfCurator.observe(
             viewLifecycleOwner
         ) { navController!!.navigate(R.id.action_global_teacherChooserFragment) }

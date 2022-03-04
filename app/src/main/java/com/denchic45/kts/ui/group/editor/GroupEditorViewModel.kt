@@ -5,41 +5,42 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.rx.bus.RxBusConfirm
+import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
-import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.observers.DisposableCompletableObserver
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import java.util.stream.Collectors
 import javax.inject.Inject
 import javax.inject.Named
 
 class GroupEditorViewModel @Inject constructor(
     @Named(GroupEditorFragment.GROUP_ID) id: String?,
     private val choiceOfCuratorInteractor: ChoiceOfCuratorInteractor,
-    private val interactor: GroupEditorInteractor,
+    private val addGroupUseCase: AddGroupUseCase,
+    private val updateGroupUseCase: UpdateGroupUseCase,
+    private val removeGroupUseCase: RemoveGroupUseCase,
+    private val findGroupUseCase: FindGroupUseCase,
+    private val confirmInteractor: ConfirmInteractor,
+    private val findSpecialtyByTypedNameUseCase: FindSpecialtyByTypedNameUseCase,
     @Named("courses") val courseList: List<ListItem>
 ) : BaseViewModel() {
     val enableSpecialtyField = MutableLiveData<Boolean>()
     val showMessageId = SingleLiveData<Int>()
     val nameField = MutableLiveData<String>()
-    val specialtyField = MutableLiveData<String>()
+    val specialtyField = MutableLiveData<Specialty>()
     val showSpecialties = MutableLiveData<List<ListItem>>()
     val courseField = MutableLiveData<String>()
     val curatorField = MutableLiveData<User>()
@@ -52,9 +53,7 @@ class GroupEditorViewModel @Inject constructor(
     private val id: String = id ?: UUIDS.createShort()
     private var course: Int = 0
 
-    private var subscribeConfirmation: Disposable? = null
     private var foundSpecialties: List<Specialty>? = null
-    private var specialty: Specialty? = null
 
     companion object {
         const val GROUP_ID = "GroupEditor GROUP_ID"
@@ -63,15 +62,13 @@ class GroupEditorViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             typedSpecialtyByName.flatMapLatest { specialtyName: String ->
-                interactor.getSpecialtyByTypedName(specialtyName)
-            }.collect { resource ->
-                foundSpecialties = (resource as Resource.Success).data
+                findSpecialtyByTypedNameUseCase(specialtyName)
+            }.collect { list ->
+                foundSpecialties = list
                 showSpecialties.postValue(
-                    resource.data.stream()
-                        .map { specialty: Specialty ->
-                            ListItem(id = specialty.id, title = specialty.name)
-                        }
-                        .collect(Collectors.toList())
+                    list.map { specialty ->
+                        ListItem(id = specialty.id, title = specialty.name)
+                    }
                 )
             }
         }
@@ -80,7 +77,7 @@ class GroupEditorViewModel @Inject constructor(
                 this.id,
                 nameField.value ?: "",
                 course,
-                specialty ?: Specialty.createEmpty(),
+                specialtyField.value ?: Specialty.createEmpty(),
                 curatorField.value ?: User.createEmpty()
 
             )
@@ -96,7 +93,7 @@ class GroupEditorViewModel @Inject constructor(
                 .sendMessageResult(R.id.til_group_name, fieldErrorMessage),
             Validation(
                 Rule(
-                    { !TextUtils.isEmpty(specialtyField.value) },
+                    { specialtyField.value != null },
                     "Специальность обязательна"
                 )
             )
@@ -119,37 +116,37 @@ class GroupEditorViewModel @Inject constructor(
     }
 
     private fun setupForExistItem() {
-        existGroup
+        existGroup()
         enableSpecialtyField.value = false
         toolbarTitle = "Редактировать группу"
     }
 
-    private val existGroup: Unit
-        get() {
-            LiveDataUtil.observeOnce(interactor.findGroup(id)) { group: Group ->
+    private fun existGroup() {
+        viewModelScope.launch {
+            findGroupUseCase(id).collect { group ->
+                uiEditor.oldItem = group
                 uiEditor.oldItem = group
                 curatorField.value = group.curator
                 nameField.value = group.name
-                specialtyField.value = group.specialty.name
-                courseField.setValue(courseList[group.course - 1].title)
+                specialtyField.value = group.specialty
+                courseField.value = courseList[group.course - 1].title
+
+                course = group.course
             }
         }
+    }
 
     fun onCourseSelect(position: Int) {
         courseField.value = courseList[position].title
         course = (courseList[position].content as Double).toInt()
-        //        uiEditor.getItem().setCourse(((Double) courseList.get(position).getContent()).intValue());
     }
 
     fun onGroupNameType(name: String) {
         nameField.postValue(name)
-        //        uiEditor.getItem().setName(name);
     }
 
     fun onSpecialtySelect(position: Int) {
-        specialty = foundSpecialties!![position]
-        //        uiEditor.getItem().setSpecialty(specialty);
-        specialtyField.value = specialty!!.name
+        specialtyField.value = foundSpecialties!![position]
     }
 
     fun onSpecialtyNameType(specialtyName: String) {
@@ -174,25 +171,22 @@ class GroupEditorViewModel @Inject constructor(
     }
 
     private fun confirmDelete() {
-        openConfirmation.value =
-            Pair("Удаление пользователя", "Удаленного пользователя нельзя будет восстановить")
-        subscribeConfirmation = RxBusConfirm.getInstance()
-            .event
-            .subscribe { confirm: Boolean ->
-                viewModelScope.launch {
-                    if (confirm) {
-                        try {
-                            interactor.removeGroup(uiEditor.item)
-                            finish.call()
-                        } catch (e: Exception) {
-                            if (e is NetworkException) {
-                                showMessageId.value = R.string.error_check_network
-                            }
-                        }
+        viewModelScope.launch {
+            openConfirmation(
+                "Удаление пользователя" to
+                        "Удаленного пользователя нельзя будет восстановить"
+            )
+            if (confirmInteractor.awaitConfirm()) {
+                try {
+                    removeGroupUseCase(uiEditor.item)
+                    finish()
+                } catch (e: Exception) {
+                    if (e is NetworkException) {
+                        showMessageId.value = R.string.error_check_network
                     }
                 }
-                subscribeConfirmation!!.dispose()
             }
+        }
     }
 
     override fun onCreateOptions() {
@@ -203,15 +197,11 @@ class GroupEditorViewModel @Inject constructor(
     }
 
     private fun confirmExit(titleWithSubtitlePair: Pair<String, String>) {
-        openConfirmation.value = titleWithSubtitlePair
-        subscribeConfirmation = RxBusConfirm.getInstance()
-            .event
-            .subscribe { confirm: Boolean ->
-                if (confirm) {
-                    finish.call()
-                }
-                subscribeConfirmation!!.dispose()
-            }
+        viewModelScope.launch {
+            openConfirmation(titleWithSubtitlePair)
+            if (confirmInteractor.awaitConfirm())
+                finish()
+        }
     }
 
     fun onCuratorClick() {
@@ -229,25 +219,19 @@ class GroupEditorViewModel @Inject constructor(
     }
 
     private fun saveChanges() {
-        val observer: DisposableCompletableObserver = object : DisposableCompletableObserver() {
-            override fun onComplete() {
-                finish.call()
-            }
-
-            override fun onError(throwable: Throwable) {
-                if (throwable is NetworkException) {
-                    showMessageId.setValue(R.string.error_check_network)
+        viewModelScope.launch {
+            try {
+                if (uiEditor.isNew) {
+                    addGroupUseCase(uiEditor.item)
                 } else {
-                    throw RuntimeException(throwable)
+                    updateGroupUseCase(uiEditor.item)
+                }
+                finish()
+            } catch (e: Exception) {
+                if (e is NetworkException) {
+                    showMessageId.value = R.string.error_check_network
                 }
             }
-        }
-        if (uiEditor.isNew) {
-            interactor.addGroup(uiEditor.item)
-                .subscribe(observer)
-        } else {
-            interactor.updateGroup(uiEditor.item)
-                .subscribe(observer)
         }
     }
 }

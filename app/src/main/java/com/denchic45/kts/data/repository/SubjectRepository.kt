@@ -127,13 +127,13 @@ class SubjectRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(subjectName: String): Flow<Resource<List<Subject>>> = callbackFlow {
+    fun findByTypedName(subjectName: String): Flow<List<Subject>> = callbackFlow {
         subjectsRef.whereArrayContains("searchKeys", subjectName.lowercase(Locale.getDefault()))
             .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
                 val subjects = value!!.toObjects(
                     Subject::class.java
                 )
-                trySend(Resource.Success(subjects))
+                trySend(subjects)
                 coroutineScope.launch(dispatcher) {
                     subjectDao.upsert(subjectMapper.domainToEntity(subjects))
                 }

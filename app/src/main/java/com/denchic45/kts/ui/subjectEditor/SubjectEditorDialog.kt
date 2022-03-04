@@ -79,13 +79,7 @@ class SubjectEditorDialog :
                     AlertDialog.BUTTON_NEUTRAL
                 ).visibility = if (visibility) View.VISIBLE else View.GONE
             }
-            viewModel.openConfirmation.observe(
-                viewLifecycleOwner
-            ) { stringStringPair: Pair<String, String> ->
-                ConfirmDialog.newInstance(stringStringPair.first, stringStringPair.second).show(
-                    childFragmentManager, null
-                )
-            }
+
             viewModel.title.observe(
                 viewLifecycleOwner
             ) { title: String -> dialog!!.setTitle(title) }
@@ -116,7 +110,6 @@ class SubjectEditorDialog :
             viewModel.showMessage.observe(viewLifecycleOwner) { message: String ->
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
-            viewModel.finish.observe(viewLifecycleOwner) { dismiss() }
             etSubjectName.textChanges()
                 .compose(EditTextTransformer())
                 .subscribe { name: String -> viewModel.onNameType(name) }

@@ -92,7 +92,7 @@ class GroupViewModel @Inject constructor(
         isExistGroup = interactor.isExistGroup(this.groupId)
         isExistGroupObserver = Observer { exist: Boolean ->
             if (!exist) {
-                finish.call()
+                 finish()
             }
         }
         isExistGroup.observeForever(isExistGroupObserver)

@@ -39,7 +39,6 @@ class FullAvatarActivity : FullImageActivity() {
         viewModel.showMessageRes.observe(
             this
         ) { s: Int? -> Toast.makeText(this, s!!, Toast.LENGTH_SHORT).show() }
-        viewModel.finish.observe(this) { supportFinishAfterTransition() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

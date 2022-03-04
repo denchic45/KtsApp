@@ -56,7 +56,7 @@ class SpecialtyRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(name: String): Flow<Resource<List<Specialty>>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<List<Specialty>> = callbackFlow {
         addListenerRegistration("name") {
             specialtyRef
                 .whereArrayContains("searchKeys", name.lowercase(Locale.getDefault()))
@@ -66,7 +66,7 @@ class SpecialtyRepository @Inject constructor(
                     )
                     coroutineScope.launch(dispatcher) {
                         specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
-                        trySend(Resource.Success(specialties))
+                        trySend(specialties)
                     }
                 }
         }

@@ -36,6 +36,6 @@ class ChoiceOfGroupSubjectViewModel @Inject constructor(
 
     init {
         title.value = "Предметы " + interactor.groupName
-        interactor.observeSelectedSubject().subscribe { finish.call() }
+        interactor.observeSelectedSubject().subscribe { finish() }
     }
 }

@@ -48,7 +48,7 @@ public interface GroupMapper extends
         map.put("id", group.getId());
         map.put("name", group.getName());
         map.put("course", group.getCourse());
-        map.put("specialtyId", group.getSpecialty());
+        map.put("specialtyId", group.getSpecialty().getId());
         map.put("timestamp", FieldValue.serverTimestamp());
         map.put("specialty", group.getSpecialty());
         map.put("curator", group.getCurator());
