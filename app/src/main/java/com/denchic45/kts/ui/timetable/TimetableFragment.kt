@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.denchic45.EventObserver
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentTimetableBinding
@@ -23,7 +22,6 @@ import com.denchic45.widget.calendar.WeekCalendarListener.OnLoadListener
 import com.denchic45.widget.calendar.model.WeekItem
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMapLatest
 import java.time.LocalDate
 import kotlin.properties.Delegates
 
@@ -36,7 +34,7 @@ class TimetableFragment :
     override val viewModel: TimetableViewModel by viewModels { viewModelFactory }
     private lateinit var appBarController: AppBarController
 
-   private var adapter: EventAdapter by Delegates.notNull()
+    private var adapter: EventAdapter by Delegates.notNull()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +55,6 @@ class TimetableFragment :
             appBarController = AppBarController.findController(requireActivity())
 
             binding.wcv.setWeekCalendarListener(this@TimetableFragment)
-
-
 
             lifecycleScope.launchWhenStarted {
                 viewModel.initTimetable.collect { groupVisibility: Boolean ->
@@ -142,11 +138,9 @@ class TimetableFragment :
 
             lifecycleScope.launchWhenStarted {
                 viewModel.selectedDate.collect { selectDate ->
-                    wcv.setSelectDate(selectDate)
+                    wcv.selectDate = selectDate
                 }
             }
-
-
         }
     }
 

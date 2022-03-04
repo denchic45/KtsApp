@@ -27,7 +27,7 @@ class CourseEditorInteractor @Inject constructor(
         return subjectRepository.findLazy(subjectId)
     }
 
-    fun findTeacherByTypedName(name: String): Flow<Resource<List<User>>> {
+    fun findTeacherByTypedName(name: String): Flow<List<User>> {
         return teacherRepository.findByTypedName(name)
     }
 

@@ -153,7 +153,7 @@ class SubmissionDialog : BottomSheetDialogFragment() {
                         .load(it.student.photoUrl)
                         .into(ivAvatar)
 
-                    tvStudentFullName.text = it.student.fullName
+                    tvName.text = it.student.fullName
 
                     if (it.content.hasText()) {
                         tvAnswerText.visibility = View.VISIBLE

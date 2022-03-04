@@ -20,11 +20,34 @@ import kotlin.math.ceil
 import kotlin.properties.Delegates
 
 class WeekCalendarView : LinearLayout {
-    private val adapter = WeekPageAdapter()
+    private val adapter = WeekPageAdapter(object : WeekCalendarListener {
+        override fun onDaySelect(date: LocalDate) {
+            selectDate = date
+            listener!!.onDaySelect(date)
+        }
+
+        override fun onWeekSelect(weekItem: WeekItem) {
+            listener!!.onWeekSelect(weekItem)
+        }
+    })
     private var viewPagerWeek: ViewPager2? = null
     private var listener: WeekCalendarListener? = null
     private var loadListener: OnLoadListener? = null
     private var pageChangeCallback: OnPageChangeCallback? = null
+
+    var selectDate: LocalDate = LocalDate.now()
+        set(value) {
+            val currentWeek = adapter.getItem(viewPagerWeek!!.currentItem)
+            val offsetWeeks = getOffsetScroll(currentWeek[0], value)
+            viewPagerWeek!!.setCurrentItem(offsetWeeks, true)
+
+            if (field == value) return
+
+            field = value
+            listener!!.onDaySelect(field)
+            adapter.setCheckDay(offsetWeeks, field)
+
+        }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         isSaveEnabled = true
@@ -43,11 +66,6 @@ class WeekCalendarView : LinearLayout {
         weekHolder?.setEnable(enabled)
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-
-    }
-
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         pageChangeCallback = null
@@ -58,10 +76,13 @@ class WeekCalendarView : LinearLayout {
         background = ContextCompat.getDrawable(context, android.R.color.white)
         viewPagerWeek!!.adapter = adapter
         pageChangeCallback = object : OnPageChangeCallback() {
+
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 if (listener != null) listener!!.onWeekSelect(adapter.data[position])
-                adapter.notifyGriViewAdapter(position)
+                viewPagerWeek!!.postOnAnimation {
+                    adapter.notifyGriViewAdapter(position)
+                }
                 if (position == adapter.data.size - 1) {
                     val week = adapter.getItem(position)
                     loadFewWeeks(week[6].plusDays(1))
@@ -69,7 +90,6 @@ class WeekCalendarView : LinearLayout {
             }
         }
         viewPagerWeek!!.registerOnPageChangeCallback(pageChangeCallback!!)
-
 
         if (adapter.data.isEmpty()) {
             addFirstWeeks()
@@ -105,13 +125,11 @@ class WeekCalendarView : LinearLayout {
 
     fun setWeekCalendarListener(listener: WeekCalendarListener) {
         this.listener = listener
-        adapter.setListener(listener)
     }
 
     fun removeListeners() {
         listener = null
         loadListener = null
-        adapter.setListener(null)
         viewPagerWeek!!.adapter = null
     }
 
@@ -130,14 +148,6 @@ class WeekCalendarView : LinearLayout {
         val savedState = state as SavedState
         super.onRestoreInstanceState(savedState.superState)
         adapter.data.addAll(savedState.weekItemList)
-    }
-
-    fun setSelectDate(selectDate: LocalDate) {
-        val currentWeek = adapter.getItem(viewPagerWeek!!.currentItem)
-        val offsetWeeks = getOffsetScroll(currentWeek[0], selectDate)
-        listener!!.onDaySelect(selectDate)
-        adapter.setCheckDay(offsetWeeks)
-        viewPagerWeek!!.currentItem = offsetWeeks
     }
 
     private fun getOffsetScroll(

@@ -144,6 +144,11 @@
         android:id="@+id/tasksFragment"
         android:name="com.denchic45.kts.ui.tasks.TasksFragment"
         android:label="TasksFragment" /><action android:id="@+id/action_global_tasksFragment" app:destination="@id/tasksFragment"/>
+    <fragment
+        android:id="@+id/teacherChooserFragment"
+        android:name="com.denchic45.kts.ui.teacherChooser.TeacherChooserFragment"
+        android:label="fragment_teacher_chooser"
+        tools:layout="@layout/fragment_teacher_chooser" /><action android:id="@+id/action_global_teacherChooserFragment" app:destination="@id/teacherChooserFragment"/>
 
 
 </navigation>

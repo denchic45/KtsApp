@@ -45,7 +45,6 @@ class TimetableFinderFragment :
         setHasOptionsMenu(true)
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         this.menu = menu

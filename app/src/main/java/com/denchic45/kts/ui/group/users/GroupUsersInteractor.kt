@@ -26,8 +26,8 @@ class GroupUsersInteractor @Inject constructor(
         return studentRepository.remove(student)
     }
 
-    fun updateGroupCurator(groupId: String, teacherId: User): Completable {
-        return groupInfoRepository.updateGroupCurator(groupId, teacherId)
+    suspend fun updateGroupCurator(groupId: String, teacherId: User) {
+        groupInfoRepository.updateGroupCurator(groupId, teacherId)
     }
 
     override fun removeListeners() {

@@ -9,25 +9,26 @@ import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
 import com.denchic45.widget.calendar.WeekPageAdapter.WeekHolder
 import com.denchic45.widget.calendar.model.WeekItem
-import org.apache.commons.lang3.time.DateUtils
-import java.util.*
+import java.time.LocalDate
 
-class WeekPageAdapter : RecyclerView.Adapter<WeekHolder>() {
+class WeekPageAdapter(
+    private var listener: WeekCalendarListener
+) : RecyclerView.Adapter<WeekHolder>() {
     var data: MutableList<WeekItem> = mutableListOf()
-    private var listener: WeekCalendarListener? = null
     private var recyclerView: RecyclerView? = null
     private var weekItemOfCheckedDayItemPos = 3
-    fun setListener(listener: WeekCalendarListener?) {
-        this.listener = listener
-    }
 
-    fun setCheckDay(position: Int) {
+    fun setCheckDay(weekPosition: Int, date: LocalDate) {
+        val dayOfWeek = date.dayOfWeek.value - 1
+        if (data[weekItemOfCheckedDayItemPos].selectedDay == dayOfWeek)
+            return
         data[weekItemOfCheckedDayItemPos].selectedDay = -1
-        val week = data[position]
-        week.findAndSetCurrentDay()
-        notifyItemChanged(position)
+        val week = data[weekPosition]
+
+        week.selectedDay = dayOfWeek
+        notifyItemChanged(weekPosition)
         notifyItemChanged(weekItemOfCheckedDayItemPos)
-        weekItemOfCheckedDayItemPos = position
+        weekItemOfCheckedDayItemPos = weekPosition
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeekHolder {
@@ -44,16 +45,18 @@ class WeekPageAdapter : RecyclerView.Adapter<WeekHolder>() {
         holder.onBind(position)
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
+    override fun getItemCount(): Int = data.size
 
     fun getItem(position: Int): WeekItem {
         return data[position]
     }
 
     fun notifyGriViewAdapter(position: Int) {
-        if (getWeekHolder(position) != null) getWeekHolder(position)!!.notifyGridViewAdapter()
+        recyclerView!!.postDelayed({
+            if (getWeekHolder(position) != null)
+                getWeekHolder(position)?.notifyGridViewAdapter()
+        }, 300)
+
     }
 
     fun getWeekHolder(position: Int): WeekHolder? {
@@ -74,12 +77,12 @@ class WeekPageAdapter : RecyclerView.Adapter<WeekHolder>() {
             val selectedDay = data[position].selectedDay
             if (selectedDay != -1) {
                 weekItemOfCheckedDayItemPos = position
-                setCheckedItem(selectedDay, true)
             }
+            setCheckedItem(selectedDay)
         }
 
-        private fun setCheckedItem(position: Int, checked: Boolean) {
-            gridView.setItemChecked(position, checked)
+        private fun setCheckedItem(selectedDay: Int) {
+            gridView.setItemChecked(selectedDay, true)
         }
 
         fun notifyGridViewAdapter() {
@@ -100,16 +103,14 @@ class WeekPageAdapter : RecyclerView.Adapter<WeekHolder>() {
                         notifyItemChanged(weekItemOfCheckedDayItemPos)
                         weekItemOfCheckedDayItemPos = bindingAdapterPosition
                     }
-                    data[weekItemOfCheckedDayItemPos].selectedDay =position.toInt()
-                    setCheckedItem(position.toInt(), true)
-                    listener!!.onDaySelect(
-
-                            adapter!!.getItem(
-                                position.toInt()
-                            )
-
+                    data[weekItemOfCheckedDayItemPos].selectedDay = position.toInt()
+                    listener.onDaySelect(
+                        adapter!!.getItem(
+                            position.toInt()
+                        )!!
                     )
                 }
         }
     }
+
 }

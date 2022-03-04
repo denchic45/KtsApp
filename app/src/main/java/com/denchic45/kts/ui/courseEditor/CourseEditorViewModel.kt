@@ -84,20 +84,16 @@ class CourseEditorViewModel @Inject constructor(
             try {
                 typedTeacherName
                     .flatMapLatest { name -> interactor.findTeacherByTypedName(name) }
-                    .map { resource: Resource<List<User>> ->
-                        if (resource is Resource.Success) {
-                            foundTeachers = resource.data
-                            resource.data.stream()
-                                .map { user: User ->
-                                    ListItem(
-                                        id = user.id,
-                                        title = user.fullName,
-                                        icon = EitherResource.String(user.photoUrl),
-                                        type = ListPopupWindowAdapter.TYPE_AVATAR
-                                    )
-                                }
-                                .collect(Collectors.toList())
-                        } else throw IllegalStateException()
+                    .map { list ->
+                        foundTeachers = list
+                        list.map { user: User ->
+                            ListItem(
+                                id = user.id,
+                                title = user.fullName,
+                                icon = EitherResource.String(user.photoUrl),
+                                type = ListPopupWindowAdapter.TYPE_AVATAR
+                            )
+                        }
                     }
                     .collect { t: List<ListItem> -> showFoundTeachers.setValue(t) }
             } catch (e: Exception) {

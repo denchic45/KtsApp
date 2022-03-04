@@ -4,11 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.SearchKeysGenerator
@@ -88,9 +86,9 @@ class TeacherRepository @Inject constructor(
         return groupsRef.whereEqualTo("curator.id", teacherId).get()
     }
 
-    fun findByTypedName(teacherName: String): Flow<Resource<List<User>>> = callbackFlow {
+    fun findByTypedName(teacherName: String): Flow<List<User>> = callbackFlow {
         if (!networkService.isNetworkAvailable) {
-            trySend(Resource.Error(NetworkException()))
+            close(NetworkException())
             return@callbackFlow
         }
         usersRef.whereArrayContains(
@@ -101,7 +99,7 @@ class TeacherRepository @Inject constructor(
             .get()
             .addOnSuccessListener { snapshots: QuerySnapshot ->
                 trySend(
-                    Resource.Success(snapshots.toObjects(User::class.java))
+                    snapshots.toObjects(User::class.java)
                 )
             }
             .addOnFailureListener(this::close)

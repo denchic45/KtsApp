@@ -10,7 +10,9 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentChooserBinding
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.widget.extendedAdapter.AdapterDelegate
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
+import com.denchic45.widget.extendedAdapter.adapter
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
 import kotlinx.coroutines.flow.collect
@@ -20,8 +22,12 @@ abstract class ChooserFragment<T : DomainModel> :
 
     override val viewModel: ChooserViewModel<T> by viewModels { viewModelFactory }
     override val binding: FragmentChooserBinding by viewBinding(FragmentChooserBinding::bind)
+    abstract val adapterDelegates: List<AdapterDelegate>
 
-    abstract val adapter: DelegationAdapterExtended
+    private val adapter: DelegationAdapterExtended = adapter {
+        delegates(adapterDelegates)
+        onClick(viewModel::onItemClick)
+    }
 
     private lateinit var mainToolbar: Toolbar
     private lateinit var searchBar: SearchBar
@@ -38,6 +44,13 @@ abstract class ChooserFragment<T : DomainModel> :
                 removeView(toolbar)
                 searchBar = addView(R.layout.searchbar_chooser) as SearchBar
             }
+
+            searchBar.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
+                override fun onQueryTextChange(newText: String) {
+                    super.onQueryTextChange(newText)
+                    viewModel.onNameType(newText)
+                }
+            })
 
             rvItems.adapter = adapter
             lifecycleScope.launchWhenStarted {

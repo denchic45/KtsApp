@@ -3,10 +3,8 @@ package com.denchic45.kts.ui.group.choiceOfCurator
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
@@ -39,20 +37,19 @@ class ChoiceOfCuratorViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            queryTeachersByName.filter { s: String -> s.length > 2 }
-                .flatMapLatest { name: String -> interactor.findTeacherByTypedName(name) }
-                .collect { resource: Resource<List<User>> ->
-                    if (resource is Resource.Success) {
+            try {
+                queryTeachersByName.filter { s: String -> s.length > 2 }
+                    .flatMapLatest { name: String -> interactor.findTeacherByTypedName(name) }
+                    .collect {
                         showErrorNetworkState.value = false
-                        val data = resource.data
-                        showFoundTeachers.setValue(data)
-                    } else if (resource is Resource.Error) {
-                        if (resource.error is NetworkException) {
-                            showFoundTeachers.value = emptyList()
-                            showErrorNetworkState.value = true
-                        }
+                        showFoundTeachers.setValue(it)
                     }
-                }
+            } catch (e: Exception) {
+                showFoundTeachers.value = emptyList()
+                showErrorNetworkState.value = true
+            }
+
+
         }
     }
 }

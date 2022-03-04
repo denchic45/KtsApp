@@ -1,6 +1,7 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.lessonEditor
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Lesson
@@ -16,6 +17,7 @@ import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class LessonEditorViewModel @Inject constructor(
@@ -66,13 +68,14 @@ class LessonEditorViewModel @Inject constructor(
     }
 
     fun onAddTeacherItemClick() {
-        openChoiceOfTeacher.call()
-        choiceOfCuratorInteractor.observeSelectedCurator()
-            .take(1)
-            .subscribe { teacher: User ->
-                teachersField.value =
-                    teachersField.value?.apply { add(teacher) } ?: mutableListOf(teacher)
+
+        viewModelScope.launch {
+            openChoiceOfTeacher.call()
+            choiceOfCuratorInteractor.awaitSelectTeacher().apply {
+                teachersField.value = teachersField.value?.let { it.add(this); it } ?: mutableListOf(this)
             }
+        }
+
     }
 
     fun onRemoveTeacherItemClick(position: Int) {

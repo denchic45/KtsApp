@@ -314,19 +314,15 @@ class GroupInfoRepository @Inject constructor(
         batch.commit().await()
     }
 
-    fun updateGroupCurator(groupId: String, teacher: User): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            if (!networkService.isNetworkAvailable) {
-                emitter.onError(NetworkException())
-                return@create
-            }
-            val updatedGroupMap: MutableMap<String, Any> = HashMap()
-            updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
-            updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
-            groupsRef.document(groupId).update(updatedGroupMap)
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
-        }
+  suspend  fun updateGroupCurator(groupId: String, teacher: User) {
+      if (!networkService.isNetworkAvailable) {
+          throw NetworkException()
+      }
+      val updatedGroupMap: MutableMap<String, Any> = HashMap()
+      updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
+      updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
+      groupsRef.document(groupId).update(updatedGroupMap)
+          .await()
     }
 
     fun findCurator(groupId: String): LiveData<User> {

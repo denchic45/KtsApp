@@ -75,7 +75,7 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
         ) { users: List<DomainModel?> -> adapter!!.submitList(users) }
         viewModel.openChoiceOfCurator.observe(
             viewLifecycleOwner
-        ) { navController!!.navigate(R.id.action_menu_group_to_choiceOfCuratorFragment) }
+        ) { navController!!.navigate(R.id.action_global_teacherChooserFragment) }
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner

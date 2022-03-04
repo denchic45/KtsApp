@@ -215,13 +215,13 @@ class GroupEditorViewModel @Inject constructor(
     }
 
     fun onCuratorClick() {
-        openChoiceOfCurator.call()
-        choiceOfCuratorInteractor.observeSelectedCurator()
-            .take(1)
-            .subscribe { teacher: User ->
-                uiEditor.item.curator = teacher
-                curatorField.setValue(teacher)
+        viewModelScope.launch {
+            openChoiceOfCurator.call()
+            choiceOfCuratorInteractor.awaitSelectTeacher().apply {
+                uiEditor.item.curator = this
+                curatorField.setValue(this)
             }
+        }
     }
 
     fun onFabClick() {

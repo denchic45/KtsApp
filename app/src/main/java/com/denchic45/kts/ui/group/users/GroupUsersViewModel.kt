@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.group.users
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.lifecycle.viewModelScope
 import com.denchic45.CombinedLiveData
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
@@ -16,7 +17,7 @@ import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
 import io.reactivex.rxjava3.disposables.Disposable
-import java.util.HashMap
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -101,19 +102,19 @@ class GroupUsersViewModel @Inject constructor(
                     }
                 }
             OPTION_CHANGE_CURATOR -> {
-                openChoiceOfCurator.call()
-                subscribeChoiceOfCurator = choiceOfCuratorInteractor!!.observeSelectedCurator()
-                    .subscribe { teacher: User ->
-                        interactor.updateGroupCurator(groupId, teacher)
-                            .subscribe(
-                                {}
-                            ) { throwable: Throwable? ->
-                                if (throwable is NetworkException) {
-                                    showMessageRes.value = R.string.error_check_network
-                                }
+                viewModelScope.launch {
+                    openChoiceOfCurator.call()
+                    choiceOfCuratorInteractor!!.awaitSelectTeacher().apply {
+                        try {
+                            interactor.updateGroupCurator(this@GroupUsersViewModel.groupId, this)
+                        } catch (e: Exception) {
+                            if (e is NetworkException) {
+                                showMessageRes.value = R.string.error_check_network
                             }
-                        subscribeChoiceOfCurator!!.dispose()
+                        }
                     }
+
+                }
             }
         }
     }

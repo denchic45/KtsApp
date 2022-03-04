@@ -26,6 +26,10 @@ class DelegationAdapterDsl {
             this.delegates = delegates
         }
 
+        fun delegates(delegates: List<AdapterDelegate>) {
+            this.delegates = delegates.toTypedArray()
+        }
+
         fun onClick(function: (position: Int) -> Unit) {
             this.onItemClickListener = function
         }
