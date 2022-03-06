@@ -44,13 +44,10 @@ class SimpleEventEditorViewModel @Inject constructor(
     }
 
     fun onEventSelect(position: Int) {
-        if (position < events.size) {
-            val selectedEvent = events[position]
-            interactor.getDetails = { selectedEvent }
-            showSelectedEvent.setValue(selectedEvent)
-        } else {
-            //todo open EventEditor
-        }
+        val selectedEvent = events[position]
+        interactor.getDetails = { selectedEvent }
+        showSelectedEvent.value = selectedEvent
+
     }
 
     init {
@@ -65,7 +62,7 @@ class SimpleEventEditorViewModel @Inject constructor(
         interactor.validateEventDetails = {
             UIValidator.of(
                 Validation(Rule { showSelectedEvent.value != null })
-                    .sendActionResult({ rule: Rule ->
+                    .sendActionResult({
                         showErrorField.setValue(
                             Pair(
                                 R.id.rl_event,

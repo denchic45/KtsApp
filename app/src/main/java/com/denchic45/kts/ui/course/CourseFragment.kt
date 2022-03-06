@@ -52,7 +52,7 @@ class CourseFragment :
         appBarController = AppBarController.findController(requireActivity())
         appBarController.apply {
             mainToolbar = toolbar
-            removeView(toolbar) //todo сохранять классический тулбар в переменную и возвращать при выходе
+            removeView(toolbar)
             collapsingToolbarLayout =
                 addView(R.layout.toolbar_course) as CollapsingToolbarLayout
             this@CourseFragment.toolbar = collapsingToolbarLayout!!.findViewById(R.id.toolbar)

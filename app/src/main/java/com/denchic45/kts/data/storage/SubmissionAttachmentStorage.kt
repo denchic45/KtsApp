@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import com.denchic45.kts.data.DownloadByUrlApi
 import com.denchic45.kts.data.model.domain.Attachment
-import com.denchic45.kts.utils.Files
 import com.denchic45.kts.utils.clearAndDelete
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
@@ -88,7 +87,11 @@ class SubmissionAttachmentStorage @Inject constructor(
         }
     }
 
-    suspend fun update(contentId: String, studentId: String, attachments: List<Attachment>): List<String> {
+    suspend fun update(
+        contentId: String,
+        studentId: String,
+        attachments: List<Attachment>
+    ): List<String> {
         val currentFiles = getSubmissionReference(contentId, studentId).listAll().await().items
 
         val currentFileNames = currentFiles.map { it.name }.toSet()
@@ -104,13 +107,19 @@ class SubmissionAttachmentStorage @Inject constructor(
             .map { it.downloadUrl.await().toString() } + uploaded
     }
 
-    //TODO TEST
     suspend fun deleteFilesByContentId(contentId: String) {
-        getSubmissionsReference(contentId).listAll().await()
-            .items.forEach { it.delete().await() }
+        getSubmissionsReference(contentId).deleteFolder()
     }
 
-    //TODO TEST
+    suspend fun StorageReference.deleteFolder() {
+        listAll().await().apply {
+            items.forEach {
+                it.delete().await()
+            }
+            prefixes.forEach { it.deleteFolder() }
+        }
+    }
+
     fun deleteFromLocal(contentId: String) {
         val contentDir = File(getSubmissionsLocalPath(contentId))
         contentDir.clearAndDelete()

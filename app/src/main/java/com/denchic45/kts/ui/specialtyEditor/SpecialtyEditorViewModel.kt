@@ -14,7 +14,6 @@ import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
-import io.reactivex.rxjava3.core.Completable
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -56,33 +55,38 @@ class SpecialtyEditorViewModel @Inject constructor(
         }
     }
 
-    private fun saveChanges() {
-        val saveSubjectCompletable: Completable = if (uiEditor.isNew) {
-            specialtyRepository.add(uiEditor.item)
-        } else {
-            specialtyRepository.update(uiEditor.item)
-        }
-        saveSubjectCompletable.subscribe({ finish() }) { throwable: Throwable? ->
-            if (throwable is NetworkException) {
+    private suspend fun saveChanges() {
+        try {
+            if (uiEditor.isNew) {
+                specialtyRepository.add(uiEditor.item)
+            } else {
+                specialtyRepository.update(uiEditor.item)
+            }
+        } catch (e: Exception) {
+            if (e is NetworkException) {
                 showMessageRes.value = R.string.error_check_network
             }
         }
     }
 
     fun onPositiveClick() {
-        uiValidator.runValidates { saveChanges() }
+        uiValidator.runValidates {
+            viewModelScope.launch { saveChanges() }
+        }
     }
 
     fun onDeleteClick() {
         viewModelScope.launch {
             openConfirmation(Pair("Удалить несколько предметов группы", "Вы точно уверены???"))
             if (confirmInteractor.awaitConfirm()) {
-                specialtyRepository.remove(uiEditor.item)
-                    .subscribe({ finish() }) { throwable: Throwable? ->
-                        if (throwable is NetworkException) {
-                            showMessageRes.value = R.string.error_check_network
-                        }
+                try {
+                    specialtyRepository.remove(uiEditor.item)
+                    finish()
+                } catch (e:Exception) {
+                    if (e is NetworkException) {
+                        showMessageRes.value = R.string.error_check_network
                     }
+                }
             }
         }
     }

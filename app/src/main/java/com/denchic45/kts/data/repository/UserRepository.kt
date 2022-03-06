@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.UserDao
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.UserDoc
@@ -21,13 +20,16 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import io.reactivex.rxjava3.core.*
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.CompletableEmitter
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableEmitter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
@@ -47,33 +49,10 @@ open class UserRepository @Inject constructor(
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarStorage: StorageReference = storage.reference.child("avatars")
-    val teachers: LiveData<List<User>>
-        get() {
-            getUsersByRole(User.TEACHER, User.HEAD_TEACHER)
-            return Transformations.map(userDao.allTeachers) { entity: List<UserEntity?> ->
-                userMapper.entityToDomain(
-                    entity
-                )
-            }
-        }
 
-    private fun getUsersByRole(vararg roles: String) {
-        usersRef.whereIn("role", listOf(*roles))
-            .get().addOnSuccessListener { snapshot: QuerySnapshot ->
-                val users = snapshot.toObjects(
-                    UserEntity::class.java
-                )
-                coroutineScope.launch(dispatcher) {
-                    userDao.upsert(users)
-                }
-            }
-    }
+    fun getByGroupId(groupId: String): Flow<List<User>> {
+        return userDao.getByGroupId(groupId).map { userMapper.entityToDomain(it) }
 
-    fun getByGroupId(groupId: String): LiveData<List<User>> {
-        //todo check null and get group in fireStore
-        return Transformations.map(userDao.getByGroupId(groupId)) { entity: List<UserEntity?> ->
-            userMapper.entityToDomain(entity)
-        }
     }
 
     private fun loadUserPreference(user: User) {
@@ -242,9 +221,6 @@ open class UserRepository @Inject constructor(
             }
         awaitClose { }
     }
-
-    val roleOfThisUser: String
-        get() = userPreference.role
 
     fun findById(userId: String): Observable<User> {
         return Observable.create { emitter: ObservableEmitter<User> ->

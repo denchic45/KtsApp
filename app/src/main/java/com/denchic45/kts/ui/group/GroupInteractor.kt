@@ -4,29 +4,29 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.data.repository.GroupInfoRepository
+import com.denchic45.kts.data.repository.GroupRepository
 import com.denchic45.kts.data.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GroupInteractor @Inject constructor(
-    private val groupInfoRepository: GroupInfoRepository,
+    private val groupRepository: GroupRepository,
     private val userRepository: UserRepository
 ) : Interactor {
 
     val yourGroupId: String
-        get() = groupInfoRepository.yourGroupId
+        get() = groupRepository.yourGroupId
 
     override fun removeListeners() {}
     val yourGroupName: String
-        get() = groupInfoRepository.yourGroupName
+        get() = groupRepository.yourGroupName
 
     fun getNameByGroupId(groupId: String): Flow<String> {
-        return groupInfoRepository.getNameByGroupId(groupId)
+        return groupRepository.getNameByGroupId(groupId)
     }
 
     fun isExistGroup(groupId: String): LiveData<Boolean> {
-        return groupInfoRepository.isExistGroup(groupId).asLiveData()
+        return groupRepository.isExistGroup(groupId).asLiveData()
     }
 
     fun findThisUser(): User {

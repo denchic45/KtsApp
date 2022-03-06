@@ -5,6 +5,7 @@ import android.net.Uri
 import com.denchic45.kts.data.DownloadByUrlApi
 import com.denchic45.kts.data.model.domain.Attachment
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -92,4 +93,7 @@ class ContentAttachmentStorage @Inject constructor(
         contentDir.listFiles()?.forEach { it.delete() }
         contentDir.delete()
     }
+
+
 }
+

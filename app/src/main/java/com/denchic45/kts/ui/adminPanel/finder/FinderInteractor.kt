@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.adminPanel.finder
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
@@ -15,7 +13,7 @@ class FinderInteractor @Inject constructor(
     private val courseRepository: CourseRepository,
     private val subjectRepository: SubjectRepository,
     private val userRepository: UserRepository,
-    private val groupInfoRepository: GroupInfoRepository,
+    private val groupRepository: GroupRepository,
     private val studentRepository: StudentRepository,
     private val teacherRepository: TeacherRepository,
     private val specialtyRepository: SpecialtyRepository
@@ -26,7 +24,7 @@ class FinderInteractor @Inject constructor(
     }
 
     fun findGroupByTypedName(name: String): Flow<List<CourseGroup>> {
-        return groupInfoRepository.findByTypedName(name)
+        return groupRepository.findByTypedName(name)
     }
 
     fun findSubjectByTypedName(name: String): Flow<List<Subject>> {
@@ -43,12 +41,12 @@ class FinderInteractor @Inject constructor(
 
     override fun removeListeners() {
         userRepository.removeListeners()
-        groupInfoRepository.removeListeners()
+        groupRepository.removeListeners()
         subjectRepository.removeListeners()
         specialtyRepository.removeListeners()
     }
 
-    fun removeUser(user: User): Completable {
+   suspend fun removeUser(user: User) {
         if (isStudent(user.role)) {
             return studentRepository.remove(user)
         } else if (isTeacher(user.role)) {
@@ -63,6 +61,6 @@ class FinderInteractor @Inject constructor(
 
     suspend fun removeGroup(group: Group) {
         courseRepository.removeGroup(group)
-        groupInfoRepository.remove(group)
+        groupRepository.remove(group)
     }
 }

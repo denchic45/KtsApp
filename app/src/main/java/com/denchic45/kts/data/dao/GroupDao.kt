@@ -6,7 +6,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.denchic45.kts.data.model.room.GroupEntity
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
-import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -41,10 +40,10 @@ abstract class GroupDao : BaseDao<GroupEntity>() {
     abstract fun deleteById(groupId: String)
 
     @Query("SELECT * FROM `group` g JOIN user u ON g.group_id = u.user_group_id WHERE u.user_id =:userId ")
-    abstract fun getByStudentId(userId: String): Observable<GroupWithCuratorAndSpecialtyEntity>
+    abstract fun getByStudentId(userId: String): Flow<GroupWithCuratorAndSpecialtyEntity>
 
     @Query("SELECT * FROM `group` WHERE curator_id =:userId")
-    abstract fun getByCuratorId(userId: String): Observable<GroupWithCuratorAndSpecialtyEntity>
+    abstract fun getByCuratorId(userId: String): Flow<GroupWithCuratorAndSpecialtyEntity>
 
     @Query("DELETE FROM `group` WHERE group_id NOT IN(SELECT g.group_id FROM `group` g INNER JOIN group_course gc ON gc.group_id == g.group_id)")
     abstract fun deleteUnrelatedByCourse()

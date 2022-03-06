@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfSubject
 
-import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Subject
@@ -8,6 +7,9 @@ import com.denchic45.kts.data.repository.SubjectRepository
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
 import javax.inject.Inject
 
 class ChoiceOfSubjectInteractor @Inject constructor(
@@ -25,8 +27,14 @@ class ChoiceOfSubjectInteractor @Inject constructor(
     }
 
 
-    val subjectsOfGroup: LiveData<Resource<List<Subject>>>
-        get() = subjectRepository.findByGroup(groupId)
+    fun subjectsOfGroup(): Flow<Resource<List<Subject>>> = flow {
+        try {
+            emitAll(subjectRepository.findByGroup(groupId).mapLatest { Resource.Success(it) })
+        } catch (e: Exception) {
+            emit(Resource.Error(e))
+        }
+    }
+
 
     fun postSelectedSubject(subject: Subject) {
         selectedSubject.onNext(subject)

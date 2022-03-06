@@ -4,11 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.CourseDao
 import com.denchic45.kts.data.dao.GroupDao
 import com.denchic45.kts.data.dao.SpecialtyDao
@@ -21,17 +20,12 @@ import com.denchic45.kts.data.model.mapper.GroupMapper
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
-import com.denchic45.kts.data.model.room.UserEntity
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.SearchKeysGenerator
 import com.google.firebase.firestore.*
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.ObservableEmitter
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
@@ -41,10 +35,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
-import java.util.function.Consumer
 import javax.inject.Inject
 
-class GroupInfoRepository @Inject constructor(
+class GroupRepository @Inject constructor(
     context: Context,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
@@ -64,13 +57,13 @@ class GroupInfoRepository @Inject constructor(
     override val dataBase: DataBase
 ) : Repository(context), IGroupRepository {
 
-    private val compositeDisposable = CompositeDisposable()
     private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val usersRef: CollectionReference = firestore.collection("Users")
+    private val coursesRef: CollectionReference = firestore.collection("Courses")
 
     private suspend fun saveUsersAndTeachersWithSubjectsAndCoursesOfYourGroup(groupDoc: GroupDoc) {
-        saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
+        saveGroup(groupDoc)
         groupPreference.saveGroupInfo(groupMapper.docToEntity(groupDoc))
         timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses!!.time)
     }
@@ -105,10 +98,13 @@ class GroupInfoRepository @Inject constructor(
                 }
                 if (!snapshots!!.isEmpty) {
                     coroutineScope.launch(dispatcher) {
-                        val groupDocs = snapshots.toObjects(
-                            GroupDoc::class.java
-                        )
-                        saveUsersAndGroupsAndSubjectsOfTeacher(groupDocs, teacherId)
+                        val groupDocs = snapshots.toObjects(GroupDoc::class.java)
+                        dataBase.withTransaction {
+                            saveGroupsOfTeacher(
+                                groupDocs,
+                                teacherId
+                            )
+                        }
                         timestampPreference.setTimestampGroups(System.currentTimeMillis())
                     }
                 }
@@ -205,16 +201,12 @@ class GroupInfoRepository @Inject constructor(
             .addOnSuccessListener { snapshot: DocumentSnapshot ->
                 val groupDoc = snapshot.toObject(GroupDoc::class.java)!!
                 coroutineScope.launch(dispatcher) {
-                    upsertGroupInfo(groupDoc)
+                    dataBase.withTransaction {
+                        saveGroup(groupDoc)
+                    }
                 }
             }
             .addOnFailureListener { e: Exception? -> Log.d("lol", "loadGroupInfo: ", e) }
-    }
-
-    private suspend fun upsertGroupInfo(groupDoc: GroupDoc) {
-        groupDao.upsert(groupMapper.docToEntity(groupDoc))
-        specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
-        saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
     }
 
     fun hasGroup(): Boolean {
@@ -236,7 +228,7 @@ class GroupInfoRepository @Inject constructor(
                         if (snapshot!!.exists()) {
                             val groupDoc = snapshot.toObject(GroupDoc::class.java)
                             if (hasTimestamp(groupDoc!!)) {
-                                upsertGroupInfo(groupDoc)
+                                saveGroup(groupDoc)
                             }
                         } else {
                             groupDao.deleteById(groupId)
@@ -258,7 +250,7 @@ class GroupInfoRepository @Inject constructor(
                         if (timestampsNotNull(snapshots)) {
                             val groupDocs = snapshots.toObjects(GroupDoc::class.java)
                             for (groupDoc in groupDocs) {
-                                saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(groupDoc)
+                                saveGroup(groupDoc)
                             }
                             trySend(groupMapper.docToCourseGroupDomain(groupDocs))
                         }
@@ -289,21 +281,35 @@ class GroupInfoRepository @Inject constructor(
     suspend fun remove(group: Group) {
         checkInternetConnection()
         val batch = firestore.batch()
-        val task = groupsRef.document(group.id)
+
+        groupsRef.document(group.id)
+            .get()
+            .await().apply {
+                batch.delete(groupsRef.document(group.id))
+                this.toObject(GroupDoc::class.java)!!
+                    .students!!
+                    .values
+                    .forEach { userDoc ->
+                        batch.delete(usersRef.document(userDoc.id))
+                    }
+            }
+
+        coursesRef.whereArrayContains("groupIds", group.id)
             .get()
             .await()
-        batch.delete(groupsRef.document(group.id))
-        task.toObject(GroupDoc::class.java)!!.students!!.values
-            .forEach(Consumer { (id) ->
-                batch.delete(usersRef.document(id))
-            })
+            .forEach { courseDocSnapshot ->
+                batch.update(
+                    coursesRef.document(courseDocSnapshot.id),
+                    "groupIds",
+                    FieldValue.arrayRemove(group.id)
+                )
+            }
+
         batch.commit().await()
     }
 
     suspend fun updateGroupCurator(groupId: String, teacher: User) {
-        if (!networkService.isNetworkAvailable) {
-            throw NetworkException()
-        }
+        checkInternetConnection()
         val updatedGroupMap: MutableMap<String, Any> = HashMap()
         updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
         updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
@@ -311,10 +317,8 @@ class GroupInfoRepository @Inject constructor(
             .await()
     }
 
-    fun findCurator(groupId: String): LiveData<User> {
-        return Transformations.map(userDao.getCurator(groupId)) { entity: UserEntity? ->
-            userMapper.entityToDomain(entity)
-        }
+    fun findCurator(groupId: String): Flow<User> {
+        return userDao.getCurator(groupId).map { userMapper.entityToDomain(it) }
     }
 
     fun getNameByGroupId(groupId: String): Flow<String> {
@@ -338,7 +342,7 @@ class GroupInfoRepository @Inject constructor(
 
         val groupDocs = snapshots.toObjects(GroupDoc::class.java)
         val groupsInfo: List<GroupCourses> = groupDocs.map { groupDoc: GroupDoc ->
-            upsertGroupInfo(groupDoc)
+            saveGroup(groupDoc)
             GroupCourses(
                 groupMapper.docToCourseGroupDomain(groupDoc),
                 courseMapper.entityToDomain2(
@@ -354,63 +358,39 @@ class GroupInfoRepository @Inject constructor(
             .map(String::isNotEmpty)
     }
 
-    fun findGroupByStudent(user: User): Observable<Group> {
-        return Observable.create { emitter: ObservableEmitter<Group> ->
-            if (!userDao.isExistByIdAndGroupId(user.id, user.groupId)) findGroupById(
-                user.groupId!!,
-                emitter
-            )
-            addListenerDisposable("GROUP_BY_STUDENT: " + user.id) {
-                groupDao.getByStudentId(user.id)
-                    .subscribe { groupEntity: GroupWithCuratorAndSpecialtyEntity ->
-                        emitter.onNext(
-                            groupMapper.entityToDomain(groupEntity)
+    fun findGroupByStudent(user: User): Flow<Group> {
+        if (!userDao.isExistByIdAndGroupId(user.id, user.groupId))
+            findGroupById(user.groupId!!)
+
+        return groupDao.getByStudentId(user.id)
+            .map { groupMapper.entityToDomain(it) }
+    }
+
+    fun findGroupByCurator(user: User): Flow<Group> {
+        getQueryOfGroupByCurator(user.id)
+            .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                if (error != null) {
+                    throw error
+                }
+                if (!value!!.isEmpty && timestampsNotNull(value))
+                    coroutineScope.launch(dispatcher) {
+                        saveGroup(
+                            value.documents[0].toObject(GroupDoc::class.java)!!
                         )
                     }
             }
-        }
-    }
-
-    fun findGroupByCurator(user: User): Observable<Group> {
-        return Observable.create { emitter: ObservableEmitter<Group> ->
-            getQueryOfGroupByCurator(user.id)
-                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                    if (error != null) {
-                        emitter.onError(error)
-                        return@addSnapshotListener
-                    }
-                    if (!value!!.isEmpty && timestampsNotNull(value))
-                        coroutineScope.launch(dispatcher) {
-                            saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
-                                value.documents[0].toObject(GroupDoc::class.java)!!
-                            )
-                        }
-                }
-            addListenerDisposable("GROUP_BY_CURATOR: " + user.id) {
-                groupDao.getByCuratorId(user.id)
-                    .map { domain: GroupWithCuratorAndSpecialtyEntity ->
-                        groupMapper.entityToDomain(domain)
-                    }
-                    .subscribe { value: Group -> emitter.onNext(value) }
+        return groupDao.getByCuratorId(user.id)
+            .map { domain: GroupWithCuratorAndSpecialtyEntity ->
+                groupMapper.entityToDomain(domain)
             }
+    }
+
+    private fun findGroupById(groupId: String) {
+        coroutineScope.launch(dispatcher) {
+            val groupDoc = groupsRef.document(groupId)
+                .get()
+                .await().toObject(GroupDoc::class.java)!!
+            saveGroup(groupDoc)
         }
-    }
-
-    private fun findGroupById(groupId: String, emitter: ObservableEmitter<Group>) {
-        groupsRef.document(groupId)
-            .get()
-            .addOnSuccessListener { documentSnapshot: DocumentSnapshot ->
-                coroutineScope.launch(dispatcher) {
-                    saveUsersAndTeachersWithSubjectsAndCoursesOfGroup(
-                        documentSnapshot.toObject(GroupDoc::class.java)!!
-                    )
-                }
-            }
-            .addOnFailureListener { error: Exception -> emitter.onError(error) }
-    }
-
-    override fun removeListeners() {
-        super.removeListeners()
-        compositeDisposable.clear()
     }
 }

@@ -201,12 +201,13 @@ class FinderViewModel @Inject constructor(
                     )
 
                     if (confirmInteractor.awaitConfirm()) {
-                        interactor.removeUser(selectedUser)
-                            .subscribe({}) { throwable: Throwable ->
-                                if (throwable is NetworkException) {
-                                    showMessage.value = "Проверьте подключение к интернету"
-                                }
+                        try {
+                            interactor.removeUser(selectedUser)
+                        } catch (e: Exception) {
+                            if (e is NetworkException) {
+                                showMessage.value = "Проверьте подключение к интернету"
                             }
+                        }
                     }
                 }
             },

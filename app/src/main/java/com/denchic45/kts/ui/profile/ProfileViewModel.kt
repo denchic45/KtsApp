@@ -11,6 +11,7 @@ import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -60,8 +61,8 @@ class ProfileViewModel @Inject constructor(
         if (!userOfProfile!!.generatedAvatar) openFullImage.value = showAvatar.value
     }
 
-    override fun onOptionClick(id: Int) {
-        when (id) {
+    override fun onOptionClick(itemId: Int) {
+        when (itemId) {
             R.id.menu_select_avatar -> openGallery.call()
         }
     }
@@ -87,22 +88,22 @@ class ProfileViewModel @Inject constructor(
                 showPhoneNum.value = user.phoneNum
                 showEmail.value = user.email
                 if (user.isStudent) {
-                    compositeDisposable.add(interactor.findGroupByStudent(user)
-                        .compose(AsyncTransformer())
-                        .subscribe { group: Group ->
+                    viewModelScope.launch {
+                        interactor.findGroupByStudent(user).collect {
                             groupInfoVisibility.value = true
-                            this.group = group
-                            showGroupInfo.setValue("Участник группы: " + group.name)
-                        })
+                            this@ProfileViewModel.group = it
+                            showGroupInfo.setValue("Участник группы: " + it.name)
+                        }
+                    }
                 } else if (user.isTeacher) {
-                    compositeDisposable.add(interactor.findGroupByCurator(user)
-                        .compose(AsyncTransformer())
-                        .subscribe { group: Group? ->
-                            if (group == null) return@subscribe
+                    viewModelScope.launch {
+                        interactor.findGroupByCurator(user).collect {
+                            if (group == null) return@collect
                             groupInfoVisibility.value = true
-                            this.group = group
-                            showGroupInfo.setValue("Куратор группы: " + group.name)
-                        })
+                            this@ProfileViewModel.group = it
+                            showGroupInfo.setValue("Куратор группы: " + it.name)
+                        }
+                    }
                 }
                 if (interactor.findThisUser().id != userOfProfile!!.id) {
                     optionVisibility.value = Pair(R.id.menu_select_avatar, false)

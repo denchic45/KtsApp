@@ -15,8 +15,6 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.CompletableEmitter
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -107,19 +105,13 @@ class TeacherRepository @Inject constructor(
     }
 
 
-    fun remove(teacher: User): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            if (!networkService.isNetworkAvailable) {
-                emitter.onError(NetworkException())
-                return@create
-            }
-            batch = firestore.batch()
-            batch!!.delete(usersRef.document(teacher.id))
-            batch!!.commit()
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener(emitter::onError)
-            deleteAvatar(teacher.id)
-        }
+    suspend fun remove(teacher: User) {
+        checkInternetConnection()
+        batch = firestore.batch()
+        batch!!.delete(usersRef.document(teacher.id))
+        batch!!.commit()
+            .await()
+        deleteAvatar(teacher.id)
     }
 
     private fun deleteAvatar(userId: String) {

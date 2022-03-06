@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 class UserEditorInteractor @Inject constructor(
     context: Context,
-    private val groupInfoRepository: GroupInfoRepository,
+    private val groupRepository: GroupRepository,
     private val userRepository: UserRepository,
     private val studentRepository: StudentRepository,
     private val teacherRepository: TeacherRepository,
@@ -32,11 +32,11 @@ class UserEditorInteractor @Inject constructor(
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 
     fun getGroupsByTypedName(name: String): Flow<List<CourseGroup>> {
-        return groupInfoRepository.findByTypedName(name)
+        return groupRepository.findByTypedName(name)
     }
 
     fun getGroupNameById(groupId: String): LiveData<String> {
-        return groupInfoRepository.getNameByGroupId(groupId).asLiveData()
+        return groupRepository.getNameByGroupId(groupId).asLiveData()
     }
 
     private suspend fun loadAvatar(avatarBytes: ByteArray, id: String): String {
@@ -89,11 +89,11 @@ class UserEditorInteractor @Inject constructor(
         return photoUrl
     }
 
-    fun removeStudent(student: User): Completable {
+    suspend fun removeStudent(student: User) {
         return studentRepository.remove(student)
     }
 
-    fun removeTeacher(teacher: User): Completable {
+    suspend fun removeTeacher(teacher: User) {
         return teacherRepository.remove(teacher)
     }
 
@@ -103,7 +103,7 @@ class UserEditorInteractor @Inject constructor(
 
     override fun removeListeners() {
         userRepository.removeListeners()
-        groupInfoRepository.removeListeners()
+        groupRepository.removeListeners()
     }
 
     fun signUpUser(email: String, password: String) {

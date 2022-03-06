@@ -7,6 +7,7 @@ import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -22,6 +23,7 @@ import com.denchic45.kts.utils.ViewUtils
 import com.denchic45.kts.utils.strings
 import com.denchic45.kts.utils.toast
 import com.example.appbarcontroller.appbarcontroller.AppBarController
+import kotlinx.coroutines.flow.collect
 
 class GroupUsersFragment :
     BaseFragment<GroupUsersViewModel, FragmentGroupUsersBinding>(R.layout.fragment_group_users) {
@@ -67,9 +69,13 @@ class GroupUsersFragment :
         }
 
         viewModel.onGroupIdReceived(requireArguments().getString(GROUP_ID))
-        viewModel.users!!.observe(
-            viewLifecycleOwner
-        ) { users -> userAdapter.submitList(users) }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.users.collect { users ->
+                userAdapter.submitList(users)
+            }
+        }
+
         viewModel.openChoiceOfCurator.observe(
             viewLifecycleOwner
         ) { navController.navigate(R.id.action_global_teacherChooserFragment) }

@@ -4,18 +4,15 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.SubjectDao
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.SubjectMapper
 import com.denchic45.kts.data.model.room.SubjectEntity
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.utils.NetworkException
 import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ListResult
@@ -26,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
@@ -183,23 +181,11 @@ class SubjectRepository @Inject constructor(
         }
     }
 
-    fun findByGroup(groupId: String): LiveData<Resource<List<Subject>>> {
-        return if (!networkService.isNetworkAvailable) {
-            MutableLiveData(Resource.Error(NetworkException()))
-        } else Transformations.map(subjectDao.getByGroupId(groupId)) { input: List<SubjectEntity?> ->
-            Resource.Success(
-                subjectMapper.entityToDomain(input)
-            )
+    fun findByGroup(groupId: String): Flow<List<Subject>> {
+        checkInternetConnection()
+        return subjectDao.getByGroupId(groupId).map { list ->
+            subjectMapper.entityToDomain(list)
         }
-        //todo дописать!
-//        if (!groupDao.isExistSync(groupId)) {
-//            groupsRef.document(groupId)
-//                    .get()
-//                    .addOnSuccessListener(snapshot -> {
-//                        GroupDoc groupDoc = snapshot.toObject(GroupDoc.class);
-//                        subjectDao.upsert(subjectMapper.docToEntity(new ArrayList<>(groupDoc.getSubjects().values())));
-//                    });
-//        }
     }
 
 }

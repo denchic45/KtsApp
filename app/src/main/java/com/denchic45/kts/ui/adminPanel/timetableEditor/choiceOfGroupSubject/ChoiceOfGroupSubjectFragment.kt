@@ -6,18 +6,19 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.data.Resource
-import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.databinding.FragmentChoiceOfGroupSubjectBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.SubjectAdapter
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.widget.ListStateLayout
+import kotlinx.coroutines.flow.collect
 
 class ChoiceOfGroupSubjectFragment :
     BaseFragment<ChoiceOfGroupSubjectViewModel, FragmentChoiceOfGroupSubjectBinding>(
@@ -68,15 +69,16 @@ class ChoiceOfGroupSubjectFragment :
             viewModel.updateIconEventSubject.observe(
                 viewLifecycleOwner
             ) { adapter.notifyItemChanged(0, SubjectAdapter.PAYLOAD.UPDATE_ICON) }
-            viewModel.showSubjectsOfGroup.observe(
-                viewLifecycleOwner
-            ) { resource: Resource<List<Subject>> ->
-                if (resource is Resource.Success) {
-                    listStateLayout.showList()
-                    adapter.submitList(resource.data)
-                } else if (resource is Resource.Error) {
-                    if (resource.error is NetworkException) {
-                        listStateLayout.showView(ListStateLayout.NETWORK_VIEW)
+
+            lifecycleScope.launchWhenStarted {
+                viewModel.showSubjectsOfGroup.collect { resource ->
+                    if (resource is Resource.Success) {
+                        listStateLayout.showList()
+                        adapter.submitList(resource.data)
+                    } else if (resource is Resource.Error) {
+                        if (resource.error is NetworkException) {
+                            listStateLayout.showView(ListStateLayout.NETWORK_VIEW)
+                        }
                     }
                 }
             }

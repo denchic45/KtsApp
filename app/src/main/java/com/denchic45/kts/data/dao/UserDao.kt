@@ -6,12 +6,13 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.denchic45.kts.data.model.room.UserEntity
 import io.reactivex.rxjava3.core.Observable
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class UserDao : BaseDao<UserEntity>() {
 
     @Query("SELECT * FROM user WHERE user_group_id =:groupId ORDER BY surname")
-    abstract fun getByGroupId(groupId: String): LiveData<List<UserEntity>>
+    abstract fun getByGroupId(groupId: String): Flow<List<UserEntity>>
 
     @Query("SELECT * FROM user WHERE user_group_id =:groupId ORDER BY surname")
     abstract fun getByGroupIdSync(groupId: String): List<UserEntity>
@@ -51,7 +52,7 @@ abstract class UserDao : BaseDao<UserEntity>() {
     abstract fun updateGroupId(userId: String, groupId: String?)
 
     @Query("SELECT * FROM user u INNER JOIN `group` g ON u.user_id = g.curator_id WHERE g.group_id=:groupId")
-    abstract fun getCurator(groupId: String): LiveData<UserEntity>
+    abstract fun getCurator(groupId: String): Flow<UserEntity>
 
     @Query("SELECT * FROM user u INNER JOIN `group` g ON u.user_id = g.curator_id WHERE g.group_id=:groupId")
     abstract fun getCuratorSync(groupId: String): UserEntity

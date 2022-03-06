@@ -352,12 +352,14 @@ open class UserEditorViewModel @Inject constructor(
 
         viewModelScope.launch {
             if (confirmInteractor.awaitConfirm()) {
-                if (isStudent(role!!)) interactor.removeStudent(uiEditor.item)
-                    .subscribe() else if (isTeacher(
-                        role!!
-                    )
-                ) interactor.removeTeacher(uiEditor.item).subscribe()
-                finish()
+                try {
+                    if (isStudent(role!!))
+                        interactor.removeStudent(uiEditor.item)
+                    else if (isTeacher(role!!))
+                        interactor.removeTeacher(uiEditor.item)
+                    finish()
+                } catch (e: Exception) {
+                }
             }
         }
     }

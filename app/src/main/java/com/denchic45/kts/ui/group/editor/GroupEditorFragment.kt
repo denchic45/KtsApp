@@ -44,7 +44,6 @@ class GroupEditorFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        //viewModel // TODO need for init before in activity
         val curatorHeader = view.findViewById<TextView>(R.id.tv_header)
         specialtyAdapter = ListPopupWindowAdapter(requireContext(), ArrayList())
         viewBinding.apply {
@@ -54,9 +53,7 @@ class GroupEditorFragment :
                 viewModel.onCourseSelect(position)
             }
             etSpecialty.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
-                viewModel.onSpecialtySelect(
-                    position
-                )
+                viewModel.onSpecialtySelect(position)
             }
 
             val fab = requireActivity().findViewById<FloatingActionButton>(R.id.fab_main).apply {

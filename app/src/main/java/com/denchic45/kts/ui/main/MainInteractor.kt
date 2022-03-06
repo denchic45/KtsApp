@@ -26,7 +26,7 @@ class MainInteractor @Inject constructor(
     private val context: Context,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     coroutineScope: CoroutineScope,
-    private val groupInfoRepository: GroupInfoRepository,
+    private val groupRepository: GroupRepository,
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
     private val eventRepository: EventRepository,
@@ -63,7 +63,7 @@ class MainInteractor @Inject constructor(
     }
 
     fun hasGroup(): Boolean {
-        return groupInfoRepository.hasGroup()
+        return groupRepository.hasGroup()
     }
 
     private fun groupsWereUpdateLongAgo(): Boolean {
@@ -76,14 +76,14 @@ class MainInteractor @Inject constructor(
     }
 
     override fun removeListeners() {
-        groupInfoRepository.removeListeners()
+        groupRepository.removeListeners()
     }
 
     val lessonTime: LiveData<Int>
         get() = metaRepository.lessonTime
 
     fun observeHasGroup(): Flow<Boolean> {
-        return groupInfoRepository.observeHasGroup().onEach {
+        return groupRepository.observeHasGroup().onEach {
             if (it) {
                 eventRepository.listenLessonsOfYourGroup()
             }
@@ -99,10 +99,10 @@ class MainInteractor @Inject constructor(
         listenThisUser().collect { user ->
             user?.let {
                 if (user.isTeacher) {
-                    groupInfoRepository.listenYouGroupByCurator()
-                    groupInfoRepository.listenGroupsWhereThisUserIsTeacher(user)
+                    groupRepository.listenYouGroupByCurator()
+                    groupRepository.listenGroupsWhereThisUserIsTeacher(user)
                 } else if (user.isStudent) {
-                    groupInfoRepository.listenYourGroup()
+                    groupRepository.listenYourGroup()
                 }
                 courseRepository.observeByYourGroup()
             } ?: run {

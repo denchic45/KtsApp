@@ -5,7 +5,7 @@ import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.CourseRepository
-import com.denchic45.kts.data.repository.GroupInfoRepository
+import com.denchic45.kts.data.repository.GroupRepository
 import com.denchic45.kts.data.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Inject
 class GroupCoursesInteractor @Inject constructor(
     private val courseRepository: CourseRepository,
     private val userRepository: UserRepository,
-    private val groupInfoRepository: GroupInfoRepository
+    private val groupRepository: GroupRepository
 ) : Interactor {
 
     fun findCoursesByGroupId(groupId: String): Flow<List<CourseHeader>> {
@@ -27,7 +27,7 @@ class GroupCoursesInteractor @Inject constructor(
     }
 
     val yourGroupId: String
-        get() = groupInfoRepository.yourGroupId
+        get() = groupRepository.yourGroupId
 
     fun findThisUser(): User {
         return userRepository.findSelf()

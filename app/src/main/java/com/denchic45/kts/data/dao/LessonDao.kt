@@ -34,7 +34,7 @@ abstract class LessonDao : BaseDao<EventEntity>() {
     ): Flow<List<EventWithSubjectAndTeachersEntities>>
 
     @Query("DELETE FROM event WHERE date BETWEEN :start AND :end AND group_id =:groupId")
-    abstract fun deleteByGroupAndDateRange(
+    abstract suspend fun deleteByGroupAndDateRange(
         groupId: String,
         @TypeConverters(LocalDateConverter::class)
         start: LocalDate,

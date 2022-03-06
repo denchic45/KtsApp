@@ -88,16 +88,15 @@ class CourseRepository @Inject constructor(
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
 
                         dataBase.withTransaction {
-                            saveCourses(listOf(courseDoc))
-
                             val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
                                 .get()
                                 .await()
                             if (timestampsNotNull(querySnapshot))
-                                saveUsersAndGroupsAndSubjectsOfTeacher(
+                                saveGroupsOfTeacher(
                                     querySnapshot.toObjects(GroupDoc::class.java),
                                     userPreference.id
                                 )
+                            saveCourses(listOf(courseDoc))
                         }
                     }
                 }
@@ -128,33 +127,9 @@ class CourseRepository @Inject constructor(
             }
     }
 
-    // todo проверить получше ПРОВЕРИТЬ
-// Сначала мы ищем хотя бы один курс с обновленным timestamp, и если находим, то начинаем прослушивать
-// все курсы данного преподавателя
+
     fun findByYourAsTeacher(): Flow<List<CourseHeader>> {
         getCoursesByTeacherRemotely(userPreference.id)
-//        addListenerRegistration("findOneCourseByTimestamp") {
-
-//            coursesRef.whereGreaterThan(
-//                "timestamp",
-//                Date(timestampPreference.lastUpdateTeacherCoursesTimestamp)
-//            )
-//                .limit(1)
-//                .orderBy("timestamp", Query.Direction.DESCENDING)
-//                .addSnapshotListener { value, error ->
-//                    error?.let {
-//                        it.printStackTrace()
-//                        throw it
-//                    }
-//                    if (!value!!.isEmpty) {
-//                        timestampPreference.lastUpdateTeacherCoursesTimestamp =
-//                            value.documents[0].toObject(CourseDoc::class.java)!!
-//                                .timestamp!!
-//                                .time
-//                        getCoursesByTeacherRemotely(userPreference.id)
-//                    }
-//                }
-//        }
         return courseDao.getByTeacherId(userPreference.id)
             .map { courseMapper.entityToDomainHeaders(it) }
     }

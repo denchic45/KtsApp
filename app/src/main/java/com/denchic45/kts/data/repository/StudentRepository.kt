@@ -9,17 +9,16 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.utils.NetworkException
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import io.reactivex.rxjava3.core.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.tasks.await
-import java.util.*
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class StudentRepository @Inject constructor(
@@ -71,21 +70,14 @@ class StudentRepository @Inject constructor(
         return student.groupId != cacheStudent.groupId
     }
 
-    fun remove(student: User): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            if (!networkService.isNetworkAvailable) {
-                emitter.onError(NetworkException())
-                return@create
-            }
-            val batch = firestore.batch()
-            val studentDoc = userMapper.domainToDoc(student)
-            batch.delete(userRef.document(student.id))
-            deleteStudentFromGroup(studentDoc, student.groupId!!, batch)
-            batch.commit()
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
-            deleteAvatar(student.id)
-        }
+    suspend fun remove(student: User) {
+        checkInternetConnection()
+        val batch = firestore.batch()
+        val studentDoc = userMapper.domainToDoc(student)
+        batch.delete(userRef.document(student.id))
+        deleteStudentFromGroup(studentDoc, student.groupId!!, batch)
+        batch.commit().await()
+        deleteAvatar(student.id)
     }
 
     private fun deleteAvatar(userId: String) {

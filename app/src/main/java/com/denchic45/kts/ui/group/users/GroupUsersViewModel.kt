@@ -1,9 +1,6 @@
 package com.denchic45.kts.ui.group.users
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.viewModelScope
-import com.denchic45.CombinedLiveData
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
@@ -16,7 +13,10 @@ import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -39,15 +39,13 @@ class GroupUsersViewModel @Inject constructor(
 
     private val uiPermissions: UiPermissions = UiPermissions(interactor.findThisUser())
 
-    @JvmField
-    var users: LiveData<List<DomainModel?>>? = null
+    lateinit var users: StateFlow<List<DomainModel?>>
 
     @JvmField
     @Inject
     var choiceOfCuratorInteractor: ChoiceOfCuratorInteractor? = null
     private var groupId: String = ""
     private lateinit var selectedUser: User
-    private var subscribeChoiceOfCurator: Disposable? = null
     private var students: List<User> = emptyList()
     fun onGroupIdReceived(groupId: String?) {
         var groupId = groupId
@@ -55,31 +53,34 @@ class GroupUsersViewModel @Inject constructor(
             groupId = interactor.yourGroupId
             this.groupId = groupId
         }
-        val groupUsers = CombinedLiveData(
-            interactor.getUsersByGroupId(groupId),
-            interactor.getCurator(groupId)
-        )
 
-        users = Transformations.map(groupUsers) { studentsWithCurator: Pair<List<User>, User> ->
-            students = studentsWithCurator.first
-            val userList: MutableList<DomainModel> = ArrayList(students)
-            userList.add(0, studentsWithCurator.second)
-            userList.add(0, ListItem(id = "", title = "Куратор", type = ItemAdapter.TYPE_HEADER))
-            userList.add(2, ListItem(id = "", title = "Студенты", type = ItemAdapter.TYPE_HEADER))
-            userList
-        }
+        users = interactor.getUsersByGroupId(groupId)
+            .combine(interactor.getCurator(groupId)) { students, curator ->
+                this.students = students
+                val userList: MutableList<DomainModel> = ArrayList(students)
+                userList.add(0, curator)
+                userList.add(
+                    0,
+                    ListItem(id = "", title = "Куратор", type = ItemAdapter.TYPE_HEADER)
+                )
+                userList.add(
+                    2,
+                    ListItem(id = "", title = "Студенты", type = ItemAdapter.TYPE_HEADER)
+                )
+                userList
+            }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
     fun onUserItemLongClick(position: Int) {
         if (uiPermissions.isAllowed(ALLOW_EDIT_USERS)) {
-            val user = users!!.value!![position] as User
+            val user = users.value[position] as User
             showUserOptions.value = position to userOptions
             selectedUser = user
         }
     }
 
     fun onUserItemClick(position: Int) {
-        openProfile.value = users!!.value!![position]!!.id
+        openProfile.value = users.value[position]!!.id
     }
 
     fun onOptionUserClick(optionId: String) {
@@ -93,14 +94,15 @@ class GroupUsersViewModel @Inject constructor(
                 args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId!!
                 openUserEditor.setValue(args)
             }
-            OPTION_DELETE_USER -> interactor.removeStudent(selectedUser)
-                .subscribe(
-                    {}
-                ) { throwable: Throwable? ->
-                    if (throwable is NetworkException) {
+            OPTION_DELETE_USER -> viewModelScope.launch {
+                try {
+                    interactor.removeStudent(selectedUser)
+                } catch (e: Exception) {
+                    if (e is NetworkException) {
                         showMessageRes.value = R.string.error_check_network
                     }
                 }
+            }
             OPTION_CHANGE_CURATOR -> {
                 viewModelScope.launch {
                     openChoiceOfCurator.call()

@@ -4,30 +4,30 @@ import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Specialty
-import com.denchic45.kts.data.repository.GroupInfoRepository
+import com.denchic45.kts.data.repository.GroupRepository
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.subjects.PublishSubject
 
 class ChoiceOfGroupInteractor constructor(
-    private val groupInfoRepository: GroupInfoRepository
+    private val groupRepository: GroupRepository
 ) : Interactor {
 
     private var selectedGroup: PublishSubject<CourseGroup>? = PublishSubject.create()
     fun findGroupsBySpecialtyId(id: String): LiveData<List<CourseGroup>> {
-        return groupInfoRepository.findBySpecialtyId(id)
+        return groupRepository.findBySpecialtyId(id)
     }
 
     val allSpecialties: LiveData<List<Specialty>>
-        get() = groupInfoRepository.allSpecialties
+        get() = groupRepository.allSpecialties
 
     fun findGroupInfoById(groupId: String) {
-        groupInfoRepository.findGroupInfoById(groupId)
+        groupRepository.findGroupInfoById(groupId)
     }
 
     override fun removeListeners() {
         selectedGroup!!.onComplete()
         selectedGroup = null
-        groupInfoRepository.removeListeners()
+        groupRepository.removeListeners()
     }
 
     fun observeSelectedGroup(): Observable<CourseGroup> {

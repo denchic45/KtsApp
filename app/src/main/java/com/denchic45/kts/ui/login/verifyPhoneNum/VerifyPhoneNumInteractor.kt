@@ -14,7 +14,7 @@ class VerifyPhoneNumInteractor @Inject constructor(
     private val subjectRepository: SubjectRepository,
     private val userRepository: UserRepository,
     private val eventRepository: EventRepository,
-    private val groupInfoRepository: GroupInfoRepository
+    private val groupRepository: GroupRepository
 ) : Interactor {
 
     fun sendUserPhoneNumber(phoneNum: String): Observable<Resource<String>> {
@@ -30,7 +30,7 @@ class VerifyPhoneNumInteractor @Inject constructor(
     }
 
     override fun removeListeners() {
-        groupInfoRepository.removeListeners()
+        groupRepository.removeListeners()
         authRepository.removeListeners()
         eventRepository.removeListeners()
         subjectRepository.removeListeners()

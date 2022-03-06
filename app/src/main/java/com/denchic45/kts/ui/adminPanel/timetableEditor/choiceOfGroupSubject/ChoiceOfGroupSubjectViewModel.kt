@@ -1,13 +1,16 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfSubject.ChoiceOfSubjectInteractor
 import com.denchic45.kts.ui.base.BaseViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 class ChoiceOfGroupSubjectViewModel @Inject constructor(
@@ -16,7 +19,9 @@ class ChoiceOfGroupSubjectViewModel @Inject constructor(
 
     val title = MutableLiveData<String>()
 
-    val showSubjectsOfGroup: LiveData<Resource<List<Subject>>> = interactor.subjectsOfGroup
+    val showSubjectsOfGroup: StateFlow<Resource<List<Subject>>> =
+        interactor.subjectsOfGroup()
+            .stateIn(viewModelScope, SharingStarted.Lazily, Resource.Loading)
 
     val openIconPicker = SingleLiveData<Void>()
 
@@ -25,7 +30,7 @@ class ChoiceOfGroupSubjectViewModel @Inject constructor(
     val openChoiceOfSubject = SingleLiveData<Void>()
 
     fun onSubjectClick(position: Int) {
-        interactor.postSelectedSubject((showSubjectsOfGroup.value!! as Resource.Success).data[position])
+        interactor.postSelectedSubject(((showSubjectsOfGroup.value as Resource.Success).data[position]))
     }
 
     fun onOptionsItemSelected(itemId: Int) {
