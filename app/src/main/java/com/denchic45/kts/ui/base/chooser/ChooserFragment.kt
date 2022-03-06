@@ -17,16 +17,15 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
 import kotlinx.coroutines.flow.collect
 
-abstract class ChooserFragment<T : DomainModel> :
-    BaseFragment<ChooserViewModel<T>, FragmentChooserBinding>() {
+abstract class ChooserFragment<VM: ChooserViewModel<out DomainModel>>() :
+    BaseFragment<VM, FragmentChooserBinding>(R.layout.fragment_chooser) {
 
-    override val viewModel: ChooserViewModel<T> by viewModels { viewModelFactory }
     override val binding: FragmentChooserBinding by viewBinding(FragmentChooserBinding::bind)
-    abstract val adapterDelegates: List<AdapterDelegate>
+    abstract fun adapterDelegates(): List<AdapterDelegate>
 
     private val adapter: DelegationAdapterExtended = adapter {
-        delegates(adapterDelegates)
-        onClick(viewModel::onItemClick)
+        delegates(adapterDelegates())
+        onClick { viewModel.onItemClick(it) }
     }
 
     private lateinit var mainToolbar: Toolbar

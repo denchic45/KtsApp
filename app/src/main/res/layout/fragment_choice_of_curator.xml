@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     app:networkView="@layout/state_error_network"
+   android:background="@color/blue"
     android:layout_height="match_parent"
     tools:context=".ui.group.choiceOfCurator.ChoiceOfCuratorFragment">
 

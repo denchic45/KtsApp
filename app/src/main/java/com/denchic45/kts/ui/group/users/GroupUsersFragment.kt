@@ -1,20 +1,19 @@
 package com.denchic45.kts.ui.group.users
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
-import androidx.fragment.app.Fragment
+import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
+import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.databinding.FragmentGroupUsersBinding
-import com.denchic45.kts.di.viewmodel.ViewModelFactory
+import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.UserAdapter
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
@@ -23,32 +22,32 @@ import com.denchic45.kts.utils.ViewUtils
 import com.denchic45.kts.utils.strings
 import com.denchic45.kts.utils.toast
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import dagger.android.support.AndroidSupportInjection
-import javax.inject.Inject
 
-class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
-    private val viewBinding by viewBinding(FragmentGroupUsersBinding::bind)
+class GroupUsersFragment :
+    BaseFragment<GroupUsersViewModel, FragmentGroupUsersBinding>(R.layout.fragment_group_users) {
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<GroupUsersViewModel>
-    private val viewModel: GroupUsersViewModel by viewModels { viewModelFactory }
-    private var navController: NavController? = null
-
+    override val binding by viewBinding(FragmentGroupUsersBinding::bind)
+    override val viewModel: GroupUsersViewModel by viewModels { viewModelFactory }
 
     override fun onResume() {
         super.onResume()
         view?.let {
             AppBarController.findController(requireActivity())
-                .setExpandableIfViewCanScroll(viewBinding.rvUsers, viewLifecycleOwner)
+                .setExpandableIfViewCanScroll(binding.rvUsers, viewLifecycleOwner)
         }
+    }
+
+    override val navController: NavController by lazy {
+        Navigation.findNavController(
+            requireActivity().supportFragmentManager.primaryNavigationFragment!!.requireView()
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val navHostFragment = requireActivity().supportFragmentManager.primaryNavigationFragment
         val userAdapter = UserAdapter({ position -> viewModel.onUserItemClick(position) },
             { position -> viewModel.onUserItemLongClick(position) })
-        with(viewBinding) {
+        with(binding) {
             rvUsers.adapter = userAdapter
             viewModel.showUserOptions.observe(
                 viewLifecycleOwner
@@ -66,14 +65,14 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
                 popupWindow.show()
             }
         }
-        navController = findNavController(navHostFragment!!.requireView())
+
         viewModel.onGroupIdReceived(requireArguments().getString(GROUP_ID))
         viewModel.users!!.observe(
             viewLifecycleOwner
-        ) { users -> userAdapter!!.submitList(users) }
+        ) { users -> userAdapter.submitList(users) }
         viewModel.openChoiceOfCurator.observe(
             viewLifecycleOwner
-        ) { navController!!.navigate(R.id.action_global_teacherChooserFragment) }
+        ) { navController.navigate(R.id.action_global_teacherChooserFragment) }
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
@@ -87,33 +86,20 @@ class GroupUsersFragment : Fragment(R.layout.fragment_group_users) {
         viewModel.openProfile.observe(viewLifecycleOwner) { userId: String ->
             val bundle = Bundle()
             bundle.putString(ProfileFragment.USER_ID, userId)
-            navController!!.navigate(R.id.action_global_profileFragment, bundle)
+            navController.navigate(R.id.action_global_profileFragment, bundle)
         }
         viewModel.showMessageRes.observe(viewLifecycleOwner) { resId ->
             toast(requireContext().strings(resId))
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewBinding.rvUsers.adapter = null
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
-    }
 
     companion object {
         private const val GROUP_ID = "GROUP_ID"
-
-        @JvmStatic
-        fun newInstance(groupId: String?): GroupUsersFragment {
-            val fragment = GroupUsersFragment()
-            val args = Bundle()
-            args.putString(GROUP_ID, groupId)
-            fragment.arguments = args
-            return fragment
+        fun newInstance(groupId: String): GroupUsersFragment {
+            return GroupUsersFragment().apply {
+                arguments = bundleOf(GROUP_ID to groupId)
+            }
         }
     }
 }

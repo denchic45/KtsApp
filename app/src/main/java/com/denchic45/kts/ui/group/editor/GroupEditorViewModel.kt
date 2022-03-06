@@ -46,7 +46,7 @@ class GroupEditorViewModel @Inject constructor(
     val curatorField = MutableLiveData<User>()
     val fieldErrorMessage = SingleLiveData<Pair<Int, String>>()
     val deleteOptionVisibility = MutableLiveData<Boolean>()
-    val openChoiceOfCurator = SingleLiveData<Void>()
+    val openTeacherChooser = SingleLiveData<Void>()
     private val typedSpecialtyByName = MutableSharedFlow<String>()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Group>
@@ -206,7 +206,7 @@ class GroupEditorViewModel @Inject constructor(
 
     fun onCuratorClick() {
         viewModelScope.launch {
-            openChoiceOfCurator.call()
+            openTeacherChooser.call()
             choiceOfCuratorInteractor.awaitSelectTeacher().apply {
                 uiEditor.item.curator = this
                 curatorField.setValue(this)

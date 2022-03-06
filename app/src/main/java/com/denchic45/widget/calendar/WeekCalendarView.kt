@@ -141,9 +141,10 @@ class WeekCalendarView : LinearLayout {
     }
 
     public override fun onRestoreInstanceState(state: Parcelable) {
-        val savedState = state as SavedState
-        super.onRestoreInstanceState(savedState.superState)
-        adapter.data.addAll(savedState.weekItemList)
+        super.onRestoreInstanceState(state)
+        (state as? SavedState)?.apply {
+            adapter.data.addAll(weekItemList)
+        }
     }
 
     private fun getOffsetScroll(

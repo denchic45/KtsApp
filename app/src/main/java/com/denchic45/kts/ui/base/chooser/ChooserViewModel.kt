@@ -15,8 +15,7 @@ abstract class ChooserViewModel<T : DomainModel> : BaseViewModel() {
 
     protected abstract val sourceFlow: (String)->Flow<List<T>>
 
-    val items: StateFlow<List<T>>
-        get() = _itemsFlow.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    val items: StateFlow<List<T>> = _itemsFlow.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun onItemClick(position: Int) {
         onItemSelect(items.value[position])

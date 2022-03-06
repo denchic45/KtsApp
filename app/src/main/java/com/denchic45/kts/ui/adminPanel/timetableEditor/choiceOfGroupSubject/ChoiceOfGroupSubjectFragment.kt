@@ -1,42 +1,34 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject
 
-import android.content.Context
 import android.os.Bundle
-import android.view.*
-import androidx.fragment.app.Fragment
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Subject
-import com.denchic45.kts.di.viewmodel.ViewModelFactory
+import com.denchic45.kts.databinding.FragmentChoiceOfGroupSubjectBinding
+import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.SubjectAdapter
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.NetworkException
-import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.widget.ListStateLayout
-import dagger.android.support.AndroidSupportInjection
-import javax.inject.Inject
 
-class ChoiceOfGroupSubjectFragment : Fragment() {
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<ChoiceOfGroupSubjectViewModel>
-    private val viewModel: ChoiceOfGroupSubjectViewModel by viewModels { viewModelFactory }
-    private var rv: RecyclerView? = null
-    private var listStateLayout: ListStateLayout? = null
-    private var adapter: SubjectAdapter? = null
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_choice_of_group_subject, container, false)
-        rv = root.findViewById(R.id.rv_subjects)
-        listStateLayout = root.findViewById(R.id.listStateLayout)
-        return root
-    }
+class ChoiceOfGroupSubjectFragment :
+    BaseFragment<ChoiceOfGroupSubjectViewModel, FragmentChoiceOfGroupSubjectBinding>(
+        R.layout.fragment_choice_of_group_subject
+    ) {
+
+    override val binding: FragmentChoiceOfGroupSubjectBinding by viewBinding(
+        FragmentChoiceOfGroupSubjectBinding::bind
+    )
+
+    override val viewModel: ChoiceOfGroupSubjectViewModel by viewModels { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,38 +48,40 @@ class ChoiceOfGroupSubjectFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adapter = SubjectAdapter { position: Int -> viewModel.onSubjectClick(position) }
-        rv!!.adapter = adapter
-        rv!!.layoutManager = LinearLayoutManager(context)
-        rv!!.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        viewModel.title.observe(viewLifecycleOwner, this::setActivityTitle)
-        viewModel.openIconPicker.observe(viewLifecycleOwner) {
-            IconPickerDialog().show(
-                requireActivity().supportFragmentManager, null
+        val adapter = SubjectAdapter { position: Int -> viewModel.onSubjectClick(position) }
+        with(binding) {
+            rvSubjects.adapter = adapter
+            rvSubjects.addItemDecoration(
+                DividerItemDecoration(
+                    context,
+                    DividerItemDecoration.VERTICAL
+                )
             )
-        }
-        viewModel.openChoiceOfSubject.observe(
-            viewLifecycleOwner
-        ) { findNavController().navigate(R.id.action_choiceOfGroupSubjectFragment_to_choiceOfSubjectFragment) }
-        viewModel.updateIconEventSubject.observe(
-            viewLifecycleOwner
-        ) { adapter!!.notifyItemChanged(0, SubjectAdapter.PAYLOAD.UPDATE_ICON) }
-        viewModel.showSubjectsOfGroup.observe(
-            viewLifecycleOwner
-        ) { resource: Resource<List<Subject>> ->
-            if (resource is Resource.Success) {
-                listStateLayout!!.showList()
-                adapter!!.submitList(resource.data)
-            } else if (resource is Resource.Error) {
-                if (resource.error is NetworkException) {
-                    listStateLayout!!.showView(ListStateLayout.NETWORK_VIEW)
+            viewModel.openIconPicker.observe(viewLifecycleOwner) {
+                IconPickerDialog().show(
+                    requireActivity().supportFragmentManager, null
+                )
+            }
+            viewModel.openChoiceOfSubject.observe(
+                viewLifecycleOwner
+            ) { findNavController().navigate(R.id.action_choiceOfGroupSubjectFragment_to_choiceOfSubjectFragment) }
+            viewModel.updateIconEventSubject.observe(
+                viewLifecycleOwner
+            ) { adapter.notifyItemChanged(0, SubjectAdapter.PAYLOAD.UPDATE_ICON) }
+            viewModel.showSubjectsOfGroup.observe(
+                viewLifecycleOwner
+            ) { resource: Resource<List<Subject>> ->
+                if (resource is Resource.Success) {
+                    listStateLayout.showList()
+                    adapter.submitList(resource.data)
+                } else if (resource is Resource.Error) {
+                    if (resource.error is NetworkException) {
+                        listStateLayout.showView(ListStateLayout.NETWORK_VIEW)
+                    }
                 }
             }
         }
+
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
-    }
 }

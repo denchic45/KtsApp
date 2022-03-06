@@ -28,8 +28,8 @@ class ConfirmDialog : DialogFragment() {
     }
 
     companion object {
-        private const val TITLE = "TITLE"
-        private const val MESSAGE = "SUBTITLE"
+        const val TITLE = "TITLE"
+        const val MESSAGE = "SUBTITLE"
         fun newInstance(title: String?, subtitle: String?): ConfirmDialog {
             val fragment = ConfirmDialog()
             val args = Bundle()

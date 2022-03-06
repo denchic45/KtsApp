@@ -1,13 +1,13 @@
 package com.denchic45.kts.ui.group.editor
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
-import androidx.navigation.Navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -19,6 +19,7 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentGroupEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
@@ -30,6 +31,16 @@ class GroupEditorFragment :
     override val viewModel: GroupEditorViewModel by viewModels { viewModelFactory }
     private val viewBinding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
     private var specialtyAdapter: ListPopupWindowAdapter? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.options_group_editor, menu)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -47,7 +58,13 @@ class GroupEditorFragment :
                     position
                 )
             }
-            fab.setOnClickListener { viewModel.onFabClick() }
+
+            val fab = requireActivity().findViewById<FloatingActionButton>(R.id.fab_main).apply {
+                setImageResource(R.drawable.ic_tick)
+                setOnClickListener { viewModel.onFabClick() }
+            }
+
+
             rlCurator.setOnClickListener { viewModel.onCuratorClick() }
             curatorHeader.text = "Куратор"
             etSpecialty.textChanges()
@@ -67,9 +84,10 @@ class GroupEditorFragment :
                 etSpecialty.isEnabled = enable
             }
 
-            viewModel.openChoiceOfCurator.observe(
+            viewModel.openTeacherChooser.observe(
                 viewLifecycleOwner
-            ) { navController!!.navigate(R.id.action_groupEditorFragment_to_choiceOfCuratorFragment) }
+            ) { navController.navigate(R.id.teacherChooserFragment) }
+
             viewModel.curatorField.observe(viewLifecycleOwner) { user: User ->
                 Glide.with(this@GroupEditorFragment)
                     .load(user.photoUrl)
@@ -114,6 +132,7 @@ class GroupEditorFragment :
         viewModel.showSpecialties.observe(
             viewLifecycleOwner
         ) { listItems: List<ListItem> -> specialtyAdapter!!.updateList(listItems) }
+
     }
 
     companion object {

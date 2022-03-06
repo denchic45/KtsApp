@@ -14,6 +14,8 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -43,6 +45,11 @@ class LessonEditorFragment : BaseFragment<LessonEditorViewModel, FragmentLessonE
     private var ivSubjectIc: ImageView? = null
     private var rlSubject: RelativeLayout? = null
     private var cpTeachers: ChipGroup? = null
+
+    override val navController: NavController by lazy {
+        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -97,10 +104,10 @@ class LessonEditorFragment : BaseFragment<LessonEditorViewModel, FragmentLessonE
         }
         viewModel.openChoiceOfGroupSubject.observe(
             viewLifecycleOwner
-        ) { navController.navigate(R.id.action_lessonEditorFragment_to_choiceOfGroupSubjectFragment) }
+        ) { navController.navigate(R.id.action_global_teacherChooserFragment) }
         viewModel.openChoiceOfTeacher.observe(
             viewLifecycleOwner
-        ) { navController.navigate(R.id.action_lessonEditorFragment_to_choiceOfCuratorFragment) }
+        ) { navController.navigate(R.id.action_lessonEditorFragment_to_teacherChooserFragment) }
         viewModel.showMessage.observe(
             viewLifecycleOwner,
             EventObserver { message: String? ->
@@ -111,8 +118,6 @@ class LessonEditorFragment : BaseFragment<LessonEditorViewModel, FragmentLessonE
                 ).show()
             })
 
-//        adapter = new UserAdapter(viewModel::onTeacherItemClick);
-//        nsvTeachers.setAdapter(adapter);
         rlSubject!!.setOnClickListener { v: View? -> viewModel.onSubjectClick() }
         cpAddTeacher!!.setOnClickListener { v: View? -> viewModel.onAddTeacherItemClick() }
     }

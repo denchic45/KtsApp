@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,7 @@ import androidx.viewbinding.ViewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.kts.utils.toast
 import dagger.android.support.AndroidSupportInjection
@@ -36,7 +38,7 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int 
 
     abstract val binding: VB
 
-    val navController: NavController by lazy { findNavController() }
+   open val navController: NavController by lazy { findNavController() }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -51,8 +53,14 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int 
         }
 
         lifecycleScope.launchWhenStarted {
-            viewModel.openConfirmation.collect {
-                findNavController().navigate(R.id.action_global_confirmDialog)
+            viewModel.openConfirmation.collect { (title, message) ->
+                findNavController().navigate(
+                    R.id.action_global_confirmDialog,
+                    bundleOf(
+                        ConfirmDialog.TITLE to title,
+                        ConfirmDialog.MESSAGE to message
+                    )
+                )
             }
         }
     }

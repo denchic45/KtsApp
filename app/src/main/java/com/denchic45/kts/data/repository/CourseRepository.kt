@@ -9,7 +9,6 @@ import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
@@ -115,6 +114,7 @@ class CourseRepository @Inject constructor(
 
     private fun coursesByTeacherIdQuery(teacherId: String): Query {
         return coursesRef.whereEqualTo("teacher.id", teacherId)
+            .whereGreaterThan("timestamp", timestampPreference.lastUpdateTeacherCoursesTimestamp)
     }
 
 
@@ -128,31 +128,33 @@ class CourseRepository @Inject constructor(
             }
     }
 
-    // todo проверить получше
+    // todo проверить получше ПРОВЕРИТЬ
 // Сначала мы ищем хотя бы один курс с обновленным timestamp, и если находим, то начинаем прослушивать
 // все курсы данного преподавателя
     fun findByYourAsTeacher(): Flow<List<CourseHeader>> {
-        addListenerRegistration("findOneCourseByTimestamp") {
-            coursesRef.whereGreaterThan(
-                "timestamp",
-                Date(timestampPreference.lastUpdateTeacherCoursesTimestamp)
-            )
-                .limit(1)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener { value, error ->
-                    error?.let {
-                        it.printStackTrace()
-                        throw it
-                    }
-                    if (!value!!.isEmpty) {
-                        timestampPreference.lastUpdateTeacherCoursesTimestamp =
-                            value.documents[0].toObject(CourseDoc::class.java)!!
-                                .timestamp!!
-                                .time
-                        getCoursesByTeacherRemotely(userPreference.id)
-                    }
-                }
-        }
+        getCoursesByTeacherRemotely(userPreference.id)
+//        addListenerRegistration("findOneCourseByTimestamp") {
+
+//            coursesRef.whereGreaterThan(
+//                "timestamp",
+//                Date(timestampPreference.lastUpdateTeacherCoursesTimestamp)
+//            )
+//                .limit(1)
+//                .orderBy("timestamp", Query.Direction.DESCENDING)
+//                .addSnapshotListener { value, error ->
+//                    error?.let {
+//                        it.printStackTrace()
+//                        throw it
+//                    }
+//                    if (!value!!.isEmpty) {
+//                        timestampPreference.lastUpdateTeacherCoursesTimestamp =
+//                            value.documents[0].toObject(CourseDoc::class.java)!!
+//                                .timestamp!!
+//                                .time
+//                        getCoursesByTeacherRemotely(userPreference.id)
+//                    }
+//                }
+//        }
         return courseDao.getByTeacherId(userPreference.id)
             .map { courseMapper.entityToDomainHeaders(it) }
     }
@@ -301,13 +303,19 @@ class CourseRepository @Inject constructor(
     }
 
     private fun getCoursesByTeacherRemotely(teacherId: String) {
-        externalScope.launch(dispatcher) {
-            coursesByTeacherIdQuery(teacherId).get().await().let {
-                saveCourseOfTeacher(it.toObjects(CourseDoc::class.java), teacherId)
+        coursesByTeacherIdQuery(teacherId).addSnapshotListener { value, error ->
+            externalScope.launch {
+                value?.let { value ->
+                    if (!value.isEmpty)
+                        value.toObjects(CourseDoc::class.java).apply {
+                            timestampPreference.lastUpdateTeacherCoursesTimestamp =
+                                this.maxOf { it.timestamp!!.time }
+                            saveCourseOfTeacher(this, teacherId)
+                        }
+                }
             }
         }
     }
-
 
     fun findByYourGroup(): LiveData<List<CourseHeader>> {
         return Transformations.map(

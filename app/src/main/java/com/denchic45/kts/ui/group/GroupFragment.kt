@@ -150,11 +150,6 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
-    }
-
     companion object {
         const val GROUP_ID = "Group GROUP_ID"
     }

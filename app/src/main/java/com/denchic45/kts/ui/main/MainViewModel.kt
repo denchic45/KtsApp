@@ -21,7 +21,8 @@ class MainViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private val screenIdsWithFab: Set<Int> = setOf(
-        R.id.courseFragment
+        R.id.courseFragment,
+        R.id.groupEditorFragment
     )
 
     private val mainScreenIds: Set<Int> = setOf(R.id.menu_timetable, R.id.menu_group)

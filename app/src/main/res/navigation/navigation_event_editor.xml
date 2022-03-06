@@ -4,7 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_event_detail_editor"
     app:startDestination="@id/lessonEditorFragment">
-
+    <fragment
+        android:id="@+id/teacherChooserFragment"
+        android:name="com.denchic45.kts.ui.teacherChooser.TeacherChooserFragment"
+        android:label="fragment_teacher_chooser"
+        tools:layout="@layout/fragment_chooser" />
     <fragment
         android:id="@+id/lessonEditorFragment"
         android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorFragment"
@@ -13,26 +17,24 @@
             android:id="@+id/action_lessonEditorFragment_to_choiceOfGroupSubjectFragment"
             app:destination="@id/choiceOfGroupSubjectFragment" />
         <action
-            android:id="@+id/action_lessonEditorFragment_to_choiceOfCuratorFragment"
-            app:destination="@id/choiceOfCuratorFragment" />
+            android:id="@+id/action_lessonEditorFragment_to_teacherChooserFragment"
+            app:destination="@id/teacherChooserFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/choiceOfGroupSubjectFragment"
         android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment"
         android:label="fragment_choice_of_group_subject"
-        tools:layout="@layout/fragment_choice_of_group_subject" >
+        tools:layout="@layout/fragment_choice_of_group_subject">
         <action
             android:id="@+id/action_choiceOfGroupSubjectFragment_to_choiceOfSubjectFragment"
             app:destination="@id/choiceOfSubjectFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/choiceOfCuratorFragment"
-        android:name="com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorFragment"
-        android:label="fragment_choice_of_curator"
-        tools:layout="@layout/fragment_choice_of_curator" />
+
     <fragment
         android:id="@+id/choiceOfSubjectFragment"
         android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfSubject.ChoiceOfSubjectFragment"
         android:label="fragment_choice_of_subject"
         tools:layout="@layout/fragment_choice_of_subject" />
+
 </navigation>

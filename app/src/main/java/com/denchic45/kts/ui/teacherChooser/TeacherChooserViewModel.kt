@@ -13,6 +13,7 @@ class TeacherChooserViewModel @Inject constructor(
 
     override fun onItemSelect(item: User) {
         choiceOfCuratorInteractor.postSelectedCurator(item)
+        finish()
     }
 
 }

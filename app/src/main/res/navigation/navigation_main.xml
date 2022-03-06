@@ -22,9 +22,9 @@
         android:name="com.denchic45.kts.ui.group.GroupFragment"
         android:label="@string/menu_title_group"
         tools:layout="@layout/fragment_group">
-        <action
-            android:id="@+id/action_menu_group_to_choiceOfCuratorFragment"
-            app:destination="@id/choiceOfCuratorFragment" />
+<!--        <action-->
+<!--            android:id="@+id/action_menu_group_to_choiceOfCuratorFragment"-->
+<!--            app:destination="@id/choiceOfCuratorFragment" />-->
     </fragment>
 
     <fragment
@@ -58,11 +58,11 @@
             android:id="@+id/action_finderFragment_to_group"
             app:destination="@id/group" />
     </fragment>
-    <fragment
-        android:id="@+id/choiceOfCuratorFragment"
-        android:name="com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorFragment"
-        android:label="fragment_choice_of_curator"
-        tools:layout="@layout/fragment_choice_of_curator" />
+<!--    <fragment-->
+<!--        android:id="@+id/choiceOfCuratorFragment"-->
+<!--        android:name="com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorFragment"-->
+<!--        android:label="fragment_choice_of_curator"-->
+<!--        tools:layout="@layout/fragment_choice_of_curator" />-->
     <fragment
         android:id="@+id/menu_settings"
         android:name="com.denchic45.kts.ui.settings.SettingsFragment"
@@ -148,16 +148,16 @@
         android:id="@+id/teacherChooserFragment"
         android:name="com.denchic45.kts.ui.teacherChooser.TeacherChooserFragment"
         android:label="fragment_teacher_chooser"
-        tools:layout="@layout/fragment_teacher_chooser" /><action android:id="@+id/action_global_teacherChooserFragment" app:destination="@id/teacherChooserFragment"/>
+        tools:layout="@layout/fragment_chooser" /><action android:id="@+id/action_global_teacherChooserFragment" app:destination="@id/teacherChooserFragment"/>
     <dialog
         android:id="@+id/confirmDialog"
         android:name="com.denchic45.kts.ui.confirm.ConfirmDialog"
         android:label="ConfirmDialog" /><action android:id="@+id/action_global_confirmDialog" app:destination="@id/confirmDialog"/>
     <fragment
-        android:id="@+id/groupEditorFragment2"
+        android:id="@+id/groupEditorFragment"
         android:name="com.denchic45.kts.ui.group.editor.GroupEditorFragment"
         android:label="GroupEditorFragment" />
-    <action android:id="@+id/action_global_groupEditorFragment" app:destination="@id/groupEditorFragment2"/>
+    <action android:id="@+id/action_global_groupEditorFragment" app:destination="@id/groupEditorFragment"/>
 
 
 </navigation>
