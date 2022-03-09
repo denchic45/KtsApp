@@ -13,7 +13,6 @@ import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.databinding.FragmentGroupCoursesBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.CourseAdapter
-import com.denchic45.kts.ui.confirm.ConfirmDialog
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.collect

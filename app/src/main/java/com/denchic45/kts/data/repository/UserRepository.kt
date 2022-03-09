@@ -1,6 +1,5 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
@@ -19,9 +18,7 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
@@ -42,7 +39,7 @@ open class UserRepository @Inject constructor(
     private val avatarStorage: StorageReference = storage.reference.child("avatars")
 
     fun getByGroupId(groupId: String): Flow<List<User>> {
-        return userDao.getByGroupId(groupId).map { userMapper.entityToDomain(it) }
+        return userDao.observeByGroupId(groupId).map { userMapper.entityToDomain(it) }
 
     }
 
@@ -196,7 +193,7 @@ open class UserRepository @Inject constructor(
         awaitClose { }
     }
 
-    fun observeById(userId: String): Flow<User?> {
+    fun observeById(userId: String): Flow<User?> = flow {
         if (!userDao.isExist(userId)) {
             usersRef.document(userId)
                 .addSnapshotListener { value: DocumentSnapshot?, error: FirebaseFirestoreException? ->
@@ -207,27 +204,9 @@ open class UserRepository @Inject constructor(
                     }
                 }
         }
-        return userDao.get(userId)
-            .map { entity: UserEntity? -> entity?.let { userMapper.entityToDomain(entity) } }
+        emitAll(
+            userDao.observe(userId)
+                .map { entity: UserEntity? -> entity?.let { userMapper.entityToDomain(entity) } }
+        )
     }
-
-//    fun getById(id: String): LiveData<User> {
-//        if (userDao.get(id) == null) {
-//            addListenerRegistration("byId") {
-//                usersRef.whereEqualTo("id", id)
-//                    .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
-//                        if (error != null) {
-//                            Log.d("lol", "error: ", error)
-//                            return@addSnapshotListener
-//                        }
-//                        coroutineScope.launch(dispatcher) {
-//                            userDao.upsert(snapshot!!.documents[0].toObject(UserEntity::class.java)!!)
-//                        }
-//                    }
-//            }
-//        }
-//        return Transformations.map(userDao.get(id)) { entity: UserEntity ->
-//            userMapper.entityToDomain(entity)
-//        }
-//    }
 }

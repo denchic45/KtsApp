@@ -58,7 +58,7 @@ class GroupViewModel @Inject constructor(
         }
     }
 
-    fun onOptionSelect(itemId: Int) {
+    override fun onOptionClick(itemId: Int) {
         when (itemId) {
             R.id.option_edit_group -> openGroupEditor.setValue(groupId)
             R.id.option_add_student -> openUserEditor.setValue(User.STUDENT to groupId)

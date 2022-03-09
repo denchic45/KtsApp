@@ -144,11 +144,6 @@ class LessonEditorFragment :
         return chip
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
-    }
-
     private fun createErrorImageView(viewId: Int): ImageView {
         val ivError = ImageView(context)
         ivError.tag = viewId

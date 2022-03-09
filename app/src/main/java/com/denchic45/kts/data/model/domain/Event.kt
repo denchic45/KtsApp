@@ -11,7 +11,7 @@ data class Event(
     val date: LocalDate,
     val order: Int = 0,
     val timestamp: Date? = null,
-    val room: String? = "",
+    val room: String = "",
     val details: EventDetails = EmptyEventDetails()
 ) : DomainModel() {
 

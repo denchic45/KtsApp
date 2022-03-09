@@ -48,6 +48,10 @@ class ProfileViewModel @Inject constructor(
         openGroup.value = group!!.id
     }
 
+    init {
+        toolbarTitle = ""
+    }
+
     override fun onCleared() {
         super.onCleared()
         interactor.removeListeners()

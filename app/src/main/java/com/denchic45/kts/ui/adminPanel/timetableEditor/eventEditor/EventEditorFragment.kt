@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -20,6 +21,7 @@ import com.denchic45.kts.databinding.FragmentEventEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.collectWhenStarted
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -63,17 +65,17 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
         with(binding) {
             viewModel.dateField.observe(
                 viewLifecycleOwner
-            ) { text: String? -> tvDate.text = text }
+            ) { text -> tvDate.text = text }
             viewModel.orderField.observe(
                 viewLifecycleOwner
-            ) { text1: String -> if (etOrder.text.toString() != text1) etOrder.setText(text1) }
+            ) { text1 -> if (etOrder.text.toString() != text1) etOrder.setText(text1) }
             viewModel.roomField.observe(
                 viewLifecycleOwner
-            ) { text: String -> if (etRoom.text.toString() != text) etRoom.setText(text) }
+            ) { text -> if (etRoom.text.toString() != text) etRoom.setText(text) }
             viewModel.showErrorField.observe(viewLifecycleOwner) { (first, second) ->
                 val rlView = view.findViewById<ViewGroup>(first)
                 if (second) {
-                    if (rlView.findViewWithTag<View?>(first) == null) {
+                    if (rlView.findViewWithTag<View>(first) == null) {
                         rlView.addView(createErrorImageView(first))
                     }
                 } else {
@@ -82,6 +84,10 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
                         rlView.removeView(ivError)
                     }
                 }
+            }
+
+            viewModel.orderEditEnable.collectWhenStarted(lifecycleScope) {
+                etOrder.isEnabled = it
             }
 
             fab.setOnClickListener { viewModel.onFabClick() }

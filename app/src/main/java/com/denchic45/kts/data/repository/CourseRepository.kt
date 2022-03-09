@@ -463,7 +463,7 @@ class CourseRepository @Inject constructor(
                     submissionMapper.entityToDomain(it, attachments)
                 } ?: Task.Submission.createEmpty(
                     contentId = taskId,
-                    student = userMapper.entityToDomain(userDao.getSync(studentId))
+                    student = userMapper.entityToDomain(userDao.get(studentId))
                 )
             }
             .distinctUntilChanged()

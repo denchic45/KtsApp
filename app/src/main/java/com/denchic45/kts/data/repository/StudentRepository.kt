@@ -1,6 +1,5 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
@@ -45,7 +44,7 @@ class StudentRepository @Inject constructor(
         checkInternetConnection()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
-        val cacheStudent = userMapper.entityToDomain(userDao.getSync(student.id))
+        val cacheStudent = userMapper.entityToDomain(userDao.get(student.id))
         if (changePersonalData(student, cacheStudent)) {
             batch[userRef.document(student.id)] = studentDoc
         }

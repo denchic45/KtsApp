@@ -14,8 +14,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.android.support.AndroidSupportInjection
 
 class SectionPickerFragment : DialogFragment(R.layout.fragment_section_picker) {
-    //    @Inject
-//    lateinit var viewModelFactory: ViewModelFactory<SectionPickerViewModel>
     private val viewModel: SectionPickerViewModel by viewModels(
         ownerProducer = { requireParentFragment() }
     )

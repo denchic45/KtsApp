@@ -8,6 +8,7 @@ import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.SpecialtyDao
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.model.firestore.SpecialtyDoc
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
 import com.denchic45.kts.data.model.room.SpecialtyEntity
 import com.denchic45.kts.di.modules.IoDispatcher
@@ -40,7 +41,7 @@ class SpecialtyRepository @Inject constructor(
             .addOnSuccessListener { value: DocumentSnapshot ->
                 coroutineScope.launch(dispatcher) {
                     specialtyDao.upsert(
-                        value.toObject(SpecialtyEntity::class.java)
+                        specialtyMapper.docToEntity(value.toObject(SpecialtyDoc::class.java))
                     )
                 }
             }

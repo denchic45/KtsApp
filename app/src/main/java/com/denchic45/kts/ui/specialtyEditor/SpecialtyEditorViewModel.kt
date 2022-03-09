@@ -14,6 +14,7 @@ import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -26,7 +27,7 @@ class SpecialtyEditorViewModel @Inject constructor(
 ) : BaseViewModel() {
     val title = MutableLiveData<String>()
 
-    val nameField = MutableLiveData<String>()
+    val nameField = MutableStateFlow("")
 
     val enablePositiveBtn = MutableLiveData(false)
 
@@ -35,7 +36,7 @@ class SpecialtyEditorViewModel @Inject constructor(
     private val id = id ?: UUID.randomUUID().toString()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Specialty> =
-        UIEditor(id == null) { Specialty(this.id, nameField.value ?: "") }
+        UIEditor(id == null) { Specialty(this.id, nameField.value) }
 
     private fun setupForNewItem() {
         deleteBtnVisibility.value = false
@@ -46,7 +47,7 @@ class SpecialtyEditorViewModel @Inject constructor(
         title.value = "Редактировать специальность"
         LiveDataUtil.observeOnce(specialtyRepository.find(id)) { specialty: Specialty ->
             uiEditor.oldItem = specialty
-            nameField.setValue(specialty.name)
+            nameField.value = specialty.name
         }
     }
 
@@ -57,6 +58,7 @@ class SpecialtyEditorViewModel @Inject constructor(
             } else {
                 specialtyRepository.update(uiEditor.item)
             }
+            finish()
         } catch (e: Exception) {
             if (e is NetworkException) {
                 showToast(R.string.error_check_network)
@@ -93,7 +95,7 @@ class SpecialtyEditorViewModel @Inject constructor(
 
     init {
         uiValidator = UIValidator.of(
-            Validation(Rule({ !TextUtils.isEmpty(uiEditor.item.name) }, "Нет названия!")),
+            Validation(Rule({ uiEditor.item.name.isNotEmpty() }, "Нет названия!")),
             Validation(Rule { uiEditor.hasBeenChanged() })
         )
         if (uiEditor.isNew) setupForNewItem() else setupForExistItem()

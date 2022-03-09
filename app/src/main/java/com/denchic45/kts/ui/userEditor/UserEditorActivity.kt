@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.userEditor
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.Menu
@@ -29,13 +28,12 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
     override val viewModel: UserEditorViewModel by viewModels { viewModelFactory }
     private lateinit var keyboardManager: KeyboardManager
     private lateinit var menu: Menu
-    private var groupAdapter: ListPopupWindowAdapter? = null
 
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_editor)
         keyboardManager = KeyboardManager()
+        val groupAdapter: ListPopupWindowAdapter
         with(binding) {
             etGender.inputEnable(false)
             etRole.inputEnable(false)
@@ -46,61 +44,44 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
             setSupportActionBar(toolbar)
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             fab.setOnClickListener { viewModel.onFabClick() }
+
             etFirstName.textChanges()
                 .skip(1)
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
-                .subscribe { s: String? ->
-                    viewModel.onFirstNameType(
-                        s!!
-                    )
-                }
+                .subscribe(viewModel::onFirstNameType)
+
             etSurname.textChanges()
                 .skip(1)
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
-                .subscribe { s: String? ->
-                    viewModel.onSurnameType(
-                        s!!
-                    )
-                }
+                .subscribe(viewModel::onSurnameType)
+
             etPatronymic.textChanges()
                 .skip(1)
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
-                .subscribe { s: String? ->
-                    viewModel.onPatronymicType(
-                        s!!
-                    )
-                }
+                .subscribe(viewModel::onPatronymicType)
+
             etPhoneNum.textChanges()
                 .skip(1)
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
-                .subscribe { s: String? ->
-                    viewModel.onPhoneNumType(
-                        s!!
-                    )
-                }
+                .subscribe(viewModel::onPhoneNumType)
+
             etEmail.textChanges()
                 .skip(1)
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
-                .subscribe { s: String? ->
-                    viewModel.onEmailType(
-                        s!!
-                    )
-                }
+                .subscribe(viewModel::onEmailType)
+
             etGroup.textChanges()
                 .skip(1)
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
                 .filter(String::isNotEmpty)
-                .subscribe { s: String? ->
-                    viewModel.onGroupNameType(
-                        s!!
-                    )
-                }
+                .subscribe(viewModel::onGroupNameType)
+
             etPassword.textChanges()
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
@@ -109,32 +90,32 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
 
             viewModel.fieldFirstName.observe(
                 this@UserEditorActivity
-            ) { firstName: String ->
+            ) { firstName ->
                 if (firstName != etFirstName.text.toString()) etFirstName.setText(firstName)
             }
             viewModel.fieldSurname.observe(
                 this@UserEditorActivity
-            ) { surname: String ->
+            ) { surname ->
                 if (surname != etSurname.text.toString()) etSurname.setText(surname)
             }
             viewModel.fieldPatronymic.observe(
                 this@UserEditorActivity
-            ) { patronymic: String ->
+            ) { patronymic ->
                 if (patronymic != etPatronymic.text
                         .toString()
                 ) etPatronymic.setText(patronymic)
             }
             viewModel.fieldPhoneNum.observe(
                 this@UserEditorActivity
-            ) { phoneNum: String ->
+            ) { phoneNum ->
                 if (phoneNum != etPhoneNum.text.toString()) etPhoneNum.setText(phoneNum)
             }
             viewModel.fieldEmail.observe(
                 this@UserEditorActivity
-            ) { email: String -> if (email != etEmail.text.toString()) etEmail.setText(email) }
+            ) { email -> if (email != etEmail.text.toString()) etEmail.setText(email) }
             viewModel.fieldGender.observe(
                 this@UserEditorActivity
-            ) { gender: String? ->
+            ) { gender ->
                 etGender.setText(
                     resources.getIdentifier(
                         gender,
@@ -143,16 +124,11 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
                     )
                 )
             }
-            viewModel.fieldRole.observe(this@UserEditorActivity) { role: Int? ->
-                etRole.setText(
-                    resources.getString(
-                        role!!
-                    )
-                )
+            viewModel.fieldRole.observe(this@UserEditorActivity) { role: Int ->
+                etRole.setText(resources.getString(role))
             }
-            viewModel.fieldGroup.observe(
-                this@UserEditorActivity
-            ) { groupName: String? -> etGroup.setText(groupName) }
+            viewModel.fieldGroup.observe(this@UserEditorActivity, etGroup::setText)
+
             viewModel.deleteOptionVisibility.observe(
                 this@UserEditorActivity
             ) { visibility: Boolean? ->
@@ -163,15 +139,15 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
             ) { enabled: Boolean ->
                 tilGroup.visibility = if (enabled) View.VISIBLE else View.GONE
             }
-            viewModel.fieldEmailEnable.observe(this@UserEditorActivity) { enable: Boolean? ->
-                etEmail.isEnabled = enable!!
+            viewModel.fieldEmailEnable.observe(this@UserEditorActivity) { enable: Boolean ->
+                etEmail.isEnabled = enable
             }
             viewModel.fieldPasswordVisibility.observe(
                 this@UserEditorActivity
             ) { visibility: Boolean ->
                 tilPassword.visibility = if (visibility) View.VISIBLE else View.GONE
             }
-            viewModel.avatarUser.observe(this@UserEditorActivity) { photoUrl: String? ->
+            viewModel.avatarUser.observe(this@UserEditorActivity) { photoUrl ->
                 Glide.with(this@UserEditorActivity)
                     .load(photoUrl)
                     .placeholder(ivAvatar.drawable)
@@ -186,10 +162,10 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
                 )
                 til.error = idWithMessagePair.second
             }
-            viewModel.fieldRoles.observe(this@UserEditorActivity) { resId: Int? ->
+            viewModel.fieldRoles.observe(this@UserEditorActivity) { resId ->
                 val adapter = ListPopupWindowAdapter(
                     this@UserEditorActivity,
-                    JsonUtil.parseToList(this@UserEditorActivity, resId!!)
+                    JsonUtil.parseToList(this@UserEditorActivity, resId)
                 )
                 etRole.setAdapter(adapter)
                 etRole.onItemClickListener =
@@ -204,17 +180,15 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
                 val adapter = ListPopupWindowAdapter(this@UserEditorActivity, genders)
                 etGender.setAdapter(adapter)
                 etGender.onItemClickListener =
-                    AdapterView.OnItemClickListener { _: AdapterView<*>, _: View?, position: Int, _: Long ->
-                        viewModel.onGenderSelect(
-                            position
-                        )
+                    AdapterView.OnItemClickListener { _, _, position: Int, _ ->
+                        viewModel.onGenderSelect(position)
                     }
             }
             viewModel.groupList.observe(this@UserEditorActivity) { items: List<ListItem> ->
-                groupAdapter!!.updateList(items)
+                groupAdapter.updateList(items)
                 etGroup.onItemClickListener =
-                    AdapterView.OnItemClickListener { _: AdapterView<*>, _: View?, position: Int, _: Long ->
-                        if (groupAdapter!!.getItem(position).enable) {
+                    AdapterView.OnItemClickListener { _, _, position, _ ->
+                        if (groupAdapter.getItem(position).enable) {
                             viewModel.onGroupSelect(position)
                         }
                     }

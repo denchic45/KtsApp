@@ -11,11 +11,9 @@ class KeyboardManager {
     private var mOnGlobalLayoutListener: OnGlobalLayoutListener? = null
     private var mIsKeyboardVisible = false
     val keyBoardVisible: Boolean
-        get() {
-         return mIsKeyboardVisible
-        }
+        get() = mIsKeyboardVisible
 
-    fun registerKeyboardListener(view: View, listener: (Boolean)->Unit) {
+    fun registerKeyboardListener(view: View, listener: (Boolean) -> Unit) {
         mContentView = view
         unregisterKeyboardListener()
         mOnGlobalLayoutListener = object : OnGlobalLayoutListener {
@@ -61,11 +59,6 @@ class KeyboardManager {
             mContentView!!.viewTreeObserver.removeOnGlobalLayoutListener(mOnGlobalLayoutListener)
         }
     }
-
-//    interface OnKeyboardListener {
-//        fun onKeyboardVisible()
-//        fun onKeyboardHidden()
-//    }
 
     companion object {
         private val TAG = KeyboardManager::class.java.simpleName

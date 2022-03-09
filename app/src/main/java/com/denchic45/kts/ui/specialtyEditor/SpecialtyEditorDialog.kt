@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentSpecialtyEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseDialogFragment
-import com.denchic45.kts.utils.strings
-import com.denchic45.kts.utils.toast
+import com.denchic45.kts.utils.collectWhenStarted
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.android.support.AndroidSupportInjection
@@ -49,13 +49,13 @@ class SpecialtyEditorDialog :
             ).isEnabled = enabled!!
         }
         with(binding) {
-            viewModel.nameField.observe(
-                viewLifecycleOwner
-            ) { name: String? -> if (!etName.text.contentEquals(name))
-                etName.setText(name) }
             etName.textChanges()
                 .compose(EditTextTransformer())
                 .subscribe(viewModel::onNameType)
+
+            viewModel.nameField.collectWhenStarted(
+                lifecycleScope
+            ) { name -> if (!etName.text.contentEquals(name)) etName.setText(name) }
         }
         viewModel.deleteBtnVisibility.observe(viewLifecycleOwner) { visibility: Boolean ->
             alertDialog.getButton(
@@ -66,11 +66,6 @@ class SpecialtyEditorDialog :
             viewLifecycleOwner
         ) { name: String -> alertDialog.setTitle(name) }
 
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
     }
 
     companion object {

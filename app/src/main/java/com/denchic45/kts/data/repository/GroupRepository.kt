@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.repository
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
@@ -27,9 +26,7 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
@@ -141,7 +138,7 @@ class GroupRepository @Inject constructor(
 
 
     suspend fun findBySpecialtyId(specialtyId: String): List<CourseGroup> {
-        return  groupsRef.whereEqualTo("specialty.id", specialtyId).get()
+        return groupsRef.whereEqualTo("specialty.id", specialtyId).get()
             .await().run {
                 groupMapper.docToCourseGroupDomain(toObjects(GroupDoc::class.java))
             }
@@ -301,7 +298,7 @@ class GroupRepository @Inject constructor(
     }
 
     fun findCurator(groupId: String): Flow<User> {
-        return userDao.getCurator(groupId).map { userMapper.entityToDomain(it) }
+        return userDao.observeCurator(groupId).map { userMapper.entityToDomain(it) }
     }
 
     fun getNameByGroupId(groupId: String): Flow<String> {
@@ -341,12 +338,14 @@ class GroupRepository @Inject constructor(
             .map(String::isNotEmpty)
     }
 
-    fun findGroupByStudent(user: User): Flow<Group> {
+    fun findGroupByStudent(user: User): Flow<Group> = flow {
         if (!userDao.isExistByIdAndGroupId(user.id, user.groupId))
             findGroupById(user.groupId!!)
 
-        return groupDao.getByStudentId(user.id)
-            .map { groupMapper.entityToDomain(it) }
+        emitAll(
+            groupDao.getByStudentId(user.id)
+                .map { groupMapper.entityToDomain(it) }
+        )
     }
 
     fun findGroupByCurator(user: User): Flow<Group> {

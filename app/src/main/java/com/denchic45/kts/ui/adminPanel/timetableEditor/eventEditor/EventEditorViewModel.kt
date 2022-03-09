@@ -16,6 +16,7 @@ import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.DateFormatUtil
 import com.denchic45.kts.utils.toDate
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
@@ -32,6 +33,8 @@ class EventEditorViewModel @Inject constructor(
     val dateField = MutableLiveData<String>()
 
     val orderField = SingleLiveData("")
+
+    val orderEditEnable = MutableStateFlow(false)
 
     val roomField = SingleLiveData("")
 
@@ -51,14 +54,16 @@ class EventEditorViewModel @Inject constructor(
     private val eventTypeNames = arrayOf<CharSequence>("Урок", "Другое событие", "Окно")
     private fun fillFields() {
         viewModelScope.launch {
-            interactor.observeOldEvent().collect {
-                it?.apply {
-                    if (!interactor.isNew) {
-                        roomField.value = room!!
-                    }
+            interactor.observeOldEvent().collect { event ->
+                event?.let {
+                    orderEditEnable.emit(interactor.isNew)
+                        roomField.value = event.room
                     dateField.value =
-                        DateFormatUtil.convertDateToString(date.toDate(), DateFormatUtil.dd_MMMM)
-                    orderField.value = order.toString()
+                        DateFormatUtil.convertDateToString(
+                            event.date.toDate(),
+                            DateFormatUtil.dd_MMMM
+                        )
+                    orderField.value = event.order.toString()
                 }
             }
         }
