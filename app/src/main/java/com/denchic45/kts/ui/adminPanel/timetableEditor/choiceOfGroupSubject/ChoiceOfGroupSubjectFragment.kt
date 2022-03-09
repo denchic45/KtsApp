@@ -16,6 +16,7 @@ import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.SubjectAdapter
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.ListStateLayout
 import kotlinx.coroutines.flow.collect
 
@@ -59,10 +60,9 @@ class ChoiceOfGroupSubjectFragment :
             }
             viewModel.openSubjectChooser.observe(
                 viewLifecycleOwner
-            ) { findNavController().navigate(R.id.action_choiceOfGroupSubjectFragment_to_subjectChooserFragment) }
+            ) { navController.navigate(R.id.action_choiceOfGroupSubjectFragment_to_subjectChooserFragment) }
 
-            lifecycleScope.launchWhenStarted {
-                viewModel.showSubjectsOfGroup.collect { resource ->
+                viewModel.showSubjectsOfGroup.collectWhenStarted(lifecycleScope) { resource ->
                     if (resource is Resource.Success) {
                         listStateLayout.showList()
                         adapter.submitList(resource.data)
@@ -73,7 +73,6 @@ class ChoiceOfGroupSubjectFragment :
                     }
                 }
             }
-        }
 
     }
 

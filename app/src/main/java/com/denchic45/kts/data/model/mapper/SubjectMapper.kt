@@ -8,7 +8,9 @@ import org.mapstruct.Mapper
 @Mapper
 abstract class SubjectMapper {
 
-    abstract fun docToEntity(doc: SubjectDoc?): SubjectEntity
+    abstract fun docToEntity(doc: SubjectDoc): SubjectEntity
+
+    abstract fun docToEntity(doc: List<SubjectDoc>): List<SubjectEntity>
 
     abstract fun domainToDoc(domain: Subject): SubjectDoc
 

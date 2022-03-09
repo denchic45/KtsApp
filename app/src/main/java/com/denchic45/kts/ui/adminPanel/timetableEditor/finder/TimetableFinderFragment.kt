@@ -12,8 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
-import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentTimetableFinderBinding
 import com.denchic45.kts.ui.BaseFragment
@@ -37,7 +35,8 @@ class TimetableFinderFragment :
     )
     override val viewModel: TimetableFinderViewModel by viewModels { viewModelFactory }
     private var popupWindow: ListPopupWindow? = null
-    private var adapter: EventAdapter? = null
+
+    //    private var adapter: EventAdapter? = null
     private lateinit var menu: Menu
     private var actionMode: ActionMode? = null
     private var popupAdapter: ListPopupWindowAdapter? = null
@@ -87,7 +86,7 @@ class TimetableFinderFragment :
         super.onViewCreated(view, savedInstanceState)
         popupWindow = ListPopupWindow(requireActivity())
 
-        adapter = EventAdapter(
+        val adapter = EventAdapter(
             viewModel.lessonTime, false,
             onCreateLessonClickListener = { viewModel.onCreateEventItemClick() },
             onEditEventItemClickListener = { position, _ ->
@@ -141,61 +140,80 @@ class TimetableFinderFragment :
                 popupWindow!!.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
             }
 
-            viewModel.enableEditMode.observe(viewLifecycleOwner) { allow: Boolean ->
-                adapter!!.enableEditMode = allow
-                if (allow) {
-                    wcv.isEnabled = false
+//            viewModel.enableEditMode.observe(viewLifecycleOwner) { allow: Boolean ->
+//                setAllowEdit(allow)
+//            }
+//            viewModel.showEditedLessons.observe(viewLifecycleOwner) { lessons: List<DomainModel> ->
+//                adapter!!.submitList(ArrayList(lessons))
+//            }
 
-                    actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
-                        override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                            mode.menuInflater.inflate(R.menu.action_timetable_editor, menu)
-                            return true
-                        }
-
-                        override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-                            return true
-                        }
-
-                        override fun onActionItemClicked(
-                            mode: ActionMode,
-                            item: MenuItem
-                        ): Boolean {
-                            viewModel.onActionItemClick(item.itemId)
-                            return true
-                        }
-
-                        override fun onDestroyActionMode(mode: ActionMode) {
-                            viewModel.onDestroyActionMode()
-                            actionMode = null
-                            wcv.isEnabled = true
-                        }
-                    })
-                } else if (actionMode != null) {
-                    actionMode!!.finish()
+            viewModel.eventsOfDay.collectWhenStarted(lifecycleScope) { eventsOfDayState ->
+                when (eventsOfDayState) {
+                    is TimetableFinderViewModel.EventsOfDayState.Current -> {
+                        setAllowEdit(adapter,false)
+                    }
+                    is TimetableFinderViewModel.EventsOfDayState.Edit -> {
+                        setAllowEdit(adapter,true)
+                    }
                 }
+
+                adapter.submitList(eventsOfDayState.events)
             }
-            viewModel.showEditedLessons.observe(viewLifecycleOwner) { lessons: List<DomainModel> ->
-                adapter!!.submitList(ArrayList(lessons))
-            }
+
             viewModel.editTimetableOptionVisibility.observe(
                 viewLifecycleOwner
             ) { visible: Boolean ->
                 toast("edit timetable $visible")
-                menu.getItem(0).isVisible = visible }
+                menu.getItem(0).isVisible = visible
+            }
 
             itemTouchHelper.attachToRecyclerView(rvTimetable)
         }
 
-        viewModel.eventsOfDay.collectWhenStarted(
-            lifecycleScope
-        ) { lessons: List<Event> ->
-            adapter!!.submitList(ArrayList<DomainModel>(lessons))
-        }
+//        viewModel.eventsOfDay.collectWhenStarted(
+//            lifecycleScope
+//        ) { lessons ->
+//            adapter!!.submitList(ArrayList<DomainModel>(lessons))
+//        }
 
         viewModel.openEventEditor.observe(viewLifecycleOwner) {
             startActivity(Intent(requireActivity(), EventEditorActivity::class.java))
         }
 
+    }
+
+    private fun FragmentTimetableFinderBinding.setAllowEdit(adapter: EventAdapter, allow: Boolean) {
+        adapter.enableEditMode = allow
+        if (allow) {
+            wcv.isEnabled = false
+
+            actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
+                override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                    mode.menuInflater.inflate(R.menu.action_timetable_editor, menu)
+                    return true
+                }
+
+                override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+                    return true
+                }
+
+                override fun onActionItemClicked(
+                    mode: ActionMode,
+                    item: MenuItem
+                ): Boolean {
+                    viewModel.onActionItemClick(item.itemId)
+                    return true
+                }
+
+                override fun onDestroyActionMode(mode: ActionMode) {
+                    viewModel.onDestroyActionMode()
+                    actionMode = null
+                    wcv.isEnabled = true
+                }
+            })
+        } else if (actionMode != null) {
+            actionMode!!.finish()
+        }
     }
 
     companion object {

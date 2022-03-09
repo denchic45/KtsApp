@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
@@ -25,31 +24,58 @@ class TimetableFinderViewModel @Inject constructor(
     val openEventEditor = SingleLiveData<Void>()
 
     private val selectedGroup = MutableSharedFlow<CourseGroup>(replay = 1)
-    private val selectedDate = MutableSharedFlow<LocalDate>()
+    private val selectedDate = MutableSharedFlow<LocalDate>(replay = 1)
 
-    private val _eventsOfDay: Flow<EventsOfDay> =
-        combineTransform(
+    private val enableEditEvents = MutableStateFlow(false)
+
+    private val _eventsOfDayFromDataSource: StateFlow<EventsOfDay> =
+        combine(
             selectedDate,
             selectedGroup
         ) { date, courseGroup ->
-            emitAll(interactor.findLessonsOfGroupByDate(date, courseGroup.id))
-        }
+            date to courseGroup
+        }.flatMapLatest { (date, courseGroup) ->
+            interactor.findLessonsOfGroupByDate(date, courseGroup.id)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            EventsOfDay.createEmpty(LocalDate.now())
+        )
 
-    val eventsOfDay: StateFlow<List<Event>> = _eventsOfDay.mapLatest { it.events }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    private val _eventsOfDay1: MutableStateFlow<EventsOfDay> =
+        MutableStateFlow(EventsOfDay.createEmpty(LocalDate.now()))
 
-    val showEditedLessons = MutableLiveData<List<DomainModel>>()
+    init {
+        viewModelScope.launch { _eventsOfDay1.emitAll(_eventsOfDayFromDataSource) }
+    }
+
+    val eventsOfDay: StateFlow<EventsOfDayState> =
+        combine(_eventsOfDay1, selectedDate, enableEditEvents)
+        { eventsOfDay, selectedDate, editing ->
+            if (editing)
+                EventsOfDayState.Edit(selectedDate, eventsOfDay.events)
+            else {
+                EventsOfDayState.Current(selectedDate, eventsOfDay.events)
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            EventsOfDayState.Current(LocalDate.now(), emptyList())
+        )
+
+//    val showEditedLessons = MutableLiveData<List<DomainModel>>()
 
     val editTimetableOptionVisibility = SingleLiveData<Boolean>()
 
-    val enableEditMode = MutableLiveData<Boolean>()
+    //    val enableEditMode = MutableLiveData<Boolean>()
     private val typedGroupName = MutableSharedFlow<String>()
-    private val lastEvents: MutableList<Event> = ArrayList()
-    private var editingEvents: List<Event> = ArrayList()
+//    private val lastEvents: MutableList<Event> = ArrayList()
+//    private var editingEvents: List<Event> = ArrayList()
 
     private var saveEditedLessons = false
     private var foundGroups: List<CourseGroup>? = null
-    private var selectedDate1 = LocalDate.now()
+
+    //    private var selectedDate1 = LocalDate.now()
     fun onGroupNameType(groupName: String) {
         viewModelScope.launch {
             typedGroupName.emit(groupName)
@@ -73,20 +99,26 @@ class TimetableFinderViewModel @Inject constructor(
     }
 
     override fun onOptionClick(itemId: Int) {
-        if (itemId == R.id.menu_timetable_edit) {
-            enableEditMode.value = true
-            editingEvents = eventsOfDay.value
-            lastEvents.addAll(eventsOfDay.value)
-            postUpdateLessonsOfGroup()
+        viewModelScope.launch {
+            if (itemId == R.id.menu_timetable_edit) {
+                enableEditEvents.emit(true)
+//                enableEditMode.value = true
+//                editingEvents = eventsOfDay.value
+//                lastEvents.addAll(eventsOfDay.value)
+                postUpdateLessonsOfGroup()
+            }
         }
     }
 
     fun onActionItemClick(itemId: Int) {
-        when (itemId) {
-            R.id.menu_timetable_edit_save -> saveEditedLessons = true
-            R.id.menu_timetable_edit_cancel -> saveEditedLessons = false
+        viewModelScope.launch {
+            when (itemId) {
+                R.id.menu_timetable_edit_save -> saveEditedLessons = true
+                R.id.menu_timetable_edit_cancel -> saveEditedLessons = false
+            }
+            enableEditEvents.emit(false)
+//        enableEditMode.value = false
         }
-        enableEditMode.value = false
     }
 
     val lessonTime: Int
@@ -102,21 +134,46 @@ class TimetableFinderViewModel @Inject constructor(
     }
 
     fun onLessonItemEditClick(position: Int) {
-        eventEditorInteractor.setEditedEvent(editingEvents[position], false)
+        eventEditorInteractor.setEditedEvent(eventsOfDay.value.events[position] as Event, false)
         openEventEditor.call()
         viewModelScope.launch {
             eventEditorInteractor.receiveEvent()
                 .let { resource ->
-                    val updatedEventsOfDay =
-                        EventsOfDay(selectedDate.first(), editingEvents.toMutableList())
+//                    val updatedEventsOfDay =
+//                        EventsOfDay(selectedDate.first(), editingEvents.toMutableList())
                     when ((resource as Resource.Success).data.second) {
-                        EventEditorInteractor.LESSON_CREATED -> updatedEventsOfDay.add(resource.data.first)
-                        EventEditorInteractor.LESSON_EDITED -> updatedEventsOfDay.update(resource.data.first)
-                        EventEditorInteractor.LESSON_REMOVED -> updatedEventsOfDay.remove(resource.data.first)
+                        EventEditorInteractor.LESSON_CREATED -> {
+
+                            _eventsOfDay1.emit(
+                                _eventsOfDay1.first().add(resource.data.first)
+                            )
+
+//                            _eventsOfDayFromDataSource.value.add(resource.data.first)
+                        }
+                        EventEditorInteractor.LESSON_EDITED -> {
+
+                            _eventsOfDay1.emit(
+                                _eventsOfDay1.first().update(resource.data.first)
+                            )
+
+//                            _eventsOfDayFromDataSource.value.update(
+//                                resource.data.first
+//                            )
+                        }
+                        EventEditorInteractor.LESSON_REMOVED -> {
+
+                            _eventsOfDay1.emit(
+                                _eventsOfDay1.first().remove(resource.data.first)
+                            )
+
+//                            _eventsOfDayFromDataSource.value.remove(
+//                                resource.data.first
+//                            )
+                        }
                         else -> throw IllegalStateException()
                     }
-                    editingEvents = updatedEventsOfDay.events
-                    postUpdateLessonsOfGroup()
+//                    editingEvents = updatedEventsOfDay.events
+//                    postUpdateLessonsOfGroup()
                 }
         }
     }
@@ -124,59 +181,68 @@ class TimetableFinderViewModel @Inject constructor(
     fun onDestroyActionMode() {
         if (saveEditedLessons) {
             saveEditedLessons = false
-            if (editingEvents != lastEvents) {
-                viewModelScope.launch {
-                    try {
-                        interactor.updateGroupLessonOfDay(
-                            ArrayList(editingEvents),
-                            selectedDate1,
-                            selectedGroup.first()
-                        )
-                    } catch (e: Exception) {
-                        if (e is NetworkException) {
-                           showToast(R.string.error_check_network)
-                        }
+//            if (editingEvents != lastEvents) {
+            viewModelScope.launch {
+                try {
+                    interactor.updateGroupLessonOfDay(
+                        _eventsOfDay1.first().events,
+                        selectedDate.first(),
+                        selectedGroup.first()
+                    )
+                } catch (e: Exception) {
+                    if (e is NetworkException) {
+                        showToast(R.string.error_check_network)
                     }
                 }
-            } else {
-                showEditedLessons.setValue(ArrayList<DomainModel>(lastEvents))
             }
+//            } else {
+//                showEditedLessons.setValue(ArrayList<DomainModel>(lastEvents))
+//            }
         } else {
-            showEditedLessons.setValue(ArrayList<DomainModel>(lastEvents))
+//            showEditedLessons.setValue(ArrayList<DomainModel>(lastEvents))
         }
-        lastEvents.clear()
-        editingEvents = emptyList()
+//        lastEvents.clear()
+//        editingEvents = emptyList()
     }
 
     fun onLessonItemMove(oldPosition: Int, targetPosition: Int) {
 //        val shiftedEvent = editingEvents[oldPosition]
 //        val movedEvent = editingEvents[targetPosition]
-        EventsOfDay(selectedDate.replayCache[0], editingEvents.toMutableList()).apply {
-//            Events.swap(editingEvents, shiftedEvent, movedEvent)
-            this.swap(oldPosition, targetPosition)
-            editingEvents = this.events
-            postUpdateLessonsOfGroup()
+
+
+        viewModelScope.launch {
+            _eventsOfDay1.emit(
+                _eventsOfDay1.first().swap(oldPosition, targetPosition)
+            )
         }
+
+
+//        EventsOfDay(selectedDate.replayCache[0], editingEvents.toMutableList()).apply {
+////            Events.swap(editingEvents, shiftedEvent, movedEvent)
+//            this.swap(oldPosition, targetPosition)
+//            editingEvents = this.events
+//            postUpdateLessonsOfGroup()
+//        }
     }
 
     private fun postUpdateLessonsOfGroup() {
-        showEditedLessons.value = editingEvents + ListItem(
-            id = "",
-            title = "",
-            content = selectedDate1,
-            type = EventAdapter.TYPE_CREATE
-        )
+//        showEditedLessons.value = editingEvents + ListItem(
+//            id = "",
+//            title = "",
+//            content = selectedDate1,
+//            type = EventAdapter.TYPE_CREATE
+//        )
     }
 
     fun onCreateEventItemClick() {
         viewModelScope.launch {
             val order =
-                if (editingEvents.isEmpty()) 1 else editingEvents[editingEvents.size - 1].order + 1
+                if (_eventsOfDay1.first().isEmpty()) 1 else _eventsOfDay1.first().last().order + 1
             val createdLesson =
                 Event.empty(
                     group = selectedGroup.first(),
                     order = order,
-                    date = selectedDate1,
+                    date = selectedDate.first(),
                     details = Lesson.createEmpty()
                 )
             eventEditorInteractor.setEditedEvent(createdLesson, true)
@@ -186,15 +252,19 @@ class TimetableFinderViewModel @Inject constructor(
                 .let { resource ->
                     if ((resource as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
                         val event = resource.data.first
-                        EventsOfDay(
-                            selectedDate.replayCache[0],
-                            editingEvents.toMutableList()
-                        ).apply {
-//                            Events.add(editingEvents, event)
-                            this.add(event)
-                            editingEvents = this.events
-                            postUpdateLessonsOfGroup()
-                        }
+//                        EventsOfDay(
+//                            selectedDate.replayCache[0],
+//                            editingEvents.toMutableList()
+//                        ).apply {
+////                            Events.add(editingEvents, event)
+//                            this.add(event)
+//                            editingEvents = this.events
+//                            postUpdateLessonsOfGroup()
+//                        }
+
+                        _eventsOfDay1.emit(
+                            _eventsOfDay1.first().add(event)
+                        )
                     }
                 }
         }
@@ -233,4 +303,26 @@ class TimetableFinderViewModel @Inject constructor(
                 .collect(showFoundGroups::postValue)
         }
     }
+
+    sealed class EventsOfDayState(
+        private val date: LocalDate,
+    ) {
+
+        abstract val events: List<DomainModel>
+
+        data class Current(val date: LocalDate, override val events: List<Event>) :
+            EventsOfDayState(date)
+
+        data class Edit(val date: LocalDate, private var editingEvents: List<Event>) :
+            EventsOfDayState(date) {
+
+            override val events: List<DomainModel> = editingEvents + ListItem(
+                id = "",
+                title = "",
+                content = date,
+                type = EventAdapter.TYPE_CREATE
+            )
+        }
+    }
+
 }

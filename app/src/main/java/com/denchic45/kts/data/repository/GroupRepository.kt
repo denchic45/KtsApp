@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.repository
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
@@ -53,7 +52,7 @@ class GroupRepository @Inject constructor(
     override val specialtyMapper: SpecialtyMapper,
     private val firestore: FirebaseFirestore,
     override val dataBase: DataBase
-) : Repository(), IGroupRepository {
+) : Repository(), SaveGroupOperation {
 
     private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -92,10 +91,7 @@ class GroupRepository @Inject constructor(
                     coroutineScope.launch(dispatcher) {
                         val groupDocs = snapshots.toObjects(GroupDoc::class.java)
                         dataBase.withTransaction {
-                            saveGroupsOfTeacher(
-                                groupDocs,
-                                teacherId
-                            )
+                            saveGroups(groupDocs)
                         }
                         timestampPreference.setTimestampGroups(System.currentTimeMillis())
                     }

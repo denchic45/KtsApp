@@ -28,6 +28,7 @@ class GroupSubjectChooserViewModel @Inject constructor(
     fun onSubjectClick(position: Int) {
         viewModelScope.launch {
             chooserInteractor.postSelectedSubject(((showSubjectsOfGroup.value as Resource.Success).data[position]))
+            finish()
         }
     }
 

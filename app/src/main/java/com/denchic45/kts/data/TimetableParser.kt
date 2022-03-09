@@ -113,8 +113,8 @@ class TimetableParser {
 
     private fun getEventsOfTheDay(dateText: String): EventsOfDay {
         val date = dateText.toLocalDate(DateFormatUtil.DD_MM_yy)
-        val eventsOfTheDay = EventsOfDay(date)
-        if (currentRow == table.rows.size) return eventsOfTheDay
+        val events: MutableList<Event> = mutableListOf()
+        if (currentRow == table.rows.size) return EventsOfDay.createEmpty(date)
         var cells = table.getRow(currentRow).tableCells
         while (hasRowsOfCurrentDate()) {
             val orderText = cells[0].text
@@ -126,7 +126,7 @@ class TimetableParser {
                 cells = table.getRow(currentRow).tableCells
             }
             if (orderText.isNotEmpty()) {
-                eventsOfTheDay.addSimple(createEvent(orderText.toInt(), subjectAndRoomText, date))
+                events.add(createEvent(orderText.toInt(), subjectAndRoomText, date))
             } else if (subjectAndRoomText.isNotEmpty()) {
                 throw TimetableOrderLessonException(
                     """
@@ -138,8 +138,7 @@ class TimetableParser {
                 )
             }
         }
-        if (eventsOfTheDay.events.isNotEmpty()) eventsOfTheDay.removeRedundantEmptyEvents()
-        return eventsOfTheDay
+        return EventsOfDay(date,events)
     }
 
     private fun hasRowsOfCurrentDate(): Boolean {

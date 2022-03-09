@@ -86,7 +86,8 @@ class LessonEditorFragment :
             }
             viewModel.openChoiceOfGroupSubject.observe(
                 viewLifecycleOwner
-            ) { navController.navigate(R.id.action_lessonEditorFragment_to_choiceOfGroupSubjectFragment) }
+            ) {
+                navController.navigate(R.id.action_lessonEditorFragment_to_choiceOfGroupSubjectFragment) }
 
             viewModel.openChoiceOfTeacher.observe(
                 viewLifecycleOwner

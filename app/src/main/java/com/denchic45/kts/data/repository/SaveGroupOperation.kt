@@ -10,7 +10,7 @@ import com.denchic45.kts.data.model.mapper.SpecialtyMapper
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.UserEntity
 
-interface IGroupRepository {
+interface SaveGroupOperation {
 
     val userMapper: UserMapper
     val groupDao: GroupDao
@@ -20,7 +20,7 @@ interface IGroupRepository {
     val userDao: UserDao
     val dataBase: DataBase
 
-    suspend fun upsertUsersOfGroup(groupDoc: GroupDoc) {
+    private suspend fun upsertUsersOfGroup(groupDoc: GroupDoc) {
         val allUsersEntity = userMapper.docToEntity(groupDoc.allUsers)
         userDao.upsert(allUsersEntity)
         val availableUsers = allUsersEntity.map { obj: UserEntity -> obj.id }
@@ -33,9 +33,8 @@ interface IGroupRepository {
         specialtyDao.upsert(specialtyMapper.docToEntity(groupDoc.specialty))
     }
 
-    suspend fun saveGroupsOfTeacher(
-        groupDocs: List<GroupDoc>,
-        teacherId: String
+    suspend fun saveGroups(
+        groupDocs: List<GroupDoc>
     ) {
         for (groupDoc in groupDocs) {
             saveGroup(groupDoc)

@@ -61,7 +61,7 @@ class EventRepository @Inject constructor(
     override val specialtyDao: SpecialtyDao,
     private val userPreference: UserPreference,
     private val appPreference: AppPreference
-) : Repository(), IGroupRepository {
+) : Repository(), SaveGroupOperation {
 
     private val groupsRef = firestore.collection("Groups")
     private val daysRef: Query = firestore.collectionGroup("Days")
@@ -148,7 +148,7 @@ class EventRepository @Inject constructor(
                     .await()
                 coroutineScope.launch(dispatcher) {
                     subjectDao.upsert(
-                        subjectMapper.docToEntity(documentSnapshot.toObject(SubjectDoc::class.java))
+                        subjectMapper.docToEntity(documentSnapshot.toObject(SubjectDoc::class.java)!!)
                     )
                 }
             }

@@ -58,10 +58,10 @@ class LessonEditorViewModel @Inject constructor(
         viewModelScope.launch {
             subjectChooserInteractor.groupName = interactor.oldEvent.value!!.group.name
             subjectChooserInteractor.groupId = interactor.oldEvent.value!!.group.id
+            openChoiceOfGroupSubject.call()
             subjectChooserInteractor.receiveSelectedSubject().let { subject: Subject ->
                 subjectField.value = subject
             }
-            openChoiceOfGroupSubject.call()
         }
     }
 

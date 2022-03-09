@@ -34,8 +34,8 @@ import java.util.*
 import javax.inject.Inject
 
 class CourseRepository @Inject constructor(
+    override val coroutineScope: CoroutineScope,
     override val userMapper: UserMapper,
-    override val externalScope: CoroutineScope,
     @IoDispatcher override val dispatcher: CoroutineDispatcher,
     override val courseMapper: CourseMapper,
     override val specialtyMapper: SpecialtyMapper,
@@ -43,7 +43,7 @@ class CourseRepository @Inject constructor(
     private val submissionMapper: SubmissionMapper,
     private val coursePreference: CoursePreference,
     private val groupPreference: GroupPreference,
-    private val subjectMapper: SubjectMapper,
+    override val subjectMapper: SubjectMapper,
     override val networkService: NetworkService,
     private val contentAttachmentStorage: ContentAttachmentStorage,
     private val submissionAttachmentStorage: SubmissionAttachmentStorage,
@@ -52,20 +52,20 @@ class CourseRepository @Inject constructor(
     private val userPreference: UserPreference,
     private val timestampPreference: TimestampPreference,
     private val appPreference: AppPreference,
-    private val sectionMapper: SectionMapper,
+    override val sectionMapper: SectionMapper,
     private val courseContentMapper: CourseContentMapper,
     override val specialtyDao: SpecialtyDao,
     override val userDao: UserDao,
-    private val courseDao: CourseDao,
+    override val courseDao: CourseDao,
     private val courseContentDao: CourseContentDao,
-    private val sectionDao: SectionDao,
+    override val sectionDao: SectionDao,
     private val submissionDao: SubmissionDao,
     private val submissionCommentDao: SubmissionCommentDao,
     private val contentCommentDao: ContentCommentDao,
-    private val groupCourseDao: GroupCourseDao,
-    private val subjectDao: SubjectDao,
+    override val groupCourseDao: GroupCourseDao,
+    override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
-) : Repository(), IGroupRepository, RemoveCourseOperation {
+) : Repository(), SaveGroupOperation, SaveCourseOperation, RemoveCourseOperation {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
@@ -73,15 +73,15 @@ class CourseRepository @Inject constructor(
     fun find(courseId: String): Flow<Course> {
         addListenerRegistration("findCourseById $courseId") {
             coursesRef.document(courseId).addSnapshotListener { value, error ->
-                externalScope.launch(dispatcher) {
-                    value?.let {
+                coroutineScope.launch(dispatcher) {
+                    value?.let { documentSnapshot ->
                         if (!value.exists()) {
                             courseDao.deleteById(courseId)
                             return@launch
                         }
                         if (timestampIsNull(value))
                             return@launch
-                        val courseDoc = it.toObject(CourseDoc::class.java)!!
+                        val courseDoc = documentSnapshot.toObject(CourseDoc::class.java)!!
 
                         dataBase.withTransaction {
                             if (courseDoc.groupIds.isNotEmpty()) {
@@ -89,10 +89,7 @@ class CourseRepository @Inject constructor(
                                     .get()
                                     .await()
                                 if (timestampsNotNull(querySnapshot))
-                                    saveGroupsOfTeacher(
-                                        querySnapshot.toObjects(GroupDoc::class.java),
-                                        userPreference.id
-                                    )
+                                    saveGroups(querySnapshot.toObjects(GroupDoc::class.java))
                             }
                             saveCourses(listOf(courseDoc))
                         }
@@ -148,7 +145,7 @@ class CourseRepository @Inject constructor(
                 }
                 if (value != null && !value.isEmpty) {
                     if (timestampsNotNull(value)) {
-                        externalScope.launch(dispatcher) {
+                        coroutineScope.launch(dispatcher) {
                             val courseContents = courseContentMapper.docToEntity(value)
 
                             saveCourseContentsLocal(courseContents)
@@ -240,25 +237,6 @@ class CourseRepository @Inject constructor(
         userDao.deleteUnrelatedTeachersByCourseOrGroupAsCurator()
     }
 
-    private suspend fun saveCourses(courseDocs: List<CourseDoc>) {
-        val courseEntities = courseMapper.docToEntity(courseDocs)
-        val teacherEntities = courseDocs.map { userMapper.docToEntity(it.teacher) }
-        val subjectEntities = courseDocs.map { subjectMapper.docToEntity(it.subject) }
-        val groupWithCourseEntities = courseDocs.flatMap { courseDoc ->
-            courseDoc.groupIds
-                .filter { groupDao.isExistSync(it) }
-                .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
-        }
-        userDao.upsert(teacherEntities)
-        subjectDao.upsert(subjectEntities)
-        courseDao.upsert(courseEntities)
-
-        sectionDao.upsert(courseDocs.flatMap {
-            sectionMapper.docToEntity(it.sections ?: emptyList())
-        })
-        sectionDao.deleteMissing(courseDocs.flatMap { it.sections ?: emptyList() }.map { it.id })
-        groupCourseDao.upsert(groupWithCourseEntities)
-    }
 
     fun findByGroupId(groupId: String): Flow<List<CourseHeader>> {
         if (groupId != groupPreference.groupId)
@@ -268,7 +246,7 @@ class CourseRepository @Inject constructor(
     }
 
     private fun getCoursesByGroupIdRemotely(groupId: String) {
-        externalScope.launch(dispatcher) {
+        coroutineScope.launch(dispatcher) {
             coursesByGroupIdQuery(groupId).get().await().let {
                 saveCoursesOfGroup(it.toObjects(CourseDoc::class.java), groupId)
             }
@@ -277,7 +255,7 @@ class CourseRepository @Inject constructor(
 
     private fun getCoursesByTeacherRemotely(teacherId: String) {
         coursesByTeacherIdQuery(teacherId).addSnapshotListener { value, error ->
-            externalScope.launch {
+            coroutineScope.launch {
                 value?.let { value ->
                     if (!value.isEmpty)
                         value.toObjects(CourseDoc::class.java).apply {
@@ -303,12 +281,12 @@ class CourseRepository @Inject constructor(
         val courseDoc = courseMapper.domainToDoc(course)
         val batch = firestore.batch()
         batch.set(coursesRef.document(courseDoc.id), courseDoc)
-        externalScope.launch(dispatcher) { batch.commit().await() }
+        coroutineScope.launch(dispatcher) { batch.commit().await() }
     }
 
     suspend fun update(course: Course) {
         checkInternetConnection()
-        externalScope.launch(dispatcher) {
+        coroutineScope.launch(dispatcher) {
             val batch = firestore.batch()
             val courseDoc = courseMapper.domainToDoc(course)
 
@@ -320,7 +298,7 @@ class CourseRepository @Inject constructor(
                 FieldsComparator.mapOfDifference(oldCourseDoc, courseDoc)
             )
 
-            externalScope.launch(dispatcher) { batch.commit().await() }
+            coroutineScope.launch(dispatcher) { batch.commit().await() }
         }
     }
 
@@ -333,7 +311,7 @@ class CourseRepository @Inject constructor(
                 .whereArrayContains("searchKeys", name.lowercase())
                 .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                     val courseDocs = value!!.toObjects(CourseDoc::class.java)
-                    externalScope.launch(dispatcher) { saveCourses(courseDocs) }
+                    coroutineScope.launch(dispatcher) { saveCourses(courseDocs) }
                     trySend(
                         courseMapper.docToDomain(courseDocs)
                     )
@@ -669,7 +647,7 @@ class CourseRepository @Inject constructor(
             )
             .limit(10)
             .addSnapshotListener { value, error ->
-                externalScope.launch {
+                coroutineScope.launch {
                     value?.let {
                         saveCourseContentsLocal(
                             courseContentMapper.docToEntity(it)
@@ -740,7 +718,7 @@ interface RemoveCourseOperation : CheckNetworkConnection, FirestoreOperations {
     val firestore: FirebaseFirestore
     val courseMapper: CourseMapper
     val coursesRef: CollectionReference
-    val externalScope: CoroutineScope
+    val coroutineScope: CoroutineScope
     val dispatcher: CoroutineDispatcher
 
     suspend fun removeCourse(courseId: String) {
@@ -748,6 +726,41 @@ interface RemoveCourseOperation : CheckNetworkConnection, FirestoreOperations {
         val batch = firestore.batch()
         batch.delete(coursesRef.document(courseId))
         deleteCollection(coursesRef.document(courseId).collection("Contents"), 10)
-        externalScope.launch(dispatcher) { batch.commit().await() }
+        coroutineScope.launch(dispatcher) { batch.commit().await() }
+    }
+}
+
+interface SaveCourseOperation {
+
+    val courseMapper: CourseMapper
+    val userMapper: UserMapper
+    val subjectMapper: SubjectMapper
+    val sectionMapper: SectionMapper
+    val groupDao: GroupDao
+    val userDao: UserDao
+    val subjectDao: SubjectDao
+    val courseDao: CourseDao
+    val sectionDao: SectionDao
+    val groupCourseDao: GroupCourseDao
+
+
+    suspend fun saveCourses(courseDocs: List<CourseDoc>) {
+        val courseEntities = courseMapper.docToEntity(courseDocs)
+        val teacherEntities = courseDocs.map { userMapper.docToEntity(it.teacher) }
+        val subjectEntities = courseDocs.map { subjectMapper.docToEntity(it.subject) }
+        val groupWithCourseEntities = courseDocs.flatMap { courseDoc ->
+            courseDoc.groupIds
+                .filter { groupDao.isExistSync(it) }
+                .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
+        }
+        userDao.upsert(teacherEntities)
+        subjectDao.upsert(subjectEntities)
+        courseDao.upsert(courseEntities)
+
+        sectionDao.upsert(courseDocs.flatMap {
+            sectionMapper.docToEntity(it.sections ?: emptyList())
+        })
+        sectionDao.deleteMissing(courseDocs.flatMap { it.sections ?: emptyList() }.map { it.id })
+        groupCourseDao.upsert(groupWithCourseEntities)
     }
 }

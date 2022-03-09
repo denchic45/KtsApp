@@ -3,11 +3,14 @@ package com.denchic45.kts.data.repository
 import android.net.Uri
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.dao.SubjectDao
+import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.CourseMapper
+import com.denchic45.kts.data.model.mapper.SectionMapper
 import com.denchic45.kts.data.model.mapper.SubjectMapper
+import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.SubjectEntity
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.google.firebase.firestore.*
@@ -24,15 +27,21 @@ import java.util.*
 import javax.inject.Inject
 
 class SubjectRepository @Inject constructor(
-    private val subjectDao: SubjectDao,
-    private val coroutineScope: CoroutineScope,
+    override val coroutineScope: CoroutineScope,
     override val networkService: NetworkService,
     override val firestore: FirebaseFirestore,
-    private val subjectMapper: SubjectMapper,
     override val courseMapper: CourseMapper,
-    override val externalScope: CoroutineScope,
+    override val subjectMapper: SubjectMapper,
+    override val userMapper: UserMapper,
+    override val sectionMapper: SectionMapper,
+    override val courseDao: CourseDao,
+    override val groupCourseDao: GroupCourseDao,
+    override val groupDao: GroupDao,
+    override val sectionDao: SectionDao,
+    override val subjectDao: SubjectDao,
+    override val userDao: UserDao,
     @IoDispatcher override val dispatcher: CoroutineDispatcher
-) : Repository(), RemoveCourseOperation {
+) : Repository(), SaveCourseOperation, RemoveCourseOperation {
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
@@ -135,6 +144,14 @@ class SubjectRepository @Inject constructor(
 
     fun findByGroup(groupId: String): Flow<List<Subject>> {
         checkInternetConnection()
+        coroutineScope.launch {
+            coursesRef.whereArrayContains("groupIds", groupId)
+                .get()
+                .await().apply {
+                    saveCourses(toObjects(CourseDoc::class.java))
+                }
+        }
+
         return subjectDao.observeByGroupId(groupId)
             .map(subjectMapper::entityToDomain)
     }
