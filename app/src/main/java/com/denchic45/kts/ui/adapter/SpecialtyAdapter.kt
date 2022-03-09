@@ -37,14 +37,13 @@ class SpecialtyAdapter(itemClickListener: OnItemClickListener) :
             itemIconContentBinding,
             itemClickListener
         ) {
-        private val tvName: TextView = itemView.findViewById(R.id.tv_content)
-        private val ivIcon: ImageView
+        private val tvName: TextView = itemView.findViewById(R.id.tv_name)
+        private val ivIcon: ImageView = itemView.findViewById(R.id.iv_icon)
         override fun onBind(item: Specialty) {
             tvName.text = item.name
         }
 
         init {
-            ivIcon = itemView.findViewById(R.id.iv_ic)
             ivIcon.setImageDrawable(
                 ContextCompat.getDrawable(
                     itemView.context,

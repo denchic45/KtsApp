@@ -4,8 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +13,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.main.MainActivity
 import com.denchic45.kts.utils.findFragmentContainerNavController
+import com.denchic45.kts.utils.hideKeyboard
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.richpath.RichPath
 import com.richpath.RichPathView
@@ -45,10 +44,11 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
             this
         ) { navController.navigate(R.id.action_authFragment_to_loginByPhoneNumFragment) }
         viewModel.openLoginByMail.observe(
-            this)
-            {
-                navController.navigate(R.id.action_authFragment_to_loginByEmailFragment)
-            }
+            this
+        )
+        {
+            navController.navigate(R.id.action_authFragment_to_loginByEmailFragment)
+        }
         viewModel.openVerifyPhoneNum.observe(
             this
         ) { navController.navigate(R.id.action_loginByPhoneNumFragment_to_verifyPhoneNumFragment) }
@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
         }
         viewModel.backToFragment.observe(this) {
             super.onBackPressed()
-            hideKeyboard()
+            currentFocus?.hideKeyboard()
         }
         viewModel.fabVisibility.observe(
             this
@@ -74,24 +74,11 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
                 }, 500
             )
         }
-        viewModel.showMessage.observe(
-            this
-        ) { message: String? -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show() }
-        viewModel.finishApp.observe(this) { aVoid: Void? -> finish() }
+
+        viewModel.finishApp.observe(this) { finish() }
     }
 
     override fun onBackPressed() {
         viewModel.onFabBackClick(navController.currentDestination!!.id)
-    }
-
-    fun hideKeyboard() {
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        //Find the currently focused view, so we can grab the correct window token from it.
-        var view = currentFocus
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null) {
-            view = View(this)
-        }
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

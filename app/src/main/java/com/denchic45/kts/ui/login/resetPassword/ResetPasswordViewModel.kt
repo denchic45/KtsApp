@@ -1,9 +1,11 @@
 package com.denchic45.kts.ui.login.resetPassword
 
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.repository.AuthRepository
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.Validations
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class ResetPasswordViewModel @Inject constructor(
@@ -17,15 +19,15 @@ class ResetPasswordViewModel @Inject constructor(
             return
         }
         showErrorFieldEmail.value = false
-        authRepository.resetPassword(email)
-            .subscribe(
-                {
-                    showMessage.value = "Письмо успешно отправлено на почту"
-                     finish()
-                }
-            ) {
+        viewModelScope.launch {
+            try {
+                authRepository.resetPassword(email)
+                showSnackBar("Письмо успешно отправлено на почту")
+                finish()
+            } catch (t: Throwable) {
                 showErrorFieldEmail.value = true
-                showMessage.setValue("Произошла ошибка! Возможно неверная почта")
+                showSnackBar("Произошла ошибка! Возможно неверная почта")
             }
+        }
     }
 }

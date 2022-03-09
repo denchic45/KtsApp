@@ -3,21 +3,21 @@ package com.denchic45.kts.ui.base.chooser
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentChooserBinding
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.extendedAdapter.AdapterDelegate
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.adapter
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
-import kotlinx.coroutines.flow.collect
 
-abstract class ChooserFragment<VM: ChooserViewModel<out DomainModel>>() :
+abstract class ChooserFragment<VM : ChooserViewModel<out DomainModel>> :
     BaseFragment<VM, FragmentChooserBinding>(R.layout.fragment_chooser) {
 
     override val binding: FragmentChooserBinding by viewBinding(FragmentChooserBinding::bind)
@@ -44,6 +44,8 @@ abstract class ChooserFragment<VM: ChooserViewModel<out DomainModel>>() :
                 searchBar = addView(R.layout.searchbar_chooser) as SearchBar
             }
 
+            rvItems.adapter = adapter
+
             searchBar.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
                 override fun onQueryTextChange(newText: String) {
                     super.onQueryTextChange(newText)
@@ -51,10 +53,14 @@ abstract class ChooserFragment<VM: ChooserViewModel<out DomainModel>>() :
                 }
             })
 
-            rvItems.adapter = adapter
-            lifecycleScope.launchWhenStarted {
-                viewModel.items.collect {
-                    adapter.submit(it)
+            viewModel.items.collectWhenStarted(lifecycleScope) { resource ->
+                when (resource) {
+                    is Resource.Loading -> {}
+                    is Resource.Success -> {
+                        adapter.submit(resource.data)
+                    }
+                    is Resource.Error -> {}
+                    is Resource.Next -> {}
                 }
             }
         }

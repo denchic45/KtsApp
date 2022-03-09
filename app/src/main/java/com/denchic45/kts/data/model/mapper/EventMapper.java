@@ -2,9 +2,11 @@ package com.denchic45.kts.data.model.mapper;
 
 import androidx.annotation.NonNull;
 
+import com.denchic45.kts.data.model.domain.CourseGroup;
 import com.denchic45.kts.data.model.domain.EmptyEventDetails;
 import com.denchic45.kts.data.model.domain.Event;
 import com.denchic45.kts.data.model.domain.EventDetails;
+import com.denchic45.kts.data.model.domain.EventsOfDay;
 import com.denchic45.kts.data.model.domain.Lesson;
 import com.denchic45.kts.data.model.domain.SimpleEventDetails;
 import com.denchic45.kts.data.model.domain.User;
@@ -12,48 +14,29 @@ import com.denchic45.kts.data.model.firestore.EventDetailsDoc;
 import com.denchic45.kts.data.model.firestore.EventDoc;
 import com.denchic45.kts.data.model.room.EventEntity;
 import com.denchic45.kts.data.model.room.EventWithSubjectAndTeachersEntities;
+import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity;
 import com.denchic45.kts.data.model.room.TeacherEventCrossRef;
 
 import org.jetbrains.annotations.NotNull;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Context;
-import org.mapstruct.InheritInverseConfiguration;
+import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mapper(uses = {CourseContentMapper.class, UserMapper.class, GroupMapper.class, SubjectMapper.class})
-public interface EventMapper extends
-        DocEntityMapper<EventDoc, EventEntity> {
-    default EventEntity domainToEntity(@NonNull Event domain) {
-        EventDetails details = domain.getDetails();
-        EventEntity eventEntity = eventToEventEntity(domain);
-        mapDetails(eventEntity, domain);
-        return eventEntity;
-    }
+public interface EventMapper {
 
-    @AfterMapping
-    default void mapDetails(@Context EventEntity eventEntity, @NonNull Event event) {
-        if (event.getType().equals(EventEntity.TYPE.LESSON)) {
-            Lesson lesson = (Lesson) event.getDetails();
-            eventEntity.setSubjectId(lesson.getSubject().getId());
-            eventEntity.setTeacherIds(mapTeacherList(lesson.getTeachers()));
-        } else if (event.getType().equals(EventEntity.TYPE.SIMPLE)) {
-            SimpleEventDetails simpleEventDetails = (SimpleEventDetails) event.getDetails();
-            eventEntity.setName(simpleEventDetails.getName());
-        } else if (event.getType().equals(EventEntity.TYPE.EMPTY)) {
-            //Nothing
-        } else throw new IllegalArgumentException();
-    }
-
+    @Mapping(source = "entities.groupEntity", target = ".")
+    CourseGroup groupWithCuratorAndSpecialtyEntityToCourseGroup(GroupWithCuratorAndSpecialtyEntity entities);
 
     @Named("mapDetails")
-    default EventDetails mapDetails(EventWithSubjectAndTeachersEntities entities) {
+    default EventDetails mapDetails(@NonNull EventWithSubjectAndTeachersEntities entities) {
         EventEntity.TYPE type = entities.getEventEntity().getType();
         if (type.equals(EventEntity.TYPE.LESSON)) {
             return eventEntityToLesson(entities);
@@ -65,10 +48,8 @@ public interface EventMapper extends
             throw new IllegalArgumentException();
     }
 
-
     @Mapping(source = "teacherEntities", target = "teachers")
     @Mapping(source = "subjectEntity", target = "subject")
-//    @Mapping(source = "courseContentEntity", target = "task")
     Lesson eventEntityToLesson(EventWithSubjectAndTeachersEntities entities);
 
     @Mapping(source = "eventEntity", target = ".")
@@ -76,17 +57,14 @@ public interface EventMapper extends
 
     EmptyEventDetails eventEntityToEmpty(EventWithSubjectAndTeachersEntities entities);
 
-    @Mapping(source = "group.id", target = "groupId")
-    @Mapping(source = "details", target = ".", qualifiedByName = "mapDetails")
-    EventEntity eventToEventEntity(Event domain);
-
-    @InheritInverseConfiguration
-    EventEntity eventEntityToEvent(Event domain);
-
     default List<Event> entityToDomain(@NonNull List<EventWithSubjectAndTeachersEntities> eventWithSubjectAndTeachersEntities) {
         return eventWithSubjectAndTeachersEntities.stream()
                 .map(this::eventEntityToEvent)
                 .collect(Collectors.toList());
+    }
+
+    default EventsOfDay entitiesToEventsOfDay(@NonNull List<EventWithSubjectAndTeachersEntities> eventWithSubjectAndTeachersEntities, LocalDate date) {
+        return new EventsOfDay(date, entityToDomain(eventWithSubjectAndTeachersEntities));
     }
 
     @Mapping(source = "groupEntity", target = "group")
@@ -101,10 +79,8 @@ public interface EventMapper extends
                 .collect(Collectors.toList());
     }
 
-    @Override
     List<EventEntity> docToEntity(List<EventDoc> doc);
 
-    @Override
     List<EventDoc> entityToDoc(List<EventEntity> entity);
 
     default EventDoc domainToDoc(Event domain) {
@@ -144,17 +120,9 @@ public interface EventMapper extends
         return EventDetailsDoc.Companion.createEmpty();
     }
 
-    //    @Mapping(source = "date", target = "date", qualifiedByName = "toUTC")
     @Mapping(source = "eventDetailsDoc", target = ".")
-    @Override
     EventEntity docToEntity(EventDoc doc);
 
-//    @Named("toUTC")
-//    default Date toUTC(Date date) {
-//        return DateFormatUtil.convertDateToDateUTC(date);
-//    }
-
-    @Override
     EventDoc entityToDoc(EventEntity entity);
 
     default List<TeacherEventCrossRef> lessonEntitiesToTeacherLessonCrossRefEntities(@NotNull List<EventEntity> lessonEntities) {

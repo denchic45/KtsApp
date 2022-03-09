@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.group.courses
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.CourseRepository
@@ -21,10 +20,6 @@ class GroupCoursesInteractor @Inject constructor(
     }
 
     override fun removeListeners() {}
-
-    suspend fun removeCourse(course: Course) {
-        courseRepository.remove(course)
-    }
 
     val yourGroupId: String
         get() = groupRepository.yourGroupId

@@ -1,5 +1,6 @@
 package com.denchic45.kts.di.modules
 
+import com.denchic45.kts.ui.adminPanel.AdminPanelFragment
 import com.denchic45.kts.ui.adminPanel.finder.FinderFragment
 import com.denchic45.kts.ui.adminPanel.timetableEditor.TimetableEditorFragment
 import com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment
@@ -18,14 +19,14 @@ import com.denchic45.kts.ui.course.submission.SubmissionDialog
 import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
-import com.denchic45.kts.ui.creater.CreatorDialog
+import com.denchic45.kts.ui.creator.CreatorDialog
 import com.denchic45.kts.ui.group.GroupFragment
-import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.group.users.GroupUsersFragment
+import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.ui.login.auth.AuthFragment
-import com.denchic45.kts.ui.login.choiceOfGroup.ChoiceOfGroupFragment
+import com.denchic45.kts.ui.login.groupChooser.GroupChooserFragment
 import com.denchic45.kts.ui.login.resetPassword.ResetPasswordFragment
 import com.denchic45.kts.ui.login.verifyPhoneNum.VerifyPhoneNumFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
@@ -99,10 +100,13 @@ interface FragmentModule {
     fun contributeTeacherChooserFragment(): TeacherChooserFragment
 
     @ContributesAndroidInjector
-    fun contributeChoiceOfGroupFragment(): ChoiceOfGroupFragment
+    fun contributeChoiceOfGroupFragment(): GroupChooserFragment
 
     @ContributesAndroidInjector
     fun contributeVerifyPhoneNumFragment(): VerifyPhoneNumFragment
+
+    @ContributesAndroidInjector
+    fun contributeAdminPanelFragment(): AdminPanelFragment
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
     fun contributeProfileFragment(): ProfileFragment
@@ -154,4 +158,7 @@ interface FragmentModule {
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
     fun contributeCourseSectionsFragment(): CourseSectionEditorFragment
+
+    @ContributesAndroidInjector
+    fun contributeIconPickerDialog(): IconPickerDialog
 }

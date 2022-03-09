@@ -13,14 +13,14 @@
     android:paddingBottom="8dp">
 
     <androidx.constraintlayout.utils.widget.ImageFilterView
-        android:id="@+id/iv_ic"
+        android:id="@+id/iv_icon"
         app:roundPercent="1"
         tools:srcCompat="@tools:sample/avatars"
         android:layout_width="36dp"
         android:layout_height="36dp" />
 
     <TextView
-        android:id="@+id/tv_content"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

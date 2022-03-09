@@ -70,13 +70,15 @@ class EventEditorViewModel @Inject constructor(
 
     private fun saveChanges() {
         if (uiEditor.isNew) uiEditor.item.id = UUID.randomUUID().toString()
-        interactor.postEvent(
-            Resource.Success(
-                uiEditor.item to
-                        if (uiEditor.isNew) EventEditorInteractor.LESSON_CREATED else EventEditorInteractor.LESSON_EDITED
+        viewModelScope.launch {
+            interactor.postEvent(
+                Resource.Success(
+                    uiEditor.item to
+                            if (uiEditor.isNew) EventEditorInteractor.LESSON_CREATED else EventEditorInteractor.LESSON_EDITED
+                )
             )
-        )
-         finish()
+            finish()
+        }
     }
 
     fun onDateSelected(selection: Long) {
@@ -97,42 +99,47 @@ class EventEditorViewModel @Inject constructor(
     }
 
     override fun onOptionClick(itemId: Int) {
-        if (itemId == R.id.option_duplicate_lesson) {
-            uiValidator.runValidates { saveChanges() }
-            if (uiValidator.runValidates()) {
-                val duplicatedLesson = uiEditor.item.copy(
-                    id = UUID.randomUUID().toString(),
-                    order = uiEditor.item.order + 1
-                )
-                interactor.postEvent(
-                    Resource.Success(
-                        duplicatedLesson to
-                                EventEditorInteractor.LESSON_CREATED
-                    )
-                )
+        when (itemId) {
+            R.id.option_duplicate_lesson -> {
+                viewModelScope.launch {
+                    uiValidator.runValidates { saveChanges() }
+                    if (uiValidator.runValidates()) {
+                        val duplicatedLesson = uiEditor.item.copy(
+                            id = UUID.randomUUID().toString(),
+                            order = uiEditor.item.order + 1
+                        )
+                        interactor.postEvent(
+                            Resource.Success(
+                                duplicatedLesson to
+                                        EventEditorInteractor.LESSON_CREATED
+                            )
+                        )
+                    }
+                    finish()
+                }
             }
-//             finish() # может нужен
-        } else if (itemId == R.id.option_delete_lesson) {
-            interactor.postEvent(Resource.Success(uiEditor.item to EventEditorInteractor.LESSON_REMOVED))
-             finish()
-        } else if (itemId == R.id.option_clear_lesson) {
-            interactor.postEvent(
-                Resource.Success(
-                    empty(
-                        uiEditor.item.id,
-                        uiEditor.item.group,
-                        uiEditor.item.order,
-                        uiEditor.item.date
-                    ) to EventEditorInteractor.LESSON_EDITED
-                )
-            )
-             finish()
+            R.id.option_delete_lesson -> {
+                viewModelScope.launch {
+                    interactor.postEvent(Resource.Success(uiEditor.item to EventEditorInteractor.LESSON_REMOVED))
+                    finish()
+                }
+            }
+            R.id.option_clear_lesson -> {
+                viewModelScope.launch {
+                    interactor.postEvent(
+                        Resource.Success(
+                            empty(
+                                uiEditor.item.id,
+                                uiEditor.item.group,
+                                uiEditor.item.order,
+                                uiEditor.item.date
+                            ) to EventEditorInteractor.LESSON_EDITED
+                        )
+                    )
+                    finish()
+                }
+            }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        interactor.removeListeners()
     }
 
     fun onToolbarClick() {
@@ -161,7 +168,7 @@ class EventEditorViewModel @Inject constructor(
         when (position) {
             0 -> {
                 title.value = "Редактировать урок"
-                showDetailEditor.setValue(R.id.lessonEditorFragment)
+                showDetailEditor.setValue(R.id.eventEditorFragment)
             }
             1 -> {
                 title.value = "Редактировать событие"
@@ -196,10 +203,7 @@ class EventEditorViewModel @Inject constructor(
             Validation(Rule { !TextUtils.isEmpty(uiEditor.item.room) })
                 .sendActionResult({
                     showErrorField.setValue(
-                        Pair(
-                            R.id.rl_lesson_room,
-                            true
-                        )
+                        Pair(R.id.rl_lesson_room, true)
                     )
                 }) {
                     showErrorField.setValue(

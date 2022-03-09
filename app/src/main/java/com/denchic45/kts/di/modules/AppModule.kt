@@ -2,7 +2,6 @@ package com.denchic45.kts.di.modules
 
 import android.app.Application
 import android.content.Context
-import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +11,7 @@ import javax.inject.Singleton
 
 
 @Module
-class AppModule(val application: Application) {
+class AppModule(private val application: Application) {
 
     @Provides
     @Singleton
@@ -32,11 +31,5 @@ class AppModule(val application: Application) {
         return Retrofit.Builder()
             .baseUrl("http://localhost/")
             .build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideConfirmInteractor(): ConfirmInteractor {
-        return ConfirmInteractor()
     }
 }

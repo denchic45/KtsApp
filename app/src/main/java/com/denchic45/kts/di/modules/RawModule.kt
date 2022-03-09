@@ -1,7 +1,6 @@
 package com.denchic45.kts.di.modules
 
 import android.content.Context
-import androidx.core.content.ContextCompat
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.utils.JsonUtil

@@ -182,11 +182,6 @@ class TaskEditorFragment :
                 viewModel.onCommentsEnableCheck(check)
             }
 
-            viewModel.showMessage.observe(viewLifecycleOwner) {
-                if (it != null)
-                    Snackbar.make(view, it, Snackbar.LENGTH_SHORT).show()
-            }
-
             viewModel.showErrorMessage.observe(viewLifecycleOwner) { idWithMessagePair ->
                 val fieldView = view.findViewById<View>(
                     idWithMessagePair.first
@@ -362,12 +357,6 @@ class TaskEditorFragment :
         }
     }
 
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionClick(item.itemId)
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         appBarController.toolbarScrollFlags = oldToolbarScrollFlags
@@ -419,7 +408,7 @@ class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding,private val 
                 ivFileRemove.visibility = View.GONE
             }
             ivOverlay.setImageDrawable(null)
-            tvName.text = item.file.name
+            tvName.text = item.name
             val glide = Glide.with(ivFile)
             val load: RequestBuilder<Drawable> = when (item.file.getType()) {
                 "image" -> {

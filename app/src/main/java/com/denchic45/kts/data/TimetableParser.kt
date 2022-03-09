@@ -7,7 +7,6 @@ import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.dinner
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.practice
 import com.denchic45.kts.utils.DateFormatUtil
 import com.denchic45.kts.utils.toLocalDate
-import io.reactivex.rxjava3.core.Single
 import org.apache.poi.xwpf.usermodel.XWPFDocument
 import org.apache.poi.xwpf.usermodel.XWPFTable
 import org.apache.poi.xwpf.usermodel.XWPFTableCell
@@ -16,7 +15,7 @@ import java.time.LocalDate
 import java.util.*
 import java.util.stream.Collectors
 
-class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
+class TimetableParser {
     private val days = listOf(
         "ПОНЕДЕЛЬНИК ",
         "ВТОРНИК",
@@ -92,9 +91,9 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
             .orElse(null)
     }
 
-    private val lessonsOfGroup: List<EventsOfTheDay>
+    private val lessonsOfGroup: List<EventsOfDay>
         get() {
-            val weekLessons: MutableList<EventsOfTheDay> = ArrayList()
+            val weekLessons: MutableList<EventsOfDay> = ArrayList()
             currentRow = 3
             currentDayOfWeek = 0
             while (!table.getRow(currentRow).getCell(0).text.contains("ПОНЕДЕЛЬНИК")) currentRow++
@@ -112,9 +111,9 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
             return weekLessons
         }
 
-    private fun getEventsOfTheDay(dateText: String): EventsOfTheDay {
+    private fun getEventsOfTheDay(dateText: String): EventsOfDay {
         val date = dateText.toLocalDate(DateFormatUtil.DD_MM_yy)
-        val eventsOfTheDay = EventsOfTheDay(date)
+        val eventsOfTheDay = EventsOfDay(date)
         if (currentRow == table.rows.size) return eventsOfTheDay
         var cells = table.getRow(currentRow).tableCells
         while (hasRowsOfCurrentDate()) {
@@ -231,9 +230,4 @@ class TimetableParser(getSpecialSubjects: Single<List<Subject>>) {
         const val STUDY_DAY_COUNT = 6
     }
 
-    init {
-        getSpecialSubjects.subscribe { collection: List<Subject> ->
-            specialSubjects.addAll(collection)
-        }
-    }
 }

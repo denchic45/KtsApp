@@ -16,11 +16,10 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.colors
-import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.stream.IntStream
 import javax.inject.Inject
@@ -49,14 +48,12 @@ class SubjectEditorViewModel @Inject constructor(
 
     val openIconPicker = SingleLiveData<Void>()
 
-
     val showColors = MutableLiveData<Pair<List<ListItem>, Int>>()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Subject>
     private val id: String = subjectId ?: UUIDS.createShort()
     private var colorName = ""
 
-    private var subscribe: Disposable? = null
     fun onColorSelect(position: Int) {
         val item: ListItem = colors[position]
         colorName = item.title
@@ -75,11 +72,12 @@ class SubjectEditorViewModel @Inject constructor(
         } catch (e: Exception) {
             when (e) {
                 is NetworkException -> {
-                    showMessage.setValue("Проверьте подключение к интернету")
+                    showToast(R.string.error_check_network)
                 }
                 is SameSubjectIconException -> {
-                    showMessage.value = "Такая иконка уже используется!"
+                   showToast("Такая иконка уже используется!")
                 }
+                else -> e.printStackTrace()
             }
 
         }
@@ -94,24 +92,32 @@ class SubjectEditorViewModel @Inject constructor(
 
     private fun setupForExistItem() {
         title.value = "Редактировать предмет"
-        LiveDataUtil.observeOnce(interactor.find(id)) { subject: Subject ->
-            uiEditor.oldItem = subject
-            nameField.value = subject.name
-            colorIcon.value = findColorId(subject.colorName)
-            currentSelectedColor.value = IntStream.range(0, colors.size)
-                .filter { value: Int -> colors[value].title == subject.colorName }
-                .findFirst()
-                .orElse(-1)
-            icon.value = subject.iconUrl
-            colors.stream()
-                .filter { voidListItem -> voidListItem.title == subject.colorName }
-                .findFirst()
-                .ifPresent { colorItem ->
-                    colorItem.color.onId {
-                        colorIcon.value = it
-                        showColors.setValue(Pair(colors, colors.indexOf(colorItem)))
-                    }
+        viewModelScope.launch {
+            interactor.find(id).collect { subject: Subject? ->
+                subject?.let {
+                    uiEditor.oldItem = subject
+                    nameField.value = subject.name
+                    colorIcon.value = findColorId(subject.colorName)
+                    currentSelectedColor.value = IntStream.range(0, colors.size)
+                        .filter { value: Int -> colors[value].title == subject.colorName }
+                        .findFirst()
+                        .orElse(-1)
+                    icon.value = subject.iconUrl
+                    colors.stream()
+                        .filter { voidListItem -> voidListItem.title == subject.colorName }
+                        .findFirst()
+                        .ifPresent { colorItem ->
+                            colorItem.color.onId {
+                                colorIcon.value = it
+                                showColors.setValue(Pair(colors, colors.indexOf(colorItem)))
+                            }
+                        }
+
+                    colorName = subject.colorName
+                } ?: run {
+                    finish()
                 }
+            }
         }
     }
 
@@ -124,7 +130,7 @@ class SubjectEditorViewModel @Inject constructor(
     }
 
     fun onNameType(name: String) {
-        nameField.value = name
+        nameField.postValue(name)
         enablePositiveBtn.postValue(uiValidator.runValidates())
     }
 
@@ -135,15 +141,18 @@ class SubjectEditorViewModel @Inject constructor(
     }
 
     fun onDeleteClick() {
-        openConfirmation(Pair("Удалить несколько предметов группы", "Вы точно уверены???"))
+        openConfirmation(
+            "Удалить предмет" to
+                    "Вместе с предметом удалятся принадлежащие ему курсы без возможности восстановления"
+        )
         viewModelScope.launch {
-            if (confirmInteractor.awaitConfirm()) {
+            if (confirmInteractor.receiveConfirm()) {
                 try {
                     interactor.remove(uiEditor.oldItem!!)
                     finish()
                 } catch (e: Exception) {
                     if (e is NetworkException) {
-                        showMessage.value = "Проверьте подключение к интернету"
+                        showToast(R.string.error_check_network)
                     }
                 }
             }
@@ -151,11 +160,12 @@ class SubjectEditorViewModel @Inject constructor(
     }
 
     fun onIconClick() {
-        openIconPicker.call()
-        subscribe = iconPickerInteractor.observeSelectedIcon()!!.subscribe { iconUrl: String ->
-            subscribe!!.dispose()
-            icon.value = iconUrl
-            enablePositiveBtn.postValue(uiValidator.runValidates())
+        viewModelScope.launch {
+            openIconPicker.call()
+            iconPickerInteractor.observeSelectedIcon().apply {
+                icon.value = this
+                enablePositiveBtn.postValue(uiValidator.runValidates())
+            }
         }
     }
 

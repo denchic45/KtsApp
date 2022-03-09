@@ -29,8 +29,9 @@ import com.jakewharton.rxbinding4.widget.textChanges
 import java.util.*
 
 
-class EventEditorFragment :
-    BaseFragment<EventEditorViewModel, FragmentEventEditorBinding>(R.layout.fragment_event_editor) {
+class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEditorBinding>(
+    R.layout.fragment_event_editor
+) {
     private lateinit var toolbarEventEditor: View
     private lateinit var tvTitleBar: TextView
     private var childNavController: NavController? = null
@@ -46,15 +47,6 @@ class EventEditorFragment :
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.options_lesson_editor, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            requireActivity().finish()
-        } else {
-            viewModel.onOptionClick(item.itemId)
-        }
-        return false
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -115,15 +107,6 @@ class EventEditorFragment :
                 }
         }
 
-        viewModel.showMessage.observe(
-            viewLifecycleOwner,
-            EventObserver { message: String? ->
-                Snackbar.make(
-                    view,
-                    message!!,
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            })
         viewModel.openDatePicker.observe(viewLifecycleOwner) {
             val datePicker = MaterialDatePicker.Builder.datePicker()
                 .setCalendarConstraints(
@@ -151,6 +134,7 @@ class EventEditorFragment :
             }
             datePicker.show(childFragmentManager, null)
         }
+
         viewModel.showListOfEventTypes.observe(
             viewLifecycleOwner
         ) { (first, second) ->

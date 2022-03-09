@@ -22,6 +22,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentFinderBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.adapter.*
+import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
@@ -135,7 +136,6 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             bundle.putString(GroupFragment.GROUP_ID, groupId)
             navController.navigate(R.id.action_finderFragment_to_group, bundle)
         }
-        viewModel.showMessage.observe(viewLifecycleOwner, this::toast)
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
@@ -151,9 +151,10 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             bundle.putString(ProfileFragment.USER_ID, userId)
             navController.navigate(R.id.action_global_profileFragment, bundle)
         }
-        viewModel.openSubjectEditor.observe(viewLifecycleOwner) { subjectId: String? ->
-            SubjectEditorDialog.newInstance(subjectId).show(
-                childFragmentManager, null
+        viewModel.openSubjectEditor.observe(viewLifecycleOwner) { subjectId: String ->
+            navController.navigate(
+                R.id.action_global_subjectEditorDialog,
+                bundleOf(SubjectEditorDialog.SUBJECT_ID to subjectId)
             )
         }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId ->
@@ -170,8 +171,8 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
 
         viewModel.openCourse.observe(viewLifecycleOwner) {
             navController.navigate(
-                R.id.action_global_courseEditorFragment,
-                bundleOf(CourseEditorFragment.COURSE_ID to it)
+                R.id.action_global_courseFragment,
+                bundleOf(CourseFragment.COURSE_ID to it)
             )
         }
         viewModel.showOptions.observe(viewLifecycleOwner) { (first, second) ->

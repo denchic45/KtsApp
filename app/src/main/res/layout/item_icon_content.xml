@@ -9,13 +9,13 @@
     android:paddingHorizontal="16sp">
 
     <ImageView
-        android:id="@+id/iv_ic"
+        android:id="@+id/iv_icon"
         android:layout_width="28dp"
         android:layout_height="28dp"
         app:srcCompat="@drawable/ic_book" />
 
     <TextView
-        android:id="@+id/tv_content"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16sp"

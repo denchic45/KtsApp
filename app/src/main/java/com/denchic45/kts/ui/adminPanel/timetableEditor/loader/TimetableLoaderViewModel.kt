@@ -11,10 +11,9 @@ import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.PreferenceContentItem
 import com.denchic45.kts.ui.adapter.PreferenceItem
 import com.denchic45.kts.ui.adapter.PreferenceSwitchItem
-import com.denchic45.kts.ui.adminPanel.timetableEditor.TimetableEditorInteractor
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorInteractor
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.login.choiceOfGroup.ChoiceOfGroupInteractor
+import com.denchic45.kts.ui.login.groupChooser.GroupChooserInteractor
 import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -32,12 +31,11 @@ import javax.inject.Inject
 class TimetableLoaderViewModel @Inject constructor(
     private val interactor: TimetableLoaderInteractor,
     private var eventEditorInteractor: EventEditorInteractor,
-    private var timetableEditorInteractor: TimetableEditorInteractor,
-    private var choiceOfGroupInteractor: ChoiceOfGroupInteractor
+    private var groupChooserInteractor: GroupChooserInteractor
 ) : BaseViewModel() {
     val openFilePicker = SingleLiveData<Unit>()
     val showErrorDialog = SingleLiveData<String>()
-    val openLessonEditor = SingleLiveData<Void>()
+    val openEventEditor = SingleLiveData<Void>()
     val openChoiceOfGroup = SingleLiveData<Void>()
 
     val addGroup = SingleLiveData<Unit>()
@@ -47,7 +45,6 @@ class TimetableLoaderViewModel @Inject constructor(
     val showPage = MutableLiveData<Int>()
 
     private val groups: MutableList<CourseGroup> = mutableListOf()
-
 
     val preferences = MutableStateFlow<List<PreferenceItem>>(
         listOf(
@@ -204,12 +201,12 @@ class TimetableLoaderViewModel @Inject constructor(
                         }
                     } catch (e: Exception) {
                         if (e is NetworkException) {
-                            showMessageRes.value = R.string.error_check_network
+                            showToast(R.string.error_check_network)
                         }
                         e.printStackTrace()
                     }
                 }
-                ITEM_BACK ->  finish()
+                ITEM_BACK -> finish()
                 ITEM_SHOW -> {
                 }
             }
@@ -228,45 +225,47 @@ class TimetableLoaderViewModel @Inject constructor(
         val event =
             groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek].events[eventPosition]
         eventEditorInteractor.setEditedEvent(event, false)
-        openLessonEditor.call()
-        eventEditorInteractor.observeEvent()
-            .subscribe { resource ->
-                when ((resource as Resource.Success).data.second) {
-                    EventEditorInteractor.LESSON_CREATED -> {
-                        findLessonOfDay(
-                            resource.data.first,
-                            this.positionOfCurrentTimetable
-                        )
-                            .ifPresent { eventsOfTheDay: EventsOfTheDay ->
-                                eventsOfTheDay.add(resource.data.first)
-                                postUpdateLessonsOfGroup(this.positionOfCurrentTimetable)
-                            }
-                        updateEventOfGroup(positionOfCurrentTimetable, resource.data.first)
-                        postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-                    }
-                    EventEditorInteractor.LESSON_EDITED -> {
-                        updateEventOfGroup(positionOfCurrentTimetable, resource.data.first)
-                        postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-                    }
-                    EventEditorInteractor.LESSON_REMOVED -> {
-                        findLessonOfDay(resource.data.first, positionOfCurrentTimetable)
-                            .ifPresent { eventsOfTheDay: EventsOfTheDay ->
-                                eventsOfTheDay.remove(resource.data.first)
-                            }
-                        postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+        openEventEditor.call()
+        viewModelScope.launch {
+            eventEditorInteractor.receiveEvent()
+                .let { resource ->
+                    when ((resource as Resource.Success).data.second) {
+                        EventEditorInteractor.LESSON_CREATED -> {
+                            findLessonOfDay(
+                                resource.data.first,
+                                this@TimetableLoaderViewModel.positionOfCurrentTimetable
+                            )
+                                .ifPresent { eventsOfDay: EventsOfDay ->
+                                    eventsOfDay.add(resource.data.first)
+                                    postUpdateLessonsOfGroup(this@TimetableLoaderViewModel.positionOfCurrentTimetable)
+                                }
+                            updateEventOfGroup(positionOfCurrentTimetable, resource.data.first)
+                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+                        }
+                        EventEditorInteractor.LESSON_EDITED -> {
+                            updateEventOfGroup(positionOfCurrentTimetable, resource.data.first)
+                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+                        }
+                        EventEditorInteractor.LESSON_REMOVED -> {
+                            findLessonOfDay(resource.data.first, positionOfCurrentTimetable)
+                                .ifPresent { eventsOfDay: EventsOfDay ->
+                                    eventsOfDay.remove(resource.data.first)
+                                }
+                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+                        }
                     }
                 }
-            }
+        }
     }
 
     private fun updateEventOfGroup(positionGroup: Int, editedEvent: Event) {
         findLessonOfDay(editedEvent, positionGroup)
-            .ifPresent { eventsOfTheDay: EventsOfTheDay ->
-                eventsOfTheDay.events.stream()
+            .ifPresent { eventsOfDay: EventsOfDay ->
+                eventsOfDay.events.stream()
                     .filter { oldLesson: Event -> oldLesson.id == editedEvent.id }
                     .findFirst()
                     .ifPresent {
-                        eventsOfTheDay.update(editedEvent)
+                        eventsOfDay.update(editedEvent)
                     }
             }
     }
@@ -282,18 +281,20 @@ class TimetableLoaderViewModel @Inject constructor(
                 date = eventsOfTheDay.date
             )
         eventEditorInteractor.setEditedEvent(createdLesson, true)
-        openLessonEditor.call()
-        eventEditorInteractor.observeEvent()
-            .subscribe { event ->
-                if ((event as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
-                    val event1 = event.data.first
-                    findLessonOfDay(event1, positionOfCurrentTimetable)
-                        .ifPresent { eventsOfTheDay: EventsOfTheDay ->
-                            eventsOfTheDay.add(event1)
-                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-                        }
+        openEventEditor.call()
+        viewModelScope.launch {
+            eventEditorInteractor.receiveEvent()
+                .let { event ->
+                    if ((event as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
+                        val event1 = event.data.first
+                        findLessonOfDay(event1, positionOfCurrentTimetable)
+                            .ifPresent { eventsOfDay: EventsOfDay ->
+                                eventsOfDay.add(event1)
+                                postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+                            }
+                    }
                 }
-            }
+        }
     }
 
     fun onLessonItemMove(oldPosition: Int, targetPosition: Int, dayOfWeek: Int) {
@@ -309,9 +310,9 @@ class TimetableLoaderViewModel @Inject constructor(
         updateEventsOfGroup.value = Pair(positionGroup, timetable)
     }
 
-    private fun findLessonOfDay(lesson: Event, positionGroup: Int): Optional<EventsOfTheDay> {
+    private fun findLessonOfDay(lesson: Event, positionGroup: Int): Optional<EventsOfDay> {
         return groupsTimetables[positionGroup].weekEvents.stream()
-            .filter { eventsOfTheDay: EventsOfTheDay -> lesson.date == eventsOfTheDay.date }
+            .filter { eventsOfDay: EventsOfDay -> lesson.date == eventsOfDay.date }
             .findAny()
     }
 
@@ -325,17 +326,19 @@ class TimetableLoaderViewModel @Inject constructor(
 
     fun onAddGroupClick() {
         openChoiceOfGroup.call()
-        choiceOfGroupInteractor.observeSelectedGroup()
-            .subscribe { group ->
-                groups.add(group)
-                groupNames.add(group.name)
-                groupsTimetables.add(GroupTimetable.createEmpty(group, firstDateOfTimetable))
+        viewModelScope.launch {
+            groupChooserInteractor.observeSelectedGroup()
+                .let { group ->
+                    groups.add(group)
+                    groupNames.add(group.name)
+                    groupsTimetables.add(GroupTimetable.createEmpty(group, firstDateOfTimetable))
 
-                viewModelScope.launch {
-                    postTabs()
-                    postUpdatedTimetables()
+                    viewModelScope.launch {
+                        postTabs()
+                        postUpdatedTimetables()
+                    }
                 }
-            }
+        }
     }
 
     companion object {

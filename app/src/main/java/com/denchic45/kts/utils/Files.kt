@@ -30,16 +30,15 @@ fun File.getMimeType(): String {
 }
 
 fun File.clearAndDelete(): Boolean {
-        val allContents = this.listFiles()
-        if (allContents != null) {
-            for (file in allContents) {
-                file.clearAndDelete()
-            }
+    val allContents = this.listFiles()
+    if (allContents != null) {
+        for (file in allContents) {
+            file.clearAndDelete()
         }
-        return this.delete()
+    }
+    return this.delete()
 
 }
-
 
 
 fun File.getExtension(): String {
@@ -50,25 +49,11 @@ fun File.getExtension(): String {
 
 object Files {
 
-    fun deleteDirectory(directoryToBeDeleted: File): Boolean {
-        val allContents = directoryToBeDeleted.listFiles()
-        if (allContents != null) {
-            for (file in allContents) {
-                deleteDirectory(file)
-            }
-        }
-        return directoryToBeDeleted.delete()
-    }
-
     fun nameWithoutTimestamp(name: String): String {
-        val split = name.split("_")
-        return if (split.size == 2)
-            split[1]
-        else name
+        return name.substring(name.indexOf("_") + 1)
     }
 
     fun getPath(context: Context, uri: Uri): String {
-
         // DocumentProvider
         if (DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider

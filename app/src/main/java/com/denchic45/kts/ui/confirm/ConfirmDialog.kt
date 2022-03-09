@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.confirm
 
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.viewModels
@@ -22,8 +21,8 @@ class ConfirmDialog : DialogFragment() {
             MaterialAlertDialogBuilder(requireActivity(), R.style.MaterialAlertDialog_Rounded)
                 .setTitle(requireArguments().getString(TITLE))
                 .setMessage(requireArguments().getString(MESSAGE))
-                .setPositiveButton("Да") { dialogInterface: DialogInterface?, i: Int -> viewModel.onPositiveClick() }
-                .setNegativeButton("Нет") { dialog1: DialogInterface?, which: Int -> viewModel.onNegativeClick() }
+                .setPositiveButton("Да") { _, _ -> viewModel.onPositiveClick() }
+                .setNegativeButton("Нет") { _, _ -> viewModel.onNegativeClick() }
         return dialog.create()
     }
 

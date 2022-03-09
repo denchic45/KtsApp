@@ -38,10 +38,3 @@ data class GroupDoc(
     val allUsers: List<UserDoc?>
         get() = students!!.values + (curator)
 }
-
-//data class SubjectTeacherPair(
-//    var subjectId: String,
-//    var teacherId: String
-//) {
-//    private constructor() : this("", "")
-//}

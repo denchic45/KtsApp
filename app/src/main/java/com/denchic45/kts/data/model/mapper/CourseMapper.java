@@ -27,15 +27,17 @@ import java.util.stream.Collectors;
 @Mapper(uses = {GroupMapper.class, UserMapper.class, SubjectMapper.class, SpecialtyMapper.class})
 public interface CourseMapper {
 
-//    @Mapping(source = "info.teacher", target = "teacher")
-//    @Mapping(source = "info.subject", target = "subject")
-//    @Mapping(source = "info.name", target = "name")
     @Mapping(qualifiedByName = "addGroupId", source = "groups", target = "groupIds")
     CourseDoc domainToDoc(Course course);
 
-    CourseHeader docToDomain(CourseDoc doc);
-
     List<CourseHeader> docToDomain(List<CourseDoc> docs);
+
+    @Named("groupWithCuratorAndSpecialtyEntityToCourseGroup")
+    @Mapping(source = "entities.groupEntity", target = ".")
+    CourseGroup groupWithCuratorAndSpecialtyEntityToCourseGroup(GroupWithCuratorAndSpecialtyEntity entities);
+
+    @IterableMapping(qualifiedByName = "groupWithCuratorAndSpecialtyEntityToCourseGroup")
+    List<CourseGroup> groupWithCuratorAndSpecialtyEntityToCourseGroup(List<GroupWithCuratorAndSpecialtyEntity> entities);
 
     @Mapping(source = "groupEntities", target = "groups")
 
@@ -44,6 +46,7 @@ public interface CourseMapper {
     @Mapping(source = "subjectEntity", target = "subject")
     @Mapping(source = "teacherEntity", target = "teacher")
     @Named("entityToDomain2")
+//    @Mapping(target = "groups", qualifiedByName = "groupWithCuratorAndSpecialtyEntityToCourseGroup list")
     Course entityToDomain2(CourseWithSubjectWithTeacherAndGroupsEntities entity);
 
     @IterableMapping(qualifiedByName = "entityToDomain2")
@@ -59,12 +62,6 @@ public interface CourseMapper {
     @IterableMapping(qualifiedByName = "entityToDomainHeaders")
     List<CourseHeader> entityToDomainHeaders(List<CourseWithSubjectAndTeacherEntities> entity);
 
-//    @Mapping(source = "courseEntity.name", target = "name")
-//    @Mapping(source = "courseEntity.id", target = "id")
-//    @Mapping(source = "subjectEntity", target = "subject")
-//    @Mapping(source = "teacherEntity", target = "teacher")
-//    Course entityToDomain(CourseWithSubjectAndTeacherEntities entity);
-
     @Mapping(source = "subject.id", target = "subjectId")
     @Mapping(source = "teacher.id", target = "teacherId")
     CourseEntity docToEntity(CourseDoc doc);
@@ -74,26 +71,8 @@ public interface CourseMapper {
     @InheritInverseConfiguration(name = "docToEntity")
     CourseDoc entityToDoc(CourseEntity entity);
 
-//    List<Course> entityToDomain(List<CourseWithSubjectWithTeacherAndGroupsEntities> entities);
 
     List<Course> entityToDomain(List<CourseWithSubjectAndTeacherEntities> entities);
-
-//    @InheritConfiguration(name = "entityToDomain")
-//    Course entityToDomainInfo(CourseWithSubjectWithTeacherAndGroupsEntities entity);
-
-//    @Mapping(source = "courseEntity", target = ".")
-//
-//    @Mapping(source = "subjectEntity", target = "subject")
-//    @Mapping(source = "teacherEntity", target = "teacher")
-//    Course entityToDomainInfo(CourseWithSubjectAndTeacherEntities entity);
-
-//    default List<Course> entityToDomainInfo(@NonNull List<CourseWithSubjectWithTeacherAndGroups> entities) {
-//        return entities.stream().map(this::entityToDomainInfo).collect(Collectors.toList());
-//    }
-//
-//    default List<Course> entityToDomainInfo2(@NonNull List<CourseWithSubjectAndTeacherEntities> entities) {
-//        return entities.stream().map(this::entityToDomain).collect(Collectors.toList());
-//    }
 
     @Mapping(source = "teacherEntity", target = "teacher")
     @Mapping(source = "subjectEntity", target = "subject")

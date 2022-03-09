@@ -71,12 +71,6 @@ class GroupEditorFragment :
                 .compose(EditTextTransformer())
                 .subscribe { name: String -> viewModel.onGroupNameType(name) }
 
-            viewModel.showMessageId.observe(
-                viewLifecycleOwner,
-                EventObserver { message: Int ->
-                    Snackbar.make(fab, message, Snackbar.LENGTH_LONG).show()
-                })
-
             viewModel.enableSpecialtyField.observe(viewLifecycleOwner) { enable: Boolean ->
                 etSpecialty.isEnabled = enable
             }
@@ -119,13 +113,7 @@ class GroupEditorFragment :
                 textInputLayout.error = null
             }
         }
-        viewModel.showMessageId.observe(viewLifecycleOwner) { resId: Int ->
-            Toast.makeText(
-                context, resources.getString(
-                    resId
-                ), Toast.LENGTH_SHORT
-            ).show()
-        }
+
         viewModel.showSpecialties.observe(
             viewLifecycleOwner
         ) { listItems: List<ListItem> -> specialtyAdapter!!.updateList(listItems) }

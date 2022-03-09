@@ -125,12 +125,6 @@ class SubmissionAttachmentStorage @Inject constructor(
         contentDir.clearAndDelete()
     }
 
-    fun getNames(urls: List<String>): List<String> {
-        return urls.map { url ->
-            firebaseStorage.getReferenceFromUrl(url).name
-        }
-    }
-
     private fun getSubmissionReference(contentId: String, studentId: String): StorageReference {
         return submissionAttachmentsRef.child(contentId).child(studentId)
     }

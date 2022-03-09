@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.adapter
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import com.bumptech.glide.Glide
@@ -75,10 +74,10 @@ class PreferenceAdapterDelegate :
         BaseViewHolder<PreferenceContentItem, ItemIconContent2Binding>(itemIconContent2Binding) {
         override fun onBind(item: PreferenceContentItem) {
             with(binding) {
-                tvContent.text = item.title
+                tvName.text = item.title
                 Glide.with(itemView)
                     .load(item.icon)
-                    .into(ivIc)
+                    .into(ivIcon)
             }
 
             if (item.progress) {
@@ -89,18 +88,17 @@ class PreferenceAdapterDelegate :
         }
 
         fun switchImageLoading(loading: Boolean) {
-            Log.d("lol", "switchImageLoading: $loading")
             if (loading) showLoading() else showImage()
         }
 
-        fun showLoading() {
+        private fun showLoading() {
             if (itemView.isEnabled) {
                 binding.vsIc.post { binding.vsIc.displayedChild = 1 }
                 itemView.isEnabled = false
             }
         }
 
-        fun showImage() {
+        private fun showImage() {
             if (!itemView.isEnabled) {
                 binding.vsIc.post { binding.vsIc.displayedChild = 0 }
                 itemView.isEnabled = true
@@ -108,7 +106,7 @@ class PreferenceAdapterDelegate :
         }
 
         fun changeTitle(title: String) {
-            binding.tvContent.text = title
+            binding.tvName.text = title
         }
     }
 }
@@ -134,7 +132,7 @@ class PreferenceSwitchAdapterDelegate :
         BaseViewHolder<PreferenceSwitchItem, ItemContentSwitchBinding>(itemContentSwitchBinding) {
         override fun onBind(item: PreferenceSwitchItem) {
             with(binding) {
-                tvContent.text = item.title
+                tvName.text = item.title
                 sw.isChecked = item.checked
             }
         }

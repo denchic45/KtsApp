@@ -1,7 +1,7 @@
 <resources>
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
-    <string name="app_name">КТС</string>
+    <string name="app_name" translatable="false">КТС</string>
     <string name="menu_title_home">Home</string>
     <string name="menu_title_timetable">Timetable</string>
     <string name="menu_title_group">Group</string>
@@ -12,19 +12,13 @@
     <string name="gender_male">Мужской</string>
     <string name="gender_female">Женский</string>
 
-
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
     <string name="group_users">Members</string>
     <string name="group_courses">Courses</string>
     <string name="title_activity_user_editor" translatable="false">UserEditorActivity</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label" translatable="false">First Fragment</string>
-    <string name="second_fragment_label" translatable="false">Second Fragment</string>
     <string name="next" translatable="false">Next</string>
     <string name="previous" translatable="false">Previous</string>
 
-    <string name="hello_first_fragment" translatable="false">Hello first fragment</string>
-    <string name="hello_second_fragment" translatable="false">Hello second fragment. Arg: %1$s</string>
     <string name="role_student">Student</string>
     <string name="role_deputyMonitor">Deputy monitor</string>
     <string name="role_classMonitor">Monitor</string>

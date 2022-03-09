@@ -1,6 +1,5 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.kts.data.DataBase
@@ -9,6 +8,7 @@ import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Event
+import com.denchic45.kts.data.model.domain.EventsOfDay
 import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.model.firestore.DayDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -39,7 +39,6 @@ import java.util.*
 import javax.inject.Inject
 
 class EventRepository @Inject constructor(
-    context: Context,
     override val networkService: NetworkService,
     private val coroutineScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
@@ -62,34 +61,29 @@ class EventRepository @Inject constructor(
     override val specialtyDao: SpecialtyDao,
     private val userPreference: UserPreference,
     private val appPreference: AppPreference
-) : Repository(context), IGroupRepository {
+) : Repository(), IGroupRepository {
 
     private val groupsRef = firestore.collection("Groups")
     private val daysRef: Query = firestore.collectionGroup("Days")
 
-    fun findLessonsOfGroupByDate(date: LocalDate, groupId: String): Flow<List<Event>> {
+    fun findEventsOfDayByGroupIdAndDate(groupId: String, date: LocalDate): Flow<EventsOfDay> {
         addListenerRegistrationIfNotExist("$date of $groupId") {
-            getQueryOfLessonsOfGroupByDate(
-                date,
-                groupId
-            ).addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                if (error != null) {
-                    Log.w("lol", "listen:error", error)
-                    return@addSnapshotListener
-                }
-                coroutineScope.launch(dispatcher) {
-                    if (!snapshots!!.isEmpty) {
-                        saveDay2(snapshots.toObjects(DayDoc::class.java)[0])
+            getQueryOfLessonsOfGroupByDate(date, groupId)
+                .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                    coroutineScope.launch(dispatcher) {
+                        snapshots?.let {
+                            if (!snapshots.isEmpty) {
+                                saveDay2(snapshots.toObjects(DayDoc::class.java)[0])
+                            }
+                        }
                     }
                 }
-            }
         }
-
         return eventDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
-            .map { eventMapper.entityToDomain(it) }
+            .map { eventMapper.entitiesToEventsOfDay(it, date) }
     }
 
-    fun findLessonOfYourGroupByDate(date: LocalDate, groupId: String): Flow<List<Event>> {
+    fun findLessonOfYourGroupByDate(date: LocalDate, groupId: String): Flow<EventsOfDay> {
         if (date.toDateUTC() > nextSaturday || date.toDateUTC() < previousMonday) {
             addListenerRegistrationIfNotExist("$date of $groupId") {
                 getQueryOfLessonsOfGroupByDate(
@@ -111,10 +105,10 @@ class EventRepository @Inject constructor(
 
         return eventDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
             .distinctUntilChanged()
-            .map { eventMapper.entityToDomain(it) }
+            .map { eventMapper.entitiesToEventsOfDay(it, date) }
     }
 
-    fun findLessonsForTeacherByDate(date: LocalDate): Flow<List<Event>> {
+    fun findLessonsForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {
         val teacherId = userPreference.id
         addListenerRegistrationIfNotExist("$date of teacher") {
             getListenerOfLessonsOfTeacherByDate(date, teacherId)
@@ -122,7 +116,7 @@ class EventRepository @Inject constructor(
 
         return eventDao.getLessonWithHomeWorkWithSubjectByDateAndTeacherId(date, teacherId)
             .distinctUntilChanged()
-            .map { eventMapper.entityToDomain(it) }
+            .map { eventMapper.entitiesToEventsOfDay(it, date) }
     }
 
     private fun getQueryOfLessonsOfGroupByDate(date: LocalDate, groupId: String): Query {

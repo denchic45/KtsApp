@@ -91,11 +91,6 @@ class ContentFragment :
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionClick(item.itemId)
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         menu = null

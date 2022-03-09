@@ -5,7 +5,6 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
 import com.denchic45.kts.data.repository.*
-import io.reactivex.rxjava3.core.Completable
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -60,7 +59,7 @@ class FinderInteractor @Inject constructor(
     }
 
     suspend fun removeGroup(group: Group) {
-        courseRepository.removeGroup(group)
+        courseRepository.removeGroupFromCourses(group)
         groupRepository.remove(group)
     }
 }

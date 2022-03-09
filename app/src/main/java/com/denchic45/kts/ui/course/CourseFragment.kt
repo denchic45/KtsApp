@@ -6,13 +6,10 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.databinding.FragmentCourseBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
@@ -28,16 +25,16 @@ import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.delay
 
-class CourseFragment :
-    BaseFragment<CourseViewModel, FragmentCourseBinding>(R.layout.fragment_course) {
+class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
+    R.layout.fragment_course
+) {
 
     override val binding: FragmentCourseBinding by viewBinding(FragmentCourseBinding::bind)
     override val viewModel: CourseViewModel by viewModels { viewModelFactory }
     var collapsingToolbarLayout: CollapsingToolbarLayout? = null
 
-    private var mainToolbar: Toolbar? = null
+    private lateinit var mainToolbar: Toolbar
     private lateinit var toolbar: Toolbar
 
     companion object {
@@ -192,8 +189,6 @@ class CourseFragment :
                 bundleOf(CourseSectionEditorFragment.COURSE_ID to it)
             )
         }
-
-        viewModel.showMessage.observe(viewLifecycleOwner, this::toast)
     }
 
 

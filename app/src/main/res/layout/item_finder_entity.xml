@@ -8,7 +8,7 @@
     android:orientation="vertical">
 
     <ImageView
-        android:id="@+id/iv_ic"
+        android:id="@+id/iv_icon"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_centerInParent="true"
@@ -19,7 +19,7 @@
         android:id="@+id/textView_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/iv_ic"
+        android:layout_below="@id/iv_icon"
         android:layout_alignParentStart="true"
         android:textColor="@color/content_blue_highlight"
         android:layout_alignParentEnd="true"

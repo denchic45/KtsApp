@@ -35,10 +35,6 @@ class FullAvatarActivity : FullImageActivity() {
                 idAndVisibility.first
             ).isVisible = idAndVisibility.second
         }
-        viewModel.showMessage.observe(this, this::toast)
-        viewModel.showMessageRes.observe(
-            this
-        ) { s: Int? -> Toast.makeText(this, s!!, Toast.LENGTH_SHORT).show() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

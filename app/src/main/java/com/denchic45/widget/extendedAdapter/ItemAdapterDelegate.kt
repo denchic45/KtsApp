@@ -18,20 +18,20 @@ class ItemAdapterDelegate : ListItemAdapterDelegate<ListItem, ItemAdapterDelegat
         override fun onBind(item: ListItem) {
             with(binding) {
                 item.icon.fold({
-                    ivIc.setImageResource(it)
+                    ivIcon.setImageResource(it)
                 }, {
                     val iconResId = itemView.context.resources.getIdentifier(
                         it,
                         "drawable",
                         itemView.context.packageName
                     )
-                    ivIc.setImageResource(iconResId)
+                    ivIcon.setImageResource(iconResId)
                 })
-                tvContent.text = item.title
+                tvName.text = item.title
 
                 item.color.fold({
                     if (it != 0) ImageViewCompat.setImageTintList(
-                        ivIc,
+                        ivIcon,
                         ColorStateList.valueOf(it)
                     )
                 }, {

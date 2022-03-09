@@ -49,6 +49,7 @@ class GroupUsersFragment :
         super.onViewCreated(view, savedInstanceState)
         val userAdapter = UserAdapter({ position -> viewModel.onUserItemClick(position) },
             { position -> viewModel.onUserItemLongClick(position) })
+
         with(binding) {
             rvUsers.adapter = userAdapter
             viewModel.showUserOptions.observe(
@@ -76,7 +77,7 @@ class GroupUsersFragment :
             }
         }
 
-        viewModel.openChoiceOfCurator.observe(
+        viewModel.openTeacherChooser.observe(
             viewLifecycleOwner
         ) { navController.navigate(R.id.action_global_teacherChooserFragment) }
 
@@ -93,9 +94,6 @@ class GroupUsersFragment :
             val bundle = Bundle()
             bundle.putString(ProfileFragment.USER_ID, userId)
             navController.navigate(R.id.action_global_profileFragment, bundle)
-        }
-        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId ->
-            toast(requireContext().strings(resId))
         }
     }
 

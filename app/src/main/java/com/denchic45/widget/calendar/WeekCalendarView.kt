@@ -7,6 +7,10 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.denchic45.kts.R
@@ -20,6 +24,8 @@ import kotlin.math.ceil
 import kotlin.properties.Delegates
 
 class WeekCalendarView : LinearLayout {
+
+
     private val adapter = WeekPageAdapter(object : WeekCalendarListener {
         override fun onDaySelect(date: LocalDate) {
             selectDate = date
@@ -57,6 +63,17 @@ class WeekCalendarView : LinearLayout {
     constructor(context: Context) : super(context) {
         isSaveEnabled = true
         init()
+    }
+
+    fun setLifecycleOwner(lifecycle: Lifecycle) {
+        lifecycle.addObserver(object: LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    removeListeners()
+                }
+            }
+
+        })
     }
 
     override fun setEnabled(enabled: Boolean) {

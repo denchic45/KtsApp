@@ -25,43 +25,31 @@ class FinderViewModel @Inject constructor(
     private val interactor: FinderInteractor,
     private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
-    @JvmField
+
     val finderEntities = MutableLiveData<List<ListItem>>()
 
-    @JvmField
     val currentSelectedEntity = MutableLiveData(POSITION_FIND_USERS)
 
-    @JvmField
     val showFoundItems = MutableLiveData<List<DomainModel>>()
 
-    @JvmField
     val showListEmptyState = MutableLiveData<Boolean>()
 
-    @JvmField
     val openGroup = SingleLiveData<String>()
 
-    @JvmField
     val openSubject = SingleLiveData<String>()
 
-    @JvmField
     val openProfile = SingleLiveData<String>()
 
-    @JvmField
     val openUserEditor = SingleLiveData<Map<String, String>>()
 
-    @JvmField
     val openSubjectEditor = SingleLiveData<String>()
 
-    @JvmField
     val openGroupEditor = SingleLiveData<String>()
 
-    @JvmField
     val openSpecialtyEditor = SingleLiveData<String>()
 
-    @JvmField
     val openCourse = SingleLiveData<String>()
 
-    @JvmField
     val showOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
     private val queryByName = MutableSharedFlow<String>()
     private val onFinderItemClickActions: List<Consumer<String>> = listOf(
@@ -200,12 +188,12 @@ class FinderViewModel @Inject constructor(
                         )
                     )
 
-                    if (confirmInteractor.awaitConfirm()) {
+                    if (confirmInteractor.receiveConfirm()) {
                         try {
                             interactor.removeUser(selectedUser)
                         } catch (e: Exception) {
                             if (e is NetworkException) {
-                                showMessage.value = "Проверьте подключение к интернету"
+                                showToast(R.string.error_check_network)
                             }
                         }
                     }
@@ -220,13 +208,13 @@ class FinderViewModel @Inject constructor(
             "OPTION_DELETE_GROUP" to {
                 viewModelScope.launch {
                     openConfirmation(Pair("Удалить группу", "Вы точно уверены???"))
-                    if (confirmInteractor.awaitConfirm()) {
+                    if (confirmInteractor.receiveConfirm()) {
                         viewModelScope.launch {
                             try {
                                 interactor.removeGroup(selectedEntity as Group)
                             } catch (e: Exception) {
                                 if (e is NetworkException) {
-                                    showMessage.value = "Проверьте подключение к интернету"
+                                    showToast(R.string.error_check_network)
                                 }
                             }
                         }
@@ -242,13 +230,13 @@ class FinderViewModel @Inject constructor(
             "OPTION_DELETE_SUBJECT" to {
                 viewModelScope.launch {
                     openConfirmation(Pair("Удалить предмет", "Вы точно уверены???"))
-                    if (confirmInteractor.awaitConfirm()) {
+                    if (confirmInteractor.receiveConfirm()) {
                         viewModelScope.launch {
                             try {
                                 interactor.removeSubject(selectedEntity as Subject)
                             } catch (e: Exception) {
                                 if (e is NetworkException) {
-                                    showMessage.value = "Проверьте подключение к интернету"
+                                    showToast(R.string.error_check_network)
                                 }
                             }
                         }

@@ -1,6 +1,5 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -24,14 +23,13 @@ import java.util.*
 import javax.inject.Inject
 
 class SpecialtyRepository @Inject constructor(
-    context: Context,
     private val coroutineScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val specialtyDao: SpecialtyDao,
     private val firestore: FirebaseFirestore,
     private val specialtyMapper: SpecialtyMapper,
     override val networkService: NetworkService
-) : Repository(context) {
+) : Repository() {
 
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val specialtyRef: CollectionReference = firestore.collection("Specialties")
@@ -42,9 +40,7 @@ class SpecialtyRepository @Inject constructor(
             .addOnSuccessListener { value: DocumentSnapshot ->
                 coroutineScope.launch(dispatcher) {
                     specialtyDao.upsert(
-                        value.toObject(
-                            SpecialtyEntity::class.java
-                        )
+                        value.toObject(SpecialtyEntity::class.java)
                     )
                 }
             }

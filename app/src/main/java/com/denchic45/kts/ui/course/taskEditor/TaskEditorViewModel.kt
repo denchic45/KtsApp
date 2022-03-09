@@ -119,7 +119,7 @@ class TaskEditorViewModel @Inject constructor(
                     attachmentsAvailable || textAvailable
                 }
             }, "Должен быть выбран хотя бы один вариант ответа")
-        ).sendMessageResult(showMessage),
+        ).sendMessageResult(snackBar),
         Validation(
             Rule(
                 {
@@ -274,7 +274,7 @@ class TaskEditorViewModel @Inject constructor(
     fun onRemoveFileClick(position: Int) {
         openConfirmation("Убрать файл" to "подтвердите ваш выбор")
         viewModelScope.launch {
-            if (confirmInteractor.awaitConfirm()) {
+            if (confirmInteractor.receiveConfirm()) {
                 attachments.removeAt(position)
                 postAttachments()
             }

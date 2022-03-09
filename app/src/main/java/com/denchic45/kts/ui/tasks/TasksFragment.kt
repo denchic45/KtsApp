@@ -32,11 +32,6 @@ class TasksFragment :
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionClick(item.itemId)
-        return super.onOptionsItemSelected(item)
-    }
-
     class TasksFragmentAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
 
         override fun getItemCount(): Int = 3

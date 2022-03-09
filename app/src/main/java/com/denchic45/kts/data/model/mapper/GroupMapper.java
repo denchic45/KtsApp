@@ -19,15 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 @Mapper(uses = {UserMapper.class, SpecialtyMapper.class})
-public interface GroupMapper extends
-
-        DomainDocMapper<Group, GroupDoc>,
-        DocEntityMapper<GroupDoc, GroupEntity> {
+public interface GroupMapper extends DocEntityMapper<GroupDoc, GroupEntity> {
 
     @Mapping(target = "searchKeys", ignore = true)
     @Mapping(target = "allUsers", ignore = true)
     @Mapping(target = "students", ignore = true)
-    @Override
     GroupDoc domainToDoc(Group domain);
 
     @DoIgnore
@@ -55,37 +51,17 @@ public interface GroupMapper extends
         return map;
     }
 
-    @Override
-    Group docToDomain(GroupDoc doc);
-
     @Mapping(source = "specialty.id", target = "specialtyId")
     CourseGroup docToCourseGroupDomain(GroupDoc groupDoc);
 
     List<CourseGroup> docToCourseGroupDomain(List<GroupDoc> groupDocs);
-
-    CourseGroup entityToCourseGroupDomain(GroupEntity groupEntity);
-
-    @Mapping(source = "groupEntity.id", target = "id")
-    @Mapping(source = "groupEntity.name", target = "name")
-    @Mapping(source = "specialtyEntity.id", target = "specialtyId")
-    CourseGroup entityToCourseGroup(GroupWithCuratorAndSpecialtyEntity groupWithCuratorAndSpecialtyEntity);
-
-//    CourseGroup entityToCourseGroupDomain(GroupWithCuratorAndSpecialtyEntity groupWithCuratorAndSpecialtyEntity);
 
     @Mapping(source = "curator.id", target = "curatorId")
     @Mapping(source = "specialty.id", target = "specialtyId")
     @Override
     GroupEntity docToEntity(GroupDoc doc);
 
-    @AfterMapping
-    default void addSearchKeys(@MappingTarget @NotNull GroupDoc groupDoc) {
-        SearchKeysGenerator generator = new SearchKeysGenerator();
-        groupDoc.setSearchKeys(generator.generateKeys(groupDoc.getName(), predicate -> predicate.length() > 1));
-    }
-
-
     @Mapping(target = "searchKeys", ignore = true)
-//    @Mapping(target = "courses", ignore = true)
     @Mapping(target = "allUsers", ignore = true)
     @Override
     GroupDoc entityToDoc(GroupEntity entity);

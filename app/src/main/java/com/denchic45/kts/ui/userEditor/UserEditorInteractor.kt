@@ -14,7 +14,6 @@ import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
 import com.denchic45.kts.data.repository.*
 import com.denchic45.kts.utils.NetworkException
-import io.reactivex.rxjava3.core.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -48,7 +47,7 @@ class UserEditorInteractor @Inject constructor(
             if (!networkService.isNetworkAvailable) {
                 emit(Resource.Error(NetworkException()))
             }
-            val photoUrl = createAvatarLoadObservable(user)
+            val photoUrl = createAvatar(user)
             val updatedUser = user.copy(photoUrl = photoUrl)
             emit(Resource.Next(updatedUser, "LOAD_AVATAR"))
             when {
@@ -64,7 +63,7 @@ class UserEditorInteractor @Inject constructor(
         if (!networkService.isNetworkAvailable) {
             emit(Resource.Error(NetworkException()))
         } else {
-            val photoUrl = createAvatarLoadObservable(user)
+            val photoUrl = createAvatar(user)
             val updatedUser = user.copy(photoUrl = photoUrl)
             emit(Resource.Next(updatedUser, "LOAD_AVATAR"))
             when {
@@ -77,7 +76,7 @@ class UserEditorInteractor @Inject constructor(
         }
     }
 
-    private suspend fun createAvatarLoadObservable(user: User): String {
+    private suspend fun createAvatar(user: User): String {
         val photoUrl: String = if (user.generatedAvatar) {
             val avatarBytes = avatarGenerator.name(user.firstName)
                 .initFrom(AvatarBuilderTemplate())
@@ -97,8 +96,8 @@ class UserEditorInteractor @Inject constructor(
         return teacherRepository.remove(teacher)
     }
 
-    fun getUserById(userId: String): LiveData<User> {
-        return userRepository.getById(userId)
+    fun observeUserById(userId: String): Flow<User?> {
+        return userRepository.observeById(userId)
     }
 
     override fun removeListeners() {

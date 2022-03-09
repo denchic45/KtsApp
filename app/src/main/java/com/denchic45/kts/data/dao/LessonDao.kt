@@ -4,13 +4,11 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.TypeConverters
-import com.denchic45.kts.data.model.room.DateConverter
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.data.model.room.EventWithSubjectAndTeachersEntities
 import com.denchic45.kts.data.model.room.LocalDateConverter
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.util.*
 
 @Dao
 abstract class LessonDao : BaseDao<EventEntity>() {

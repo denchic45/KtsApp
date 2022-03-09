@@ -8,7 +8,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.adapter.ItemAdapter
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorInteractor
+import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
@@ -23,27 +23,21 @@ import javax.inject.Named
 
 class GroupUsersViewModel @Inject constructor(
     private val interactor: GroupUsersInteractor,
+    private val teacherChooserInteractor: TeacherChooserInteractor,
     @Named("options_user") private val userOptions: List<ListItem>
 ) : BaseViewModel() {
-    @JvmField
     val showUserOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
 
-    @JvmField
     val openProfile = SingleLiveData<String>()
 
-    @JvmField
     val openUserEditor = SingleLiveData<Map<String, String>>()
 
-    @JvmField
-    val openChoiceOfCurator = SingleLiveData<Void>()
+    val openTeacherChooser = SingleLiveData<Void>()
 
     private val uiPermissions: UiPermissions = UiPermissions(interactor.findThisUser())
 
     lateinit var users: StateFlow<List<DomainModel?>>
 
-    @JvmField
-    @Inject
-    var choiceOfCuratorInteractor: ChoiceOfCuratorInteractor? = null
     private var groupId: String = ""
     private lateinit var selectedUser: User
     private var students: List<User> = emptyList()
@@ -99,19 +93,19 @@ class GroupUsersViewModel @Inject constructor(
                     interactor.removeStudent(selectedUser)
                 } catch (e: Exception) {
                     if (e is NetworkException) {
-                        showMessageRes.value = R.string.error_check_network
+                      showToast(R.string.error_check_network)
                     }
                 }
             }
             OPTION_CHANGE_CURATOR -> {
                 viewModelScope.launch {
-                    openChoiceOfCurator.call()
-                    choiceOfCuratorInteractor!!.awaitSelectTeacher().apply {
+                    openTeacherChooser.call()
+                    teacherChooserInteractor.receiveSelectTeacher().apply {
                         try {
                             interactor.updateGroupCurator(this@GroupUsersViewModel.groupId, this)
                         } catch (e: Exception) {
                             if (e is NetworkException) {
-                                showMessageRes.value = R.string.error_check_network
+                                showToast(R.string.error_check_network)
                             }
                         }
                     }

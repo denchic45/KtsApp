@@ -1,9 +1,6 @@
 package com.denchic45.kts.data.repository
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
@@ -15,15 +12,10 @@ import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.SearchKeysGenerator
-import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.CompletableEmitter
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.ObservableEmitter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
@@ -36,7 +28,6 @@ import java.util.*
 import javax.inject.Inject
 
 open class UserRepository @Inject constructor(
-    context: Context,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
     private val userPreference: UserPreference,
@@ -45,7 +36,7 @@ open class UserRepository @Inject constructor(
     private val userDao: UserDao,
     private val userMapper: UserMapper,
     firestore: FirebaseFirestore
-) : Repository(context) {
+) : Repository() {
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarStorage: StorageReference = storage.reference.child("avatars")
@@ -94,44 +85,39 @@ open class UserRepository @Inject constructor(
         return reference.downloadUrl.await().toString()
     }
 
-    fun add(user: User): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            val userDoc = userMapper.domainToDoc(user)
-            val generator = SearchKeysGenerator()
-            userDoc.searchKeys =
-                generator.generateKeys(user.fullName) { predicate: String -> predicate.length > 2 }
-            usersRef.document(user.id).set(userDoc)
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener(emitter::onError)
-        }
+    suspend fun add(user: User) {
+        checkInternetConnection()
+        val userDoc = userMapper.domainToDoc(user)
+        val generator = SearchKeysGenerator()
+        userDoc.searchKeys =
+            generator.generateKeys(user.fullName) { predicate: String -> predicate.length > 2 }
+        usersRef.document(user.id).set(userDoc)
+            .await()
     }
 
-    fun update(user: UserEntity, searchKeys: List<String>): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            userDao.update(user)
-            val userDoc = userMapper.entityToDoc(user)
-            userDoc.searchKeys = searchKeys
-            usersRef.document(user.id).set(userDoc)
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener(emitter::onError)
-        }
+    suspend fun update(user: UserEntity, searchKeys: List<String>) {
+        checkInternetConnection()
+        userDao.update(user)
+        val userDoc = userMapper.entityToDoc(user)
+        userDoc.searchKeys = searchKeys
+        usersRef.document(user.id).set(userDoc)
+            .await()
+
     }
 
-    open fun remove(user: User): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            deleteAvatar(user.id)
-            usersRef.document(user.id)
-                .delete()
-                .addOnSuccessListener { aVoid: Void -> emitter.onComplete() }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
-        }
+    open suspend fun remove(user: User) {
+        checkInternetConnection()
+        deleteAvatar(user.id)
+        usersRef.document(user.id)
+            .delete()
+            .await()
+
     }
 
-    private fun deleteAvatar(userId: String) {
+    private suspend fun deleteAvatar(userId: String) {
         val reference = avatarStorage.child(userId)
         reference.delete()
-            .addOnSuccessListener { Log.d("lol", "onSuccess: ") }
-            .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: ", e) }
+            .await()
     }
 
     fun getByTypedName(name: String): Flow<List<User>> = callbackFlow {
@@ -155,48 +141,36 @@ open class UserRepository @Inject constructor(
         awaitClose { }
     }
 
-    fun findByPhoneNum(phoneNum: String?): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            if (!networkService.isNetworkAvailable) {
-                emitter.onError(FirebaseNetworkException("Отсутствует интернет-соедlинение"))
-            }
-            usersRef.whereEqualTo("phoneNum", phoneNum)
-                .get()
-                .addOnSuccessListener { snapshots: QuerySnapshot ->
-                    if (snapshots.isEmpty) {
-                        emitter.onError(Exception("Не верный номер"))
-                        return@addOnSuccessListener
-                    }
-                    val user = snapshots.documents[0].toObject(
-                        User::class.java
-                    )
-                    loadUserPreference(user!!)
-                    emitter.onComplete()
+    suspend fun findAndSaveByPhoneNum(phoneNum: String) {
+        checkInternetConnection()
+        usersRef.whereEqualTo("phoneNum", phoneNum)
+            .get()
+            .await().apply {
+                if (isEmpty) {
+                    throw Exception("Не верный номер")
                 }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
-        }
+                val user = documents[0].toObject(
+                    User::class.java
+                )
+                loadUserPreference(user!!)
+            }
     }
 
-    fun findByEmail(email: String?): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            usersRef.whereEqualTo("email", email)
-                .get()
-                .addOnSuccessListener { snapshots: QuerySnapshot ->
-                    if (snapshots.isEmpty) {
-                        emitter.onError(
-                            FirebaseAuthException(
-                                "ERROR_USER_NOT_FOUND",
-                                "Nothing user!"
-                            )
-                        )
-                        return@addOnSuccessListener
-                    }
-                    val user = snapshots.documents[0].toObject(User::class.java)!!
-                    loadUserPreference(user)
-                    emitter.onComplete()
+    suspend fun findAndSaveByEmail(email: String) {
+        checkInternetConnection()
+        usersRef.whereEqualTo("email", email)
+            .get()
+            .await().apply {
+                if (isEmpty) {
+                    throw  FirebaseAuthException(
+                        "ERROR_USER_NOT_FOUND",
+                        "Nothing user!"
+                    )
                 }
-                .addOnFailureListener(emitter::onError)
-        }
+                val user = documents[0].toObject(User::class.java)!!
+                loadUserPreference(user)
+            }
+
     }
 
     val thisUserObserver: Flow<User?> = callbackFlow {
@@ -222,45 +196,38 @@ open class UserRepository @Inject constructor(
         awaitClose { }
     }
 
-    fun findById(userId: String): Observable<User> {
-        return Observable.create { emitter: ObservableEmitter<User> ->
-            if (!userDao.isExistByIdAndGroupId(userId, groupPreference.groupId)) {
-                usersRef.document(userId)
-                    .addSnapshotListener { value: DocumentSnapshot?, error: FirebaseFirestoreException? ->
-                        if (error != null) {
-                            emitter.onError(error)
-                            return@addSnapshotListener
-                        }
-                        coroutineScope.launch(dispatcher) {
-                            userDao.upsert(userMapper.docToEntity(value!!.toObject(UserDoc::class.java)!!))
+    fun observeById(userId: String): Flow<User?> {
+        if (!userDao.isExist(userId)) {
+            usersRef.document(userId)
+                .addSnapshotListener { value: DocumentSnapshot?, error: FirebaseFirestoreException? ->
+                    coroutineScope.launch(dispatcher) {
+                        value?.let {
+                            userDao.upsert(userMapper.docToEntity(value.toObject(UserDoc::class.java)!!))
                         }
                     }
-            }
-            addListenerDisposable("USER_BY_ID") {
-                userDao.getRx(userId)
-                    .map { entity: UserEntity -> userMapper.entityToDomain(entity) }
-                    .subscribe { value: User -> emitter.onNext(value) }
-            }
+                }
         }
+        return userDao.get(userId)
+            .map { entity: UserEntity? -> entity?.let { userMapper.entityToDomain(entity) } }
     }
 
-    fun getById(id: String): LiveData<User> {
-        if (userDao.get(id) == null) {
-            addListenerRegistration("byId") {
-                usersRef.whereEqualTo("id", id)
-                    .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                        if (error != null) {
-                            Log.d("lol", "error: ", error)
-                            return@addSnapshotListener
-                        }
-                        coroutineScope.launch(dispatcher) {
-                            userDao.upsert(snapshot!!.documents[0].toObject(UserEntity::class.java)!!)
-                        }
-                    }
-            }
-        }
-        return Transformations.map(userDao.get(id)!!) { entity: UserEntity ->
-            userMapper.entityToDomain(entity)
-        }
-    }
+//    fun getById(id: String): LiveData<User> {
+//        if (userDao.get(id) == null) {
+//            addListenerRegistration("byId") {
+//                usersRef.whereEqualTo("id", id)
+//                    .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
+//                        if (error != null) {
+//                            Log.d("lol", "error: ", error)
+//                            return@addSnapshotListener
+//                        }
+//                        coroutineScope.launch(dispatcher) {
+//                            userDao.upsert(snapshot!!.documents[0].toObject(UserEntity::class.java)!!)
+//                        }
+//                    }
+//            }
+//        }
+//        return Transformations.map(userDao.get(id)) { entity: UserEntity ->
+//            userMapper.entityToDomain(entity)
+//        }
+//    }
 }

@@ -20,13 +20,7 @@ import javax.inject.Singleton
         DispatcherModule::class,
         FragmentModule::class,
         ActivityModule::class,
-        AndroidInjectionModule::class,
-        ChoiceOfGroupSubjectModule::class,
-        ChoiceOfCuratorModule::class,
-        TimetableEditorModule::class,
-        ChoiceOfGroupModule::class,
-        IconPickerModule::class,
-        EventEditorModule::class
+        AndroidInjectionModule::class
     ]
 )
 interface AppComponent : AndroidInjector<App> {

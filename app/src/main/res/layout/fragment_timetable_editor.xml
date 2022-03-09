@@ -13,13 +13,13 @@
         android:orientation="vertical">
 
         <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tl_timetable_editor"
+            android:id="@+id/tl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tabGravity="fill" />
 
         <androidx.viewpager.widget.ViewPager
-            android:id="@+id/vp_timetable_editor"
+            android:id="@+id/vp"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>

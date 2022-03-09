@@ -1,12 +1,10 @@
 package com.denchic45.kts.ui.subjectEditor
 
-import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
@@ -15,50 +13,65 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.databinding.FragmentSubjectEditorBinding
+import com.denchic45.kts.databinding.DialogSubjectEditorBinding
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseDialogFragment
 import com.denchic45.kts.ui.adapter.ColorPickerAdapter
-import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.ViewUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.android.support.AndroidSupportInjection
 
-class SubjectEditorDialog :
-    BaseDialogFragment<SubjectEditorViewModel, FragmentSubjectEditorBinding>() {
+class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSubjectEditorBinding>(
+    R.layout.dialog_subject_editor
+) {
 
-    override val binding: FragmentSubjectEditorBinding by viewBinding(FragmentSubjectEditorBinding::bind)
+    override val binding: DialogSubjectEditorBinding by viewBinding(DialogSubjectEditorBinding::bind)
     override val viewModel: SubjectEditorViewModel by viewModels { viewModelFactory }
-    private lateinit var alertDialog: AlertDialog
     private lateinit var adapter: ColorPickerAdapter
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog =
-            MaterialAlertDialogBuilder(requireActivity(), R.style.MaterialAlertDialog_Rounded)
-                .setView(binding.root)
-                .setTitle("Редактор предметов")
-                .setPositiveButton("Ок", null)
-                .setNegativeButton("Отмена", null)
-                .setNeutralButton("Удалить", null)
-        alertDialog = dialog.create()
-        alertDialog.window!!.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+
+    override fun onBuildDialog(dialog: MaterialAlertDialogBuilder, savedInstanceState: Bundle?) {
+        dialog.setTitle("Редактор предметов")
+            .setPositiveButton("Ок", null)
+            .setNegativeButton("Отмена", null)
+            .setNeutralButton("Удалить", null)
+    }
+
+//    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+//        val dialog =
+//            MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+//                .setView(view)
+//                .setTitle("Редактор предметов")
+//                .setPositiveButton("Ок", null)
+//                .setNegativeButton("Отмена", null)
+//                .setNeutralButton("Удалить", null)
+//        alertDialog = dialog.create()
+//        alertDialog.window!!.setLayout(
+//            ViewGroup.LayoutParams.MATCH_PARENT,
+//            ViewGroup.LayoutParams.WRAP_CONTENT
+//        )
+//        alertDialog.setOnShowListener {
+//            val btnDelete = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+//            val btnPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+//            btnDelete.setTextColor(Color.RED)
+//            btnDelete.setOnClickListener { viewModel.onDeleteClick() }
+//            btnPositive.setOnClickListener { viewModel.onPositiveClick() }
+//        }
+//        return alertDialog
+//    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         alertDialog.setOnShowListener {
             val btnDelete = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL)
             val btnPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
             btnDelete.setTextColor(Color.RED)
-            btnDelete.setOnClickListener { v: View? -> viewModel.onDeleteClick() }
-            btnPositive.setOnClickListener { v: View? -> viewModel.onPositiveClick() }
+            btnDelete.setOnClickListener { viewModel.onDeleteClick() }
+            btnPositive.setOnClickListener { viewModel.onPositiveClick() }
         }
-        return alertDialog
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         with(binding) {
             viewModel.showColors.observe(
                 viewLifecycleOwner
@@ -93,7 +106,10 @@ class SubjectEditorDialog :
             }
             viewModel.nameField.observe(
                 viewLifecycleOwner
-            ) { name: String -> etSubjectName.setText(name) }
+            ) { name: String ->
+                if (!etSubjectName.text.contentEquals(name))
+                    etSubjectName.setText(name)
+            }
             viewModel.icon.observe(viewLifecycleOwner) { iconUrl: String? ->
                 GlideApp.with(
                     requireActivity()
@@ -107,12 +123,12 @@ class SubjectEditorDialog :
             viewModel.colorIcon.observe(viewLifecycleOwner) { color: Int ->
                 ivSubjectIc.post { ViewUtils.paintImageView(ivSubjectIc, color, context) }
             }
-            viewModel.showMessage.observe(viewLifecycleOwner) { message: String ->
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-            }
+
             etSubjectName.textChanges()
+                .skipInitialValue()
                 .compose(EditTextTransformer())
                 .subscribe { name: String -> viewModel.onNameType(name) }
+
             ivSubjectIc.setOnClickListener { viewModel.onIconClick() }
         }
     }

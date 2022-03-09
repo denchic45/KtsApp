@@ -1,14 +1,11 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.asFlow
 import androidx.room.withTransaction
-import com.denchic45.kts.data.DataBase
-import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Repository
+import com.denchic45.kts.data.*
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
@@ -37,11 +34,10 @@ import java.util.*
 import javax.inject.Inject
 
 class CourseRepository @Inject constructor(
-    context: Context,
     override val userMapper: UserMapper,
-    private val externalScope: CoroutineScope,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
-    private val courseMapper: CourseMapper,
+    override val externalScope: CoroutineScope,
+    @IoDispatcher override val dispatcher: CoroutineDispatcher,
+    override val courseMapper: CourseMapper,
     override val specialtyMapper: SpecialtyMapper,
     override val groupMapper: GroupMapper,
     private val submissionMapper: SubmissionMapper,
@@ -51,7 +47,7 @@ class CourseRepository @Inject constructor(
     override val networkService: NetworkService,
     private val contentAttachmentStorage: ContentAttachmentStorage,
     private val submissionAttachmentStorage: SubmissionAttachmentStorage,
-    private val firestore: FirebaseFirestore,
+    override val firestore: FirebaseFirestore,
     override val dataBase: DataBase,
     private val userPreference: UserPreference,
     private val timestampPreference: TimestampPreference,
@@ -69,9 +65,9 @@ class CourseRepository @Inject constructor(
     private val groupCourseDao: GroupCourseDao,
     private val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
-) : Repository(context), IGroupRepository {
+) : Repository(), IGroupRepository, RemoveCourseOperation {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
-    private val coursesRef: CollectionReference = firestore.collection("Courses")
+    override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
 
     fun find(courseId: String): Flow<Course> {
@@ -88,14 +84,16 @@ class CourseRepository @Inject constructor(
                         val courseDoc = it.toObject(CourseDoc::class.java)!!
 
                         dataBase.withTransaction {
-                            val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
-                                .get()
-                                .await()
-                            if (timestampsNotNull(querySnapshot))
-                                saveGroupsOfTeacher(
-                                    querySnapshot.toObjects(GroupDoc::class.java),
-                                    userPreference.id
-                                )
+                            if (courseDoc.groupIds.isNotEmpty()) {
+                                val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
+                                    .get()
+                                    .await()
+                                if (timestampsNotNull(querySnapshot))
+                                    saveGroupsOfTeacher(
+                                        querySnapshot.toObjects(GroupDoc::class.java),
+                                        userPreference.id
+                                    )
+                            }
                             saveCourses(listOf(courseDoc))
                         }
                     }
@@ -326,13 +324,6 @@ class CourseRepository @Inject constructor(
         }
     }
 
-    suspend fun remove(course: Course) {
-        checkInternetConnection()
-        val batch = firestore.batch()
-        val courseDoc = courseMapper.domainToDoc(course)
-        batch.delete(coursesRef.document(courseDoc.id))
-        externalScope.launch(dispatcher) { batch.commit().await() }
-    }
 
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
 
@@ -351,8 +342,10 @@ class CourseRepository @Inject constructor(
         awaitClose { }
     }
 
-    suspend fun removeGroup(group: Group) {
-        val courseDocs = coursesRef.whereArrayContains("groupIds", group.id)
+
+    suspend fun removeGroupFromCourses(group: Group) {
+        checkInternetConnection()
+        val courseDocs = coursesByGroupIdQuery(group.id)
             .get()
             .await()
             .toObjects(CourseDoc::class.java)
@@ -387,6 +380,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun addTask(task: Task) {
+        checkInternetConnection()
         val attachments = contentAttachmentStorage.addContentAttachments(task.id, task.attachments)
         val order = getLastContentOrderByCourseIdAndSectionId(task.courseId, task.sectionId) + 1024
         coursesRef.document(task.courseId)
@@ -430,6 +424,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateTask(task: Task) {
+        checkInternetConnection()
         val attachments = contentAttachmentStorage.update(task.id, task.attachments)
         val cacheTask = courseContentMapper.entityToTaskDoc(courseContentDao.getSync(task.id))
         val updatedFields =
@@ -447,6 +442,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun removeCourseContent(taskId: String) {
+        checkInternetConnection()
         contentAttachmentStorage.deleteFilesByContentId(taskId)
         submissionAttachmentStorage.deleteFilesByContentId(taskId)
         getContentDocument(taskId)
@@ -496,6 +492,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateSubmissionFromStudent(submission: Task.Submission) {
+        checkInternetConnection()
         val studentId = submission.student.id
         val contentId = submission.contentId
 
@@ -540,6 +537,7 @@ class CourseRepository @Inject constructor(
         grade: Int,
         teacherId: String = userPreference.id
     ) {
+        checkInternetConnection()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
@@ -561,6 +559,7 @@ class CourseRepository @Inject constructor(
         cause: String,
         teacherId: String = userPreference.id
     ) {
+        checkInternetConnection()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
@@ -612,18 +611,21 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateCourseSections(sections: List<Section>) {
+        checkInternetConnection()
         coursesRef.document(sections[0].courseId)
             .update("sections", sections)
             .await()
     }
 
     suspend fun addSection(section: Section) {
+        checkInternetConnection()
         coursesRef.document(section.courseId)
             .update("sections", FieldValue.arrayUnion(section))
             .await()
     }
 
     suspend fun removeSection(section: Section) {
+        checkInternetConnection()
         val courseRef = coursesRef.document(section.courseId)
 
         val contentsWithThisSection = courseRef.collection("Contents")
@@ -645,6 +647,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateContentOrder(contentId: String, order: Long) {
+        checkInternetConnection()
         getContentDocument(contentId)
             .update(
                 mapOf(
@@ -656,98 +659,95 @@ class CourseRepository @Inject constructor(
     }
 
     fun findUpcomingTasksForYourGroup(): Flow<List<Task>> {
-        return flow {
-            courseDao.getCourseIdsByGroupId(groupPreference.groupId)
-                .map { it.chunked(10) }
-                .collect { courseIdsLists ->
-                    courseIdsLists.forEach { courseIds ->
-                        val contentsQuerySnapshot =
-                            contentsRef
-//                                .whereIn("courseId", courseIds)
-                                .whereGreaterThanOrEqualTo(
-                                    "completionDate",
-                                    Date()
-                                )
-                                .whereArrayContains(
-                                    "notSubmittedByStudentIds",
-                                    userPreference.id
-                                )
-                                .limit(10)
-                                .get()
-                                .await()
+        contentsRef.whereGreaterThanOrEqualTo(
+            "completionDate",
+            Date()
+        )
+            .whereArrayContains(
+                "notSubmittedByStudentIds",
+                userPreference.id
+            )
+            .limit(10)
+            .addSnapshotListener { value, error ->
+                externalScope.launch {
+                    value?.let {
                         saveCourseContentsLocal(
-                            courseContentMapper.docToEntity(contentsQuerySnapshot)
+                            courseContentMapper.docToEntity(it)
                         )
                     }
-
-                    emitAll(courseContentDao.getByGroupIdAndGreaterCompletionDate(
-                        groupPreference.groupId
-                    ).map { courseContentMapper.entityToDomainAssignment(it) })
                 }
-        }
+
+            }
+        return courseContentDao.getByGroupIdAndGreaterCompletionDate(
+            groupPreference.groupId
+        ).map { courseContentMapper.entityToDomainAssignment(it) }
     }
 
     fun findOverdueTasksForYourGroup(): Flow<List<Task>> {
         return flow {
-            courseDao.getCourseIdsByGroupId(groupPreference.groupId)
-                .map { it.chunked(10) }
-                .collect { courseIdsLists ->
-                    courseIdsLists.forEach { courseIds ->
-                        val contentsQuerySnapshot =
-                            contentsRef
-//                                .whereIn("courseId", courseIds)
-                                .whereLessThanOrEqualTo(
-                                    "completionDate",
-                                    Date()
-                                )
-                                .whereArrayContains(
-                                    "notSubmittedByStudentIds",
-                                    userPreference.id
-                                )
-                                .limit(10)
-                                .get()
-                                .await()
-                        saveCourseContentsLocal(
-                            courseContentMapper.docToEntity(contentsQuerySnapshot)
-                        )
-                    }
-
-                    emitAll(courseContentDao.getByGroupIdAndNotSubmittedUser(
-                        groupPreference.groupId,
+            val contentsQuerySnapshot =
+                contentsRef
+                    .whereLessThanOrEqualTo(
+                        "completionDate",
+                        Date()
+                    )
+                    .whereArrayContains(
+                        "notSubmittedByStudentIds",
                         userPreference.id
-                    ).map { courseContentMapper.entityToDomainAssignment(it) })
-                }
+                    )
+                    .limit(10)
+                    .get()
+                    .await()
+            saveCourseContentsLocal(
+                courseContentMapper.docToEntity(contentsQuerySnapshot)
+            )
+
+            emitAll(courseContentDao.getByGroupIdAndNotSubmittedUser(
+                groupPreference.groupId,
+                userPreference.id
+            ).map { courseContentMapper.entityToDomainAssignment(it) })
         }
     }
 
     fun findCompletedTasksForYourGroup(): Flow<List<Task>> {
         return flow {
-            courseDao.getCourseIdsByGroupId(groupPreference.groupId)
-                .map { it.chunked(10) }
-                .collect { courseIdsLists ->
-                    courseIdsLists.forEach { courseIds ->
-                        val contentsQuerySnapshot =
-                            contentsRef
-//                                .whereIn("courseId", courseIds)
-                                .whereArrayContains(
-                                    "submittedByStudentIds",
-                                    userPreference.id
-                                )
-                                .limit(10)
-                                .get()
-                                .await()
-                        saveCourseContentsLocal(
-                            courseContentMapper.docToEntity(contentsQuerySnapshot)
-                        )
-                    }
-
-                    emitAll(courseContentDao.getByGroupIdAndSubmittedUser(
-                        groupPreference.groupId,
-                        userPreference.id
-                    ).map { courseContentMapper.entityToDomainAssignment(it) })
+            contentsRef
+                .whereArrayContains(
+                    "submittedByStudentIds",
+                    userPreference.id
+                )
+                .limit(10)
+                .get()
+                .await().apply {
+                    saveCourseContentsLocal(
+                        courseContentMapper.docToEntity(this)
+                    )
                 }
+            emitAll(courseContentDao.getByGroupIdAndSubmittedUser(
+                groupPreference.groupId,
+                userPreference.id
+            ).map { courseContentMapper.entityToDomainAssignment(it) })
+
         }
     }
 }
 
+
 class SameCoursesException : Exception()
+
+interface RemoveCourseOperation : CheckNetworkConnection, FirestoreOperations {
+
+    val firestore: FirebaseFirestore
+    val courseMapper: CourseMapper
+    val coursesRef: CollectionReference
+    val externalScope: CoroutineScope
+    val dispatcher: CoroutineDispatcher
+
+    suspend fun removeCourse(courseId: String) {
+        checkInternetConnection()
+        val batch = firestore.batch()
+        batch.delete(coursesRef.document(courseId))
+        deleteCollection(coursesRef.document(courseId).collection("Contents"), 10)
+        externalScope.launch(dispatcher) { batch.commit().await() }
+    }
+}

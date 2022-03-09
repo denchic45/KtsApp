@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.adapter
 
-import android.view.ViewParent
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 

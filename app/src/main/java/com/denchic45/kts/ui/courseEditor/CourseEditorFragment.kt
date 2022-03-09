@@ -10,7 +10,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
-import android.widget.Toast
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -34,7 +33,6 @@ import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding4.widget.textChanges
 import io.reactivex.rxjava3.internal.util.AppendOnlyLinkedArrayList.NonThrowingPredicate
 
@@ -76,11 +74,6 @@ class CourseEditorFragment :
         this.menu = menu
         inflater.inflate(R.menu.options_course_editor, menu)
         viewModel.onCreateOptions()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionClick(item.itemId)
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -198,13 +191,7 @@ class CourseEditorFragment :
                 }
                 popupWindow!!.show()
             }
-            viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int? ->
-                Toast.makeText(
-                    context, getString(
-                        resId!!
-                    ), Toast.LENGTH_SHORT
-                ).show()
-            }
+
             viewModel.showFoundSubjects.observe(viewLifecycleOwner) { items: List<ListItem> ->
                 popupWindow!!.anchorView = etSubjectName
                 popupWindow!!.setAdapter(ListPopupWindowAdapter(requireContext(), items))
@@ -221,10 +208,6 @@ class CourseEditorFragment :
 
             viewModel.optionVisibility.observe(viewLifecycleOwner) { (id, visibility) ->
                 menu.findItem(id)?.isVisible = visibility
-            }
-
-            viewModel.showMessage.observe(viewLifecycleOwner) {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
             }
 
             etSubjectName.textChanges()
@@ -254,7 +237,7 @@ class CourseGroupsAdapterDelegate :
         BaseViewHolder<ListItem, ItemGroupInCourseBinding>(itemGroupInCourseBinding) {
         override fun onBind(item: ListItem) {
             with(binding) {
-                tvContent.text = item.title
+                tvName.text = item.title
             }
         }
     }

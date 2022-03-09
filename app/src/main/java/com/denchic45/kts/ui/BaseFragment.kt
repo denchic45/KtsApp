@@ -16,8 +16,12 @@ import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmDialog
+import com.denchic45.kts.utils.collectWhenResumed
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.kts.utils.toast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
@@ -30,7 +34,7 @@ interface HasViewModel<VM : BaseViewModel> {
     val viewModel: VM
 }
 
-abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int = 0) :
+abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int) :
     Fragment(layoutId), HasViewModel<VM> {
 
     @Inject
@@ -43,17 +47,42 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         lifecycleScope.launchWhenStarted {
-            viewModel.showToast.collect(this@BaseFragment::toast)
+            viewModel.toast.collect(this@BaseFragment::toast)
         }
         collectOnShowToolbarTitle()
-        lifecycleScope.launchWhenStarted {
-            viewModel.finish.collect {
+            viewModel.finish.collectWhenStarted(lifecycleScope) {
                 findNavController().navigateUp()
             }
+
+        viewModel.toast.collectWhenStarted(lifecycleScope, this::toast)
+
+        viewModel.toastRes.collectWhenStarted(lifecycleScope, this::toast)
+
+        viewModel.snackBar.collectWhenStarted(lifecycleScope) {
+            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
         }
 
-        lifecycleScope.launchWhenStarted {
-            viewModel.openConfirmation.collect { (title, message) ->
+        viewModel.snackBarRes.collectWhenStarted(lifecycleScope) {
+            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        }
+
+        viewModel.dialog.collectWhenStarted(lifecycleScope) { (title, message) ->
+            MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+                .setTitle(title)
+                .setMessage(message)
+                .create()
+                .show()
+        }
+
+        viewModel.dialogRes.collectWhenStarted(lifecycleScope) { (titleRes, messageRes) ->
+            MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
+                .setTitle(titleRes)
+                .setMessage(messageRes)
+                .create()
+                .show()
+        }
+
+        viewModel.openConfirmation.collectWhenStarted(lifecycleScope) { (title, message) ->
                 findNavController().navigate(
                     R.id.action_global_confirmDialog,
                     bundleOf(
@@ -62,18 +91,14 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int 
                     )
                 )
             }
-        }
     }
 
     open fun collectOnShowToolbarTitle() {
-        lifecycleScope.launchWhenResumed {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                viewModel.showToolbarTitle.collect {
+                viewModel.showToolbarTitle.collectWhenResumed(lifecycleScope) {
                     setActivityTitle(it)
                 }
-            }
+
         }
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.onOptionClick(item.itemId)

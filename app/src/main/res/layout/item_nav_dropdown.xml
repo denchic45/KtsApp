@@ -14,14 +14,14 @@
         android:gravity="center">
 
         <androidx.constraintlayout.utils.widget.ImageFilterView
-            android:id="@+id/iv_ic"
+            android:id="@+id/iv_icon"
             android:layout_width="26dp"
             android:layout_height="26dp"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_down" />
     </LinearLayout>
 
     <TextView
-        android:id="@+id/tv_content"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="6dp"

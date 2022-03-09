@@ -11,7 +11,6 @@ class ReplaceItemsAction(
 ) : Action {
     lateinit var oldItems: List<Any>
     override fun execute() {
-        Log.d("lol", "execute: $items $position")
         oldItems = currentList.slice(position until position+items.size)
         repeat(oldItems.size) {
             currentList.removeAt(position)
@@ -22,7 +21,6 @@ class ReplaceItemsAction(
     }
 
     override fun undo() {
-        Log.d("lol", "undo: $items $position")
         val newItems = currentList.subList(position, position + items.size)
         repeat(oldItems.size) {
             currentList.removeAt(position)

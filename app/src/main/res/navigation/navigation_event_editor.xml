@@ -3,14 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_event_detail_editor"
-    app:startDestination="@id/lessonEditorFragment">
+    app:startDestination="@id/eventEditorFragment">
+
     <fragment
         android:id="@+id/teacherChooserFragment"
         android:name="com.denchic45.kts.ui.teacherChooser.TeacherChooserFragment"
         android:label="fragment_teacher_chooser"
         tools:layout="@layout/fragment_chooser" />
     <fragment
-        android:id="@+id/lessonEditorFragment"
+        android:id="@+id/subjectChooserFragment"
+        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.subjectChooser.SubjectChooserFragment"
+        android:label="fragment_choice_of_subject"
+        tools:layout="@layout/fragment_subject_chooser" />
+    <fragment
+        android:id="@+id/eventEditorFragment"
         android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorFragment"
         android:label="EventEditorFragment">
         <action
@@ -27,14 +33,8 @@
         android:label="fragment_choice_of_group_subject"
         tools:layout="@layout/fragment_choice_of_group_subject">
         <action
-            android:id="@+id/action_choiceOfGroupSubjectFragment_to_choiceOfSubjectFragment"
-            app:destination="@id/choiceOfSubjectFragment" />
+            android:id="@+id/action_choiceOfGroupSubjectFragment_to_subjectChooserFragment"
+            app:destination="@id/subjectChooserFragment" />
     </fragment>
-
-    <fragment
-        android:id="@+id/choiceOfSubjectFragment"
-        android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfSubject.ChoiceOfSubjectFragment"
-        android:label="fragment_choice_of_subject"
-        tools:layout="@layout/fragment_choice_of_subject" />
 
 </navigation>

@@ -5,13 +5,13 @@
     android:id="@+id/navigation_event_detail_editor"
     >
     <fragment
-        android:id="@+id/lessonEditorFragment"
+        android:id="@+id/eventEditorFragment"
         android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.lessonEditor.LessonEditorFragment"
         android:label="fragment_lesson_editor"
         tools:layout="@layout/fragment_lesson_editor" />
     <action
         android:id="@+id/action_global_lessonEditorFragment"
-        app:destination="@id/lessonEditorFragment" />
+        app:destination="@id/eventEditorFragment" />
     <fragment
         android:id="@+id/simpleEventEditorFragment"
         android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.simpleEventEditor.SimpleEventEditorFragment"

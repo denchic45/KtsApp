@@ -46,7 +46,7 @@ object IntentModule {
     @Named(SubjectEditorDialog.SUBJECT_ID)
     @Provides
     fun provideSubjectId(dialog: SubjectEditorDialog): String? {
-        return dialog.requireActivity().intent.getStringExtra(SubjectEditorDialog.SUBJECT_ID)
+        return dialog.requireArguments().getString(SubjectEditorDialog.SUBJECT_ID)
     }
 
     @Named(TimetableFragment.GROUP_ID)

@@ -19,9 +19,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.ActivityUserEditorBinding
 import com.denchic45.kts.rx.AsyncTransformer
 import com.denchic45.kts.ui.BaseActivity
-import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.utils.JsonUtil
-import com.denchic45.kts.utils.toast
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
 
@@ -108,9 +106,7 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
                 .map { obj: CharSequence -> obj.toString() }
                 .filter(String::isNotEmpty)
                 .subscribe { s: String? -> viewModel.onPasswordType(s) }
-            viewModel.title.observe(
-                this@UserEditorActivity
-            ) { title: String -> this@UserEditorActivity.title = title }
+
             viewModel.fieldFirstName.observe(
                 this@UserEditorActivity
             ) { firstName: String ->
@@ -184,15 +180,11 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
             }
             viewModel.fieldErrorMessage.observe(
                 this@UserEditorActivity
-            ) { idWithMessagePair: Pair<Int, String> ->
+            ) { idWithMessagePair: Pair<Int, String?> ->
                 val til = findViewById<TextInputLayout>(
                     idWithMessagePair.first
                 )
-                if (idWithMessagePair.second != null) {
-                    til.error = idWithMessagePair.second
-                } else {
-                    til.error = null
-                }
+                til.error = idWithMessagePair.second
             }
             viewModel.fieldRoles.observe(this@UserEditorActivity) { resId: Int? ->
                 val adapter = ListPopupWindowAdapter(
@@ -201,7 +193,7 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
                 )
                 etRole.setAdapter(adapter)
                 etRole.onItemClickListener =
-                    AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+                    AdapterView.OnItemClickListener { _, _, position: Int, _ ->
                         val item = adapter.getItem(position)
                         if (item.enable) {
                             viewModel.onRoleSelect(item)
@@ -227,12 +219,6 @@ class UserEditorActivity : BaseActivity<UserEditorViewModel, ActivityUserEditorB
                         }
                     }
             }
-            viewModel.showMessage.observe(
-                this@UserEditorActivity
-            ) { s: String ->
-               toast(s)
-            }
-
 
         }
     }

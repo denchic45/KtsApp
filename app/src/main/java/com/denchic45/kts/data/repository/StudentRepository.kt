@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.repository
 
 import android.content.Context
-import android.util.Log
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
@@ -18,24 +17,23 @@ import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class StudentRepository @Inject constructor(
-    context: Context,
     override val networkService: NetworkService,
     private val userDao: UserDao,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
     private val userMapper: UserMapper,
     private val firestore: FirebaseFirestore
-) : Repository(context) {
+) : Repository() {
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarRef: StorageReference = storage.reference.child("avatars")
     private val userRef: CollectionReference = firestore.collection("Users")
     private val groupRef: CollectionReference = firestore.collection("Groups")
 
-    suspend fun add(student: User): Unit = withContext(dispatcher) {
+    suspend fun add(student: User) {
+        checkInternetConnection()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         batch[userRef.document(student.id)] = studentDoc
@@ -43,7 +41,8 @@ class StudentRepository @Inject constructor(
         batch.commit().await()
     }
 
-    suspend fun update(student: User): Unit = withContext(dispatcher) {
+    suspend fun update(student: User) {
+        checkInternetConnection()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         val cacheStudent = userMapper.entityToDomain(userDao.getSync(student.id))
@@ -80,11 +79,9 @@ class StudentRepository @Inject constructor(
         deleteAvatar(student.id)
     }
 
-    private fun deleteAvatar(userId: String) {
+    private suspend fun deleteAvatar(userId: String) {
         val reference = avatarRef.child(userId)
-        reference.delete()
-            .addOnSuccessListener { Log.d("lol", "onSuccess: ") }
-            .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: ", e) }
+        reference.delete().await()
     }
 
     private fun updateStudentFromGroup(studentDoc: UserDoc, groupId: String, batch: WriteBatch) {

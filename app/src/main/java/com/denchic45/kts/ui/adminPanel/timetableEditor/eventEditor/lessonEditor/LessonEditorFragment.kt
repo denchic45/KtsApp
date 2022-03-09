@@ -6,12 +6,10 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.NavController
@@ -33,93 +31,70 @@ import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.utils.Dimensions
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
-import com.google.android.material.chip.ChipGroup
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 
-class LessonEditorFragment : BaseFragment<LessonEditorViewModel, FragmentLessonEditorBinding>() {
+class LessonEditorFragment :
+    BaseFragment<LessonEditorViewModel, FragmentLessonEditorBinding>(R.layout.fragment_lesson_editor) {
     override val binding: FragmentLessonEditorBinding by viewBinding(FragmentLessonEditorBinding::bind)
     override val viewModel: LessonEditorViewModel by viewModels { viewModelFactory }
-    private var tvSubjectName: TextView? = null
-    private var cpAddTeacher: Chip? = null
-    private var ivSubjectIc: ImageView? = null
-    private var rlSubject: RelativeLayout? = null
-    private var cpTeachers: ChipGroup? = null
 
     override val navController: NavController by lazy {
         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val root = inflater.inflate(R.layout.fragment_lesson_editor, container, false)
-        cpAddTeacher = root.findViewById(R.id.cp_add_teacher)
-        rlSubject = root.findViewById(R.id.rl_subject)
-        ivSubjectIc = root.findViewById(R.id.iv_subject_ic)
-        tvSubjectName = root.findViewById(R.id.tv_subject_name)
-        cpTeachers = root.findViewById(R.id.cp_teachers)
-        return root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.subjectField.observe(viewLifecycleOwner) { (_, name, iconUrl, colorName) ->
-            val colorId = resources.getIdentifier(colorName, "color", requireActivity().packageName)
-            GlideApp.with(requireActivity())
-                .`as`(PictureDrawable::class.java)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .listener(SvgColorListener(ivSubjectIc, colorId, activity))
-                .load(iconUrl)
-                .into(ivSubjectIc!!)
-            tvSubjectName!!.text = name
-        }
+        with(binding) {
+            viewModel.subjectField.observe(viewLifecycleOwner) { (_, name, iconUrl, colorName) ->
+                val colorId =
+                    resources.getIdentifier(colorName, "color", requireActivity().packageName)
+                GlideApp.with(requireActivity())
+                    .`as`(PictureDrawable::class.java)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .listener(SvgColorListener(ivSubjectIc, colorId, activity))
+                    .load(iconUrl)
+                    .into(ivSubjectIc)
+                tvSubjectName.text = name
+            }
 
-        viewModel.showErrorField.observe(viewLifecycleOwner) { (first, second) ->
-            val rlView = view.findViewById<ViewGroup>(first)
-            if (second) {
-                if (rlView.findViewWithTag<View?>(first) == null) {
-                    rlView.addView(createErrorImageView(first))
-                }
-            } else {
-                val ivError = rlView.findViewWithTag<ImageView>(first)
-                if (ivError != null) {
-                    rlView.removeView(ivError)
+            viewModel.showErrorField.observe(viewLifecycleOwner) { (first, second) ->
+                val rlView = view.findViewById<ViewGroup>(first)
+                if (second) {
+                    if (rlView.findViewWithTag<View?>(first) == null) {
+                        rlView.addView(createErrorImageView(first))
+                    }
+                } else {
+                    val ivError = rlView.findViewWithTag<ImageView>(first)
+                    if (ivError != null) {
+                        rlView.removeView(ivError)
+                    }
                 }
             }
-        }
 
-        viewModel.teachersField.observe(viewLifecycleOwner) { teachers: List<User> ->
-            cpTeachers!!.removeViews(0, cpTeachers!!.childCount - 1)
-            for (i in teachers.indices) {
-                val chip = createChip(teachers[i])
-                chip.setOnCloseIconClickListener { v: View? ->
-                    viewModel.onRemoveTeacherItemClick(
-                        i
-                    )
+            viewModel.teachersField.observe(viewLifecycleOwner) { teachers: List<User> ->
+                cpTeachers.removeViews(0, cpTeachers.childCount - 1)
+                for (i in teachers.indices) {
+                    val chip = createChip(teachers[i])
+                    chip.setOnCloseIconClickListener { v: View? ->
+                        viewModel.onRemoveTeacherItemClick(
+                            i
+                        )
+                    }
+                    cpTeachers.addView(chip, cpTeachers.childCount - 1)
                 }
-                cpTeachers!!.addView(chip, cpTeachers!!.childCount - 1)
             }
-        }
-        viewModel.openChoiceOfGroupSubject.observe(
-            viewLifecycleOwner
-        ) { navController.navigate(R.id.action_global_teacherChooserFragment) }
-        viewModel.openChoiceOfTeacher.observe(
-            viewLifecycleOwner
-        ) { navController.navigate(R.id.action_lessonEditorFragment_to_teacherChooserFragment) }
-        viewModel.showMessage.observe(
-            viewLifecycleOwner,
-            EventObserver { message: String? ->
-                Snackbar.make(
-                    view,
-                    message!!,
-                    Snackbar.LENGTH_SHORT
-                ).show()
-            })
+            viewModel.openChoiceOfGroupSubject.observe(
+                viewLifecycleOwner
+            ) { navController.navigate(R.id.action_lessonEditorFragment_to_choiceOfGroupSubjectFragment) }
 
-        rlSubject!!.setOnClickListener { v: View? -> viewModel.onSubjectClick() }
-        cpAddTeacher!!.setOnClickListener { v: View? -> viewModel.onAddTeacherItemClick() }
+            viewModel.openChoiceOfTeacher.observe(
+                viewLifecycleOwner
+            ) { navController.navigate(R.id.action_lessonEditorFragment_to_teacherChooserFragment) }
+
+            rlSubject.setOnClickListener { viewModel.onSubjectClick() }
+            cpAddTeacher.setOnClickListener { viewModel.onAddTeacherItemClick() }
+        }
     }
 
     private fun createChip(teacher: User): Chip {

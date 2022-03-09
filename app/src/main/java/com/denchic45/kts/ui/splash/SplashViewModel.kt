@@ -8,7 +8,7 @@ import javax.inject.Inject
 class SplashViewModel @Inject constructor(
     authRepository: AuthRepository
 ) : ViewModel() {
-    @JvmField
+    
     var nextScreenMLiveData = MutableLiveData<NextActivity>()
 
     enum class NextActivity { MAIN, LOGIN }

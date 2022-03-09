@@ -1,73 +1,87 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.Resource
-import com.denchic45.kts.di.modules.IoDispatcher
-import com.google.android.gms.tasks.TaskExecutors
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.*
 import com.google.firebase.auth.PhoneAuthProvider.ForceResendingToken
 import com.google.firebase.auth.PhoneAuthProvider.OnVerificationStateChangedCallbacks
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.CompletableEmitter
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.core.SingleEmitter
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
-    context: Context,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
     override val networkService: NetworkService
-) : Repository(context) {
+) : Repository() {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-    private lateinit var emitter: SingleEmitter<Resource<String>>
+
+    private val authByPhoneNum = Channel<String>()
+
     private var verificationId: String? = null
     private var forceResendingToken: ForceResendingToken? = null
-    private var callbacks: OnVerificationStateChangedCallbacks?
     private var phoneNum: String? = null
     val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
 
-    fun sendUserPhoneNumber(phoneNum: String): Single<Resource<String>> {
-        return Single.create { emitter: SingleEmitter<Resource<String>> ->
-            this@AuthRepository.phoneNum = phoneNum
-            this@AuthRepository.emitter = emitter
-            this@AuthRepository.phoneNum = phoneNum
-            PhoneAuthProvider.verifyPhoneNumber(
-                PhoneAuthOptions.newBuilder(firebaseAuth)
-                    .setPhoneNumber(phoneNum) // Phone number to verify
-                    .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-                    .setCallbacks(callbacks!!) // OnVerificationStateChangedCallbacks
-                    .build()
-            )
-        }
-    }
-
-    private fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
-        firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(TaskExecutors.MAIN_THREAD) { task ->
-                if (task.isSuccessful) {
-                    val smsCode = credential.smsCode!!
-                    emitter.onSuccess(Resource.Success(smsCode))
-                    callbacks = null
-                } else {
-                    emitter.onSuccess(Resource.Error(task.exception!!))
+    private var callbacks: OnVerificationStateChangedCallbacks =
+        object : OnVerificationStateChangedCallbacks() {
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                coroutineScope.launch {
+                    signInWithPhoneAuthCredential(credential)
                 }
             }
+
+            override fun onVerificationFailed(e: FirebaseException) {
+                Log.d("lol", "onVerificationFailed: ", e)
+                authByPhoneNum.close(e)
+            }
+
+            override fun onCodeSent(
+                verificationId: String,
+                forceResendingToken: ForceResendingToken
+            ) {
+                super.onCodeSent(verificationId, forceResendingToken)
+                this@AuthRepository.verificationId = verificationId
+                this@AuthRepository.forceResendingToken = forceResendingToken
+            }
+        }
+
+    fun sendUserPhoneNumber(phoneNum: String): Channel<String> {
+        this@AuthRepository.phoneNum = phoneNum
+        PhoneAuthProvider.verifyPhoneNumber(
+            PhoneAuthOptions.newBuilder(firebaseAuth)
+                .setPhoneNumber(phoneNum) // Phone number to verify
+                .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
+                .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
+                .build()
+        )
+        return authByPhoneNum
     }
 
-    fun authByPhoneNum(code: String?) {
-        signInWithPhoneAuthCredential(PhoneAuthProvider.getCredential(verificationId!!, code!!))
+    private suspend fun signInWithPhoneAuthCredential(credential: PhoneAuthCredential) {
+        try {
+            firebaseAuth.signInWithCredential(credential)
+                .await()
+                .apply {
+                    val smsCode = credential.smsCode!!
+                    authByPhoneNum.send(smsCode)
+                }
+        } catch (t: Throwable) {
+            authByPhoneNum.close(t)
+        }
+
+    }
+
+    suspend fun authByPhoneNum(code: String) {
+        signInWithPhoneAuthCredential(PhoneAuthProvider.getCredential(verificationId!!, code))
     }
 
     fun signOut() {
@@ -86,12 +100,9 @@ class AuthRepository @Inject constructor(
     }
 
 
-    fun authByEmail(email: String, password: String): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            firebaseAuth.signInWithEmailAndPassword(email, password)
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener { t: Exception -> emitter.onError(t) }
-        }
+    suspend fun authByEmail(email: String, password: String) {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .await()
     }
 
     fun signUpNewUser(email: String, password: String) {
@@ -102,17 +113,9 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    fun resetPassword(email: String): Completable {
-        return Completable.create { emitter: CompletableEmitter ->
-            firebaseAuth.sendPasswordResetEmail(
-                email
-            )
-                .addOnSuccessListener { emitter.onComplete() }
-                .addOnFailureListener {
-                    it.printStackTrace()
-                    emitter.onError(it)
-                }
-        }
+    suspend fun resetPassword(email: String) {
+        firebaseAuth.sendPasswordResetEmail(email)
+            .await()
     }
 
     fun resendCodeSms() {
@@ -121,32 +124,9 @@ class AuthRepository @Inject constructor(
                 .newBuilder(FirebaseAuth.getInstance())
                 .setPhoneNumber(phoneNum!!)
                 .setTimeout(60L, TimeUnit.SECONDS)
-                .setCallbacks(callbacks!!)
+                .setCallbacks(callbacks)
                 .setForceResendingToken(forceResendingToken!!)
                 .build()
         )
-    }
-
-    init {
-        callbacks = object : OnVerificationStateChangedCallbacks() {
-            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                signInWithPhoneAuthCredential(credential)
-            }
-
-            override fun onVerificationFailed(e: FirebaseException) {
-                Log.d("lol", "onVerificationFailed: ", e)
-                emitter.onError(e)
-            }
-
-            override fun onCodeSent(
-                verificationId: String,
-                forceResendingToken: ForceResendingToken
-            ) {
-                super.onCodeSent(verificationId, forceResendingToken)
-                this@AuthRepository.verificationId = verificationId
-                this@AuthRepository.forceResendingToken = forceResendingToken
-            }
-
-        }
     }
 }

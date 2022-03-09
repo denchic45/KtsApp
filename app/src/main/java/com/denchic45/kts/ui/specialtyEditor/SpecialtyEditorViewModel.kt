@@ -23,18 +23,13 @@ class SpecialtyEditorViewModel @Inject constructor(
     @Named(SpecialtyEditorDialog.SPECIALTY_ID) id: String?,
     private val specialtyRepository: SpecialtyRepository,
     private val confirmInteractor: ConfirmInteractor
-) :
-    BaseViewModel() {
-    @JvmField
+) : BaseViewModel() {
     val title = MutableLiveData<String>()
 
-    @JvmField
     val nameField = MutableLiveData<String>()
 
-    @JvmField
     val enablePositiveBtn = MutableLiveData(false)
 
-    @JvmField
     val deleteBtnVisibility = MutableLiveData(true)
 
     private val id = id ?: UUID.randomUUID().toString()
@@ -64,8 +59,8 @@ class SpecialtyEditorViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             if (e is NetworkException) {
-                showMessageRes.value = R.string.error_check_network
-            }
+                showToast(R.string.error_check_network)
+            } else e.printStackTrace()
         }
     }
 
@@ -78,13 +73,13 @@ class SpecialtyEditorViewModel @Inject constructor(
     fun onDeleteClick() {
         viewModelScope.launch {
             openConfirmation(Pair("Удалить несколько предметов группы", "Вы точно уверены???"))
-            if (confirmInteractor.awaitConfirm()) {
+            if (confirmInteractor.receiveConfirm()) {
                 try {
                     specialtyRepository.remove(uiEditor.item)
                     finish()
-                } catch (e:Exception) {
+                } catch (e: Exception) {
                     if (e is NetworkException) {
-                        showMessageRes.value = R.string.error_check_network
+                        showToast(R.string.error_check_network)
                     }
                 }
             }

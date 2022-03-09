@@ -6,11 +6,9 @@ import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.rx.AsyncTransformer
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,7 +31,6 @@ class ProfileViewModel @Inject constructor(
     val openFullImage = SingleLiveData<String>()
     val openGallery = SingleLiveData<Void>()
     private val uiPermissions: UiPermissions
-    private val compositeDisposable = CompositeDisposable()
     private var userOfProfile: User? = null
     private var group: Group? = null
     private fun mapRoleToNameRoleId(@User.Role role: String): Int {
@@ -54,7 +51,6 @@ class ProfileViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         interactor.removeListeners()
-        compositeDisposable.clear()
     }
 
     fun onAvatarClick() {
@@ -78,37 +74,40 @@ class ProfileViewModel @Inject constructor(
     }
 
     init {
-        compositeDisposable.addAll(interactor.find(id)
-            .compose(AsyncTransformer())
-            .subscribe { user: User ->
-                userOfProfile = user
-                showAvatar.value = user.photoUrl
-                showFullName.value = user.fullName
-                showRole.value = mapRoleToNameRoleId(user.role)
-                showPhoneNum.value = user.phoneNum
-                showEmail.value = user.email
-                if (user.isStudent) {
-                    viewModelScope.launch {
-                        interactor.findGroupByStudent(user).collect {
-                            groupInfoVisibility.value = true
-                            this@ProfileViewModel.group = it
-                            showGroupInfo.setValue("Участник группы: " + it.name)
+        viewModelScope.launch {
+            interactor.observe(id).collect { user ->
+                user?.let {
+                    userOfProfile = user
+                    showAvatar.value = user.photoUrl
+                    showFullName.value = user.fullName
+                    showRole.value = mapRoleToNameRoleId(user.role)
+                    showPhoneNum.value = user.phoneNum
+                    showEmail.value = user.email
+                    if (user.isStudent) {
+                        viewModelScope.launch {
+                            interactor.findGroupByStudent(user).collect {
+                                groupInfoVisibility.value = true
+                                this@ProfileViewModel.group = it
+                                showGroupInfo.setValue("Участник группы: " + it.name)
+                            }
+                        }
+                    } else if (user.isTeacher) {
+                        viewModelScope.launch {
+                            interactor.findGroupByCurator(user).collect {
+                                if (group == null) return@collect
+                                groupInfoVisibility.value = true
+                                this@ProfileViewModel.group = it
+                                showGroupInfo.setValue("Куратор группы: " + it.name)
+                            }
                         }
                     }
-                } else if (user.isTeacher) {
-                    viewModelScope.launch {
-                        interactor.findGroupByCurator(user).collect {
-                            if (group == null) return@collect
-                            groupInfoVisibility.value = true
-                            this@ProfileViewModel.group = it
-                            showGroupInfo.setValue("Куратор группы: " + it.name)
-                        }
+                    if (interactor.findThisUser().id != userOfProfile!!.id) {
+                        optionVisibility.value = Pair(R.id.menu_select_avatar, false)
                     }
                 }
-                if (interactor.findThisUser().id != userOfProfile!!.id) {
-                    optionVisibility.value = Pair(R.id.menu_select_avatar, false)
-                }
-            })
+            }
+        }
+
         uiPermissions = UiPermissions(interactor.findThisUser())
         uiPermissions.putPermissions(
             Permission(PERMISSION_USER_NFO, { hasAdminPerms() }, { isTeacher }, { this.id == id })

@@ -23,7 +23,7 @@ data class CourseDoc(
 
     private constructor() : this(
         "", "", emptyList(),
-        SubjectDoc(), UserDoc.createEmpty(), emptyList()
+        SubjectDoc.createEmpty(), UserDoc.createEmpty(), emptyList()
     )
 }
 

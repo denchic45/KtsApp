@@ -24,7 +24,7 @@ import javax.inject.Inject
 class TeacherRepository @Inject constructor(
     context: Context,
     private val userMapper: UserMapper
-) : Repository(context) {
+) : Repository() {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val groupsRef: CollectionReference = firestore.collection("Groups")

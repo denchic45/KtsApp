@@ -215,14 +215,11 @@ class TimetableLoaderFragment :
 
             btnAddGroup.setOnClickListener { viewModel.onAddGroupClick() }
         }
-        val navHostFragment = requireActivity().supportFragmentManager.primaryNavigationFragment
+
         viewModel.openFilePicker.observe(viewLifecycleOwner) {
             filePicker.selectFiles()
         }
 
-        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int ->
-            requireContext().toast(resId)
-        }
         viewModel.showErrorDialog.observe(viewLifecycleOwner) { s: String ->
             MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
                 .setTitle("Произошла ошибка")
@@ -249,8 +246,8 @@ class TimetableLoaderFragment :
         }
 
 
-        viewModel.openLessonEditor.observe(viewLifecycleOwner) {
-            startActivity(Intent(activity, EventEditorActivity::class.java))
+        viewModel.openEventEditor.observe(viewLifecycleOwner) {
+            startActivity(Intent(requireActivity(), EventEditorActivity::class.java))
         }
         viewModel.openChoiceOfGroup.observe(
             viewLifecycleOwner

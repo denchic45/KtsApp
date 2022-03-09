@@ -72,9 +72,11 @@ class TimetableViewModel @Inject constructor(
             if (it.dayOfWeek == DayOfWeek.SUNDAY)
                 return@flatMapLatest flowOf(EventsState.DayOff)
             if (User.isStudent(role)) {
-                interactor.findEventsOfGroupByDate(it, this.groupId).map { EventsState.Events(it) }
+                interactor.findEventsOfGroupByDate(it, this.groupId)
+                    .map { eventsOfDay -> EventsState.Events(eventsOfDay.events) }
             } else {
-                interactor.findEventsForTeacherByDate(it).map { EventsState.Events(it) }
+                interactor.findEventsForTeacherByDate(it)
+                    .map { eventsOfDay -> EventsState.Events(eventsOfDay.events) }
             }
         }.stateIn(viewModelScope, SharingStarted.Lazily, EventsState.Events(emptyList()))
 

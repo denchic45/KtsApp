@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 data class GroupTimetable(
     var group: CourseGroup,
-    var weekEvents: List<EventsOfTheDay>
+    var weekEvents: List<EventsOfDay>
 ) {
 
 
@@ -21,7 +21,7 @@ data class GroupTimetable(
 
             return GroupTimetable(
                 courseGroup,
-                List(6) { EventsOfTheDay(mondayDate.plusDays(it.toLong())) }
+                List(6) { EventsOfDay(mondayDate.plusDays(it.toLong())) }
                 )
 
 //            return GroupTimetable(

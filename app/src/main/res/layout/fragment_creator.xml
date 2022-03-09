@@ -26,7 +26,7 @@
         android:paddingTop="@dimen/list_item_spacing_half"
         android:paddingBottom="@dimen/list_item_spacing_half"
         app:spanCount="3"
-        tools:context=".ui.creater.CreatorDialog"
+        tools:context=".ui.creator.CreatorDialog"
         tools:listitem="@layout/item_entity" />
 
 </LinearLayout>

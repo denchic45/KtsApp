@@ -16,7 +16,7 @@ class TimetableLoaderInteractor @Inject constructor(
 ) : Interactor {
 
     suspend fun parseDocumentTimetable(docFile: File): List<GroupTimetable> {
-        return TimetableParser(subjectRepository.findSpecialSubjects()).parseDoc(docFile) { course: Int ->
+        return TimetableParser().parseDoc(docFile) { course: Int ->
             groupRepository.findGroupsWithCoursesByCourse(course)
         }
     }
@@ -27,7 +27,7 @@ class TimetableLoaderInteractor @Inject constructor(
         subjectRepository.removeListeners()
     }
 
-   suspend fun addTimetables(groupWeekLessons: List<GroupTimetable>) {
-       eventRepository.addGroupTimetables(groupWeekLessons)
+    suspend fun addTimetables(groupWeekLessons: List<GroupTimetable>) {
+        eventRepository.addGroupTimetables(groupWeekLessons)
     }
 }

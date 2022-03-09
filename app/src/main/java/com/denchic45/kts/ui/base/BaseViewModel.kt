@@ -9,15 +9,20 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 abstract class BaseViewModel : ViewModel() {
-    @JvmField
-    val showMessage = SingleLiveData<String>()
-
-    @JvmField
-    val showMessageRes = SingleLiveData<Int>()
 
     val finish = MutableSharedFlow<Nothing?>()
 
-    val showToast = MutableSharedFlow<String>()
+    val toast = MutableSharedFlow<String>()
+
+    val toastRes = MutableSharedFlow<Int>()
+
+    val snackBar = MutableSharedFlow<String>()
+
+    val snackBarRes = MutableSharedFlow<Int>()
+
+    val dialog = MutableSharedFlow<Pair<String, String>>()
+
+    val dialogRes = MutableSharedFlow<Pair<Int, Int>>()
 
     private val _openConfirmation = Channel<Pair<String, String>>()
 
@@ -42,11 +47,30 @@ abstract class BaseViewModel : ViewModel() {
             _openConfirmation.send(titleWithText)
         }
     }
-//    protected fun setToolbarTitle(title: String) {
-//        viewModelScope.launch {
-//            _toolbarTitle.emit(title)
-//        }
-//    }
+
+    protected fun showToast(message: String) {
+       viewModelScope.launch {  toast.emit(message) }
+    }
+
+    protected fun showToast(messageRes: Int) {
+        viewModelScope.launch {  toastRes.emit(messageRes) }
+    }
+
+    protected fun showSnackBar(message: String) {
+        viewModelScope.launch {  snackBar.emit(message) }
+    }
+
+    protected fun showSnackBar(messageRes: Int) {
+        viewModelScope.launch {  snackBarRes.emit(messageRes) }
+    }
+
+    protected fun showDialog(title: String, message: String) {
+        viewModelScope.launch {  dialog.emit(Pair(title, message)) }
+    }
+
+    protected fun showDialog(title: Int, message: Int) {
+        viewModelScope.launch {  dialogRes.emit(Pair(title, message)) }
+    }
 
     private var optionsIsCreated: Boolean = false
 

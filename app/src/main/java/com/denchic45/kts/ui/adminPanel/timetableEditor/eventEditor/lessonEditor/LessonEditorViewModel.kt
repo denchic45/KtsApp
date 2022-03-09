@@ -8,15 +8,14 @@ import com.denchic45.kts.data.model.domain.Lesson
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.room.EventEntity
-import com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfSubject.ChoiceOfSubjectInteractor
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorInteractor
+import com.denchic45.kts.ui.adminPanel.timetableEditor.subjectChooser.SubjectChooserInteractor
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorInteractor
+import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,12 +40,11 @@ class LessonEditorViewModel @Inject constructor(
     }
 
     @Inject
-    lateinit var choiceOfSubjectInteractor: ChoiceOfSubjectInteractor
+    lateinit var subjectChooserInteractor: SubjectChooserInteractor
 
     @Inject
-    lateinit var choiceOfCuratorInteractor: ChoiceOfCuratorInteractor
+    lateinit var teacherChooserInteractor: TeacherChooserInteractor
 
-    private var selectedSubjectSubscribe: Disposable? = null
     private fun fillFields() {
         if (interactor.oldEvent.value!!.details is Lesson && interactor.oldEvent.value!!.details != Lesson.createEmpty()) {
             (interactor.oldEvent.value!!.details as Lesson).apply {
@@ -57,22 +55,23 @@ class LessonEditorViewModel @Inject constructor(
     }
 
     fun onSubjectClick() {
-        choiceOfSubjectInteractor.groupName = interactor.oldEvent.value!!.group.name
-        choiceOfSubjectInteractor.groupId = interactor.oldEvent.value!!.group.id
-        selectedSubjectSubscribe =
-            choiceOfSubjectInteractor.observeSelectedSubject().subscribe { subject: Subject ->
-                selectedSubjectSubscribe!!.dispose()
+        viewModelScope.launch {
+            subjectChooserInteractor.groupName = interactor.oldEvent.value!!.group.name
+            subjectChooserInteractor.groupId = interactor.oldEvent.value!!.group.id
+            subjectChooserInteractor.receiveSelectedSubject().let { subject: Subject ->
                 subjectField.value = subject
             }
-        openChoiceOfGroupSubject.call()
+            openChoiceOfGroupSubject.call()
+        }
     }
 
     fun onAddTeacherItemClick() {
 
         viewModelScope.launch {
             openChoiceOfTeacher.call()
-            choiceOfCuratorInteractor.awaitSelectTeacher().apply {
-                teachersField.value = teachersField.value?.let { it.add(this); it } ?: mutableListOf(this)
+            teacherChooserInteractor.receiveSelectTeacher().apply {
+                teachersField.value =
+                    teachersField.value?.let { it.add(this); it } ?: mutableListOf(this)
             }
         }
 
@@ -99,7 +98,7 @@ class LessonEditorViewModel @Inject constructor(
                 ) { showErrorField.setValue(Pair(R.id.rl_subject, false)) },
             Validation(
                 Rule({ !teachersField.value.isNullOrEmpty() }, "Нет преподавателя")
-            ).sendMessageResult(showMessage)
+            ).sendMessageResult(toast)
         )
         interactor.validateEventDetails = { uiValidator.runValidates() }
         fillFields()

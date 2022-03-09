@@ -1,23 +1,17 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.net.Uri
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.SubjectDao
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.model.mapper.CourseMapper
 import com.denchic45.kts.data.model.mapper.SubjectMapper
 import com.denchic45.kts.data.model.room.SubjectEntity
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ListResult
-import io.reactivex.rxjava3.core.Single
-import io.reactivex.rxjava3.core.SingleEmitter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
@@ -27,40 +21,23 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
-import java.util.stream.Collectors
 import javax.inject.Inject
 
 class SubjectRepository @Inject constructor(
-    context: Context,
     private val subjectDao: SubjectDao,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
     override val networkService: NetworkService,
-    private val firestore: FirebaseFirestore,
-    private val subjectMapper: SubjectMapper
-) : Repository(context) {
+    override val firestore: FirebaseFirestore,
+    private val subjectMapper: SubjectMapper,
+    override val courseMapper: CourseMapper,
+    override val externalScope: CoroutineScope,
+    @IoDispatcher override val dispatcher: CoroutineDispatcher
+) : Repository(), RemoveCourseOperation {
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val groupsRef: CollectionReference = firestore.collection("Groups")
-    fun findSpecialSubjects(): Single<List<Subject>> {
-        return Single.create { emitter: SingleEmitter<List<Subject>> ->
-            subjectsRef.whereEqualTo("special", true)
-                .get()
-                .addOnSuccessListener { queryDocumentSnapshots: QuerySnapshot ->
-                    val list = queryDocumentSnapshots.toObjects(SubjectEntity::class.java)
-                    coroutineScope.launch(dispatcher) {
-                        subjectDao.insert(list)
-                    }
-                    emitter.onSuccess(
-                        queryDocumentSnapshots.toObjects(
-                            Subject::class.java
-                        )
-                    )
-                }
-                .addOnFailureListener(emitter::onError)
-        }
-    }
+    override val coursesRef: CollectionReference = firestore.collection("Courses")
 
     suspend fun add(subject: Subject) {
         checkInternetConnection()
@@ -79,22 +56,22 @@ class SubjectRepository @Inject constructor(
             .get()
             .await()
         val batch = firestore.batch()
-        if (!queryDocumentSnapshots.isEmpty) for ((id) in queryDocumentSnapshots.toObjects(
-            GroupDoc::class.java
-        )) {
-            batch.update(
-                groupsRef.document(id), mapOf(
-                    "subjects.$id" to subjectDoc,
-                    "timestamp" to FieldValue.serverTimestamp()
+        if (!queryDocumentSnapshots.isEmpty)
+            for (groupDoc in queryDocumentSnapshots.toObjects(GroupDoc::class.java)) {
+                batch.update(
+                    groupsRef.document(groupDoc.id), mapOf(
+                        "subjects.${groupDoc.id}" to subjectDoc,
+                        "timestamp" to FieldValue.serverTimestamp()
+                    )
                 )
-            )
-        }
+            }
         batch[subjectsRef.document(id)] = subjectDoc
         batch.commit().await()
     }
 
     private suspend fun isExistWithSameIconAndColor(subject: Subject) {
         val snapshot = subjectsRef
+            .whereNotEqualTo("id", subject.id)
             .whereEqualTo("iconUrl", subject.iconUrl)
             .whereEqualTo("colorName", subject.colorName)
             .get()
@@ -107,22 +84,30 @@ class SubjectRepository @Inject constructor(
     suspend fun remove(subject: Subject) {
         checkInternetConnection()
         subjectsRef.document(subject.id).delete().await()
+        coursesRef.whereEqualTo("subject.id", subject.id)
+            .get()
+            .await()
+            .forEach {
+                removeCourse(it.id)
+            }
+
     }
 
-    fun find(id: String): LiveData<Subject> {
+    fun find(id: String): Flow<Subject?> {
         subjectsRef.document(id)
-            .get()
-            .addOnSuccessListener { value: DocumentSnapshot ->
+            .addSnapshotListener { value, error ->
                 coroutineScope.launch(dispatcher) {
-                    subjectDao.upsert(
-                        value.toObject(SubjectEntity::class.java)!!
-                    )
+                    value?.let {
+                        if (value.exists())
+                            subjectDao.upsert(
+                                value.toObject(SubjectEntity::class.java)!!
+                            )
+                    }
                 }
             }
-            .addOnFailureListener { Log.d("lol", "onFailure: ") }
-        return Transformations.map(subjectDao.get(id)) { entity: SubjectEntity ->
-            subjectMapper.entityToDomain(entity)
-        }
+
+        return subjectDao.observe(id).map { it?.let { subjectMapper.entityToDomain(it) } }
+
     }
 
     fun findByTypedName(subjectName: String): Flow<List<Subject>> = callbackFlow {
@@ -139,53 +124,19 @@ class SubjectRepository @Inject constructor(
         awaitClose { }
     }
 
-
-    fun findLazy(subjectId: String): Subject {
-        if (subjectDao.getSync(subjectId) == null) {
-            subjectsRef.whereEqualTo("id", subjectId)
-                .get()
-                .addOnSuccessListener { snapshot: QuerySnapshot ->
-                    coroutineScope.launch(dispatcher) {
-                        subjectDao.insert(
-                            snapshot.documents[0].toObject(SubjectEntity::class.java)!!
-                        )
-                    }
-                }
-                .addOnFailureListener { e: Exception? -> Log.d("lol", "onFailure: ", e) }
-        }
-        return subjectMapper.entityToDomain(subjectDao.getSync(subjectId))
-    }
-
-    fun findAllRefsOfSubjectIcons(): Single<List<Uri>> {
-        return Single.create { emitter: SingleEmitter<List<Uri>> ->
-            val singles: MutableList<Single<Uri>> = ArrayList()
-            storage.getReference("subjects")
-                .listAll()
-                .addOnSuccessListener { listResult: ListResult ->
-                    for (ref in listResult.items) {
-                        singles.add(Single.create { singleEmitter: SingleEmitter<Uri> ->
-                            ref.downloadUrl
-                                .addOnSuccessListener { t: Uri -> singleEmitter.onSuccess(t) }
-                        })
-                    }
-                    Single.zip(singles) { objects: Array<Any> ->
-                        Arrays.stream(objects)
-                            .map { o: Any? -> o as Uri }
-                            .collect(Collectors.toList())
-                    }
-                        .subscribe { t: List<Uri> -> emitter.onSuccess(t) }
-                }.addOnFailureListener { e: Exception ->
-                    Log.d("lol", "onFailure: ", e)
-                    Log.d("lol", "FAIL: ")
-                }
-        }
+    suspend fun findAllRefsOfSubjectIcons(): List<Uri> {
+        return storage.getReference("subjects")
+            .listAll()
+            .await()
+            .run {
+                items.map { it.downloadUrl.await() }
+            }
     }
 
     fun findByGroup(groupId: String): Flow<List<Subject>> {
         checkInternetConnection()
-        return subjectDao.getByGroupId(groupId).map { list ->
-            subjectMapper.entityToDomain(list)
-        }
+        return subjectDao.observeByGroupId(groupId)
+            .map(subjectMapper::entityToDomain)
     }
 
 }

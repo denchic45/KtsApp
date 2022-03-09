@@ -50,7 +50,7 @@ class ContentViewModel @Inject constructor(
                         "Вместе с заданием безвозратно будут удалены ответы, " +
                         "а также их оценки")
                 viewModelScope.launch {
-                    if (confirmInteractor.awaitConfirm()) {
+                    if (confirmInteractor.receiveConfirm()) {
                         removeCourseContentUseCase(taskId)
                          finish()
                     }

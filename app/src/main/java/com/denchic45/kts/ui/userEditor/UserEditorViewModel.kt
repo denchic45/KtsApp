@@ -22,7 +22,10 @@ import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.Validations
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -36,8 +39,6 @@ open class UserEditorViewModel @Inject constructor(
     private val interactor: UserEditorInteractor,
     private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
-
-    val title = MutableLiveData<String>()
 
     val fieldRoles = MutableLiveData<Int>()
 
@@ -71,7 +72,7 @@ open class UserEditorViewModel @Inject constructor(
 
     val fieldPasswordVisibility = MutableLiveData(true)
 
-    val fieldErrorMessage = SingleLiveData<Pair<Int, String>>()
+    val fieldErrorMessage = SingleLiveData<Pair<Int, String?>>()
 
     private val typedNameGroup = MutableSharedFlow<String>()
 
@@ -193,21 +194,21 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     private fun setupForNewItem() {
-        if (isStudent(role!!)) {
-            title.value = "Новый студент"
-        } else if (isTeacher(role!!)) {
-            title.value = "Новый преподаватель"
+        toolbarTitle = when {
+            isStudent(role!!) -> "Новый студент"
+            isTeacher(role!!) -> "Новый преподаватель"
+            else -> throw IllegalStateException()
         }
     }
 
     private fun setupForExistItem() {
-        existUser
+        getExistUser()
         fieldEmailEnable.value = false
         fieldPasswordVisibility.value = false
-        if (isStudent(role!!)) {
-            title.setValue("Редактировать студента")
-        } else if (isTeacher(role!!)) {
-            title.value = "Редактировать преподавателя"
+        toolbarTitle = when {
+            isStudent(role!!) -> "Редактировать студента"
+            isTeacher(role!!) -> "Редактировать преподавателя"
+            else -> throw IllegalStateException()
         }
     }
 
@@ -230,23 +231,26 @@ open class UserEditorViewModel @Inject constructor(
         }
     }
 
-    private val existUser: Unit
-        get() {
-            LiveDataUtil.observeOnce(interactor.getUserById(userId)) { user: User ->
-                uiEditor.oldItem = user
-                role = user.role
-                gender = user.gender
-                admin = user.admin
-                generatedAvatar = user.generatedAvatar
-                fieldFirstName.value = user.firstName
-                fieldSurname.value = user.surname
-                fieldPatronymic.value = user.patronymic ?: ""
-                fieldGender.value = fieldGenders.value!![gender - 1].title
-                fieldPhoneNum.value = user.phoneNum
-                fieldEmail.value = user.email!!
-                avatarUser.setValue(user.photoUrl)
+    private fun getExistUser() {
+        viewModelScope.launch {
+            interactor.observeUserById(userId).collect { user ->
+                user?.let {
+                    uiEditor.oldItem = user
+                    role = user.role
+                    gender = user.gender
+                    admin = user.admin
+                    generatedAvatar = user.generatedAvatar
+                    fieldFirstName.value = user.firstName
+                    fieldSurname.value = user.surname
+                    fieldPatronymic.value = user.patronymic ?: ""
+                    fieldGender.value = fieldGenders.value!![gender - 1].title
+                    fieldPhoneNum.value = user.phoneNum
+                    fieldEmail.value = user.email!!
+                    avatarUser.setValue(user.photoUrl)
+                } ?: run { finish() }
             }
         }
+    }
 
     fun onRoleSelect(roleItem: ListItem) {
         role = roleItem.content as String
@@ -299,13 +303,12 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun saveChanges() {
         viewModelScope.launch {
-            val saveUserObservable: Flow<Resource<User>> = if (uiEditor.isNew) {
+            if (uiEditor.isNew) {
                 interactor.signUpUser(fieldEmail.value!!, password!!)
                 interactor.addUser(uiEditor.item)
             } else {
                 interactor.updateUser(uiEditor.item)
-            }
-            saveUserObservable.collect { resource: Resource<User> ->
+            }.collect { resource: Resource<User> ->
                 when (resource) {
                     is Resource.Success -> finish()
                     is Resource.Next -> {
@@ -313,7 +316,7 @@ open class UserEditorViewModel @Inject constructor(
                             resource.data.photoUrl
                     }
                     is Resource.Error -> if (resource.error is NetworkException) {
-                        showMessage.value = "Отсутствует интернет-соединение"
+                        showToast(R.string.error_check_network)
                     }
                     else -> throw IllegalStateException()
                 }
@@ -351,7 +354,7 @@ open class UserEditorViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            if (confirmInteractor.awaitConfirm()) {
+            if (confirmInteractor.receiveConfirm()) {
                 try {
                     if (isStudent(role!!))
                         interactor.removeStudent(uiEditor.item)
@@ -367,7 +370,7 @@ open class UserEditorViewModel @Inject constructor(
     private fun confirmExit(titleWithSubtitlePair: Pair<String, String>) {
         viewModelScope.launch {
             openConfirmation(titleWithSubtitlePair)
-            if (confirmInteractor.awaitConfirm()) {
+            if (confirmInteractor.receiveConfirm()) {
                 finish()
             }
         }

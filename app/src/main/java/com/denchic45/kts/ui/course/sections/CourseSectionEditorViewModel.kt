@@ -25,9 +25,8 @@ class CourseSectionEditorViewModel @Inject constructor(
     val removeCourseSectionsUseCase: RemoveCourseSectionsUseCase
 ) : BaseViewModel() {
 
-    var oldPosition = -1
-    var position = -1
-//    val moveSections = MutableSharedFlow<Pair<Int, Int>>()
+    private var oldPosition = -1
+    private var position = -1
 
     val sections = MutableSharedFlow<List<Section>>(replay = 1)
 

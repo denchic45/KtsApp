@@ -6,10 +6,10 @@ import android.view.*
 import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
-import com.denchic45.EventObserver
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.model.DomainModel
@@ -21,15 +21,17 @@ import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.toast
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.model.WeekItem
 import com.example.searchbar.SearchBar
 import java.time.LocalDate
-import java.util.*
 
 class TimetableFinderFragment :
-    BaseFragment<TimetableFinderViewModel, FragmentTimetableFinderBinding>(R.layout.fragment_timetable_finder) {
+    BaseFragment<TimetableFinderViewModel, FragmentTimetableFinderBinding>(
+        R.layout.fragment_timetable_finder
+    ) {
     override val binding: FragmentTimetableFinderBinding by viewBinding(
         FragmentTimetableFinderBinding::bind
     )
@@ -51,11 +53,6 @@ class TimetableFinderFragment :
         menu.clear()
         inflater.inflate(R.menu.options_timetable_finder, menu)
         viewModel.onCreateOptions()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionClick(item.itemId)
-        return super.onOptionsItemSelected(item)
     }
 
     private val simpleCallback: ItemTouchHelper.SimpleCallback
@@ -182,22 +179,23 @@ class TimetableFinderFragment :
             }
             viewModel.editTimetableOptionVisibility.observe(
                 viewLifecycleOwner
-            ) { visible: Boolean -> menu.getItem(0).isVisible = visible }
+            ) { visible: Boolean ->
+                toast("edit timetable $visible")
+                menu.getItem(0).isVisible = visible }
 
             itemTouchHelper.attachToRecyclerView(rvTimetable)
         }
 
-        viewModel.showLessonsOfGroupByDate.observe(
-            viewLifecycleOwner,
-            EventObserver { lessons: List<Event> ->
-                adapter!!.submitList(ArrayList<DomainModel>(lessons))
-            })
+        viewModel.eventsOfDay.collectWhenStarted(
+            lifecycleScope
+        ) { lessons: List<Event> ->
+            adapter!!.submitList(ArrayList<DomainModel>(lessons))
+        }
+
         viewModel.openEventEditor.observe(viewLifecycleOwner) {
             startActivity(Intent(requireActivity(), EventEditorActivity::class.java))
         }
-        viewModel.showMessageRes.observe(viewLifecycleOwner) { resId: Int ->
-            toast(getString(resId))
-        }
+
     }
 
     companion object {

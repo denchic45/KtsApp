@@ -49,4 +49,8 @@ data class CourseGroup(
     val specialtyId: String
 ) : DomainModel() {
     private constructor() : this("", "", "")
+
+    companion object {
+        fun createEmpty(): CourseGroup = CourseGroup()
+    }
 }

@@ -5,10 +5,7 @@ import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.GroupPreference
-import com.denchic45.kts.data.repository.CourseRepository
-import com.denchic45.kts.data.repository.GroupRepository
-import com.denchic45.kts.data.repository.SubjectRepository
-import com.denchic45.kts.data.repository.TeacherRepository
+import com.denchic45.kts.data.repository.*
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -20,9 +17,9 @@ class CourseEditorInteractor @Inject constructor(
     private val groupPreference: GroupPreference
 ) : Interactor {
 
-    fun findSubject(subjectId: String): Subject {
-        return subjectRepository.findLazy(subjectId)
-    }
+//    fun findSubject(subjectId: String): Subject {
+//        return subjectRepository.findLazy(subjectId)
+//    }
 
     fun findTeacherByTypedName(name: String): Flow<List<User>> {
         return teacherRepository.findByTypedName(name)
@@ -45,7 +42,7 @@ class CourseEditorInteractor @Inject constructor(
     }
 
     suspend fun removeCourse(course: Course) {
-        return courseRepository.remove(course)
+        return courseRepository.removeCourse(course.id)
     }
 
     val yourGroupId: String

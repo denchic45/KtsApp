@@ -4,6 +4,7 @@
     android:id="@+id/listStateLayout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/blue"
     android:layout_height="match_parent"
     tools:context=".ui.adminPanel.timetableEditor.choiceOfGroupSubject.ChoiceOfGroupSubjectFragment"
     app:networkView="@layout/state_error_network">

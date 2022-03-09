@@ -10,7 +10,7 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.repository.SameCoursesException
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
-import com.denchic45.kts.ui.login.choiceOfGroup.ChoiceOfGroupInteractor
+import com.denchic45.kts.ui.login.groupChooser.GroupChooserInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
@@ -31,7 +31,7 @@ class CourseEditorViewModel @Inject constructor(
     courseId: String?,
     private val interactor: CourseEditorInteractor,
     private val confirmInteractor: ConfirmInteractor,
-    var choiceOfGroupInteractor: ChoiceOfGroupInteractor
+    var groupChooserInteractor: GroupChooserInteractor
 ) : BaseViewModel() {
     val selectSubject = MutableLiveData<Subject>()
     val selectTeacher = MutableLiveData<User>()
@@ -94,7 +94,7 @@ class CourseEditorViewModel @Inject constructor(
                     .collect { t: List<ListItem> -> showFoundTeachers.setValue(t) }
             } catch (e: Exception) {
                 if (e is NetworkException) {
-                    showMessageRes.value = R.string.error_check_network
+                    showToast(R.string.error_check_network)
                 }
             }
         }
@@ -116,7 +116,7 @@ class CourseEditorViewModel @Inject constructor(
                     .collect { t: List<ListItem> -> showFoundSubjects.setValue(t) }
             } catch (e: Exception) {
                 if (e is NetworkException) {
-                    showMessageRes.value = R.string.error_check_network
+                    showToast(R.string.error_check_network)
                 }
             }
         }
@@ -157,16 +157,18 @@ class CourseEditorViewModel @Inject constructor(
     private fun onSaveClick() {
         viewModelScope.launch {
             try {
-                if (uiEditor.isNew) interactor.addCourse(uiEditor.item)
-                else interactor.updateCourse(uiEditor.item)
+                if (uiEditor.isNew)
+                    interactor.addCourse(uiEditor.item)
+                else
+                    interactor.updateCourse(uiEditor.item)
                 finish()
             } catch (e: Exception) {
                 when (e) {
                     is NetworkException -> {
-                        showMessageRes.value = R.string.error_check_network
+                        showToast(R.string.error_check_network)
                     }
                     is SameCoursesException -> {
-                        showMessage.value = "Такой курс уже существует!"
+                   showSnackBar("Такой курс уже существует!")
                     }
                 }
                 e.printStackTrace()
@@ -251,12 +253,14 @@ class CourseEditorViewModel @Inject constructor(
 
     fun onGroupAddClick() {
         openChoiceOfGroup.call()
-        choiceOfGroupInteractor.observeSelectedGroup()
-            .subscribe {
-                groups.add(it)
-                groupList.value = addAdderGroupItem(groups)
-                enablePositiveBtn()
-            }
+        viewModelScope.launch {
+            groupChooserInteractor.observeSelectedGroup()
+                .let { courseGroup ->
+                    groups.add(courseGroup)
+                    groupList.value = addAdderGroupItem(groups)
+                    enablePositiveBtn()
+                }
+        }
     }
 
     fun onGroupRemoveClick(position: Int) {
@@ -285,7 +289,7 @@ class CourseEditorViewModel @Inject constructor(
                 openConfirmation(
                     "Удаление курса" to "Удаленный курс нельзя будет восстановить"
                 )
-                if (confirmInteractor.awaitConfirm()) {
+                if (confirmInteractor.receiveConfirm()) {
                     deleteCourse()
                 }
             } else {
@@ -299,7 +303,7 @@ class CourseEditorViewModel @Inject constructor(
             when {
                 uiEditor.isNew -> {
                     openConfirmation(Pair("Закрыть редактор курса", "Новый курс не будет сохранен"))
-                    if (confirmInteractor.awaitConfirm()) {
+                    if (confirmInteractor.receiveConfirm()) {
                         finish()
                     }
                 }
@@ -308,7 +312,7 @@ class CourseEditorViewModel @Inject constructor(
                         "Закрыть редактор курса" to
                                 "Изменения курса не будут сохранены"
                     )
-                    if (confirmInteractor.awaitConfirm()) {
+                    if (confirmInteractor.receiveConfirm()) {
                         finish()
                     }
                 }
@@ -323,7 +327,7 @@ class CourseEditorViewModel @Inject constructor(
             finish()
         } catch (e: Exception) {
             if (e is NetworkException) {
-                showMessageRes.value = R.string.error_check_network
+                showToast(R.string.error_check_network)
             }
         }
     }

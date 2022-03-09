@@ -2,14 +2,13 @@ package com.denchic45.kts.ui.login.verifyPhoneNum
 
 import android.os.CountDownTimer
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class VerifyPhoneNumViewModel @Inject constructor(
@@ -30,34 +29,25 @@ class VerifyPhoneNumViewModel @Inject constructor(
 
     val enableResendCode = MutableLiveData<Boolean>()
     fun onVerifyClick(phoneNum: String) {
-        val subscribe = interactor.sendUserPhoneNumber(phoneNum).subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ event ->
-                when (event) {
-                    is Resource.Success -> {
-                        authSuccessful.value = event.data
+        viewModelScope.launch {
+            try {
+                authSuccessful.value = interactor.sendUserPhoneNumber(phoneNum).receive()
+            } catch (t: Throwable) {
+                when (t) {
+                    is FirebaseTooManyRequestsException -> {
+                        errorToManyRequest.call()
                     }
-                    is Resource.Error -> {
-                        if (event.error is FirebaseTooManyRequestsException) {
-                            errorToManyRequest.call()
-                        } else if (event.error is FirebaseAuthInvalidCredentialsException) {
-                            errorInvalidRequest.call()
-                        }
+                    is FirebaseAuthInvalidCredentialsException -> {
+                        errorInvalidRequest.call()
                     }
-
+                    else -> t.printStackTrace()
                 }
-            }, { throwable: Throwable ->
-                if (throwable is FirebaseTooManyRequestsException) {
-                    errorToManyRequest.call()
-                } else if (throwable is FirebaseAuthInvalidCredentialsException) {
-                    errorInvalidRequest.call()
-                }
-            })
-        compositeDisposable.add(subscribe)
+            }
+        }
     }
 
-    fun tryAuthWithPhoneNumByCode(code: String?) {
-        interactor.tryAuthWithPhoneNumByCode(code)
+    fun tryAuthWithPhoneNumByCode(code: String) {
+        viewModelScope.launch { interactor.tryAuthWithPhoneNumByCode(code) }
     }
 
     fun onCharTyped(code: String) {

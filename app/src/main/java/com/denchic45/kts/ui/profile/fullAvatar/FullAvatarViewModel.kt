@@ -16,7 +16,7 @@ class FullAvatarViewModel @Inject constructor(
     @Named(FullImageActivity.IMAGE_URL) private val photoUrl: String,
     private val interactor: FullAvatarInteractor
 ) : BaseViewModel() {
-    @JvmField
+    
     val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
 
     private var thisUser: User? = null
@@ -38,9 +38,9 @@ class FullAvatarViewModel @Inject constructor(
                          finish()
                     } catch (e: Exception) {
                         if (e is NetworkException) {
-                            showMessageRes.setValue(R.string.error_check_network)
+                            showToast(R.string.error_check_network)
                         } else {
-                            showMessage.setValue("Произошла ошибка")
+                            showSnackBar("Произошла ошибка")
                         }
                     }
                 }

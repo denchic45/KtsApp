@@ -16,12 +16,12 @@ import com.denchic45.kts.databinding.FragmentTimetableBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.EventAdapter.OnLessonItemClickListener
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.ListStateLayout
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.WeekCalendarListener.OnLoadListener
 import com.denchic45.widget.calendar.model.WeekItem
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import kotlinx.coroutines.flow.collect
 import java.time.LocalDate
 import kotlin.properties.Delegates
 
@@ -54,92 +54,52 @@ class TimetableFragment :
 
             appBarController = AppBarController.findController(requireActivity())
 
-            binding.wcv.weekCalendarListener = this@TimetableFragment
+            viewModel.initTimetable.collectWhenStarted(lifecycleScope) { groupVisibility: Boolean ->
+                binding.wcv.setLifecycleOwner(lifecycle)
+                binding.wcv.weekCalendarListener = this@TimetableFragment
 
-            lifecycleScope.launchWhenStarted {
-                viewModel.initTimetable.collect { groupVisibility: Boolean ->
-                    adapter = EventAdapter(viewModel.lessonTime, groupVisibility,
-                        onLessonItemClickListener = object : OnLessonItemClickListener() {
-                        })
-                    rvLessons.adapter = adapter
-
-                    rvLessons.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                        override fun onScrolled(
-                            recyclerView: RecyclerView,
-                            dx: Int,
-                            dy: Int
-                        ) {
-                            startLiftOnScrollElevationOverlayAnimation(
-                                recyclerView.canScrollVertically(
-                                    -1
-                                )
-                            )
-                        }
+                adapter = EventAdapter(viewModel.lessonTime, groupVisibility,
+                    onLessonItemClickListener = object : OnLessonItemClickListener() {
                     })
+                rvLessons.adapter = adapter
 
-                    appBarController.setLiftOnScroll(false)
-                    appBarController.setExpandableIfViewCanScroll(
-                        binding.rvLessons,
-                        viewLifecycleOwner
-                    )
+                rvLessons.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrolled(
+                        recyclerView: RecyclerView,
+                        dx: Int,
+                        dy: Int
+                    ) {
+                        startLiftOnScrollElevationOverlayAnimation(
+                            recyclerView.canScrollVertically(-1)
+                        )
+                    }
+                })
 
-//                    viewModel.showLessonsOfDay.observe(
-//                        viewLifecycleOwner,
-//                        EventObserver { lessons ->
-//                            adapter.submitList(
-//                                ArrayList<DomainModel>(lessons),
-//                                listStateLayout.getCommitCallback(adapter)
-//                            )
-//                            rvLessons.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//                                override fun onScrolled(
-//                                    recyclerView: RecyclerView,
-//                                    dx: Int,
-//                                    dy: Int
-//                                ) {
-//                                    startLiftOnScrollElevationOverlayAnimation(
-//                                        recyclerView.canScrollVertically(
-//                                            -1
-//                                        )
-//                                    )
-//                                }
-//                            })
-//                        })
-
-//                    viewModel.showListState.observe(
-//                        viewLifecycleOwner,
-//                        EventObserver { t ->
-//                            adapter.submitList(emptyList()) {
-//                                listStateLayout.showView(t)
-//                            }
-//                        })
-
-
-                }
+                appBarController.setLiftOnScroll(false)
+                appBarController.setExpandableIfViewCanScroll(
+                    binding.rvLessons,
+                    viewLifecycleOwner
+                )
             }
 
-            lifecycleScope.launchWhenStarted {
-                viewModel.events.collect {
-                    when (it) {
-                        is TimetableViewModel.EventsState.Events -> {
-                            adapter.submitList(
-                                ArrayList<DomainModel>(it.events),
-                                listStateLayout.getCommitCallback(adapter)
-                            )
-                        }
-                        is TimetableViewModel.EventsState.DayOff -> {
-                            adapter.submitList(emptyList()) {
-                                listStateLayout.showView(DAY_OFF_VIEW)
-                            }
+            viewModel.events.collectWhenStarted(lifecycleScope) {
+                when (it) {
+                    is TimetableViewModel.EventsState.Events -> {
+                        adapter.submitList(
+                            ArrayList<DomainModel>(it.events),
+                            listStateLayout.getCommitCallback(adapter)
+                        )
+                    }
+                    is TimetableViewModel.EventsState.DayOff -> {
+                        adapter.submitList(emptyList()) {
+                            listStateLayout.showView(DAY_OFF_VIEW)
                         }
                     }
                 }
             }
 
-
-            lifecycleScope.launchWhenStarted {
-                viewModel.selectedDate.collect { selectDate ->
-                    wcv.selectDate = selectDate
-                }
+            viewModel.selectedDate.collectWhenStarted(lifecycleScope) { selectDate ->
+                wcv.selectDate = selectDate
             }
         }
     }
@@ -184,10 +144,5 @@ class TimetableFragment :
             fragment.arguments = args
             return fragment
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding.wcv.removeListeners()
     }
 }

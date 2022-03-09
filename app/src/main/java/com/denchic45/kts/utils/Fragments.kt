@@ -16,3 +16,7 @@ fun Fragment.setActivityTitle(title: String) {
 fun Fragment.toast(message: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
     requireContext().toast(message, duration)
 }
+
+fun Fragment.toast(messageRes: Int, duration: Int = Toast.LENGTH_SHORT) {
+    requireContext().toast(messageRes, duration)
+}

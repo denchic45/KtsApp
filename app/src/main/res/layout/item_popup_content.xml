@@ -10,7 +10,7 @@
     android:paddingEnd="16dp"
     android:paddingBottom="8dp">
     <TextView
-        android:id="@+id/tv_content"
+        android:id="@+id/tv_name"
         android:gravity="center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="36dp"

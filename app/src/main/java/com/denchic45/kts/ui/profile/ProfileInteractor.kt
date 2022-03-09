@@ -7,7 +7,6 @@ import com.denchic45.kts.data.repository.GroupRepository
 import com.denchic45.kts.data.repository.StudentRepository
 import com.denchic45.kts.data.repository.TeacherRepository
 import com.denchic45.kts.data.repository.UserRepository
-import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -18,8 +17,8 @@ class ProfileInteractor @Inject constructor(
     private val groupRepository: GroupRepository
 ) : Interactor {
 
-    fun find(id: String): Observable<User> {
-        return userRepository.findById(id)
+    fun observe(id: String): Flow<User?> {
+        return userRepository.observeById(id)
     }
 
     fun findThisUser(): User {

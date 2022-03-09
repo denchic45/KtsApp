@@ -2,9 +2,9 @@ package com.denchic45.kts.utils
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Movie
 import android.graphics.drawable.Drawable
 import androidx.core.content.res.ResourcesCompat.*
-import androidx.fragment.app.Fragment
 
 fun Context.animations(id: Int) = resources.getAnimation(id)
 
@@ -32,7 +32,7 @@ fun Context.ints(id: Int) = resources.getInteger(id)
 
 fun Context.layouts(id: Int) = resources.getLayout(id)
 
-fun Context.movies(id: Int) = resources.getMovie(id)
+fun Context.movies(id: Int): Movie = resources.getMovie(id)
 
 fun Context.formattedStrings(id: Int) = FormattedString(resources, id)
 
@@ -40,11 +40,11 @@ fun Context.resourceInfos(id: Int) = ResourceInfo(resources, id)
 
 fun Context.strings(id: Int) = getString(id)
 
-fun Context.stringArrays(id: Int) = resources.getStringArray(id)
+fun Context.stringArrays(id: Int): Array<String> = resources.getStringArray(id)
 
 fun Context.texts(id: Int) = getText(id)
 
-fun Context.textArrays(id: Int) = resources.getTextArray(id)
+fun Context.textArrays(id: Int): Array<CharSequence> = resources.getTextArray(id)
 
 fun Context.xmls(id: Int) = resources.getXml(id)
 

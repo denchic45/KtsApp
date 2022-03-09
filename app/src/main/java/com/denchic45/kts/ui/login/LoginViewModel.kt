@@ -2,13 +2,14 @@ package com.denchic45.kts.ui.login
 
 import android.telephony.PhoneNumberUtils
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.rx.AsyncCompletableTransformer
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.utils.Validations
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthException
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -54,23 +55,23 @@ class LoginViewModel @Inject constructor(
     fun onGetCodeClick(phoneNum: String) {
         val normalizeNumber = PhoneNumberUtils.normalizeNumber(phoneNum)
         val realProneNum = testNumbers[normalizeNumber] ?: normalizeNumber
-        interactor.findUserByPhoneNum(realProneNum)
-            .compose(AsyncCompletableTransformer())
-            .subscribe(
-                {
-                    fabVisibility.value = false
-                    incrementProgress(0.65f)
-                    toolbarTitle = "Проверка"
-                    openVerifyPhoneNum.call()
-                    verifyUser.setValue(normalizeNumber)
-                }
-            ) { throwable: Throwable ->
-                if (throwable is FirebaseNetworkException) {
-                    showMessage.setValue(throwable.message)
+        viewModelScope.launch {
+            try {
+                interactor.findUserByPhoneNum(realProneNum)
+
+                fabVisibility.value = false
+                incrementProgress(0.65f)
+                toolbarTitle = "Проверка"
+                openVerifyPhoneNum.call()
+                verifyUser.setValue(normalizeNumber)
+            } catch (t: Throwable) {
+                if (t is FirebaseNetworkException) {
+                    showToast(t.message!!)
                 } else {
-                    errorNum.setValue(throwable.message)
+                    errorNum.setValue(t.message)
                 }
             }
+        }
     }
 
     fun onSmsClick() {
@@ -117,12 +118,13 @@ class LoginViewModel @Inject constructor(
             showMailError.value = "Неккоректный ввод"
             return
         }
-        interactor.authByEmail(mail, password)
-            .subscribe(
-                { onSuccessfulLogin() }
-            ) { throwable: Throwable? ->
-                if (throwable is FirebaseAuthException) {
-                    when (throwable.errorCode) {
+        viewModelScope.launch {
+            try {
+                interactor.authByEmail(mail, password)
+                onSuccessfulLogin()
+            } catch (t: Throwable) {
+                if (t is FirebaseAuthException) {
+                    when (t.errorCode) {
                         "ERROR_USER_NOT_FOUND" -> {
                             showMailError.value = "Пользователя с этой почтой не существует"
                             showPasswordError.setValue(null)
@@ -132,10 +134,11 @@ class LoginViewModel @Inject constructor(
                             showPasswordError.setValue("Неверный пароль")
                         }
                     }
-                } else if (throwable is FirebaseNetworkException) {
-                    showMessage.value = "Отсутствует интернет-соединение"
+                } else if (t is FirebaseNetworkException) {
+                    showToast(R.string.error_check_network)
                 }
             }
+        }
     }
 
     init {

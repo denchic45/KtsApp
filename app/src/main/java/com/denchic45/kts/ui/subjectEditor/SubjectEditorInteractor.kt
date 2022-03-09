@@ -1,9 +1,9 @@
 package com.denchic45.kts.ui.subjectEditor
 
-import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.repository.SubjectRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class SubjectEditorInteractor @Inject constructor(
@@ -22,8 +22,10 @@ class SubjectEditorInteractor @Inject constructor(
         return subjectRepository.remove(subject)
     }
 
-    override fun removeListeners() {}
-    fun find(id: String): LiveData<Subject> {
+
+    fun find(id: String): Flow<Subject?> {
         return subjectRepository.find(id)
     }
+
+    override fun removeListeners() {}
 }

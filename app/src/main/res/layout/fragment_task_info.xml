@@ -25,7 +25,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Словообразование.\nИспользование в\nпрофессиональной сфере." />
+            tools:text="Словообразование.\nИспользование в\n
+            профессиональной сфере." />
 
         <LinearLayout
             android:id="@+id/ll_task_comments"

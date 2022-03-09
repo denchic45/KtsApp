@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.adapter
 
 import android.view.ViewGroup
 import android.widget.CompoundButton
-import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -12,16 +11,12 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.*
 import com.denchic45.kts.utils.viewBinding
 
-class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
+class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALLBACK) {
     private val resId: Int
     var itemClickListener: OnItemClickListener = OnItemClickListener { }
     var itemCheckListener: OnItemCheckListener = OnItemCheckListener { position, isChecked -> }
 
-    constructor(@LayoutRes resId: Int) : super(DIFF_CALLBACK) {
-        this.resId = resId
-    }
-
-    constructor() : super(DIFF_CALLBACK) {
+    init {
         resId = R.layout.item_icon_content
     }
 
@@ -74,7 +69,7 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
                             holder.showImage()
                         }
                         payload === PAYLOAD.CHANGE_TITLE -> {
-                            holder.binding.tvContent.text = (getItem(position)!!.title)
+                            holder.binding.tvName.text = (getItem(position)!!.title)
                         }
                     }
                 }
@@ -94,10 +89,10 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
         override fun onBind(item: ListItem) {
 
             with(binding) {
-                tvContent.text = item.title
+                tvName.text = item.title
                 val context = itemView.context
                 item.icon.fold({
-                    ivIc.setImageResource(it)
+                    ivIcon.setImageResource(it)
                 }, {
 
                 })
@@ -105,7 +100,7 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
                 item.color.fold({
                     if (it != 0) {
                         DrawableCompat.setTint(
-                            DrawableCompat.wrap(ivIc.drawable),
+                            DrawableCompat.wrap(ivIcon.drawable),
                             ContextCompat.getColor(context, it)
                         )
                     }
@@ -127,7 +122,7 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
             with(binding) {
                 val context = itemView.context
                 item.icon.fold({
-                    ivIc.setImageResource(it)
+                    ivIcon.setImageResource(it)
                 }, {
 
                 })
@@ -135,7 +130,7 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
                 item.color.fold({
                     if (it != 0) {
                         DrawableCompat.setTint(
-                            DrawableCompat.wrap(ivIc.drawable),
+                            DrawableCompat.wrap(ivIcon.drawable),
                             ContextCompat.getColor(context, it)
                         )
                     }
@@ -154,7 +149,7 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
             with(binding) {
                 val context = itemView.context
                 item.icon.fold({
-                    ivIc.setImageResource(it)
+                    ivIcon.setImageResource(it)
                 }, {
 
                 })
@@ -162,7 +157,7 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>> {
                 item.color.fold({
                     if (it != 0) {
                         DrawableCompat.setTint(
-                            DrawableCompat.wrap(ivIc.drawable),
+                            DrawableCompat.wrap(ivIcon.drawable),
                             ContextCompat.getColor(context, it)
                         )
                     }

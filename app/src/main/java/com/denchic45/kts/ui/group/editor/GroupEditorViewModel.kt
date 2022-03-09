@@ -12,7 +12,7 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
-import com.denchic45.kts.ui.group.choiceOfCurator.ChoiceOfCuratorInteractor
+import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
@@ -28,7 +28,7 @@ import javax.inject.Named
 
 class GroupEditorViewModel @Inject constructor(
     @Named(GroupEditorFragment.GROUP_ID) id: String?,
-    private val choiceOfCuratorInteractor: ChoiceOfCuratorInteractor,
+    private val teacherChooserInteractor: TeacherChooserInteractor,
     private val addGroupUseCase: AddGroupUseCase,
     private val updateGroupUseCase: UpdateGroupUseCase,
     private val removeGroupUseCase: RemoveGroupUseCase,
@@ -38,13 +38,12 @@ class GroupEditorViewModel @Inject constructor(
     @Named("courses") val courseList: List<ListItem>
 ) : BaseViewModel() {
     val enableSpecialtyField = MutableLiveData<Boolean>()
-    val showMessageId = SingleLiveData<Int>()
     val nameField = MutableLiveData<String>()
     val specialtyField = MutableLiveData<Specialty>()
     val showSpecialties = MutableLiveData<List<ListItem>>()
     val courseField = MutableLiveData<String>()
     val curatorField = MutableLiveData<User>()
-    val fieldErrorMessage = SingleLiveData<Pair<Int, String>>()
+    val fieldErrorMessage = SingleLiveData<Pair<Int, String?>>()
     val deleteOptionVisibility = MutableLiveData<Boolean>()
     val openTeacherChooser = SingleLiveData<Void>()
     private val typedSpecialtyByName = MutableSharedFlow<String>()
@@ -101,7 +100,7 @@ class GroupEditorViewModel @Inject constructor(
             Validation(Rule({ !TextUtils.isEmpty(courseField.value) }, "Курс группы обязателен"))
                 .sendMessageResult(R.id.til_course, fieldErrorMessage),
             Validation(Rule({ curatorField.value != null }, R.string.error_not_curator))
-                .sendMessageIdResult(showMessageId)
+                .sendMessageIdResult(snackBarRes)
         )
 
         if (uiEditor.isNew)
@@ -176,13 +175,13 @@ class GroupEditorViewModel @Inject constructor(
                 "Удаление пользователя" to
                         "Удаленного пользователя нельзя будет восстановить"
             )
-            if (confirmInteractor.awaitConfirm()) {
+            if (confirmInteractor.receiveConfirm()) {
                 try {
                     removeGroupUseCase(uiEditor.item)
                     finish()
                 } catch (e: Exception) {
                     if (e is NetworkException) {
-                        showMessageId.value = R.string.error_check_network
+                        showToast(R.string.error_check_network)
                     }
                 }
             }
@@ -199,7 +198,7 @@ class GroupEditorViewModel @Inject constructor(
     private fun confirmExit(titleWithSubtitlePair: Pair<String, String>) {
         viewModelScope.launch {
             openConfirmation(titleWithSubtitlePair)
-            if (confirmInteractor.awaitConfirm())
+            if (confirmInteractor.receiveConfirm())
                 finish()
         }
     }
@@ -207,7 +206,7 @@ class GroupEditorViewModel @Inject constructor(
     fun onCuratorClick() {
         viewModelScope.launch {
             openTeacherChooser.call()
-            choiceOfCuratorInteractor.awaitSelectTeacher().apply {
+            teacherChooserInteractor.receiveSelectTeacher().apply {
                 uiEditor.item.curator = this
                 curatorField.setValue(this)
             }
@@ -229,7 +228,7 @@ class GroupEditorViewModel @Inject constructor(
                 finish()
             } catch (e: Exception) {
                 if (e is NetworkException) {
-                    showMessageId.value = R.string.error_check_network
+                    showToast(R.string.error_check_network)
                 }
             }
         }

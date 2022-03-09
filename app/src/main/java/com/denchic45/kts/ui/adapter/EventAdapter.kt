@@ -269,10 +269,6 @@ class EventAdapter(
         fun updateOrder(order: Int) {
             tvOrder.text = order.toString()
         }
-
-        init {
-
-        }
     }
 
     class LessonHolder(
@@ -407,8 +403,8 @@ class EventAdapter(
         }
 
         init {
-            val ivIcon = itemView.findViewById<ImageView>(R.id.iv_ic)
-            val tvTitle: TextView = itemView.findViewById(R.id.tv_content)
+            val ivIcon = itemView.findViewById<ImageView>(R.id.iv_icon)
+            val tvTitle: TextView = itemView.findViewById(R.id.tv_name)
 
             ivIcon.setImageDrawable(ContextCompat.getDrawable(itemView.context, R.drawable.ic_add))
             tvTitle.text = "Добавить урок"

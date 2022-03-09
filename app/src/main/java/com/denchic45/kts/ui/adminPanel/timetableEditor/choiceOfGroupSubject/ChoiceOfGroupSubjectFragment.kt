@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +20,7 @@ import com.denchic45.widget.ListStateLayout
 import kotlinx.coroutines.flow.collect
 
 class ChoiceOfGroupSubjectFragment :
-    BaseFragment<ChoiceOfGroupSubjectViewModel, FragmentChoiceOfGroupSubjectBinding>(
+    BaseFragment<GroupSubjectChooserViewModel, FragmentChoiceOfGroupSubjectBinding>(
         R.layout.fragment_choice_of_group_subject
     ) {
 
@@ -29,7 +28,7 @@ class ChoiceOfGroupSubjectFragment :
         FragmentChoiceOfGroupSubjectBinding::bind
     )
 
-    override val viewModel: ChoiceOfGroupSubjectViewModel by viewModels { viewModelFactory }
+    override val viewModel: GroupSubjectChooserViewModel by viewModels { viewModelFactory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,11 +39,6 @@ class ChoiceOfGroupSubjectFragment :
         super.onCreateOptionsMenu(menu, inflater)
         menu.clear()
         inflater.inflate(R.menu.options_choice_of_group, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionsItemSelected(item.itemId)
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -63,12 +57,9 @@ class ChoiceOfGroupSubjectFragment :
                     requireActivity().supportFragmentManager, null
                 )
             }
-            viewModel.openChoiceOfSubject.observe(
+            viewModel.openSubjectChooser.observe(
                 viewLifecycleOwner
-            ) { findNavController().navigate(R.id.action_choiceOfGroupSubjectFragment_to_choiceOfSubjectFragment) }
-            viewModel.updateIconEventSubject.observe(
-                viewLifecycleOwner
-            ) { adapter.notifyItemChanged(0, SubjectAdapter.PAYLOAD.UPDATE_ICON) }
+            ) { findNavController().navigate(R.id.action_choiceOfGroupSubjectFragment_to_subjectChooserFragment) }
 
             lifecycleScope.launchWhenStarted {
                 viewModel.showSubjectsOfGroup.collect { resource ->

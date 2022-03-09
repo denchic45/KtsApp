@@ -26,8 +26,8 @@ abstract class UserDao : BaseDao<UserEntity>() {
     @Query("SELECT * FROM user WHERE role IN('STUDENT','DEPUTY_HEADMAN','HEADMAN') AND user_group_id=:groupId")
     abstract fun getStudentsOfGroupByGroupId(groupId: String): LiveData<List<UserEntity>>
 
-    @Query("SELECT * FROM user where user_id =:id")
-    abstract fun get(id: String): LiveData<UserEntity>?
+//    @Query("SELECT * FROM user where user_id =:id")
+//    abstract fun get(id: String): LiveData<UserEntity>?
 
     @Query("SELECT * FROM user where user_id =:id")
     abstract suspend fun getSync(id: String): UserEntity?
@@ -61,7 +61,7 @@ abstract class UserDao : BaseDao<UserEntity>() {
     abstract fun getUserGroupId(groupId: String): String
 
     @Query("SELECT * FROM user where user_id =:id")
-    abstract fun getRx(id: String): Observable<UserEntity>
+    abstract fun get(id: String): Flow<UserEntity?>
 
     @Query("SELECT EXISTS(SELECT * FROM user where user_id =:id AND user_group_id =:groupId)")
     abstract fun isExistByIdAndGroupId(id: String, groupId: String?): Boolean

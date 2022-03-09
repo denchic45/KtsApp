@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.denchic45.kts.data.model.EntityModel
 import java.time.LocalDate
-import java.util.*
 
 @Entity(tableName = "event")
 data class EventEntity(

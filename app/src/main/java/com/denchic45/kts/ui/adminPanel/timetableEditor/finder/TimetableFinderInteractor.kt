@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.CourseGroup
 import com.denchic45.kts.data.model.domain.Event
+import com.denchic45.kts.data.model.domain.EventsOfDay
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.repository.EventRepository
 import com.denchic45.kts.data.repository.GroupRepository
@@ -21,8 +22,8 @@ class TimetableFinderInteractor @Inject constructor(
 
     override fun removeListeners() {}
 
-    fun findLessonsOfGroupByDate(date: LocalDate, groupId: String): Flow<List<Event>> {
-        return eventRepository.findLessonsOfGroupByDate(date, groupId)
+    fun findLessonsOfGroupByDate(date: LocalDate, groupId: String): Flow<EventsOfDay> {
+        return eventRepository.findEventsOfDayByGroupIdAndDate(groupId, date)
     }
 
     val lessonTime: Int

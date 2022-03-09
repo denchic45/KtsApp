@@ -24,7 +24,7 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
     context, 0, items
 ) {
     private val list: MutableList<ListItem>
-    var nameFilter: Filter = object : Filter() {
+    private var nameFilter: Filter = object : Filter() {
         override fun performFiltering(constraint: CharSequence): FilterResults? {
             return null
         }
@@ -74,8 +74,8 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
     }
 
     class ItemWithIconHolder(private val convertView: View) {
-        private val tvTitle: TextView = convertView.findViewById(R.id.tv_content)
-        private val ivIcon: ImageView = convertView.findViewById(R.id.iv_ic)
+        private val tvTitle: TextView = convertView.findViewById(R.id.tv_name)
+        private val ivIcon: ImageView = convertView.findViewById(R.id.iv_icon)
         fun onBind(item: ListItem) {
             val context = convertView.context
             try {
@@ -132,7 +132,7 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
     }
 
     class ItemHolder(private val convertView: View) {
-        private val tvTitle: TextView = convertView.findViewById(R.id.tv_content)
+        private val tvTitle: TextView = convertView.findViewById(R.id.tv_name)
         fun onBind(item: ListItem) {
             val context = convertView.context
             try {

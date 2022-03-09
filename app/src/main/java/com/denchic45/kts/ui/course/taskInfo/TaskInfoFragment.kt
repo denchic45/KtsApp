@@ -174,9 +174,6 @@ class TaskInfoFragment :
             }
         }
 
-        viewModel.showMessage.observe(viewLifecycleOwner) {
-            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-        }
         Transformations.distinctUntilChanged(viewModel.showSubmissionToolbar)
             .observe(viewLifecycleOwner) {
                 if (it) {

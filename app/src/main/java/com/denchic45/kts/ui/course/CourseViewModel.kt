@@ -24,7 +24,7 @@ class CourseViewModel @Inject constructor(
     findCourseUseCase: FindCourseUseCase,
     private val removeCourseContentUseCase: RemoveCourseContentUseCase,
     private val updateCourseContentOrderUseCase: UpdateCourseContentOrderUseCase,
-    val findCourseContentUseCase: FindCourseContentUseCase,
+    private val findCourseContentUseCase: FindCourseContentUseCase,
     findSelfUserUseCase: FindSelfUserUseCase
 ) : BaseViewModel() {
 

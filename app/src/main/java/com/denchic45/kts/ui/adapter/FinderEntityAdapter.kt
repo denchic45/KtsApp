@@ -84,7 +84,7 @@ class FinderEntityAdapter :
             itemClickListener
         ) {
         private val tvTitle: TextView = itemView.findViewById(R.id.textView_title)
-        private val ivIcon: ImageView = itemView.findViewById(R.id.iv_ic)
+        private val ivIcon: ImageView = itemView.findViewById(R.id.iv_icon)
         private val context: Context = itemView.context
         override fun onBind(item: ListItem) {
             item.color.onId {

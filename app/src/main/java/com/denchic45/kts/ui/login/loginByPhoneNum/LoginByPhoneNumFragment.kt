@@ -25,7 +25,7 @@ class LoginByPhoneNumFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_login_by_phone_num, container, false)
         etNum = root.findViewById(R.id.editText_num)
-        tnlNum = root.findViewById(R.id.textinput_num)
+        tnlNum = root.findViewById(R.id.til_num)
         btnGetCode = root.findViewById(R.id.btn_next)
         etNum.addTextChangedListener(PhoneNumberFormattingTextWatcher())
         return root

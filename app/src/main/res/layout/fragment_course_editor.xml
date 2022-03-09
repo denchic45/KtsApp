@@ -99,10 +99,11 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.denchic45.kts.CircleImageView
+            <androidx.constraintlayout.utils.widget.ImageFilterView
                 android:id="@+id/iv_teacher_avatar"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                app:roundPercent="1"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 app:srcCompat="@drawable/ic_teacher" />

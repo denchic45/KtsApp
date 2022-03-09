@@ -12,10 +12,10 @@ import java.util.TimeZone;
 public final class DateFormatUtil {
 
     private static final Calendar calToday = Calendar.getInstance();
-    public static String yyy_MM_dd = "yyyy-MM-dd";
-    public static String LLLL = "LLLL";
-    public static String LLLL_yyyy = "LLLL yyyy";
-    public static String DD_MM_yy = "dd.MM.yy";
+    public static final String yyy_MM_dd = "yyyy-MM-dd";
+    public static final String LLLL = "LLLL";
+    public static final String LLLL_yyyy = "LLLL yyyy";
+    public static final String DD_MM_yy = "dd.MM.yy";
     public static final String dd_MMM = "dd MMM";
     public static final String dd_MMMM = "dd MMMM";
 

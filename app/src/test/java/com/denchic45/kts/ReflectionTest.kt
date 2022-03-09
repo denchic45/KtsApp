@@ -10,7 +10,7 @@ import kotlin.reflect.full.memberProperties
 
 class ReflectionTest {
 
-    val user1 = User(
+    private val user1 = User(
         firstName = "Ivan",
         surname = "Ivanov",
         patronymic = "Ivanich",
@@ -25,14 +25,14 @@ class ReflectionTest {
         phoneNum = ""
     )
 
-    val user2 = user1.copy(
+    private val user2 = user1.copy(
         firstName = "Anton",
         gender = 2,
         timestamp = Date(),
         admin = true,
     )
 
-    val task1 = Task(
+    private val task1 = Task(
         id = "id",
         courseId = "",
         timestamp = Date(),
@@ -54,7 +54,7 @@ class ReflectionTest {
         sectionId = ""
     )
 
-    val task2 = task1.copy(
+    private val task2 = task1.copy(
         submissionSettings = SubmissionSettings(
             textAvailable = true,
             charsLimit = 2,

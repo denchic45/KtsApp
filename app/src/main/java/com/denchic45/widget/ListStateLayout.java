@@ -36,7 +36,6 @@ public class ListStateLayout extends FrameLayout {
     private View contentView;
     private ViewFlipper viewFlipper;
     private boolean showContent;
-//    private RecyclerView.Adapter<?> adapter;
 
     public ListStateLayout(@NonNull Context context) {
         super(context);
@@ -205,46 +204,6 @@ public class ListStateLayout extends FrameLayout {
         });
     }
 
-
-//    public static class Builder {
-//
-//        private final RecyclerView recyclerView;
-//        private int errorView, loadingView, emptyView, networkView, startView;
-//
-//        public Builder(RecyclerView recyclerView) {
-//            this.recyclerView = recyclerView;
-//        }
-//
-//        public Builder errorView(@LayoutRes int layoutId) {
-//            this.errorView = layoutId;
-//            return this;
-//        }
-//
-//
-//        public Builder loadingView(@LayoutRes int layoutId) {
-//            this.loadingView = layoutId;
-//            return this;
-//        }
-//
-//        public Builder emptyView(@LayoutRes int layoutId) {
-//            this.emptyView = layoutId;
-//            return this;
-//        }
-//
-//        public Builder networkView(@LayoutRes int layoutId) {
-//            this.networkView = layoutId;
-//            return this;
-//        }
-//
-//        public Builder startView(@LayoutRes int layoutId) {
-//            this.startView = layoutId;
-//            return this;
-//        }
-//
-//        public ListStateLayout create() {
-//            return new ListStateLayout(recyclerView, errorView, loadingView, emptyView, networkView, startView);
-//        }
-//    }
 
     private class ListChangeListener implements Runnable {
 

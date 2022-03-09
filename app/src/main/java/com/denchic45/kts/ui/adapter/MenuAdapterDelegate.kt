@@ -59,22 +59,22 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
     override fun onBind(item: NavTextItem) {
         with(binding) {
             item.name.fold({
-                tvContent.setText(it)
+                tvName.setText(it)
             }, {
-                tvContent.setText(it)
+                tvName.setText(it)
             })
 
             when (item.iconType) {
                 NavTextItem.IconType.NONE -> {
-                    ivIc.roundPercent = 0F
-                    ivIc.updateLayoutParams {
+                    ivIcon.roundPercent = 0F
+                    ivIcon.updateLayoutParams {
                         height = 26.dp
                         width = 26.dp
                     }
                 }
                 NavTextItem.IconType.CIRCLE -> {
-                    ivIc.roundPercent = 100F
-                    ivIc.updateLayoutParams {
+                    ivIcon.roundPercent = 100F
+                    ivIcon.updateLayoutParams {
                         height = 32.dp
                         width = 32.dp
                     }
@@ -83,9 +83,9 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
 
             item.icon.onId {
                 if (it != 0)
-                    ivIc.setImageResource(it)
+                    ivIcon.setImageResource(it)
                 else
-                    ivIc.setImageDrawable(
+                    ivIcon.setImageDrawable(
                         AvatarGenerator.Builder(itemView.context).apply {
                             color(
                                 item.color.fold({ colorId -> colorId },
@@ -118,9 +118,9 @@ class NavDropdownItemHolder(itemNavDropdownBinding: ItemNavDropdownBinding) :
     private fun bind(item: NavDropdownItem) {
         with(binding) {
             item.name.fold({
-                tvContent.setText(it)
+                tvName.setText(it)
             }, {
-                tvContent.setText(it)
+                tvName.setText(it)
             })
 
         }
@@ -129,7 +129,7 @@ class NavDropdownItemHolder(itemNavDropdownBinding: ItemNavDropdownBinding) :
     override fun onBind(item: NavDropdownItem, payload: Any) {
         bind(item)
         if (payload == PAYLOAD.NAV_EXPANDED) {
-            binding.ivIc.animate()
+            binding.ivIcon.animate()
                 .rotation(if (item.expanded) 180f else 0f)
                 .setDuration(300)
                 .start()

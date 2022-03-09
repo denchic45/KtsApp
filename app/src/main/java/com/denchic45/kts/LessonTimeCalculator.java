@@ -8,8 +8,8 @@ import java.util.Calendar;
 public class LessonTimeCalculator {
 
     private static final int BREAK_TIME = 5;
-    private Calendar calendar = Calendar.getInstance();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+    private final Calendar calendar = Calendar.getInstance();
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
     private int orderLesson, lessonTime;
 
     public String getCalculatedTime(int orderLesson, int lessonTime) {

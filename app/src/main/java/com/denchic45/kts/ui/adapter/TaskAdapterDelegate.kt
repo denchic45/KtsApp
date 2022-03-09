@@ -23,8 +23,7 @@ class TaskHolder(itemTaskBinding: ItemTaskBinding) :
     override fun onBind(item: Task) {
         with(binding) {
             tvTitle.text = item.name
-            tvSubtitle.text = item.completionDate
-                ?.let { it.toString("dd MMM HH:mm") }
+            tvSubtitle.text = item.completionDate?.toString("dd MMM HH:mm")
                 ?: run { "Без срока сдачи" }
         }
     }

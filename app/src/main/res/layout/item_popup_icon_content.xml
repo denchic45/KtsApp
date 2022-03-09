@@ -10,13 +10,13 @@
     android:paddingEnd="16dp">
 
     <ImageView
-        android:id="@+id/iv_ic"
+        android:id="@+id/iv_icon"
         android:layout_width="24dp"
         android:layout_height="48dp"
         app:srcCompat="@drawable/ic_control_panel" />
 
     <TextView
-        android:id="@+id/tv_content"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

@@ -1,6 +1,7 @@
 package com.denchic45.kts.data.model.domain
 
 import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.utils.Files
 import com.denchic45.kts.utils.getExtension
 import com.denchic45.kts.utils.toString
 import java.io.File
@@ -128,15 +129,14 @@ data class Task(
         val content: String,
         val author: User,
         val createdDate: LocalDateTime
-    ) : DomainModel() {
-    }
+    ) : DomainModel()
 }
 
 data class Attachment(
     val file: File
 ) : DomainModel() {
 
-    val name: String = file.name
+    val name: String = Files.nameWithoutTimestamp(file.name)
 
     override var id: String = name
 

@@ -1,12 +1,10 @@
 package com.denchic45.kts.ui.group.users
 
-import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.GroupRepository
 import com.denchic45.kts.data.repository.StudentRepository
 import com.denchic45.kts.data.repository.UserRepository
-import io.reactivex.rxjava3.core.Completable
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -23,8 +21,8 @@ class GroupUsersInteractor @Inject constructor(
         return userRepository.getByGroupId(groupId)
     }
 
-   suspend fun removeStudent(student: User) {
-       studentRepository.remove(student)
+    suspend fun removeStudent(student: User) {
+        studentRepository.remove(student)
     }
 
     suspend fun updateGroupCurator(groupId: String, teacherId: User) {

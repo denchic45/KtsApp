@@ -3,13 +3,14 @@ package com.denchic45.kts.ui.group
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.viewModels
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
@@ -21,16 +22,12 @@ import com.denchic45.kts.ui.group.users.GroupUsersFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import com.google.android.material.tabs.TabLayout
-import dagger.android.support.AndroidSupportInjection
 
-class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
+class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(R.layout.fragment_group) {
 
     override val binding: FragmentGroupBinding by viewBinding(FragmentGroupBinding::bind)
     override val viewModel: GroupViewModel by viewModels { viewModelFactory }
-    private var viewPager: ViewPager? = null
     private var menu: Menu? = null
-    private var tabLayout: TabLayout? = null
     private lateinit var appBarController: AppBarController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,29 +37,13 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        viewModel.onPrepareOptions(viewPager!!.currentItem)
+        viewModel.onPrepareOptions(binding.vp.currentItem)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         this.menu = menu
         inflater.inflate(R.menu.options_group, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.onOptionSelect(item.itemId)
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        val root = inflater.inflate(R.layout.fragment_group, container, false)
-        viewPager = root.findViewById(R.id.vp_group)
-        tabLayout = root.findViewById(R.id.tl_group)
-        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -75,22 +56,6 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
                 idAndVisiblePair.first
             )
             if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
-        }
-        viewModel.initTabs.observe(viewLifecycleOwner) { size: Int ->
-            val adapter = GroupFragmentAdapter(
-                childFragmentManager,
-                viewModel.groupId,
-                size,
-                requireContext()
-            )
-            viewPager!!.adapter = adapter
-            viewPager!!.offscreenPageLimit = 3
-            viewPager!!.addOnPageChangeListener(object : SimpleOnPageChangeListener() {
-                override fun onPageSelected(position: Int) {
-                    viewModel.onPageSelect(position)
-                }
-            })
-            tabLayout!!.setupWithViewPager(viewPager)
         }
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
@@ -106,13 +71,24 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>() {
                 bundleOf(GroupEditorFragment.GROUP_ID to groupId)
             )
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        tabLayout = null
-        viewPager!!.adapter = null
-        viewPager = null
+        with(binding) {
+            viewModel.initTabs.observe(viewLifecycleOwner) { size: Int ->
+                val adapter = GroupFragmentAdapter(
+                    childFragmentManager,
+                    viewModel.groupId,
+                    size,
+                    requireContext()
+                )
+                vp.adapter = adapter
+                vp.offscreenPageLimit = 3
+                vp.addOnPageChangeListener(object : SimpleOnPageChangeListener() {
+                    override fun onPageSelected(position: Int) {
+                        viewModel.onPageSelect(position)
+                    }
+                })
+                tl.setupWithViewPager(vp)
+            }
+        }
     }
 
     override fun onStart() {
