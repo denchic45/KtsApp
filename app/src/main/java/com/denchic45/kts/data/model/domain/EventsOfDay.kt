@@ -12,10 +12,6 @@ data class EventsOfDay(
     private val _events: List<Event> =
         removeRedundantEmptyEvents(addMissingEmptyEvents(startedEvents))
 
-    init {
-
-    }
-
     val events: List<Event>
         get() = _events
 

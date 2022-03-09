@@ -19,7 +19,6 @@ import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
@@ -32,7 +31,7 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
 
     override val binding: FragmentCourseBinding by viewBinding(FragmentCourseBinding::bind)
     override val viewModel: CourseViewModel by viewModels { viewModelFactory }
-    var collapsingToolbarLayout: CollapsingToolbarLayout? = null
+    private var collapsingToolbarLayout: CollapsingToolbarLayout? = null
 
     private lateinit var mainToolbar: Toolbar
     private lateinit var toolbar: Toolbar

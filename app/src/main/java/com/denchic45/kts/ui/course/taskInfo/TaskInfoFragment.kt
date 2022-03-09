@@ -23,7 +23,6 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentTaskInfoBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
-import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.ui.course.taskEditor.AddAttachmentAdapterDelegate
 import com.denchic45.kts.ui.course.taskEditor.AddAttachmentHolder
 import com.denchic45.kts.ui.course.taskEditor.AttachmentAdapterDelegate

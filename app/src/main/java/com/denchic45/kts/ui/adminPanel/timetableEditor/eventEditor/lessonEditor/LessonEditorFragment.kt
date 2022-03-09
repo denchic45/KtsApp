@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.lessonEditor
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.PictureDrawable
@@ -21,7 +20,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.denchic45.EventObserver
 import com.denchic45.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
@@ -31,8 +29,6 @@ import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.utils.Dimensions
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
-import com.google.android.material.snackbar.Snackbar
-import dagger.android.support.AndroidSupportInjection
 
 class LessonEditorFragment :
     BaseFragment<LessonEditorViewModel, FragmentLessonEditorBinding>(R.layout.fragment_lesson_editor) {

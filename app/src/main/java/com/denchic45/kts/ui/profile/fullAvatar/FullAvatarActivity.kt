@@ -3,14 +3,11 @@ package com.denchic45.kts.ui.profile.fullAvatar
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
-
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.avatar.FullImageActivity
-import com.denchic45.kts.utils.toast
 import dagger.android.AndroidInjection
 import javax.inject.Inject
 

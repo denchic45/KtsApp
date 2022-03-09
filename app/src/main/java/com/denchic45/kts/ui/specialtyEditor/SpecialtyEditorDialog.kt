@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.specialtyEditor
 
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -15,7 +14,6 @@ import com.denchic45.kts.ui.BaseDialogFragment
 import com.denchic45.kts.utils.collectWhenStarted
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding4.widget.textChanges
-import dagger.android.support.AndroidSupportInjection
 
 class SpecialtyEditorDialog :
     BaseDialogFragment<SpecialtyEditorViewModel, FragmentSpecialtyEditorBinding>(R.layout.fragment_specialty_editor) {

@@ -20,8 +20,6 @@ import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
-import com.denchic45.kts.utils.strings
-import com.denchic45.kts.utils.toast
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import kotlinx.coroutines.flow.collect
 

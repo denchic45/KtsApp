@@ -12,13 +12,8 @@ import com.denchic45.kts.databinding.*
 import com.denchic45.kts.utils.viewBinding
 
 class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALLBACK) {
-    private val resId: Int
     var itemClickListener: OnItemClickListener = OnItemClickListener { }
     var itemCheckListener: OnItemCheckListener = OnItemCheckListener { position, isChecked -> }
-
-    init {
-        resId = R.layout.item_icon_content
-    }
 
     override fun getItemViewType(position: Int): Int {
         return getItem(position)!!.type

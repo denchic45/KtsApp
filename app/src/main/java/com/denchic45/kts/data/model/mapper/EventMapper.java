@@ -18,7 +18,6 @@ import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity;
 import com.denchic45.kts.data.model.room.TeacherEventCrossRef;
 
 import org.jetbrains.annotations.NotNull;
-import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -80,8 +79,6 @@ public interface EventMapper {
     }
 
     List<EventEntity> docToEntity(List<EventDoc> doc);
-
-    List<EventDoc> entityToDoc(List<EventEntity> entity);
 
     default EventDoc domainToDoc(Event domain) {
         EventDoc eventDoc = eventToEventDoc(domain);

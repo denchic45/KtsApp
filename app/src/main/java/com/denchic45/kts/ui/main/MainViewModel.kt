@@ -12,8 +12,6 @@ import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.util.*
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(

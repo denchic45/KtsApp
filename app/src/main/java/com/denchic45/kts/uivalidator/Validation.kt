@@ -1,7 +1,6 @@
 package com.denchic45.kts.uivalidator
 
 import androidx.lifecycle.MutableLiveData
-import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.uivalidator.validatorlistener.*
 import kotlinx.coroutines.flow.MutableSharedFlow

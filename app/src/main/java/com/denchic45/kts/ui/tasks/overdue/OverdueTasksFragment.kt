@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.tasks.overdue
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +11,6 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentListBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.adapter
 import kotlinx.coroutines.flow.collect
 

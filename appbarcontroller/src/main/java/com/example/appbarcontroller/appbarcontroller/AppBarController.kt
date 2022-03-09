@@ -20,6 +20,7 @@ import com.example.appbarcontroller.RecyclerViewFinishListener
 import com.google.android.material.appbar.AppBarLayout
 import org.jetbrains.annotations.Contract
 import java.lang.ref.WeakReference
+import kotlin.math.abs
 
 class AppBarController private constructor(
     activity: AppCompatActivity,
@@ -160,23 +161,21 @@ class AppBarController private constructor(
                 var lastVisibleItem = 0
                 var firstVisibleItem = 0
                 if (layoutManager is LinearLayoutManager) {
-                    val linearLayoutManager = layoutManager
                     lastVisibleItem =
-                        Math.abs(linearLayoutManager.findLastCompletelyVisibleItemPosition())
+                        abs(layoutManager.findLastCompletelyVisibleItemPosition())
                     firstVisibleItem =
-                        Math.abs(linearLayoutManager.findFirstCompletelyVisibleItemPosition())
+                        abs(layoutManager.findFirstCompletelyVisibleItemPosition())
                 } else if (layoutManager is StaggeredGridLayoutManager) {
-                    val staggeredGridLayoutManager = layoutManager
                     val lastItems =
-                        staggeredGridLayoutManager.findLastCompletelyVisibleItemPositions(
-                            IntArray(staggeredGridLayoutManager.spanCount)
+                        layoutManager.findLastCompletelyVisibleItemPositions(
+                            IntArray(layoutManager.spanCount)
                         )
                     val firstItems =
-                        staggeredGridLayoutManager.findFirstCompletelyVisibleItemPositions(
-                            IntArray(staggeredGridLayoutManager.spanCount)
+                        layoutManager.findFirstCompletelyVisibleItemPositions(
+                            IntArray(layoutManager.spanCount)
                         )
-                    lastVisibleItem = Math.abs(lastItems[lastItems.size - 1])
-                    firstVisibleItem = Math.abs(firstItems[firstItems.size - 1])
+                    lastVisibleItem = abs(lastItems[lastItems.size - 1])
+                    firstVisibleItem = abs(firstItems[firstItems.size - 1])
                 }
                 return lastVisibleItem < adapter.itemCount - 1 || firstVisibleItem > 0
             } else if (adapter.itemCount == 0) {

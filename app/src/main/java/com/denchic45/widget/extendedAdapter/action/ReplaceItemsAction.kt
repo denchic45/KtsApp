@@ -1,6 +1,5 @@
 package com.denchic45.widget.extendedAdapter.action
 
-import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 
 class ReplaceItemsAction(

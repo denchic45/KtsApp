@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.specialtyEditor
 
-import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R

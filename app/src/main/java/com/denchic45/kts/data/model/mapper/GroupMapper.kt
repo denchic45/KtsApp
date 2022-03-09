@@ -1,68 +1,50 @@
-package com.denchic45.kts.data.model.mapper;
+package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.CourseGroup;
-import com.denchic45.kts.data.model.domain.Group;
-import com.denchic45.kts.data.model.firestore.GroupDoc;
-import com.denchic45.kts.data.model.room.GroupEntity;
-import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity;
-import com.denchic45.kts.utils.SearchKeysGenerator;
-import com.google.firebase.firestore.FieldValue;
+import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.Group
+import com.denchic45.kts.data.model.domain.Group.Companion.deleted
+import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.model.room.GroupEntity
+import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
+import com.google.firebase.firestore.FieldValue
+import org.mapstruct.Mapper
+import org.mapstruct.Mapping
 
-import org.jetbrains.annotations.NotNull;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-@Mapper(uses = {UserMapper.class, SpecialtyMapper.class})
-public interface GroupMapper extends DocEntityMapper<GroupDoc, GroupEntity> {
-
+@Mapper(uses = [UserMapper::class, SpecialtyMapper::class])
+abstract class GroupMapper {
     @Mapping(target = "searchKeys", ignore = true)
     @Mapping(target = "allUsers", ignore = true)
     @Mapping(target = "students", ignore = true)
-    GroupDoc domainToDoc(Group domain);
+    abstract fun domainToDoc(domain: Group): GroupDoc
 
     @DoIgnore
     @Mapping(target = "specialty", source = "specialtyEntity")
     @Mapping(target = ".", source = "groupEntity")
     @Mapping(target = "curator", source = "curatorEntity")
-    Group groupWithCuratorAndSpecialtyEntityToGroup(GroupWithCuratorAndSpecialtyEntity entity);
-
-    default Group entityToDomain(GroupWithCuratorAndSpecialtyEntity entity) {
-        if (entity == null)
-            return Group.deleted();
-        else
-            return groupWithCuratorAndSpecialtyEntityToGroup(entity);
+    abstract fun groupWithCuratorAndSpecialtyEntityToGroup(entity: GroupWithCuratorAndSpecialtyEntity?): Group
+    fun entityToDomain(entity: GroupWithCuratorAndSpecialtyEntity?): Group {
+        return entity?.let { groupWithCuratorAndSpecialtyEntityToGroup(it) }
+            ?: deleted()
     }
 
-    default Map<String, Object> domainToMap(@NotNull Group group) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", group.getId());
-        map.put("name", group.getName());
-        map.put("course", group.getCourse());
-        map.put("specialtyId", group.getSpecialty().getId());
-        map.put("timestamp", FieldValue.serverTimestamp());
-        map.put("specialty", group.getSpecialty());
-        map.put("curator", group.getCurator());
-        return map;
+    fun domainToMap(group: Group): Map<String, Any> {
+        val map: MutableMap<String, Any> = HashMap()
+        map["id"] = group.id
+        map["name"] = group.name
+        map["course"] = group.course
+        map["specialtyId"] = group.specialty.id
+        map["timestamp"] = FieldValue.serverTimestamp()
+        map["specialty"] = group.specialty
+        map["curator"] = group.curator
+        return map
     }
 
     @Mapping(source = "specialty.id", target = "specialtyId")
-    CourseGroup docToCourseGroupDomain(GroupDoc groupDoc);
+    abstract fun docToCourseGroupDomain(groupDoc: GroupDoc): CourseGroup
 
-    List<CourseGroup> docToCourseGroupDomain(List<GroupDoc> groupDocs);
+    abstract fun docToCourseGroupDomain(groupDocs: List<GroupDoc?>?): List<CourseGroup>
 
     @Mapping(source = "curator.id", target = "curatorId")
     @Mapping(source = "specialty.id", target = "specialtyId")
-    @Override
-    GroupEntity docToEntity(GroupDoc doc);
-
-    @Mapping(target = "searchKeys", ignore = true)
-    @Mapping(target = "allUsers", ignore = true)
-    @Override
-    GroupDoc entityToDoc(GroupEntity entity);
+    abstract fun docToEntity(doc: GroupDoc): GroupEntity
 }

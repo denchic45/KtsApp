@@ -15,6 +15,7 @@
         android:layout_height="match_parent"
         android:paddingTop="16sp"
         android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:layout_below="@+id/app_bar"
         android:overScrollMode="never"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />

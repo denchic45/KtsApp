@@ -153,18 +153,4 @@ class EventsFragment : ListFragment<ConcatAdapter>() {
             it.enableEditMode = editMode
         }
     }
-
-//    fun enableEditMode() {
-//        adapters.forEach {
-//            it.enableEditMode()
-//        }
-//    }
-
-//    fun disableEditMode() {
-//        adapters.forEach {
-//            it.disableEditMode()
-//        }
-//    }
-
-
 }

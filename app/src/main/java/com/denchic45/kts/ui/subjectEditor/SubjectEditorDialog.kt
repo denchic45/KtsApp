@@ -1,11 +1,9 @@
 package com.denchic45.kts.ui.subjectEditor
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -22,7 +20,6 @@ import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.ViewUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding4.widget.textChanges
-import dagger.android.support.AndroidSupportInjection
 
 class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSubjectEditorBinding>(
     R.layout.dialog_subject_editor
@@ -131,11 +128,6 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
 
             ivSubjectIc.setOnClickListener { viewModel.onIconClick() }
         }
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
     }
 
     companion object {

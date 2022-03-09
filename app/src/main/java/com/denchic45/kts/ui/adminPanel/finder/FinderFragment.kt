@@ -1,16 +1,11 @@
 package com.denchic45.kts.ui.adminPanel.finder
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -20,10 +15,9 @@ import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentFinderBinding
-import com.denchic45.kts.di.viewmodel.ViewModelFactory
+import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.course.CourseFragment
-import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
@@ -32,15 +26,12 @@ import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
 import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.ListStateLayout
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
 import com.google.android.material.appbar.AppBarLayout
-import dagger.android.support.AndroidSupportInjection
-import javax.inject.Inject
 
-class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
+class FinderFragment : BaseFragment<FinderViewModel,FragmentFinderBinding>(R.layout.fragment_finder), OnItemClickListener,
     OnItemLongClickListener {
     private val listAdapters = listOf(
         UserAdapter(this, this),
@@ -50,18 +41,15 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         CourseAdapter(this, this)
     )
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<FinderViewModel>
-    private val viewModel: FinderViewModel by viewModels { viewModelFactory }
-    private lateinit var layoutManager: LinearLayoutManager
+    override val viewModel: FinderViewModel by viewModels { viewModelFactory }
+//    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var currentAdapter: ListAdapter<DomainModel, *>
-    private val navController: NavController by lazy { findNavController() }
-    private lateinit var rv: RecyclerView
+//    private lateinit var rv: RecyclerView
     private lateinit var appBarController: AppBarController
     private lateinit var rvFinderEntities: RecyclerView
     private lateinit var finderEntityAdapter: FinderEntityAdapter
     private lateinit var searchBar: SearchBar
-    private val viewBinding by viewBinding({ FragmentFinderBinding.bind(it) })
+    override val binding by viewBinding({ FragmentFinderBinding.bind(it) })
 
     private fun hideMainToolbar() {
         appBarController.toolbar.visibility = View.GONE
@@ -83,16 +71,13 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         super.onViewCreated(view, savedInstanceState)
         appBarController = AppBarController.findController(requireActivity())
         hideMainToolbar()
-        with(viewBinding) {
-            rv = rvFoundItems
+        with(binding) {
             searchBar = requireActivity().findViewById(R.id.search_bar_finder)
             finderEntityAdapter = FinderEntityAdapter()
             rvFinderEntities = appBarController.getView(R.id.rv_finder_entity)!!
             rvFinderEntities.adapter = finderEntityAdapter
             rvFinderEntities.layoutManager =
                 LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
-            layoutManager = LinearLayoutManager(activity)
-            rvFoundItems.layoutManager = layoutManager
             finderEntityAdapter.setItemClickListener { position: Int ->
                 viewModel.onFinderEntitySelect(position)
             }
@@ -143,10 +128,10 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             val intent = Intent(
                 activity, UserEditorActivity::class.java
             )
-            args.forEach { (name: String?, value: String?) -> intent.putExtra(name, value) }
+            args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
             startActivity(intent)
         }
-        viewModel.openProfile.observe(viewLifecycleOwner) { userId: String? ->
+        viewModel.openProfile.observe(viewLifecycleOwner) { userId: String ->
             val bundle = Bundle()
             bundle.putString(ProfileFragment.USER_ID, userId)
             navController.navigate(R.id.action_global_profileFragment, bundle)
@@ -158,7 +143,7 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
             )
         }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId ->
-            findNavController().navigate(
+           navController.navigate(
                 R.id.action_global_groupEditorFragment,
                 bundleOf(GroupEditorFragment.GROUP_ID to groupId)
             )
@@ -180,8 +165,8 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
                 requireActivity()
             )
             val popupAdapter = ListPopupWindowAdapter(requireContext(), second)
-            popupWindow.anchorView = layoutManager.findViewByPosition(first)
-            popupWindow.setOnItemClickListener { parent: AdapterView<*>?, view1: View?, position: Int, id: Long ->
+            popupWindow.anchorView = binding.rvFoundItems.layoutManager!!.findViewByPosition(first)
+            popupWindow.setOnItemClickListener { _, _, position, _ ->
                 popupWindow.dismiss()
                 viewModel.onOptionClick(second[position].id)
             }
@@ -200,14 +185,8 @@ class FinderFragment : Fragment(R.layout.fragment_finder), OnItemClickListener,
         viewModel.onFinderItemLongClick(position)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         showToolbar()
-        rv.adapter = null
     }
 }

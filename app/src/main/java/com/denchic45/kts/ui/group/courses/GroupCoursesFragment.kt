@@ -1,54 +1,44 @@
 package com.denchic45.kts.ui.group.courses
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.view.ActionMode
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.databinding.FragmentGroupCoursesBinding
-import com.denchic45.kts.di.viewmodel.ViewModelFactory
+import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseAdapter
-import dagger.android.support.AndroidSupportInjection
-import io.reactivex.rxjava3.disposables.CompositeDisposable
-import kotlinx.coroutines.flow.collect
-import javax.inject.Inject
+import com.denchic45.kts.utils.collectWhenStarted
 
-class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
-    private val compositeDisposable = CompositeDisposable()
-    private val viewBinding by viewBinding(FragmentGroupCoursesBinding::bind)
+class GroupCoursesFragment : BaseFragment<GroupCoursesViewModel, FragmentGroupCoursesBinding>(
+    R.layout.fragment_group_courses
+) {
+    override val binding by viewBinding(FragmentGroupCoursesBinding::bind)
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<GroupCoursesViewModel>
-    private val viewModel: GroupCoursesViewModel by viewModels { viewModelFactory }
-    private var adapter: CourseAdapter? = null
+    override val viewModel: GroupCoursesViewModel by viewModels { viewModelFactory }
     private var actionMode: ActionMode? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        with(viewBinding) {
-            adapter = CourseAdapter({ position: Int -> viewModel.onCourseItemClick(position) },
-                { position: Int -> viewModel.onCourseLongItemClick(position) })
+        val adapter = CourseAdapter(
+            viewModel::onCourseItemClick,
+            viewModel::onCourseLongItemClick
+        )
+        with(binding) {
             rvCourse.adapter = adapter
         }
 
-        lifecycleScope.launchWhenStarted {
-            viewModel.courses.collect { courses: List<CourseHeader> -> adapter!!.submitList(courses) }
+        viewModel.courses.collectWhenStarted(lifecycleScope) { courses: List<CourseHeader> ->
+            adapter.submitList(courses)
         }
 
-        viewModel.selectItem.observe(
-            viewLifecycleOwner
-        ) { positionWithSelectPair: Pair<Int, Boolean> ->
-            selectSubjectTeacherItem(
-                positionWithSelectPair.first,
-                positionWithSelectPair.second
-            )
+        viewModel.selectItem.observe(viewLifecycleOwner) { (position, select) ->
+            selectSubjectTeacherItem(position, select)
         }
+
         viewModel.clearItemsSelection.observe(viewLifecycleOwner) { positions: Set<Int> ->
             positions.forEach { position: Int -> selectSubjectTeacherItem(position, false) }
         }
@@ -56,7 +46,7 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
 
     private fun selectSubjectTeacherItem(position: Int, select: Boolean) {
         val holder =
-            viewBinding.rvCourse.findViewHolderForLayoutPosition(position) as CourseAdapter.CourseHolder?
+            binding.rvCourse.findViewHolderForLayoutPosition(position) as CourseAdapter.CourseHolder?
         holder!!.setSelect(select)
     }
 
@@ -70,14 +60,9 @@ class GroupCoursesFragment : Fragment(R.layout.fragment_group_courses) {
     override fun onDestroyView() {
         super.onDestroyView()
         finishActionMode()
-        viewBinding.rvCourse.adapter = null
-        compositeDisposable.clear()
+        binding.rvCourse.adapter = null
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        AndroidSupportInjection.inject(this)
-    }
 
     companion object {
 

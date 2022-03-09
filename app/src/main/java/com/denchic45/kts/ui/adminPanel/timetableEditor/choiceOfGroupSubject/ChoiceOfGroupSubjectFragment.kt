@@ -6,7 +6,6 @@ import android.view.MenuInflater
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
@@ -18,7 +17,6 @@ import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.ListStateLayout
-import kotlinx.coroutines.flow.collect
 
 class ChoiceOfGroupSubjectFragment :
     BaseFragment<GroupSubjectChooserViewModel, FragmentChoiceOfGroupSubjectBinding>(
