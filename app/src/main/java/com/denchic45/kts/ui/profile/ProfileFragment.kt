@@ -130,20 +130,12 @@ class ProfileFragment :
                     Bundle().apply { putString(GroupFragment.GROUP_ID, id) }
                 )
             }
-            viewModel.optionVisibility.observe(
-                viewLifecycleOwner
-            ) { idWithVisibility: Pair<Int, Boolean> ->
-                menu.findItem(
-                    idWithVisibility.first
-                ).isVisible = idWithVisibility.second
-            }
+
             viewModel.openFullImage.observe(viewLifecycleOwner) { url: String ->
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     requireActivity(),
                     androidx.core.util.Pair.create(
-                        ivAvatar, ViewCompat.getTransitionName(
-                            ivAvatar
-                        )
+                        ivAvatar, ViewCompat.getTransitionName(ivAvatar)
                     )
                 )
                 val intent = Intent(requireActivity(), FullAvatarActivity::class.java)

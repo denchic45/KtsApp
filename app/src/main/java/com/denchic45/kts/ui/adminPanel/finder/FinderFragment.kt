@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.adminPanel.finder
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.ListPopupWindow
@@ -23,7 +22,6 @@ import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
 import com.denchic45.widget.ListStateLayout
@@ -31,7 +29,9 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
 import com.google.android.material.appbar.AppBarLayout
 
-class FinderFragment : BaseFragment<FinderViewModel,FragmentFinderBinding>(R.layout.fragment_finder), OnItemClickListener,
+class FinderFragment :
+    BaseFragment<FinderViewModel, FragmentFinderBinding>(R.layout.fragment_finder),
+    OnItemClickListener,
     OnItemLongClickListener {
     private val listAdapters = listOf(
         UserAdapter(this, this),
@@ -42,9 +42,11 @@ class FinderFragment : BaseFragment<FinderViewModel,FragmentFinderBinding>(R.lay
     )
 
     override val viewModel: FinderViewModel by viewModels { viewModelFactory }
-//    private lateinit var layoutManager: LinearLayoutManager
+
+    //    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var currentAdapter: ListAdapter<DomainModel, *>
-//    private lateinit var rv: RecyclerView
+
+    //    private lateinit var rv: RecyclerView
     private lateinit var appBarController: AppBarController
     private lateinit var rvFinderEntities: RecyclerView
     private lateinit var finderEntityAdapter: FinderEntityAdapter
@@ -125,16 +127,17 @@ class FinderFragment : BaseFragment<FinderViewModel,FragmentFinderBinding>(R.lay
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
         ) { args: Map<String, String> ->
-            val intent = Intent(
-                activity, UserEditorActivity::class.java
-            )
-            args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
-            startActivity(intent)
+            navController.navigate(R.id.action_global_userEditorFragment, Bundle(2).apply {
+                args.forEach { (key, value) ->
+                    putString(key, value)
+                }
+            })
         }
         viewModel.openProfile.observe(viewLifecycleOwner) { userId: String ->
-            val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_ID, userId)
-            navController.navigate(R.id.action_global_profileFragment, bundle)
+            navController.navigate(
+                R.id.action_global_profileFragment,
+                bundleOf(ProfileFragment.USER_ID to userId)
+            )
         }
         viewModel.openSubjectEditor.observe(viewLifecycleOwner) { subjectId: String ->
             navController.navigate(
@@ -143,7 +146,7 @@ class FinderFragment : BaseFragment<FinderViewModel,FragmentFinderBinding>(R.lay
             )
         }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId ->
-           navController.navigate(
+            navController.navigate(
                 R.id.action_global_groupEditorFragment,
                 bundleOf(GroupEditorFragment.GROUP_ID to groupId)
             )

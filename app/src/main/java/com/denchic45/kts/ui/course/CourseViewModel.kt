@@ -27,9 +27,6 @@ class CourseViewModel @Inject constructor(
     private val findCourseContentUseCase: FindCourseContentUseCase,
     findSelfUserUseCase: FindSelfUserUseCase
 ) : BaseViewModel() {
-
-    val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
-
     val openTaskEditor = SingleLiveData<Triple<String?, String, String>>()
     val openTask = SingleLiveData<Pair<String, String>>()
     val fabVisibility = SingleLiveData<Boolean>()
@@ -67,8 +64,8 @@ class CourseViewModel @Inject constructor(
                         { hasAdminPerms() })
                 )
                 val allowCourseEdit = uiPermissions.isNotAllowed(ALLOW_COURSE_EDIT)
-                optionVisibility.value = R.id.option_edit_course to allowCourseEdit
-                optionVisibility.value = R.id.option_edit_sections to allowCourseEdit
+                optionVisibility.emit(R.id.option_edit_course to allowCourseEdit)
+                optionVisibility.emit(R.id.option_edit_sections to allowCourseEdit)
 
                 fabVisibility.value = uiPermissions.isAllowed(ALLOW_ADD_COURSE_CONTENT)
             }

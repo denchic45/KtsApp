@@ -33,8 +33,6 @@ class ContentViewModel @Inject constructor(
 
     val submissionVisibility = MutableSharedFlow<Boolean>(replay = 1)
 
-    val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
-
     private val selfUser: User = findSelfUserUseCase()
     private val uiPermissions: UiPermissions = UiPermissions(selfUser)
 
@@ -80,8 +78,8 @@ class ContentViewModel @Inject constructor(
             submissionVisibility.emit(uiPermissions.isAllowed(ALLOW_SEE_SUBMISSION))
 
             if (uiPermissions.isAllowed(TaskInfoViewModel.ALLOW_EDIT_TASK)) {
-                optionVisibility.value = R.id.option_task_edit to true
-                optionVisibility.value = R.id.options_task_delete to true
+                optionVisibility.emit(R.id.option_task_edit to true)
+                optionVisibility.emit(R.id.options_task_delete to true)
             }
         }
     }

@@ -42,7 +42,6 @@ class CourseEditorViewModel @Inject constructor(
     val subjectNameTypeEnable = MutableLiveData<Boolean>()
     val teacherNameTypeEnable = MutableLiveData<Boolean>()
     val groupList = MutableLiveData(addAdderGroupItem())
-    val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
     val title = MutableLiveData<String>()
     val openChoiceOfGroup = SingleLiveData<Unit>()
 
@@ -203,7 +202,9 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private fun setSaveOptionVisibility(visible: Boolean) {
-        optionVisibility.postValue(R.id.option_course_save to visible)
+        viewModelScope.launch {
+            optionVisibility.emit(R.id.option_course_save to visible)
+        }
     }
 
     fun onSubjectSelect(position: Int) {
@@ -334,6 +335,6 @@ class CourseEditorViewModel @Inject constructor(
 
     override fun onCreateOptions() {
         super.onCreateOptions()
-        optionVisibility.postValue(R.id.option_course_delete to !uiEditor.isNew)
+        viewModelScope.launch { optionVisibility.emit(R.id.option_course_delete to !uiEditor.isNew) }
     }
 }

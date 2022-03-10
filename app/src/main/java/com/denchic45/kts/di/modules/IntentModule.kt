@@ -17,7 +17,7 @@ import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
 import com.denchic45.kts.ui.timetable.TimetableFragment
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
+import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -73,22 +73,22 @@ object IntentModule {
         return groupFragment.arguments?.getString(GroupFragment.GROUP_ID)
     }
 
-    @Named("UserEditor ${UserEditorActivity.USER_ID}")
+    @Named("UserEditor ${UserEditorFragment.USER_ID}")
     @Provides
-    fun provideUserIdFromUserEditor(userEditorActivity: UserEditorActivity): String? {
-        return userEditorActivity.intent.getStringExtra(UserEditorActivity.USER_ID)
+    fun provideUserIdFromUserEditor(userEditorFragment: UserEditorFragment): String? {
+        return userEditorFragment.requireArguments().getString(UserEditorFragment.USER_ID)
     }
 
-    @Named(UserEditorActivity.USER_ROLE)
+    @Named(UserEditorFragment.USER_ROLE)
     @Provides
-    fun provideUserRole(userEditorActivity: UserEditorActivity): String {
-        return userEditorActivity.intent.getStringExtra(UserEditorActivity.USER_ROLE)!!
+    fun provideUserRole(userEditorFragment: UserEditorFragment): String {
+        return userEditorFragment.requireArguments().getString(UserEditorFragment.USER_ROLE)!!
     }
 
-    @Named(UserEditorActivity.USER_GROUP_ID)
+    @Named(UserEditorFragment.USER_GROUP_ID)
     @Provides
-    fun provideUserGroupId(userEditorActivity: UserEditorActivity): String? {
-        return userEditorActivity.intent.getStringExtra(UserEditorActivity.USER_GROUP_ID)
+    fun provideUserGroupId(userEditorFragment: UserEditorFragment): String? {
+        return userEditorFragment.requireArguments().getString(UserEditorFragment.USER_GROUP_ID)
     }
 
     @Named(SpecialtyEditorDialog.SPECIALTY_ID)

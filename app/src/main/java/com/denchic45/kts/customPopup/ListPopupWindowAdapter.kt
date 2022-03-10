@@ -25,7 +25,7 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
 ) {
     private val list: MutableList<ListItem>
     private var nameFilter: Filter = object : Filter() {
-        override fun performFiltering(constraint: CharSequence): FilterResults? {
+        override fun performFiltering(constraint: CharSequence?): FilterResults? {
             return null
         }
 
@@ -40,7 +40,7 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
         }
     }
 
-    fun updateList(items: List<ListItem>?) {
+    fun updateList(items: List<ListItem>) {
         list.clear()
         list.addAll(items!!)
         notifyDataSetChanged()

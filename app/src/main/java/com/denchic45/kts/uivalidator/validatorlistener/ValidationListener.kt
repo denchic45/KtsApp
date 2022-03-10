@@ -1,27 +1,19 @@
-package com.denchic45.kts.uivalidator.validatorlistener;
+package com.denchic45.kts.uivalidator.validatorlistener
 
-import com.denchic45.kts.uivalidator.Rule;
+import com.denchic45.kts.uivalidator.Rule
 
-public abstract class ValidationListener {
-
-    public static final ValidationListener EMPTY = new ValidationListener() {
-        @Override
-        void onSuccess() {
-        }
-
-        @Override
-        void onError(Rule rule) {
-        }
-    };
-
-    public final void run(Rule rule) {
-        if (rule.isValid())
-            onSuccess();
-        else
-            onError(rule);
+abstract class ValidationListener {
+    fun run(rule: Rule) {
+        if (rule.isValid) onSuccess() else onError(rule)
     }
 
-    abstract void onSuccess();
+    abstract fun onSuccess()
+    abstract fun onError(rule: Rule)
 
-    abstract void onError(Rule rule);
+    companion object {
+        val EMPTY: ValidationListener = object : ValidationListener() {
+            override fun onSuccess() {}
+            override fun onError(rule: Rule) {}
+        }
+    }
 }

@@ -73,8 +73,16 @@ class Validation(private vararg val rules: Rule) {
         return this
     }
 
-    fun sendMessageResult(mutableLiveData: MutableLiveData<String?>?): Validation {
+    fun sendMessageResult(mutableLiveData: MutableLiveData<String?>): Validation {
         validationListener = MessageLiveDataValidationListener(mutableLiveData)
+        return this
+    }
+
+    fun sendMessageIdResult(
+        id: Int,
+        mutableLiveData: MutableLiveData<Pair<Int, Int?>>
+    ): Validation {
+        validationListener = FieldMessageIdLiveDataValidationListener(id, mutableLiveData)
         return this
     }
 
@@ -83,14 +91,6 @@ class Validation(private vararg val rules: Rule) {
         mutableLiveData: MutableLiveData<Pair<Int, String?>>
     ): Validation {
         validationListener = FieldMessageLiveDataValidationListener(id, mutableLiveData)
-        return this
-    }
-
-    fun sendMessageIdResult(
-        id: Int,
-        mutableLiveData: MutableLiveData<Pair<Int?, Int?>?>?
-    ): Validation {
-        validationListener = FieldMessageIdLiveDataValidationListener(id, mutableLiveData)
         return this
     }
 

@@ -2,6 +2,8 @@ package com.denchic45.kts.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.os.bundleOf
@@ -21,7 +23,6 @@ import com.denchic45.kts.utils.toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
-import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 
@@ -40,17 +41,20 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
 
     abstract val binding: VB
 
-   open val navController: NavController by lazy { findNavController() }
+    open val navController: NavController by lazy { findNavController() }
+
+    private lateinit var menu: Menu
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launchWhenStarted {
-            viewModel.toast.collect(this@BaseFragment::toast)
-        }
+        viewModel.toast.collectWhenStarted(lifecycleScope, this@BaseFragment::toast)
+
         collectOnShowToolbarTitle()
-            viewModel.finish.collectWhenStarted(lifecycleScope) {
-                findNavController().navigateUp()
-            }
+        collectOnOptionVisibility()
+
+        viewModel.finish.collectWhenStarted(lifecycleScope) {
+            findNavController().navigateUp()
+        }
 
         viewModel.toast.collectWhenStarted(lifecycleScope, this::toast)
 
@@ -81,22 +85,35 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
         }
 
         viewModel.openConfirmation.collectWhenStarted(lifecycleScope) { (title, message) ->
-                findNavController().navigate(
-                    R.id.action_global_confirmDialog,
-                    bundleOf(
-                        ConfirmDialog.TITLE to title,
-                        ConfirmDialog.MESSAGE to message
-                    )
+            navController.navigate(
+                R.id.action_global_confirmDialog,
+                bundleOf(
+                    ConfirmDialog.TITLE to title,
+                    ConfirmDialog.MESSAGE to message
                 )
-            }
+            )
+        }
+    }
+
+    open fun collectOnOptionVisibility() {
+        viewModel.optionVisibility.collectWhenStarted(lifecycleScope) { (itemId, visible) ->
+            menu.findItem(itemId).isVisible = visible
+        }
     }
 
     open fun collectOnShowToolbarTitle() {
-                viewModel.showToolbarTitle.collectWhenResumed(lifecycleScope) {
-                    setActivityTitle(it)
-                }
-
+        viewModel.showToolbarTitle.collectWhenResumed(lifecycleScope) {
+            setActivityTitle(it)
         }
+
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        this.menu = menu
+        viewModel.onCreateOptions()
+    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.onOptionClick(item.itemId)

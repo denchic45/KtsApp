@@ -172,6 +172,11 @@
     <action
         android:id="@+id/action_global_subjectEditorDialog"
         app:destination="@id/subjectEditorDialog" />
+    <fragment
+        android:id="@+id/userEditorFragment"
+        android:name="com.denchic45.kts.ui.userEditor.UserEditorFragment"
+        android:label="fragment_user_editor"
+        tools:layout="@layout/fragment_user_editor" /><action android:id="@+id/action_global_userEditorFragment" app:destination="@id/userEditorFragment"/>
 
 
 </navigation>

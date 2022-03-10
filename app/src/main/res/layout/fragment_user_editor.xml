@@ -4,19 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.userEditor.UserEditorActivity">
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:windowBackground">
-
-        <com.denchic45.kts.CustomToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
-    </com.google.android.material.appbar.AppBarLayout>
+    tools:context=".ui.userEditor.UserEditorFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -217,21 +205,21 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:fontFamily="@font/gilroy_semi_bold"
-        android:letterSpacing="0"
-        android:text="Добавить"
-        android:textAllCaps="false"
-        android:textSize="16sp"
-        app:backgroundTint="@android:color/white"
-        app:icon="@drawable/ic_tick"
-        app:iconPadding="8dp"
-        app:iconSize="36dp"
-        app:iconTint="@color/blue" />
+<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+<!--        android:id="@+id/fab"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="bottom|end"-->
+<!--        android:layout_margin="@dimen/fab_margin"-->
+<!--        android:fontFamily="@font/gilroy_semi_bold"-->
+<!--        android:letterSpacing="0"-->
+<!--        android:text="Добавить"-->
+<!--        android:textAllCaps="false"-->
+<!--        android:textSize="16sp"-->
+<!--        app:backgroundTint="@android:color/white"-->
+<!--        app:icon="@drawable/ic_tick"-->
+<!--        app:iconPadding="8dp"-->
+<!--        app:iconSize="36dp"-->
+<!--        app:iconTint="@color/blue" />-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

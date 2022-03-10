@@ -1,27 +1,18 @@
-package com.denchic45.kts.uivalidator.validatorlistener;
+package com.denchic45.kts.uivalidator.validatorlistener
 
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.MutableLiveData
+import com.denchic45.kts.uivalidator.Rule
+import com.denchic45.kts.uivalidator.validatorlistener.LiveDataValidationListener
 
-import com.denchic45.kts.uivalidator.Rule;
-
-import kotlin.Pair;
-
-public class FieldMessageLiveDataValidationListener extends LiveDataValidationListener<Pair<Integer, String>> {
-
-    private final int id;
-
-    public FieldMessageLiveDataValidationListener(int id, MutableLiveData<Pair<Integer, String>> mutableLiveData) {
-        super(mutableLiveData);
-        this.id = id;
+class FieldMessageLiveDataValidationListener(
+    private val id: Int,
+    mutableLiveData: MutableLiveData<Pair<Int, String?>>
+) : LiveDataValidationListener<Pair<Int, String?>>(mutableLiveData) {
+    override fun onSuccess() {
+        mutableLiveData.value = Pair<Int, String?>(id, null)
     }
 
-    @Override
-    void onSuccess() {
-        mutableLiveData.setValue(new Pair<>(id, null));
-    }
-
-    @Override
-    void onError(Rule rule) {
-        mutableLiveData.setValue(new Pair<>(id, rule.getErrorMessage()));
+    override fun onError(rule: Rule) {
+        mutableLiveData.value = Pair(id, rule.errorMessage)
     }
 }

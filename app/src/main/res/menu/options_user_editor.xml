@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/option_user_save"
+        android:title="Сохранить пользователя"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_send"/>
     <item
-        android:id="@+id/option_delete_user"
+        android:id="@+id/option_user_delete"
         android:title="Удалить" />
 </menu>

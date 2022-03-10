@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.group
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -20,7 +19,7 @@ import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.group.users.GroupUsersFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
+import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(R.layout.fragment_group) {
@@ -60,10 +59,14 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(R.layou
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
         ) { (userType, groupId) ->
-            val intent = Intent(requireContext(), UserEditorActivity::class.java)
-            intent.putExtra(UserEditorActivity.USER_ROLE, userType)
-            intent.putExtra(UserEditorActivity.USER_GROUP_ID, groupId)
-            startActivity(intent)
+            navController.navigate(
+                R.id.action_global_userEditorFragment,
+                bundleOf(
+                    UserEditorFragment.USER_ROLE to userType,
+                    UserEditorFragment.USER_GROUP_ID to groupId
+                )
+            )
+
         }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId ->
             navController.navigate(

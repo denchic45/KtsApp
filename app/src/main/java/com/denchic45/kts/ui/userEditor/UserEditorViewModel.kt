@@ -22,55 +22,51 @@ import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.Validations
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Named
 
 open class UserEditorViewModel @Inject constructor(
-    @Named("UserEditor ${UserEditorActivity.USER_ID}") userId: String?,
-    @Named(UserEditorActivity.USER_ROLE) role: String,
-    @Named(UserEditorActivity.USER_GROUP_ID) private var groupId: String?,
+    @Named("UserEditor ${UserEditorFragment.USER_ID}") userId: String?,
+    @Named(UserEditorFragment.USER_ROLE) role: String,
+    @Named(UserEditorFragment.USER_GROUP_ID) private var groupId: String?,
     @Named("genders") genderList: List<ListItem>,
     private val interactor: UserEditorInteractor,
     private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
 
-    val fieldRoles = MutableLiveData<Int>()
+    val fieldRoles = MutableStateFlow<Int>(0)
 
     val fieldGenders = MutableLiveData<List<ListItem>>()
 
     val groupList = MutableLiveData<List<ListItem>>()
 
-    val fieldFirstName = MutableLiveData<String>()
+    val fieldFirstName = MutableStateFlow<String>("")
 
-    val fieldSurname = MutableLiveData<String>()
+    val fieldSurname = MutableStateFlow("")
 
-    val fieldPatronymic = MutableLiveData<String>()
+    val fieldPatronymic = MutableStateFlow("")
 
-    val fieldPhoneNum = MutableLiveData<String>()
+    val fieldPhoneNum = MutableStateFlow<String>("")
 
-    val fieldEmail = MutableLiveData<String>()
+    val fieldEmail = MutableStateFlow<String>("")
 
-    val fieldGender = MutableLiveData<String>()
+    val fieldGender = MutableStateFlow<String>("")
 
-    val fieldRole = MutableLiveData<Int>()
+    val fieldRole = MutableStateFlow<Int>(R.string.role_student)
 
-    val fieldGroup = MutableLiveData<String>()
+    val fieldGroup = MutableStateFlow<String>("")
 
-    val avatarUser = MutableLiveData<String>()
+    val avatarUser = MutableStateFlow<String>("")
 
-    val deleteOptionVisibility = SingleLiveData<Boolean>()
+    val fieldGroupVisibility = MutableStateFlow<Boolean>(false)
 
-    val fieldGroupVisibility = MutableLiveData<Boolean>()
+    val fieldEmailEnable = MutableStateFlow(true)
 
-    val fieldEmailEnable = MutableLiveData(true)
-
-    val fieldPasswordVisibility = MutableLiveData(true)
+    val fieldPasswordVisibility = MutableStateFlow(true)
 
     val fieldErrorMessage = SingleLiveData<Pair<Int, String?>>()
 
@@ -89,9 +85,7 @@ open class UserEditorViewModel @Inject constructor(
     private fun getUiValidator(): UIValidator {
         val uiValidator: UIValidator = UIValidator.of(
             Validation(Rule({
-                !TextUtils.isEmpty(
-                    fieldFirstName.value
-                )
+                fieldFirstName.value.isNotEmpty()
             }, "Имя обязательно"))
                 .sendMessageResult(R.id.til_firstName, fieldErrorMessage),
             Validation(Rule({
@@ -125,19 +119,19 @@ open class UserEditorViewModel @Inject constructor(
                 .sendMessageResult(R.id.til_group, fieldErrorMessage),
             Validation(
                 Rule({
-                    !fieldEmailEnable.value!! || Validations.validEmail(
+                    !fieldEmailEnable.value || Validations.validEmail(
                         fieldEmail.value
-                    ) && fieldEmailEnable.value!!
+                    ) && fieldEmailEnable.value
                 }, "Некоректная почта!")
             )
                 .sendMessageResult(R.id.til_email, fieldErrorMessage),
             Validation(
                 Rule(
-                    { !fieldPasswordVisibility.value!! || !TextUtils.isEmpty(password) && fieldPasswordVisibility.value!! },
+                    { !fieldPasswordVisibility.value || !TextUtils.isEmpty(password) && fieldPasswordVisibility.value },
                     "Некоректный пароль!"
                 ),
                 Rule(
-                    { !fieldPasswordVisibility.value!! || fieldPasswordVisibility.value!! && password!!.length > 5 },
+                    { !fieldPasswordVisibility.value || fieldPasswordVisibility.value && password!!.length > 5 },
                     "Минимальный размер пароля - 6 символов!"
                 )
             )
@@ -153,12 +147,12 @@ open class UserEditorViewModel @Inject constructor(
         uiEditor = UIEditor(userId == null) {
             User(
                 this.userId,
-                fieldFirstName.value ?: "",
-                fieldSurname.value ?: "",
+                fieldFirstName.value,
+                fieldSurname.value,
                 fieldPatronymic.value,
                 groupId,
                 role,
-                PhoneNumberUtils.normalizeNumber(fieldPhoneNum.value ?: ""),
+                PhoneNumberUtils.normalizeNumber(fieldPhoneNum.value),
                 fieldEmail.value,
                 "",
                 Date(),
@@ -222,12 +216,13 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     private fun setRoleView() {
-        when (role) {
-            User.STUDENT -> fieldRole.setValue(R.string.role_student)
-            User.DEPUTY_MONITOR -> fieldRole.setValue(R.string.role_deputyMonitor)
-            User.CLASS_MONITOR -> fieldRole.setValue(R.string.role_classMonitor)
-            User.TEACHER -> fieldRole.setValue(R.string.role_teacher)
-            User.HEAD_TEACHER -> fieldRole.setValue(R.string.role_headTeacher)
+        fieldRole.value = when (role) {
+            User.STUDENT -> R.string.role_student
+            User.DEPUTY_MONITOR -> R.string.role_deputyMonitor
+            User.CLASS_MONITOR -> R.string.role_classMonitor
+            User.TEACHER -> R.string.role_teacher
+            User.HEAD_TEACHER -> R.string.role_headTeacher
+            else -> throw IllegalStateException("Unknow role: $role")
         }
     }
 
@@ -246,7 +241,7 @@ open class UserEditorViewModel @Inject constructor(
                     fieldGender.value = fieldGenders.value!![gender - 1].title
                     fieldPhoneNum.value = user.phoneNum
                     fieldEmail.value = user.email!!
-                    avatarUser.setValue(user.photoUrl)
+                    avatarUser.value = user.photoUrl
                 } ?: run { finish() }
             }
         }
@@ -304,7 +299,7 @@ open class UserEditorViewModel @Inject constructor(
     private fun saveChanges() {
         viewModelScope.launch {
             if (uiEditor.isNew) {
-                interactor.signUpUser(fieldEmail.value!!, password!!)
+                interactor.signUpUser(fieldEmail.value, password!!)
                 interactor.addUser(uiEditor.item)
             } else {
                 interactor.updateUser(uiEditor.item)
@@ -326,7 +321,8 @@ open class UserEditorViewModel @Inject constructor(
 
     override fun onOptionClick(itemId: Int) {
         when (itemId) {
-            R.id.option_delete_user -> confirmDelete()
+            R.id.option_user_save -> onFabClick()
+            R.id.option_user_delete -> confirmDelete()
         }
     }
 
@@ -379,7 +375,7 @@ open class UserEditorViewModel @Inject constructor(
     private fun setAvailableRoles() {
         if (role != null) {
             if (isStudent(role!!)) {
-                fieldRoles.setValue(R.raw.roles_student)
+                fieldRoles.value = R.raw.roles_student
             } else if (isTeacher(role!!)) {
                 fieldRoles.value = R.raw.roles_teacher
             }
@@ -394,7 +390,9 @@ open class UserEditorViewModel @Inject constructor(
     override fun onCreateOptions() {
         super.onCreateOptions()
         if (uiEditor.isNew) {
-            deleteOptionVisibility.value = false
+            viewModelScope.launch {
+                optionVisibility.emit(R.id.option_user_delete to false)
+            }
         }
     }
 

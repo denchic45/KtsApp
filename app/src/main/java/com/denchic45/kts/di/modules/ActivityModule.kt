@@ -5,7 +5,7 @@ import com.denchic45.kts.ui.login.LoginActivity
 import com.denchic45.kts.ui.main.MainActivity
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.denchic45.kts.ui.splash.SplashActivity
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
+import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -21,7 +21,7 @@ interface ActivityModule {
     fun contributeLoginActivity(): LoginActivity
 
     @ContributesAndroidInjector(modules = [IntentModule::class, RawModule::class])
-    fun contributeUserEditorActivity(): UserEditorActivity
+    fun contributeUserEditorActivity(): UserEditorFragment
 
     @ContributesAndroidInjector
     fun contributeEventEditorActivity(): EventEditorActivity

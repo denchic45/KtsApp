@@ -6,7 +6,7 @@ import com.denchic45.kts.data.model.domain.EitherResource
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
+import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import java.util.*
 import javax.inject.Inject
 
@@ -20,11 +20,11 @@ class CreatorViewModel @Inject constructor() : BaseViewModel() {
         val argsMap: MutableMap<String, String> = HashMap()
         when (position) {
             0 -> {
-                argsMap[UserEditorActivity.USER_ROLE] = User.STUDENT
+                argsMap[UserEditorFragment.USER_ROLE] = User.STUDENT
                 openUserEditor.setValue(argsMap)
             }
             1 -> {
-                argsMap[UserEditorActivity.USER_ROLE] = User.TEACHER
+                argsMap[UserEditorFragment.USER_ROLE] = User.TEACHER
                 openUserEditor.setValue(argsMap)
             }
             2 -> openGroupEditor.call()

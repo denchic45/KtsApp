@@ -1,5 +1,7 @@
 package com.denchic45.kts.uivalidator.validatorlistener;
 
+import androidx.annotation.NonNull;
+
 import com.denchic45.kts.uivalidator.Rule;
 
 import java.util.function.Consumer;
@@ -15,12 +17,12 @@ public class ActionValidationListener extends ValidationListener {
     }
 
     @Override
-    void onSuccess() {
+    public void onSuccess() {
         successAction.run();
     }
 
     @Override
-    void onError(Rule rule) {
+    public void onError(@NonNull Rule rule) {
         errorAction.accept(rule);
     }
 }

@@ -29,6 +29,8 @@ abstract class BaseViewModel : ViewModel() {
 
     internal val showToolbarTitle = MutableSharedFlow<String>(replay = 1)
 
+    val optionVisibility = MutableSharedFlow<Pair<Int, Boolean>>()
+
     protected var toolbarTitle: String
         get() = showToolbarTitle.replayCache[0]
         set(value) {

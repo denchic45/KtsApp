@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -19,6 +20,7 @@ import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
@@ -69,10 +71,6 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
 
         requireActivity().findViewById<FloatingActionButton>(R.id.fab_main).setOnClickListener {
             viewModel.onFabClick()
-        }
-
-        viewModel.optionVisibility.observe(viewLifecycleOwner) { (itemId, visible) ->
-            toolbar.menu.findItem(itemId).isVisible = visible
         }
 
         with(binding) {
@@ -190,6 +188,11 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
         }
     }
 
+    override fun collectOnOptionVisibility() {
+        viewModel.optionVisibility.collectWhenStarted(lifecycleScope) { (itemId, visible) ->
+            toolbar.menu.findItem(itemId).isVisible = visible
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

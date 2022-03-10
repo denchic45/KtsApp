@@ -1,21 +1,16 @@
-package com.denchic45.kts.uivalidator.validatorlistener;
+package com.denchic45.kts.uivalidator.validatorlistener
 
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.MutableLiveData
+import com.denchic45.kts.uivalidator.Rule
+import com.denchic45.kts.uivalidator.validatorlistener.LiveDataValidationListener
 
-import com.denchic45.kts.uivalidator.Rule;
-
-public class MessageIdLiveDataValidationListener extends LiveDataValidationListener<Integer> {
-    public MessageIdLiveDataValidationListener(MutableLiveData<Integer> mutableLiveData) {
-        super(mutableLiveData);
+class MessageIdLiveDataValidationListener(mutableLiveData: MutableLiveData<Int>) :
+    LiveDataValidationListener<Int>(mutableLiveData) {
+    override fun onSuccess() {
+        mutableLiveData.value = null
     }
 
-    @Override
-    void onSuccess() {
-        mutableLiveData.setValue(null);
-    }
-
-    @Override
-    void onError(Rule rule) {
-        mutableLiveData.setValue(rule.getErrorResId());
+    override fun onError(rule: Rule) {
+        mutableLiveData.value = rule.errorResId
     }
 }

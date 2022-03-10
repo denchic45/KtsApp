@@ -101,7 +101,7 @@ class GroupEditorFragment :
         }
 
         viewModel.fieldErrorMessage.observe(viewLifecycleOwner) { idWithMessagePair: Pair<Int, String?> ->
-            val textInputLayout: TextInputLayout = requireActivity().findViewById(
+            val textInputLayout: TextInputLayout = binding.root.findViewById(
                 idWithMessagePair.first
             )
             if (idWithMessagePair.second != null) {

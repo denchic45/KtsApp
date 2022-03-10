@@ -48,7 +48,7 @@ class ContentFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        appBarController.setExpanded(true, true)
+        appBarController.setExpanded(expand = true, animate = true)
         setActivityTitle("")
 
         with(binding) {
@@ -82,10 +82,6 @@ class ContentFragment :
                     TaskEditorFragment.COURSE_ID to courseId
                 )
             )
-        }
-
-        viewModel.optionVisibility.observe(viewLifecycleOwner) { (itemId, visibility) ->
-            menu!!.findItem(itemId).isVisible = visibility
         }
     }
 

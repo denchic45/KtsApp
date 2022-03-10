@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.creator
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,6 @@ import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.viewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.android.support.AndroidSupportInjection
@@ -53,9 +51,9 @@ class CreatorDialog : BottomSheetDialogFragment(), HasViewModel<CreatorViewModel
         adapter!!.setOnItemClickListener { position: Int -> viewModel.onEntityClick(position) }
 
         viewModel.openUserEditor.observe(viewLifecycleOwner) { args: Map<String, String> ->
-            val intent = Intent(activity, UserEditorActivity::class.java)
-            args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
-            startActivity(intent)
+            findNavController().navigate(R.id.action_global_userEditorFragment, Bundle(2).apply {
+                args.forEach { (name: String, value: String) -> putString(name, value) }
+            })
         }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) {
             findNavController().navigate(

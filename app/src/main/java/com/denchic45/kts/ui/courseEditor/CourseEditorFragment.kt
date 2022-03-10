@@ -118,15 +118,6 @@ class CourseEditorFragment :
                 false
             })
 
-            viewModel.optionVisibility.observe(
-                viewLifecycleOwner
-            ) { idAndVisiblePair: Pair<Int, Boolean> ->
-                val menuItem = menu.findItem(
-                    idAndVisiblePair.first
-                )
-                if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
-            }
-
             viewModel.groupList.observe(viewLifecycleOwner) {
                 adapter.submit(it)
             }
@@ -205,11 +196,7 @@ class CourseEditorFragment :
             viewModel.openChoiceOfGroup.observe(viewLifecycleOwner) {
                 findNavController().navigate(R.id.action_global_choiceOfGroupFragment)
             }
-
-            viewModel.optionVisibility.observe(viewLifecycleOwner) { (id, visibility) ->
-                menu.findItem(id)?.isVisible = visibility
-            }
-
+            
             etSubjectName.textChanges()
                 .compose(EditTextTransformer())
                 .filter(NonThrowingPredicate { charSequence: CharSequence -> charSequence.length > 1 && etSubjectName.hasFocus() } as NonThrowingPredicate<CharSequence>)

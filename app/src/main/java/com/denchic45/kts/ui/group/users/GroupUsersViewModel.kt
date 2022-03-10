@@ -9,7 +9,7 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.adapter.ItemAdapter
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
+import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
@@ -83,9 +83,9 @@ class GroupUsersViewModel @Inject constructor(
             }
             OPTION_EDIT_USER -> {
                 val args: MutableMap<String, String> = HashMap()
-                args[UserEditorActivity.USER_ROLE] = selectedUser.role
-                args[UserEditorActivity.USER_ID] = selectedUser.id
-                args[UserEditorActivity.USER_GROUP_ID] = selectedUser.groupId!!
+                args[UserEditorFragment.USER_ROLE] = selectedUser.role
+                args[UserEditorFragment.USER_ID] = selectedUser.id
+                args[UserEditorFragment.USER_GROUP_ID] = selectedUser.groupId!!
                 openUserEditor.setValue(args)
             }
             OPTION_DELETE_USER -> viewModelScope.launch {

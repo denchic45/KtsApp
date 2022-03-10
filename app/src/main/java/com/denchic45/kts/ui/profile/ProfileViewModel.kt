@@ -18,7 +18,6 @@ class ProfileViewModel @Inject constructor(
     @Named(ProfileFragment.USER_ID) id: String,
     private val interactor: ProfileInteractor
 ) : BaseViewModel() {
-    val optionVisibility = SingleLiveData<Pair<Int, Boolean>>()
     val showAvatar = MutableLiveData<String>()
     val showFullName = MutableLiveData<String>()
     val showRole = MutableLiveData<Int>()
@@ -106,7 +105,7 @@ class ProfileViewModel @Inject constructor(
                         }
                     }
                     if (interactor.findThisUser().id != userOfProfile!!.id) {
-                        optionVisibility.value = Pair(R.id.menu_select_avatar, false)
+                        optionVisibility.emit(Pair(R.id.menu_select_avatar, false))
                     }
                 }
             }

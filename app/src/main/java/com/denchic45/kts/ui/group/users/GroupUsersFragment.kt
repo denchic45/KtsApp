@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.group.users
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -17,11 +16,10 @@ import com.denchic45.kts.databinding.FragmentGroupUsersBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.UserAdapter
 import com.denchic45.kts.ui.profile.ProfileFragment
-import com.denchic45.kts.ui.userEditor.UserEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
+import com.denchic45.kts.utils.collectWhenStarted
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import kotlinx.coroutines.flow.collect
 
 class GroupUsersFragment :
     BaseFragment<GroupUsersViewModel, FragmentGroupUsersBinding>(R.layout.fragment_group_users) {
@@ -61,7 +59,7 @@ class GroupUsersFragment :
                 popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
                 popupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                     popupWindow.dismiss()
-                    viewModel.onOptionUserClick(it.second[position].title)
+                    viewModel.onOptionUserClick(it.second[position].id)
                 }
                 popupWindow.show()
             }
@@ -69,11 +67,7 @@ class GroupUsersFragment :
 
         viewModel.onGroupIdReceived(requireArguments().getString(GROUP_ID))
 
-        lifecycleScope.launchWhenStarted {
-            viewModel.users.collect { users ->
-                userAdapter.submitList(users)
-            }
-        }
+        viewModel.users.collectWhenStarted(lifecycleScope, userAdapter::submitList)
 
         viewModel.openTeacherChooser.observe(
             viewLifecycleOwner
@@ -82,11 +76,13 @@ class GroupUsersFragment :
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
         ) { args: Map<String, String> ->
-            val intent = Intent(
-                activity, UserEditorActivity::class.java
-            )
-            args.forEach { (name: String, value: String) -> intent.putExtra(name, value) }
-            startActivity(intent)
+            navController.navigate(R.id.action_global_userEditorFragment,
+                Bundle(2).apply {
+                    args.forEach { (name: String, value: String) ->
+                        putString(name, value)
+                    }
+                })
+
         }
         viewModel.openProfile.observe(viewLifecycleOwner) { userId: String ->
             val bundle = Bundle()

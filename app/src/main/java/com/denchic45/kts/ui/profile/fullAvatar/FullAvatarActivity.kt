@@ -25,13 +25,6 @@ class FullAvatarActivity : FullImageActivity() {
         setSupportActionBar(toolbar)
         supportActionBar!!.title = ""
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        viewModel.optionVisibility.observe(
-            this
-        ) { idAndVisibility: Pair<Int, Boolean> ->
-            menu!!.findItem(
-                idAndVisibility.first
-            ).isVisible = idAndVisibility.second
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
