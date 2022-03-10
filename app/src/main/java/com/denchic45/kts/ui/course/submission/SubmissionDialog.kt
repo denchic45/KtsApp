@@ -23,8 +23,8 @@ import com.denchic45.kts.databinding.FragmentSubmissionBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.course.taskEditor.AttachmentAdapterDelegate
-import com.denchic45.kts.utils.KeyboardUtils
 import com.denchic45.kts.utils.ValueFilter
+import com.denchic45.kts.utils.hideKeyboard
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -127,7 +127,7 @@ class SubmissionDialog : BottomSheetDialogFragment() {
                     keyboard.showSoftInput(etCommentSend, 0)
                 } else {
                     tilCommentSend.visibility = View.GONE
-                    KeyboardUtils.hideKeyboardFrom(requireContext(), etCommentSend)
+                    etCommentSend.hideKeyboard()
                 }
             }
 

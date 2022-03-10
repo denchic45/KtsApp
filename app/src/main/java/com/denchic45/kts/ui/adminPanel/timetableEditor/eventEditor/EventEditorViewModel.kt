@@ -14,11 +14,13 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.DateFormatUtil
-import com.denchic45.kts.utils.toDate
+import com.denchic45.kts.utils.DatePatterns
+import com.denchic45.kts.utils.toString
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
 
@@ -57,12 +59,8 @@ class EventEditorViewModel @Inject constructor(
             interactor.observeOldEvent().collect { event ->
                 event?.let {
                     orderEditEnable.emit(interactor.isNew)
-                        roomField.value = event.room
-                    dateField.value =
-                        DateFormatUtil.convertDateToString(
-                            event.date.toDate(),
-                            DateFormatUtil.dd_MMMM
-                        )
+                    roomField.value = event.room
+                    dateField.value = event.date.toString(DatePatterns.dd_MMMM)
                     orderField.value = event.order.toString()
                 }
             }
@@ -87,8 +85,10 @@ class EventEditorViewModel @Inject constructor(
     }
 
     fun onDateSelected(selection: Long) {
-        dateField.value =
-            DateFormatUtil.convertDateToString(Date(selection), DateFormatUtil.dd_MMMM)
+        dateField.value = Instant.ofEpochMilli(selection)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+            .toString(DatePatterns.dd_MMMM)
     }
 
     fun onFabClick() {

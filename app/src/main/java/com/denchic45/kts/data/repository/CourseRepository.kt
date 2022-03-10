@@ -138,6 +138,7 @@ class CourseRepository @Inject constructor(
                 whereGreaterThan("timestamp", Date(timestampContentsOfCourse))
         }
 
+
         addListenerRegistrationIfNotExist("findContentByCourseId: $courseId") {
             query.addSnapshotListener { value, error ->
                 if (error != null) {
@@ -713,7 +714,7 @@ class CourseRepository @Inject constructor(
 
 class SameCoursesException : Exception()
 
-interface RemoveCourseOperation : CheckNetworkConnection, FirestoreOperations {
+interface RemoveCourseOperation : CheckNetworkConnection {
 
     val firestore: FirebaseFirestore
     val courseMapper: CourseMapper
@@ -725,7 +726,7 @@ interface RemoveCourseOperation : CheckNetworkConnection, FirestoreOperations {
         checkInternetConnection()
         val batch = firestore.batch()
         batch.delete(coursesRef.document(courseId))
-        deleteCollection(coursesRef.document(courseId).collection("Contents"), 10)
+        coursesRef.document(courseId).collection("Contents").deleteCollection(10)
         coroutineScope.launch(dispatcher) { batch.commit().await() }
     }
 }

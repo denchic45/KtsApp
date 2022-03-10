@@ -2,8 +2,11 @@ package com.denchic45.kts.ui.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
@@ -27,16 +30,14 @@ abstract class BaseViewModel : ViewModel() {
 
     val openConfirmation = _openConfirmation.receiveAsFlow()
 
-    internal val showToolbarTitle = MutableSharedFlow<String>(replay = 1)
+    internal val showToolbarTitle = MutableStateFlow<String>("")
 
     val optionVisibility = MutableSharedFlow<Pair<Int, Boolean>>()
 
     protected var toolbarTitle: String
-        get() = showToolbarTitle.replayCache[0]
+        get() = showToolbarTitle.value
         set(value) {
-            viewModelScope.launch {
-                showToolbarTitle.emit(value)
-            }
+                showToolbarTitle.value = value
         }
 
     protected fun finish() {

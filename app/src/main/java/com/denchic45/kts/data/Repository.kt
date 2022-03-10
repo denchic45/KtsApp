@@ -2,14 +2,18 @@ package com.denchic45.kts.data
 
 import com.denchic45.kts.data.Repository.Subscription
 import com.denchic45.kts.utils.NetworkException
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.util.function.Consumer
 import kotlin.reflect.full.memberProperties
 
-abstract class Repository protected constructor() : CheckNetworkConnection, FirestoreOperations {
+abstract class Repository protected constructor() : CheckNetworkConnection {
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
 
 
@@ -122,26 +126,53 @@ interface CheckNetworkConnection {
     }
 }
 
-interface FirestoreOperations {
-    fun deleteCollection(collection: CollectionReference, batchSize: Int) {
-        try {
-            // Retrieve a small batch of documents to avoid out-of-memory errors/
-            var deleted = 0
-            collection
-                .limit(batchSize.toLong())
-                .get()
-                .addOnCompleteListener {
-                    for (document in it.result.documents) {
-                        document.reference.delete()
-                        ++deleted
-                    }
-                    if (deleted >= batchSize) {
-                        // retrieve and delete another batch
-                        deleteCollection(collection, batchSize)
-                    }
+@ExperimentalCoroutinesApi
+fun Query.getQuerySnapshotFlow(): Flow<QuerySnapshot?> {
+    return callbackFlow {
+        val listenerRegistration =
+            addSnapshotListener { querySnapshot, firestoreException ->
+                if (firestoreException != null) {
+                    cancel(
+                        message = "Error on fetching query",
+                        cause = firestoreException
+                    )
+                    return@addSnapshotListener
                 }
-        } catch (e: Exception) {
-            System.err.println("Error deleting collection : " + e.message)
+                launch {
+                    send(querySnapshot)
+                }
+            }
+        awaitClose {
+            listenerRegistration.remove()
         }
+    }
+}
+
+@ExperimentalCoroutinesApi
+fun <T> Query.getDataFlow(mapper: (QuerySnapshot?) -> T): Flow<T> {
+    return getQuerySnapshotFlow()
+        .map {
+            return@map mapper(it)
+        }
+}
+
+fun CollectionReference.deleteCollection(batchSize: Int) {
+    try {
+        // Retrieve a small batch of documents to avoid out-of-memory errors/
+        var deleted = 0
+        this.limit(batchSize.toLong())
+            .get()
+            .addOnCompleteListener {
+                for (document in it.result.documents) {
+                    document.reference.delete()
+                    ++deleted
+                }
+                if (deleted >= batchSize) {
+                    // retrieve and delete another batch
+                    deleteCollection(batchSize)
+                }
+            }
+    } catch (e: Exception) {
+        System.err.println("Error deleting collection : " + e.message)
     }
 }

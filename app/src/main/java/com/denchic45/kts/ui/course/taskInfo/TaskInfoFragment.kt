@@ -124,10 +124,7 @@ class TaskInfoFragment :
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 viewModel.onBottomSheetStateChanged(newState)
                 if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    KeyboardUtils.hideKeyboardFrom(
-                        requireContext(),
-                        binding.submissionExpanded.etText
-                    )
+                    binding.submissionExpanded.etText.hideKeyboard()
                     view.postDelayed({
                         appBarController.showToolbar()
                     }, 100)

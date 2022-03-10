@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.course
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
@@ -44,7 +43,7 @@ class CourseViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            findCourseContentUseCase.invoke(courseId).collect {
+            findCourseContentUseCase(courseId).collect {
 //                it.filterIsInstance<CourseContent>()
 //                    .forEach {
 //                        Log.d("lol", "get contents: ${it.name} ${it.order}")
@@ -104,19 +103,13 @@ class CourseViewModel @Inject constructor(
         if (this.oldPosition == -1)
             this.oldPosition = oldPosition
         this.position = position
-
-        Log.d("lol", "onContentMove swap: $oldPosition $position")
         Collections.swap(showContents.value!!, oldPosition, position)
 
         showContents.value = showContents.value
     }
 
     fun onContentMoved() {
-        Log.d("lol", "onContentMoved: ${oldPosition == position}")
-        if (oldPosition == position)
-            return
-        Log.d("lol", "onContentMoved: $oldPosition $position")
-
+        if (oldPosition == position) return
 
         viewModelScope.launch {
             val contents = showContents.value!!
@@ -127,8 +120,6 @@ class CourseViewModel @Inject constructor(
             val nextOrder =
                 if (position == contents.size - 1) (contents[position - 1] as CourseContent).order + (1024 * 2)
                 else (contents[position + 1] as CourseContent).order
-
-            print(contents)
 
             updateCourseContentOrderUseCase(
                 contents[position].id,

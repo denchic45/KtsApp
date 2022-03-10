@@ -73,7 +73,7 @@ class EventRepository @Inject constructor(
                     coroutineScope.launch(dispatcher) {
                         snapshots?.let {
                             if (!snapshots.isEmpty) {
-                                saveDay2(snapshots.toObjects(DayDoc::class.java)[0])
+                                saveDay(snapshots.toObjects(DayDoc::class.java)[0])
                             }
                         }
                     }
@@ -96,7 +96,7 @@ class EventRepository @Inject constructor(
                     }
                     if (!snapshots!!.isEmpty) {
                         coroutineScope.launch(dispatcher) {
-                            saveDay2(snapshots.toObjects(DayDoc::class.java)[0])
+                            saveDay(snapshots.toObjects(DayDoc::class.java)[0])
                         }
                     }
                 }
@@ -127,7 +127,7 @@ class EventRepository @Inject constructor(
             .whereEqualTo("date", toDate)
     }
 
-    private suspend fun saveDay2(dayDoc: DayDoc) {
+    private suspend fun saveDay(dayDoc: DayDoc) {
         courseDao.getNotRelatedTeacherIdsToGroup(dayDoc.teacherIds, dayDoc.groupId)
             .map { teacherId: String ->
                 val documentSnapshot = firestore.collection("Users").document(teacherId)
@@ -154,7 +154,7 @@ class EventRepository @Inject constructor(
             }
 
         dataBase.withTransaction {
-            dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date, dayDoc.groupId))
+            dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date.toLocalDate(), dayDoc.groupId))
             val eventEntities = eventMapper.docToEntity(dayDoc.events)
             eventDao.replaceByDateAndGroup(eventEntities, dayDoc.date.toLocalDate(), dayDoc.groupId)
             val teacherEventCrossRefs =
@@ -181,7 +181,7 @@ class EventRepository @Inject constructor(
                     for (dayDoc in dayDocs) {
                         coroutineScope.launch(dispatcher) {
                             if (groupDao.isExistSync(dayDoc.groupId)) {
-                                saveDay2(dayDoc)
+                                saveDay(dayDoc)
                             } else {
                                 val documentSnapshot = groupsRef.document(dayDoc.groupId)
                                     .get()
@@ -191,7 +191,7 @@ class EventRepository @Inject constructor(
                                         saveGroup(
                                             documentSnapshot.toObject(GroupDoc::class.java)!!
                                         )
-                                    saveDay2(dayDoc)
+                                    saveDay(dayDoc)
                                 }
                             }
                         }
@@ -219,7 +219,7 @@ class EventRepository @Inject constructor(
                     if (!querySnapshot!!.isEmpty) {
                         coroutineScope.launch(dispatcher) {
                             for (dayDoc in querySnapshot.toObjects(DayDoc::class.java)) {
-                                saveDay2(dayDoc)
+                                saveDay(dayDoc)
                             }
                         }
                     }
@@ -284,7 +284,7 @@ class EventRepository @Inject constructor(
                 dayDao.upsert(
                     DayEntity(
                         dayDoc.id,
-                        dayDoc.date,
+                        dayDoc.date.toLocalDate(),
                         groupTimetable.group.id
                     )
                 )
@@ -310,7 +310,7 @@ class EventRepository @Inject constructor(
 
 
     suspend fun updateEventsOfDay(events: List<Event>, date: LocalDate, group: CourseGroup) {
-        val dayDocId = dayDao.getIdByDateAndGroupId(date.toDateUTC(), group.id)
+        val dayDocId = dayDao.getIdByDateAndGroupId(date, group.id)
         if (isNetworkNotAvailable) return
         val daysRef = groupsRef.document(group.id)
             .collection("Days")
@@ -321,7 +321,7 @@ class EventRepository @Inject constructor(
 
             if (!snapshot.isEmpty) {
                 val dayDoc = snapshot.documents[0].toObject(DayDoc::class.java)
-                dayDao.insert(DayEntity(dayDoc!!.id, dayDoc.date, group.id))
+                dayDao.insert(DayEntity(dayDoc!!.id, dayDoc.date.toLocalDate(), group.id))
 
                 val eventDocs = eventMapper.domainToDoc(events)
                 daysRef.document(dayDoc.id)
@@ -340,7 +340,7 @@ class EventRepository @Inject constructor(
             )
             daysRef.document(dayDoc.id).set(dayDoc, SetOptions.merge()).await()
             coroutineScope.launch(dispatcher) {
-                dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date, group.id))
+                dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date.toLocalDate(), group.id))
             }
         }
     }

@@ -4,6 +4,8 @@ import androidx.room.*
 import com.denchic45.kts.data.model.EntityModel
 import com.denchic45.kts.data.model.domain.ContentType
 import com.denchic45.kts.data.model.mapper.Default
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Entity(tableName = "course_content")

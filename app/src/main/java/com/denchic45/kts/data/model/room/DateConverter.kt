@@ -1,21 +1,17 @@
-package com.denchic45.kts.data.model.room;
+package com.denchic45.kts.data.model.room
 
-import androidx.room.TypeConverter;
+import androidx.room.TypeConverter
+import com.denchic45.kts.utils.*
+import java.util.*
 
-import com.denchic45.kts.utils.DateFormatUtil;
-
-import java.util.Date;
-
-public class DateConverter {
-
+class DateConverter {
     @TypeConverter
-    public String toString(Date date) {
-        return DateFormatUtil.convertDateToString(date, DateFormatUtil.yyy_MM_dd);
+    fun toString(date: Date): String {
+        return date.toString(DatePatterns.yyy_MM_dd)
     }
 
     @TypeConverter
-    public Date toDate(String date) {
-        return DateFormatUtil.convertStringToDateUTC(date, DateFormatUtil.yyy_MM_dd);
+    fun toDate(date: String): Date {
+        return date.toDate(DatePatterns.yyy_MM_dd)
     }
-
 }

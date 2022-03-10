@@ -3,7 +3,12 @@ package com.denchic45.kts.utils
 import java.text.SimpleDateFormat
 import java.time.*
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.*
+
+fun String.toDate(format: String): Date = SimpleDateFormat(format, Locale.getDefault()).parse(this)!!
+
+fun Date.toString(format: String): String = SimpleDateFormat(format, Locale.getDefault()).format(this)
 
 fun LocalDateTime.toString(pattern: String): String =
     DateTimeFormatter.ofPattern(pattern).format(this)
@@ -42,11 +47,29 @@ fun LocalDate.toDateUTC(): Date = Date.from(
 object Dates {
     fun toStringHidingCurrentYear(date: LocalDate): String {
         return if (Year.now().value == date.year) {
-            val sdf = SimpleDateFormat(DateFormatUtil.LLLL, Locale.getDefault())
+            val sdf = SimpleDateFormat(DatePatterns.LLLL, Locale.getDefault())
             sdf.format(date.toDate())
         } else {
-            val sdf = SimpleDateFormat(DateFormatUtil.LLLL_yyyy, Locale.getDefault())
+            val sdf = SimpleDateFormat(DatePatterns.LLLL_yyyy, Locale.getDefault())
             return sdf.format(date.toDate())
         }
     }
+
+    fun isValidDate(date: String, pattern: String): Boolean {
+        return try {
+            date.toLocalDate(pattern)
+            true
+        } catch (e: DateTimeParseException) {
+            false
+        }
+    }
+}
+
+object DatePatterns {
+    const val yyy_MM_dd = "yyyy-MM-dd"
+    const val LLLL = "LLLL"
+    const val LLLL_yyyy = "LLLL yyyy"
+    const val DD_MM_yy = "dd.MM.yy"
+    const val dd_MMM = "dd MMM"
+    const val dd_MMMM = "dd MMMM"
 }
