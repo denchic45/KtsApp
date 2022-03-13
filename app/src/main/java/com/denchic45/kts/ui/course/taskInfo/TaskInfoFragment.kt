@@ -92,11 +92,7 @@ class TaskInfoFragment :
         super.onCreate(savedInstanceState)
 
         filePicker = FilePicker(this, {
-            with(it) {
-                if (resultCode == Activity.RESULT_OK && data!!.data != null) {
-                    viewModel.onSelectedFile(File(requireContext().path(data!!.data!!)))
-                }
-            }
+            it?.let { viewModel.onSelectedFile(it[0]) }
         })
     }
 

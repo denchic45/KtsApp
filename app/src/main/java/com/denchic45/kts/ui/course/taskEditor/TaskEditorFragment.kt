@@ -2,10 +2,13 @@ package com.denchic45.kts.ui.course.taskEditor
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.InputFilter
 import android.view.*
 import android.webkit.MimeTypeMap
@@ -45,7 +48,10 @@ import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat.CLOCK_24H
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
+import org.apache.poi.util.IOUtils
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -96,19 +102,11 @@ class TaskEditorFragment :
         setHasOptionsMenu(true)
 
         filePicker = FilePicker(this, {
-            if (it.resultCode == Activity.RESULT_OK) {
-                with(it.data!!) {
-                    clipData?.let { clipData ->
-                        viewModel.onAttachmentsSelect(
-                            List(clipData.itemCount) { position ->
-                                File(requireContext().path(clipData.getItemAt(position).uri))
-                            }
-                        )
-                    } ?: viewModel.onAttachmentsSelect(listOf(File(requireContext().path(data!!))))
-                }
-            }
+            it?.let { viewModel.onAttachmentsSelect(it) }
         }, true)
     }
+
+
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.options_task_editor, menu)

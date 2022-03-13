@@ -5,7 +5,7 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.Event.Companion.empty
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.dinner
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.practice
-import com.denchic45.kts.utils.DateFormatUtil
+import com.denchic45.kts.utils.DatePatterns
 import com.denchic45.kts.utils.Dates
 import com.denchic45.kts.utils.toLocalDate
 import org.apache.poi.xwpf.usermodel.XWPFDocument
@@ -102,7 +102,7 @@ class TimetableParser {
                 val dateInCell = table.getRow(currentRow).getCell(0).text
                 currentRow++
                 val date = dateInCell.substring(dateInCell.lastIndexOf(" ") + 1)
-                if (Dates.isValidDate(date, DateFormatUtil.DD_MM_yy)) {
+                if (Dates.isValidDate(date, DatePatterns.DD_MM_yy)) {
                     weekLessons.add(getEventsOfTheDay(date))
                     currentDayOfWeek++
                 } else {
@@ -113,7 +113,7 @@ class TimetableParser {
         }
 
     private fun getEventsOfTheDay(dateText: String): EventsOfDay {
-        val date = dateText.toLocalDate(DateFormatUtil.DD_MM_yy)
+        val date = dateText.toLocalDate(DatePatterns.DD_MM_yy)
         val events: MutableList<Event> = mutableListOf()
         if (currentRow == table.rows.size) return EventsOfDay.createEmpty(date)
         var cells = table.getRow(currentRow).tableCells

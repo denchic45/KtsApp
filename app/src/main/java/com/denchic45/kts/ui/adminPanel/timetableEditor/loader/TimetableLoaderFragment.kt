@@ -71,12 +71,8 @@ class TimetableLoaderFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        filePicker = FilePicker(this, { result ->
-            with(result) {
-                if (resultCode == Activity.RESULT_OK && data!!.data != null) {
-                    viewModel.onSelectedFile(File(requireContext().path(data!!.data!!)))
-                }
-            }
+        filePicker = FilePicker(this, { list ->
+            list?.let { viewModel.onSelectedFile(list[0]) }
         })
     }
 
