@@ -21,21 +21,21 @@ data class User(
     val admin: Boolean
 ) : DomainModel() {
 
-  private constructor(): this(
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      null,
-      0,
-      false,
-      false
-        )
+    private constructor() : this(
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        null,
+        0,
+        false,
+        false
+    )
 
 
     val isTeacher: Boolean
@@ -88,17 +88,14 @@ data class User(
         const val TEACHER = "TEACHER"
         const val HEAD_TEACHER = "HEAD_TEACHER"
 
-        @JvmStatic
         fun isTeacher(role: String): Boolean {
             return role == TEACHER || role == HEAD_TEACHER
         }
 
-        @JvmStatic
         fun isStudent(role: String): Boolean {
             return role == STUDENT || role == CLASS_MONITOR || role == DEPUTY_MONITOR
         }
 
-        @JvmStatic
         fun createEmpty(): User {
             return User()
         }

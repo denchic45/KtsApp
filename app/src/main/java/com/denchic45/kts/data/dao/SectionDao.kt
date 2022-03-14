@@ -15,5 +15,5 @@ abstract class SectionDao : BaseDao<SectionEntity>() {
     abstract suspend fun get(sectionId: String): SectionEntity?
 
     @Query("DELETE FROM section WHERE section_id NOT IN(SELECT section_id FROM section WHERE section_id IN(:availableSections))")
-    abstract fun deleteMissing(availableSections: List<String>)
+    abstract suspend fun deleteMissing(availableSections: List<String>)
 }

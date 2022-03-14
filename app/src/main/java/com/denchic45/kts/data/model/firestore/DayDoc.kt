@@ -11,7 +11,6 @@ data class DayDoc(
     val id: String = UUIDS.createShort(),
     var date: Date,
     private var _events: List<EventDoc>,
-    var homework: List<CourseContentEntity> = emptyList(),
     var teacherIds: List<String> = emptyList(),
     var subjectIds: List<String> = emptyList(),
     @ServerTimestamp
@@ -22,7 +21,6 @@ data class DayDoc(
     private constructor() : this(
         "",
         Date(),
-        emptyList(),
         emptyList(),
         emptyList(),
         emptyList(),

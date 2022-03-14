@@ -12,7 +12,6 @@ data class Course(
 
     companion object {
         fun createEmpty() = Course()
-
     }
 
     private constructor() : this("", "", Subject.createEmpty(), User.createEmpty(), emptyList())

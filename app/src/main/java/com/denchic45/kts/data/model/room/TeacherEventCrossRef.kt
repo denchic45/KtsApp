@@ -13,15 +13,13 @@ import com.denchic45.kts.data.model.EntityModel
         parentColumns = ["user_id"],
         childColumns = ["user_id"],
         onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE,
-        deferred = true
+        onUpdate = ForeignKey.CASCADE
     ), ForeignKey(
         entity = EventEntity::class,
         parentColumns = ["event_id"],
         childColumns = ["event_id"],
         onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE,
-        deferred = true
+        onUpdate = ForeignKey.CASCADE
     )]
 )
 class TeacherEventCrossRef(

@@ -1,20 +1,15 @@
 package com.denchic45.kts.utils
 
-import android.Manifest
 import android.app.Activity
 import android.content.ClipData
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.OpenableColumns
-import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.TimetableLoaderFragment
 import org.apache.poi.util.IOUtils
 import java.io.File
 import java.io.FileInputStream
@@ -100,33 +95,31 @@ class FilePicker(
     }
 
 
-
-
-    private fun requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            try {
-                getPermissions.launch(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                    addCategory("android.intent.category.DEFAULT")
-                    data = Uri.parse(
-                        String.format(
-                            "package:%s",
-                            activityFromFragment().applicationContext.packageName
-                        )
-                    )
-                })
-            } catch (e: Exception) {
-                getPermissions.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
-            }
-        } else {
-            ActivityCompat.requestPermissions(
-                activityFromFragment(), arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ), TimetableLoaderFragment.PICK_FILE_RESULT_CODE
-            )
-            chooseFile()
-        }
-    }
+//    private fun requestPermissions() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            try {
+//                getPermissions.launch(Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+//                    addCategory("android.intent.category.DEFAULT")
+//                    data = Uri.parse(
+//                        String.format(
+//                            "package:%s",
+//                            activityFromFragment().applicationContext.packageName
+//                        )
+//                    )
+//                })
+//            } catch (e: Exception) {
+//                getPermissions.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+//            }
+//        } else {
+//            ActivityCompat.requestPermissions(
+//                activityFromFragment(), arrayOf(
+//                    Manifest.permission.READ_EXTERNAL_STORAGE,
+//                    Manifest.permission.READ_EXTERNAL_STORAGE
+//                ), TimetableLoaderFragment.PICK_FILE_RESULT_CODE
+//            )
+//            chooseFile()
+//        }
+//    }
 
     private fun chooseFile() {
         var chooserIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {

@@ -27,7 +27,7 @@ data class SimpleEventDetails @Default constructor (
         get() = TYPE.SIMPLE
 
     companion object {
-        @JvmStatic
+
         fun dinner(): SimpleEventDetails {
             return SimpleEventDetails(
                 UUIDS.createShort(),
@@ -37,7 +37,6 @@ data class SimpleEventDetails @Default constructor (
             )
         }
 
-        @JvmStatic
         fun practice(): SimpleEventDetails {
             return SimpleEventDetails(
                 UUIDS.createShort(),
@@ -47,7 +46,6 @@ data class SimpleEventDetails @Default constructor (
             )
         }
 
-        @JvmStatic
         fun createEmpty() = SimpleEventDetails()
     }
 }

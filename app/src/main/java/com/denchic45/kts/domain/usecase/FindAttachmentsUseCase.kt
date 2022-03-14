@@ -10,5 +10,4 @@ class FindAttachmentsUseCase @Inject constructor(
 ) {
     operator fun invoke(contentId: String): Flow<List<Attachment>> =
         courseRepository.findAttachmentsByContentId(contentId)
-
 }

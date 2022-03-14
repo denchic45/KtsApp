@@ -19,7 +19,7 @@ data class Subject(
     }
 
     companion object {
-        @JvmStatic
+
         fun createEmpty(): Subject {
             return Subject()
         }

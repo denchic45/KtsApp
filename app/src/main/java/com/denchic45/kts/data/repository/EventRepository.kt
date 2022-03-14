@@ -160,7 +160,6 @@ class EventRepository @Inject constructor(
             val teacherEventCrossRefs =
                 eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
             teacherEventDao.upsert(teacherEventCrossRefs)
-            courseContentDao.upsert(dayDoc.homework)
         }
     }
 

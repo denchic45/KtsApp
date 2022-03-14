@@ -1,14 +1,10 @@
 package com.denchic45.kts.ui.course.taskEditor
 
-import android.app.Activity
 import android.content.ActivityNotFoundException
-import android.content.ContentResolver
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.text.InputFilter
 import android.view.*
 import android.webkit.MimeTypeMap
@@ -35,7 +31,10 @@ import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.course.sectionPicker.SectionPickerFragment
 import com.denchic45.kts.ui.course.sectionPicker.SectionPickerViewModel
-import com.denchic45.kts.utils.*
+import com.denchic45.kts.utils.FilePicker
+import com.denchic45.kts.utils.ValueFilter
+import com.denchic45.kts.utils.getType
+import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
@@ -48,10 +47,7 @@ import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat.CLOCK_24H
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
-import org.apache.poi.util.IOUtils
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -107,7 +103,6 @@ class TaskEditorFragment :
     }
 
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.options_task_editor, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -116,11 +111,11 @@ class TaskEditorFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-         appBarController = AppBarController.findController(requireActivity()).apply {
-             oldToolbarScrollFlags = toolbarScrollFlags
-             setExpanded(true, false)
-             toolbarScrollFlags = 0
-         }
+        appBarController = AppBarController.findController(requireActivity()).apply {
+            oldToolbarScrollFlags = toolbarScrollFlags
+            setExpanded(true, false)
+            toolbarScrollFlags = 0
+        }
         with(binding) {
 
             rvFiles.adapter = adapter
@@ -359,7 +354,8 @@ class TaskEditorFragment :
     }
 }
 
-class AttachmentAdapterDelegate(private val crossBtnVisibility: Boolean = true) : ListItemAdapterDelegate<Attachment, AttachmentHolder>() {
+class AttachmentAdapterDelegate(private val crossBtnVisibility: Boolean = true) :
+    ListItemAdapterDelegate<Attachment, AttachmentHolder>() {
     override fun isForViewType(item: Any): Boolean = item is Attachment
 
     override fun onBindViewHolder(item: Attachment, holder: AttachmentHolder) {
@@ -367,7 +363,10 @@ class AttachmentAdapterDelegate(private val crossBtnVisibility: Boolean = true) 
     }
 
     override fun onCreateViewHolder(parent: ViewGroup): AttachmentHolder {
-        return AttachmentHolder(parent.viewBinding(ItemAttachmentBinding::inflate), crossBtnVisibility)
+        return AttachmentHolder(
+            parent.viewBinding(ItemAttachmentBinding::inflate),
+            crossBtnVisibility
+        )
     }
 }
 
@@ -396,7 +395,10 @@ class AddAttachmentHolder(itemAddAttachmentBinding: ItemAddAttachmentBinding) :
     }
 }
 
-class AttachmentHolder(itemAttachmentBinding: ItemAttachmentBinding,private val crossBtnVisibility: Boolean) :
+class AttachmentHolder(
+    itemAttachmentBinding: ItemAttachmentBinding,
+    private val crossBtnVisibility: Boolean
+) :
     BaseViewHolder<Attachment, ItemAttachmentBinding>(itemAttachmentBinding) {
     override fun onBind(item: Attachment) {
         with(binding) {
