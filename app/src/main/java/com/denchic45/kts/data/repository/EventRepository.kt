@@ -2,6 +2,8 @@ package com.denchic45.kts.data.repository
 
 import android.util.Log
 import androidx.room.withTransaction
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
@@ -60,7 +62,8 @@ class EventRepository @Inject constructor(
     override val groupDao: GroupDao,
     override val specialtyDao: SpecialtyDao,
     private val userPreference: UserPreference,
-    private val appPreference: AppPreference
+    private val appPreference: AppPreference,
+    override val appVersionService: AppVersionService
 ) : Repository(), SaveGroupOperation {
 
     private val groupsRef = firestore.collection("Groups")
@@ -158,7 +161,7 @@ class EventRepository @Inject constructor(
             val eventEntities = eventMapper.docToEntity(dayDoc.events)
             eventDao.replaceByDateAndGroup(eventEntities, dayDoc.date.toLocalDate(), dayDoc.groupId)
             val teacherEventCrossRefs =
-                eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
+                eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities) // TODO Здесь могут быть преподаватели, которых нет в группе
             teacherEventDao.upsert(teacherEventCrossRefs)
         }
     }

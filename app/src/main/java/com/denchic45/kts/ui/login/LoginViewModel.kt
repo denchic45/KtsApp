@@ -123,6 +123,7 @@ class LoginViewModel @Inject constructor(
                 interactor.authByEmail(mail, password)
                 onSuccessfulLogin()
             } catch (t: Throwable) {
+                t.printStackTrace()
                 if (t is FirebaseAuthException) {
                     when (t.errorCode) {
                         "ERROR_USER_NOT_FOUND" -> {

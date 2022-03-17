@@ -90,7 +90,6 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
                             color(
                                 item.color.fold({ colorId -> colorId },
                                     { colorName ->
-                                        Log.d("lol", "onBind colorName: $colorName")
                                         ContextCompat.getColor(
                                             context,
                                             context.resources.getIdentifier(

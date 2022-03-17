@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.asFlow
 import androidx.room.withTransaction
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.*
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.DomainModel
@@ -34,6 +36,7 @@ import java.util.*
 import javax.inject.Inject
 
 class CourseRepository @Inject constructor(
+    override val appVersionService: AppVersionService,
     override val coroutineScope: CoroutineScope,
     override val userMapper: UserMapper,
     @IoDispatcher override val dispatcher: CoroutineDispatcher,
@@ -278,7 +281,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun add(course: Course) {
-        checkInternetConnection()
+        requireInternetConnection()
         val courseDoc = courseMapper.domainToDoc(course)
         val batch = firestore.batch()
         batch.set(coursesRef.document(courseDoc.id), courseDoc)
@@ -286,7 +289,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun update(course: Course) {
-        checkInternetConnection()
+        requireInternetConnection()
         coroutineScope.launch(dispatcher) {
             val batch = firestore.batch()
             val courseDoc = courseMapper.domainToDoc(course)
@@ -323,7 +326,7 @@ class CourseRepository @Inject constructor(
 
 
     suspend fun removeGroupFromCourses(group: Group) {
-        checkInternetConnection()
+        requireInternetConnection()
         val courseDocs = coursesByGroupIdQuery(group.id)
             .get()
             .await()
@@ -359,7 +362,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun addTask(task: Task) {
-        checkInternetConnection()
+        requireInternetConnection()
         val attachments = contentAttachmentStorage.addContentAttachments(task.id, task.attachments)
         val order = getLastContentOrderByCourseIdAndSectionId(task.courseId, task.sectionId) + 1024
         coursesRef.document(task.courseId)
@@ -403,7 +406,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateTask(task: Task) {
-        checkInternetConnection()
+        requireInternetConnection()
         val attachments = contentAttachmentStorage.update(task.id, task.attachments)
         val cacheTask = courseContentMapper.entityToTaskDoc(courseContentDao.getSync(task.id))
         val updatedFields =
@@ -421,7 +424,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun removeCourseContent(taskId: String) {
-        checkInternetConnection()
+        requireInternetConnection()
         contentAttachmentStorage.deleteFilesByContentId(taskId)
         submissionAttachmentStorage.deleteFilesByContentId(taskId)
         getContentDocument(taskId)
@@ -471,7 +474,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateSubmissionFromStudent(submission: Task.Submission) {
-        checkInternetConnection()
+        requireInternetConnection()
         val studentId = submission.student.id
         val contentId = submission.contentId
 
@@ -516,7 +519,7 @@ class CourseRepository @Inject constructor(
         grade: Int,
         teacherId: String = userPreference.id
     ) {
-        checkInternetConnection()
+        requireInternetConnection()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
@@ -538,7 +541,7 @@ class CourseRepository @Inject constructor(
         cause: String,
         teacherId: String = userPreference.id
     ) {
-        checkInternetConnection()
+        requireInternetConnection()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
@@ -590,21 +593,21 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateCourseSections(sections: List<Section>) {
-        checkInternetConnection()
+        requireInternetConnection()
         coursesRef.document(sections[0].courseId)
             .update("sections", sections)
             .await()
     }
 
     suspend fun addSection(section: Section) {
-        checkInternetConnection()
+        requireInternetConnection()
         coursesRef.document(section.courseId)
             .update("sections", FieldValue.arrayUnion(section))
             .await()
     }
 
     suspend fun removeSection(section: Section) {
-        checkInternetConnection()
+        requireInternetConnection()
         val courseRef = coursesRef.document(section.courseId)
 
         val contentsWithThisSection = courseRef.collection("Contents")
@@ -626,7 +629,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateContentOrder(contentId: String, order: Long) {
-        checkInternetConnection()
+        requireInternetConnection()
         getContentDocument(contentId)
             .update(
                 mapOf(
@@ -714,7 +717,7 @@ class CourseRepository @Inject constructor(
 
 class SameCoursesException : Exception()
 
-interface RemoveCourseOperation : CheckNetworkConnection {
+interface RemoveCourseOperation : RequireUpdateData {
 
     val firestore: FirebaseFirestore
     val courseMapper: CourseMapper
@@ -723,7 +726,7 @@ interface RemoveCourseOperation : CheckNetworkConnection {
     val dispatcher: CoroutineDispatcher
 
     suspend fun removeCourse(courseId: String) {
-        checkInternetConnection()
+        requireInternetConnection()
         val batch = firestore.batch()
         batch.delete(coursesRef.document(courseId))
         coursesRef.document(courseId).collection("Contents").deleteCollection(10)

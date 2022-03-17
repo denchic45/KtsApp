@@ -24,7 +24,6 @@ import kotlin.properties.Delegates
 
 class WeekCalendarView : LinearLayout {
 
-
     private val adapter = WeekPageAdapter(object : WeekCalendarListener {
         override fun onDaySelect(date: LocalDate) {
             selectDate = date
