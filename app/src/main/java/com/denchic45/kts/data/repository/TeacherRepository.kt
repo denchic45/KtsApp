@@ -2,6 +2,8 @@ package com.denchic45.kts.data.repository
 
 import android.content.Context
 import android.util.Log
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.model.domain.User
@@ -23,7 +25,8 @@ import javax.inject.Inject
 
 class TeacherRepository @Inject constructor(
     context: Context,
-    private val userMapper: UserMapper
+    private val userMapper: UserMapper,
+    override val appVersionService: AppVersionService
 ) : Repository() {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = firestore.collection("Users")
@@ -106,7 +109,7 @@ class TeacherRepository @Inject constructor(
 
 
     suspend fun remove(teacher: User) {
-        checkInternetConnection()
+        requireInternetConnection()
         batch = firestore.batch()
         batch!!.delete(usersRef.document(teacher.id))
         batch!!.commit()

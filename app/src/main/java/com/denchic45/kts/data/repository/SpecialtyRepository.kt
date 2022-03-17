@@ -3,6 +3,8 @@ package com.denchic45.kts.data.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.SpecialtyDao
@@ -24,6 +26,7 @@ import java.util.*
 import javax.inject.Inject
 
 class SpecialtyRepository @Inject constructor(
+    override val appVersionService: AppVersionService,
     private val coroutineScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val specialtyDao: SpecialtyDao,
@@ -70,14 +73,14 @@ class SpecialtyRepository @Inject constructor(
 
 
     suspend fun add(specialty: Specialty) {
-        checkInternetConnection()
+        requireInternetConnection()
         val data = specialtyMapper.domainToDoc(specialty)
         specialtyRef.document(specialty.id).set(data)
             .await()
     }
 
     suspend fun update(specialty: Specialty) {
-        checkInternetConnection()
+        requireInternetConnection()
         val specialtyDoc = specialtyMapper.domainToDoc(specialty)
         val id = specialty.id
         groupsRef.whereEqualTo("specialty.id", id)
@@ -101,7 +104,7 @@ class SpecialtyRepository @Inject constructor(
     }
 
     suspend fun remove(specialty: Specialty) {
-        checkInternetConnection()
+        requireInternetConnection()
         specialtyRef.document(specialty.id).delete()
             .await()
     }

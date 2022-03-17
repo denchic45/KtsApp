@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <ViewFlipper
+        android:id="@+id/vf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:measureAllChildren="false">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_remember"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:id="@+id/tv_remember_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Доступна новая версия"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_remember_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Рекомендуем вам обновить приложение, в противном случае некоторый функционал может быть не доступен"
+                android:textAppearance="@style/TextAppearance.Kts.Body2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_remember_header" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_later"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cornerRadius="20dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Напомнить позже"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
+                android:textColor="?colorControlNormal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btn_update"
+                app:layout_constraintTop_toBottomOf="@id/tv_remember_message" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_update"
+                app:cornerRadius="20dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+           android:paddingHorizontal="16dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:text="Загрузить"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_remember_message" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_download"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/tv_download_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Скачивание обновления"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
+                app:layout_constraintEnd_toStartOf="@id/tv_progress"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="25% из 19.3MB" />
+
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progress_download"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:indeterminate="false"
+                app:layout_constraintEnd_toStartOf="@id/tv_progress"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_download_header" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_install"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:padding="16dp">
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ViewFlipper>
+</com.google.android.material.card.MaterialCardView>

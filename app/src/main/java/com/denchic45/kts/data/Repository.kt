@@ -1,7 +1,10 @@
 package com.denchic45.kts.data
 
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.Repository.Subscription
 import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.utils.OldVersionException
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -13,7 +16,7 @@ import kotlinx.coroutines.launch
 import java.util.function.Consumer
 import kotlin.reflect.full.memberProperties
 
-abstract class Repository protected constructor() : CheckNetworkConnection {
+abstract class Repository protected constructor() : RequireUpdateData {
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
 
 
@@ -114,15 +117,17 @@ abstract class Repository protected constructor() : CheckNetworkConnection {
 
 }
 
-interface CheckNetworkConnection {
+interface RequireUpdateData {
 
     val networkService: NetworkService
+    val appVersionService: AppVersionService
 
     val isNetworkNotAvailable: Boolean
         get() = !networkService.isNetworkAvailable
 
-    fun checkInternetConnection() {
+    fun requireInternetConnection() {
         if (isNetworkNotAvailable) throw NetworkException()
+        if (appVersionService.isOldCurrentVersion()) throw OldVersionException()
     }
 }
 

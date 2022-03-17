@@ -1,5 +1,7 @@
 package com.denchic45.kts.data.repository
 
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
@@ -25,6 +27,7 @@ import java.util.*
 import javax.inject.Inject
 
 open class UserRepository @Inject constructor(
+    override val appVersionService: AppVersionService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
     private val userPreference: UserPreference,
@@ -83,7 +86,7 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun add(user: User) {
-        checkInternetConnection()
+        requireInternetConnection()
         val userDoc = userMapper.domainToDoc(user)
         val generator = SearchKeysGenerator()
         userDoc.searchKeys =
@@ -93,7 +96,7 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun update(user: UserEntity, searchKeys: List<String>) {
-        checkInternetConnection()
+        requireInternetConnection()
         userDao.update(user)
         val userDoc = userMapper.entityToDoc(user)
         userDoc.searchKeys = searchKeys
@@ -103,7 +106,7 @@ open class UserRepository @Inject constructor(
     }
 
     open suspend fun remove(user: User) {
-        checkInternetConnection()
+        requireInternetConnection()
         deleteAvatar(user.id)
         usersRef.document(user.id)
             .delete()
@@ -139,7 +142,7 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun findAndSaveByPhoneNum(phoneNum: String) {
-        checkInternetConnection()
+        requireInternetConnection()
         usersRef.whereEqualTo("phoneNum", phoneNum)
             .get()
             .await().apply {
@@ -154,7 +157,7 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun findAndSaveByEmail(email: String) {
-        checkInternetConnection()
+        requireInternetConnection()
         usersRef.whereEqualTo("email", email)
             .get()
             .await().apply {

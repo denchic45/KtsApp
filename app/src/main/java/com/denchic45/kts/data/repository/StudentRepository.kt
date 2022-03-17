@@ -1,5 +1,7 @@
 package com.denchic45.kts.data.repository
 
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
@@ -19,6 +21,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class StudentRepository @Inject constructor(
+    override val appVersionService: AppVersionService,
     override val networkService: NetworkService,
     private val userDao: UserDao,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
@@ -32,7 +35,7 @@ class StudentRepository @Inject constructor(
     private val groupRef: CollectionReference = firestore.collection("Groups")
 
     suspend fun add(student: User) {
-        checkInternetConnection()
+        requireInternetConnection()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         batch[userRef.document(student.id)] = studentDoc
@@ -41,7 +44,7 @@ class StudentRepository @Inject constructor(
     }
 
     suspend fun update(student: User) {
-        checkInternetConnection()
+        requireInternetConnection()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         val cacheStudent = userMapper.entityToDomain(userDao.get(student.id))
@@ -69,7 +72,7 @@ class StudentRepository @Inject constructor(
     }
 
     suspend fun remove(student: User) {
-        checkInternetConnection()
+        requireInternetConnection()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         batch.delete(userRef.document(student.id))

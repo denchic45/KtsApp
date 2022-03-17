@@ -1,4 +1,4 @@
-package com.denchic45.kts
+package com.denchic45.appVersion
 
 import android.app.Activity
 import android.content.Context
@@ -8,24 +8,26 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.api.LogDescriptor
-import javax.inject.Inject
-import javax.inject.Singleton
+import java.io.Closeable
+import java.lang.ref.WeakReference
 
-@Singleton
-class AppVersionService @Inject constructor(context: Context) {
+class GoogleAppVersionService constructor(context: Context) : AppVersionService(), Closeable {
 
     private val appUpdateManager = AppUpdateManagerFactory.create(context)
 
-    private val info = appUpdateManager.appUpdateInfo
+    private val info by lazy { appUpdateManager.appUpdateInfo }
 
-    var onUpdateDownloaded: () -> Unit = {}
+    override var onUpdateDownloaded: () -> Unit = {}
+
+    override var onUpdateLoading: (progress: Int, megabyteTotal: Int) -> Unit = { _, _ -> }
+
+    var activityRef: WeakReference<Activity> = WeakReference(null)
 
     companion object {
         const val UPDATE_REQUEST_CODE = 1
     }
 
-    fun observeUpdates(onUpdateAvailable: () -> Unit, onError: (Throwable)->Unit) {
+    override fun observeUpdates(onUpdateAvailable: () -> Unit, onError: (Throwable) -> Unit) {
         Log.d("lol", "observeUpdates: ")
         info.addOnSuccessListener { appUpdateInfo ->
             Log.d("lol", "observeUpdates: updateAvailability ${appUpdateInfo.updateAvailability()}")
@@ -41,11 +43,33 @@ class AppVersionService @Inject constructor(context: Context) {
         }.addOnFailureListener {
             Log.d("lol", "observeUpdates: error")
             it.printStackTrace()
-               onError( it)
+            onError(it)
+        }
+    }
+
+    override fun observeDownloadedUpdate() {
+        appUpdateManager.appUpdateInfo
+            .addOnSuccessListener { appUpdateInfo ->
+                Log.d(
+                    "lol",
+                    "observeDownloadedUpdate installStatus: ${appUpdateInfo.installStatus()}"
+                )
+                Log.d(
+                    "lol",
+                    "observeDownloadedUpdate availableVersionCode: ${appUpdateInfo.availableVersionCode()}"
+                )
+                // If the update is downloaded but not installed,
+                // notify the user to complete the update.
+                if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
+                    onUpdateDownloaded()
+                }
             }
     }
 
-    fun startUpdate(activity: Activity) {
+    override val latestVersion: Int
+        get() = info.result.availableVersionCode()
+
+    override fun startUpdate() {
         Log.d("lol", "startUpdate:")
         appUpdateManager.startUpdateFlowForResult(
             // Pass the intent that is returned by 'getAppUpdateInfo()'.
@@ -53,7 +77,7 @@ class AppVersionService @Inject constructor(context: Context) {
             // Or 'AppUpdateType.IMMEDIATE for immediate updates.
             AppUpdateType.FLEXIBLE,
             // The current activity.
-            activity,
+            activityRef.get()!!,
             UPDATE_REQUEST_CODE
         )
 
@@ -86,8 +110,12 @@ class AppVersionService @Inject constructor(context: Context) {
 //        appUpdateManager.unregisterListener(listener)
     }
 
-    fun installUpdate() {
+    override fun installUpdate() {
         Log.d("lol", "installUpdate: ")
         appUpdateManager.completeUpdate()
+    }
+
+    override fun close() {
+        activityRef.clear()
     }
 }

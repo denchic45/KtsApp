@@ -1,12 +1,12 @@
 package com.denchic45.kts.ui.main
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
@@ -14,17 +14,19 @@ import androidx.navigation.NavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
-import com.denchic45.kts.AppVersionService
 import com.denchic45.kts.CustomToolbar
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.ActivityMainBinding
-import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.BaseActivity
-import com.denchic45.kts.ui.adapter.*
+import com.denchic45.kts.ui.adapter.NavDropdownItemHolder
+import com.denchic45.kts.ui.adapter.NavItemHolder
+import com.denchic45.kts.ui.adapter.navAdapter
 import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.login.LoginActivity
 import com.denchic45.kts.ui.profile.ProfileFragment
+import com.denchic45.kts.ui.updateView.SnackbarUpdateView
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.findFragmentContainerNavController
 import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
@@ -32,12 +34,11 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
-import com.google.android.play.core.install.model.ActivityResult
+import com.google.android.material.snackbar.Snackbar
 import com.google.common.collect.Sets
 import dagger.android.AndroidInjection
 import kotlinx.coroutines.flow.collect
-import java.lang.ref.WeakReference
-import javax.inject.Inject
+
 
 class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
@@ -47,7 +48,8 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
     private lateinit var toolbar: CustomToolbar
     private lateinit var toggle: ActionBarDrawerToggle
 
-    //    private var params: AppBarLayout.LayoutParams? = null
+    private lateinit var snackbar: Snackbar
+
     private lateinit var bnv: BottomNavigationView
     private val navAdapter = navAdapter {
         extensions {
@@ -69,11 +71,22 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         AndroidInjection.inject(this)
         setContentView(R.layout.activity_main)
 
-        viewModel.activityRef = WeakReference(this)
+        viewModel.setActivityForService(this)
+
+        snackbar = Snackbar.make(this, binding.container, "", Snackbar.LENGTH_INDEFINITE)
+        val customSnackView = SnackbarUpdateView(this)
+        snackbar.view.setBackgroundColor(Color.TRANSPARENT)
+        val snackbarLayout = snackbar.view as Snackbar.SnackbarLayout
+        snackbarLayout.setPadding(0, 0, 0, 0)
+        snackbarLayout.addView(customSnackView, 0)
+
+        customSnackView.onDownloadClickListener = { viewModel.onDownloadUpdateClick() }
+        customSnackView.onLaterClickListener = { viewModel.onLaterUpdateClick() }
 
         bnv = findViewById(R.id.bottom_nav_view)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         toolbar = findViewById(R.id.toolbar_main)
+
 //        params = toolbar.layoutParams as AppBarLayout.LayoutParams
         appBarLayout = findViewById(R.id.app_bar)
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
@@ -82,7 +95,33 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         setupWithNavController(navigationView, navController)
         setupWithNavController(bnv, navController)
 
-        bnv.setOnItemReselectedListener { item: MenuItem? -> refreshCurrentFragment() }
+        bnv.setOnItemReselectedListener { refreshCurrentFragment() }
+
+        viewModel.updateBannerState.collectWhenStarted(lifecycleScope) { bannerState ->
+            if (bannerState !is MainViewModel.UpdateBannerState.Hidden)
+                snackbar.show()
+
+            when (bannerState) {
+                MainViewModel.UpdateBannerState.Hidden -> snackbar.dismiss()
+                MainViewModel.UpdateBannerState.Remind -> {
+                    customSnackView.showState(
+                        SnackbarUpdateView.UpdateState.REMIND
+                    )
+                }
+                is MainViewModel.UpdateBannerState.Loading -> {
+                    customSnackView.showState(SnackbarUpdateView.UpdateState.LOADING)
+                    customSnackView.updateLoadingProgress(bannerState.progress, bannerState.info)
+                }
+                MainViewModel.UpdateBannerState.Install -> {
+                    customSnackView.showState(
+                        SnackbarUpdateView.UpdateState.INSTALL
+                    )
+                }
+
+
+            }
+        }
+
         viewModel.menuBtnVisibility.observe(
             this
         ) { itemIdWithVisibilityPair: Pair<Int, Boolean> ->
@@ -140,7 +179,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
                 .into(binding.navHeader.ivAvatar)
             binding.navHeader.tvFullName.text = user.fullName
         }
-        viewModel.open.observe(this) {
+        viewModel.navigate.observe(this) {
             binding.drawerLayout.close()
             navController.navigate(it)
         }
@@ -204,7 +243,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
-        toast("34")
+        toast("39")
     }
 
     private fun refreshCurrentFragment() {
@@ -216,10 +255,5 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
             navController.popBackStack(id, true)
         }
         navController.navigate(id)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.activityRef.clear()
     }
 }

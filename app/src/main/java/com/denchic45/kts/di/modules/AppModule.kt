@@ -2,6 +2,8 @@ package com.denchic45.kts.di.modules
 
 import android.app.Application
 import android.content.Context
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.FakeAppVersionService
 import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.CoroutineScope
@@ -12,6 +14,13 @@ import javax.inject.Singleton
 
 @Module
 class AppModule(private val application: Application) {
+
+    @Singleton
+    @Provides
+    fun provideAppVersionService(
+        context: Context,
+        coroutineScope: CoroutineScope
+    ): AppVersionService = FakeAppVersionService(coroutineScope)
 
     @Provides
     @Singleton

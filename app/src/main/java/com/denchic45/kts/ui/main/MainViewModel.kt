@@ -4,7 +4,7 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.denchic45.kts.AppVersionService
+import com.denchic45.appVersion.FakeAppVersionService
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.*
@@ -15,12 +15,11 @@ import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val interactor: MainInteractor,
-    private val appVersionService: AppVersionService
+    private val appVersionService: FakeAppVersionService
 ) : BaseViewModel() {
 
     private val screenIdsWithFab: Set<Int> = setOf(
@@ -28,17 +27,22 @@ class MainViewModel @Inject constructor(
         R.id.groupEditorFragment
     )
 
-    var activityRef = WeakReference<Activity?>(null)
+    val updateBannerState = MutableStateFlow<UpdateBannerState>(UpdateBannerState.Hidden)
+
+    fun setActivityForService(activity: Activity) {
+        //todo раскммент
+//        appVersionService.activityRef = WeakReference(activity)
+    }
 
     private val mainScreenIds: Set<Int> = setOf(R.id.menu_timetable, R.id.menu_group)
     private val onNavItemClickActions = mapOf(
-        R.string.nav_tasks to { open.value = R.id.action_global_tasksFragment },
-        R.string.nav_duty_roster to { open.value = 0 },
-        R.string.nav_schedule to { open.value = 0 },
+        R.string.nav_tasks to { navigate.value = R.id.action_global_tasksFragment },
+        R.string.nav_duty_roster to { navigate.value = 0 },
+        R.string.nav_schedule to { navigate.value = 0 },
 
-        R.string.nav_control_panel to { open.value = R.id.action_global_menu_admin_panel },
-        R.string.nav_settings to { open.value = R.id.action_global_menu_settings },
-        R.string.nav_help to { open.value = 0 },
+        R.string.nav_control_panel to { navigate.value = R.id.action_global_menu_admin_panel },
+        R.string.nav_settings to { navigate.value = R.id.action_global_menu_settings },
+        R.string.nav_help to { navigate.value = 0 },
     )
 
     val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
@@ -49,7 +53,7 @@ class MainViewModel @Inject constructor(
 
     val closeNavMenu = SingleLiveData<Unit>()
 
-    val open = SingleLiveData<Int>()
+    val navigate = SingleLiveData<Int>()
 
     val openCourse = SingleLiveData<String>()
 
@@ -79,21 +83,12 @@ class MainViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        activityRef.clear()
+//        appVersionVersionService.close() TODO раскоммент
         interactor.removeListeners()
     }
 
     fun onResume() {
-        appVersionService.observeUpdates(
-            onUpdateAvailable = {
-                showSnackBar("Доступна новая версия", "Заргузить")
-            },
-            onError = {
-                showToast("Ошибка")
-                it.printStackTrace()
-                showSnackBar(it.message ?: "Err...", "Установить")
-            }
-        )
+        appVersionService.observeDownloadedUpdate()
 //        menuBtnVisibility.value = Pair(
 //            R.id.menu_admin_panel,
 //            uiPermissions.isAllowed(ALLOW_CONTROL)
@@ -148,9 +143,26 @@ class MainViewModel @Inject constructor(
     init {
         appVersionService.onUpdateDownloaded = {
             Log.d("lol", "startUpdate: toast DOWNLOADED")
-            showToast("Обновление загруженно!")
-            showSnackBar("Обновление загруженно!", "Установить")
+            updateBannerState.value = UpdateBannerState.Install
+//            showToast("Обновление загруженно!")
+//            showSnackBar("Обновление загруженно!", "Установить")
         }
+
+        appVersionService.onUpdateLoading = { progress, megabyteTotal ->
+            updateBannerState.value = UpdateBannerState.Loading(progress, megabyteTotal.toString())
+        }
+
+        appVersionService.observeUpdates(
+            onUpdateAvailable = {
+                updateBannerState.value = UpdateBannerState.Remind
+//                showSnackBar("Доступна новая версия", "Заргузить")
+            },
+            onError = {
+                showToast("Ошибка")
+                it.printStackTrace()
+                showSnackBar(it.message ?: "Err...", "Установить")
+            }
+        )
 
         viewModelScope.launch(Dispatchers.IO) { interactor.startListeners() }
 
@@ -200,13 +212,20 @@ class MainViewModel @Inject constructor(
         Log.d("lol", "onSnackbarActionClick: $message")
         when (message) {
             "Доступна новая версия" -> {
-                appVersionService.startUpdate(
-                    activityRef.get()!!)
+
             }
             "Обновление загруженно!" -> {
                 appVersionService.installUpdate()
             }
         }
+    }
+
+    fun onDownloadUpdateClick() {
+        appVersionService.startUpdate()
+    }
+
+    fun onLaterUpdateClick() {
+        updateBannerState.value = UpdateBannerState.Hidden
     }
 
     sealed class NavMenuState {
@@ -311,6 +330,20 @@ class MainViewModel @Inject constructor(
         }
 
         object NavMenuEmpty : NavMenuState()
+    }
+
+    sealed class UpdateBannerState {
+
+        object Hidden : UpdateBannerState()
+
+        object Remind : UpdateBannerState()
+
+        data class Loading(
+            val progress: Int,
+            val info: String
+        ) : UpdateBannerState()
+
+        object Install : UpdateBannerState()
     }
 
 

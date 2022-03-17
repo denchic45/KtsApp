@@ -1,6 +1,8 @@
 package com.denchic45.kts.data.repository
 
 import android.net.Uri
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
@@ -27,6 +29,7 @@ import java.util.*
 import javax.inject.Inject
 
 class SubjectRepository @Inject constructor(
+    override val appVersionService: AppVersionService,
     override val coroutineScope: CoroutineScope,
     override val networkService: NetworkService,
     override val firestore: FirebaseFirestore,
@@ -49,7 +52,7 @@ class SubjectRepository @Inject constructor(
     override val coursesRef: CollectionReference = firestore.collection("Courses")
 
     suspend fun add(subject: Subject) {
-        checkInternetConnection()
+        requireInternetConnection()
         isExistWithSameIconAndColor(subject)
         subjectsRef.document(subject.id)
             .set(subjectMapper.domainToDoc(subject))
@@ -57,7 +60,7 @@ class SubjectRepository @Inject constructor(
     }
 
     suspend fun update(subject: Subject) {
-        checkInternetConnection()
+        requireInternetConnection()
         isExistWithSameIconAndColor(subject)
         val subjectDoc = subjectMapper.domainToDoc(subject)
         val id = subject.id
@@ -91,7 +94,7 @@ class SubjectRepository @Inject constructor(
     }
 
     suspend fun remove(subject: Subject) {
-        checkInternetConnection()
+        requireInternetConnection()
         subjectsRef.document(subject.id).delete().await()
         coursesRef.whereEqualTo("subject.id", subject.id)
             .get()
@@ -143,7 +146,7 @@ class SubjectRepository @Inject constructor(
     }
 
     fun findByGroup(groupId: String): Flow<List<Subject>> {
-        checkInternetConnection()
+        requireInternetConnection()
         coroutineScope.launch {
             coursesRef.whereArrayContains("groupIds", groupId)
                 .get()

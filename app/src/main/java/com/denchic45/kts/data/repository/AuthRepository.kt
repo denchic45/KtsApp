@@ -1,6 +1,8 @@
 package com.denchic45.kts.data.repository
 
 import android.util.Log
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.google.firebase.FirebaseException
@@ -19,7 +21,8 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val coroutineScope: CoroutineScope,
-    override val networkService: NetworkService
+    override val networkService: NetworkService,
+    override val appVersionService: AppVersionService
 ) : Repository() {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 

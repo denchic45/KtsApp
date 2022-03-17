@@ -2,6 +2,8 @@ package com.denchic45.kts.data.repository
 
 import android.util.Log
 import androidx.room.withTransaction
+import com.denchic45.appVersion.AppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
@@ -33,6 +35,7 @@ import java.util.*
 import javax.inject.Inject
 
 class GroupRepository @Inject constructor(
+    override val appVersionService: AppVersionService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
     private val courseDao: CourseDao,
@@ -245,21 +248,21 @@ class GroupRepository @Inject constructor(
 
 
     suspend fun add(group: Group) {
-        checkInternetConnection()
+        requireInternetConnection()
         val groupDoc = groupMapper.domainToDoc(group)
         groupsRef.document(groupDoc.id).set(groupDoc, SetOptions.merge())
             .await()
     }
 
     suspend fun update(group: Group) {
-        checkInternetConnection()
+        requireInternetConnection()
         val updatedGroupMap = groupMapper.domainToMap(group)
         groupsRef.document(group.id).update(updatedGroupMap)
             .await()
     }
 
     suspend fun remove(group: Group) {
-        checkInternetConnection()
+        requireInternetConnection()
         val batch = firestore.batch()
 
         groupsRef.document(group.id)
@@ -289,7 +292,7 @@ class GroupRepository @Inject constructor(
     }
 
     suspend fun updateGroupCurator(groupId: String, teacher: User) {
-        checkInternetConnection()
+        requireInternetConnection()
         val updatedGroupMap: MutableMap<String, Any> = HashMap()
         updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
         updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
