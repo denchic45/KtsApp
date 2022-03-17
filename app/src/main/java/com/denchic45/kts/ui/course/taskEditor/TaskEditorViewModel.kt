@@ -119,7 +119,7 @@ class TaskEditorViewModel @Inject constructor(
                     attachmentsAvailable || textAvailable
                 }
             }, "Должен быть выбран хотя бы один вариант ответа")
-        ).sendMessageResult(snackBar),
+        ),
         Validation(
             Rule(
                 {

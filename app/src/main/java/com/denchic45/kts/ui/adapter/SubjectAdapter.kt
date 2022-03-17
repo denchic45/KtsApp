@@ -6,7 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.SvgColorListener
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.ListItem
@@ -85,7 +85,13 @@ class SubjectAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>
             GlideApp.with(itemView.context)
                 .`as`(PictureDrawable::class.java)
                 .transition(DrawableTransitionOptions.withCrossFade())
-                .listener(SvgColorListener(ivIcon, color, itemView.context))
+                .listener(
+                    SvgColorListener(
+                        ivIcon,
+                        color,
+                        itemView.context
+                    )
+                )
                 .load(item.iconUrl)
                 .into(ivIcon)
         }

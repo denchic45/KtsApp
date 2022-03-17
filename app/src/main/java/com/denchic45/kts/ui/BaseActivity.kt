@@ -1,18 +1,19 @@
 package com.denchic45.kts.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.utils.strings
 import com.denchic45.kts.utils.toast
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.AndroidInjection
@@ -39,16 +40,27 @@ abstract class BaseActivity<VM : BaseViewModel, VB : ViewBinding>(
             finish()
         }
 
-        viewModel.toast.collectWhenStarted(lifecycleScope, this::toast)
+        viewModel.toast.collectWhenStarted(lifecycleScope) {
+            this.toast(it)
+            Log.d("lol", "showToast: $it")
+        }
 
         viewModel.toastRes.collectWhenStarted(lifecycleScope, this::toast)
 
-        viewModel.snackBar.collectWhenStarted(lifecycleScope) {
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        viewModel.snackBar.collectWhenStarted(lifecycleScope) { (message, action) ->
+            val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+            action?.let { snackbar.setAction(action) { viewModel.onSnackbarActionClick(message) } }
+            snackbar.show()
         }
 
-        viewModel.snackBarRes.collectWhenStarted(lifecycleScope) {
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        viewModel.snackBarRes.collectWhenStarted(lifecycleScope) { (messageRes, action) ->
+            val snackbar = Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_LONG)
+            action?.let {
+                snackbar.setAction(action) {
+                    viewModel.onSnackbarActionClick(strings(messageRes))
+                }
+            }
+            snackbar.show()
         }
 
         viewModel.openConfirmation.collectWhenStarted(lifecycleScope) { (title, message) ->

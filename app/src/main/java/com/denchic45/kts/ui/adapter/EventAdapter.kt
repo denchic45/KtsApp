@@ -20,7 +20,7 @@ import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.SvgColorListener
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.LessonTimeCalculator
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel

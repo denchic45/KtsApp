@@ -100,7 +100,7 @@ class GroupEditorViewModel @Inject constructor(
             Validation(Rule({ !TextUtils.isEmpty(courseField.value) }, "Курс группы обязателен"))
                 .sendMessageResult(R.id.til_course, fieldErrorMessage),
             Validation(Rule({ curatorField.value != null }, R.string.error_not_curator))
-                .sendMessageIdResult(snackBarRes)
+                .onErrorRun { showSnackBar(R.string.error_not_curator) }
         )
 
         if (uiEditor.isNew)

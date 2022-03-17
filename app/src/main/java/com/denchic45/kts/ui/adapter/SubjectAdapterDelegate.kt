@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.adapter
 import android.graphics.drawable.PictureDrawable
 import android.view.ViewGroup
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.SvgColorListener
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.glideSvg.GlideApp
@@ -41,7 +41,13 @@ class SubjectAdapterDelegate :
                 GlideApp.with(itemView.context)
                     .`as`(PictureDrawable::class.java)
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .listener(SvgColorListener(ivIcon, color, itemView.context))
+                    .listener(
+                        SvgColorListener(
+                            ivIcon,
+                            color,
+                            itemView.context
+                        )
+                    )
                     .load(item.iconUrl)
                     .into(ivIcon)
             }

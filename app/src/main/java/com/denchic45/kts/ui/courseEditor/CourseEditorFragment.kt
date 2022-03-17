@@ -16,7 +16,7 @@ import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.SvgColorListener
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.model.domain.ListItem
@@ -158,7 +158,13 @@ class CourseEditorFragment :
                 GlideApp.with(requireActivity())
                     .`as`(PictureDrawable::class.java)
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .listener(SvgColorListener(ivSubjectIcon, resColor, activity))
+                    .listener(
+                        SvgColorListener(
+                            ivSubjectIcon,
+                            resColor,
+                            requireContext()
+                        )
+                    )
                     .load(iconUrl)
                     .into(ivSubjectIcon)
                 tvSubjectName.text = name

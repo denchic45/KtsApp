@@ -2,8 +2,6 @@ package com.denchic45.kts.ui.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,9 +16,9 @@ abstract class BaseViewModel : ViewModel() {
 
     val toastRes = MutableSharedFlow<Int>()
 
-    val snackBar = MutableSharedFlow<String>()
+    val snackBar = MutableSharedFlow<Pair<String, String?>>()
 
-    val snackBarRes = MutableSharedFlow<Int>()
+    val snackBarRes = MutableSharedFlow<Pair<Int,Int?>>()
 
     val dialog = MutableSharedFlow<Pair<String, String>>()
 
@@ -58,12 +56,12 @@ abstract class BaseViewModel : ViewModel() {
         viewModelScope.launch {  toastRes.emit(messageRes) }
     }
 
-    protected fun showSnackBar(message: String) {
-        viewModelScope.launch {  snackBar.emit(message) }
+    protected fun showSnackBar(message: String, action: String? = null) {
+        viewModelScope.launch {  snackBar.emit(message to action) }
     }
 
-    protected fun showSnackBar(messageRes: Int) {
-        viewModelScope.launch {  snackBarRes.emit(messageRes) }
+    protected fun showSnackBar(messageRes: Int, actionRes: Int? = null) {
+        viewModelScope.launch {  snackBarRes.emit(messageRes to actionRes) }
     }
 
     protected fun showDialog(title: String, message: String) {
@@ -82,4 +80,6 @@ abstract class BaseViewModel : ViewModel() {
     }
 
     open fun onOptionClick(itemId: Int) {}
+
+   open fun onSnackbarActionClick(message: String) {}
 }

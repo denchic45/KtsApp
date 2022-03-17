@@ -16,10 +16,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmDialog
-import com.denchic45.kts.utils.collectWhenResumed
-import com.denchic45.kts.utils.collectWhenStarted
-import com.denchic45.kts.utils.setActivityTitle
-import com.denchic45.kts.utils.toast
+import com.denchic45.kts.utils.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
@@ -60,12 +57,20 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
 
         viewModel.toastRes.collectWhenStarted(lifecycleScope, this::toast)
 
-        viewModel.snackBar.collectWhenStarted(lifecycleScope) {
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        viewModel.snackBar.collectWhenStarted(lifecycleScope) { (message, action) ->
+            val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+            action?.let { snackbar.setAction(action) { viewModel.onSnackbarActionClick(message) } }
+            snackbar.show()
         }
 
-        viewModel.snackBarRes.collectWhenStarted(lifecycleScope) {
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        viewModel.snackBarRes.collectWhenStarted(lifecycleScope) { (messageRes, action) ->
+            val snackbar = Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_LONG)
+            action?.let {
+                snackbar.setAction(action) {
+                    viewModel.onSnackbarActionClick(requireContext().strings(messageRes))
+                }
+            }
+            snackbar.show()
         }
 
         viewModel.dialog.collectWhenStarted(lifecycleScope) { (title, message) ->

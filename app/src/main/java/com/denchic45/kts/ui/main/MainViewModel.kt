@@ -1,7 +1,10 @@
 package com.denchic45.kts.ui.main
 
+import android.app.Activity
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.AppVersionService
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.*
@@ -12,16 +15,20 @@ import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-    private val interactor: MainInteractor
+    private val interactor: MainInteractor,
+    private val appVersionService: AppVersionService
 ) : BaseViewModel() {
 
     private val screenIdsWithFab: Set<Int> = setOf(
         R.id.courseFragment,
         R.id.groupEditorFragment
     )
+
+    var activityRef = WeakReference<Activity?>(null)
 
     private val mainScreenIds: Set<Int> = setOf(R.id.menu_timetable, R.id.menu_group)
     private val onNavItemClickActions = mapOf(
@@ -72,10 +79,21 @@ class MainViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        activityRef.clear()
         interactor.removeListeners()
     }
 
     fun onResume() {
+        appVersionService.observeUpdates(
+            onUpdateAvailable = {
+                showSnackBar("Доступна новая версия", "Заргузить")
+            },
+            onError = {
+                showToast("Ошибка")
+                it.printStackTrace()
+                showSnackBar(it.message ?: "Err...", "Установить")
+            }
+        )
 //        menuBtnVisibility.value = Pair(
 //            R.id.menu_admin_panel,
 //            uiPermissions.isAllowed(ALLOW_CONTROL)
@@ -117,11 +135,23 @@ class MainViewModel @Inject constructor(
         fabVisibility.postValue(screenIdsWithFab.contains(id))
     }
 
+    fun onUpdateDownloaded() {
+
+    }
+
+    fun onUpdateCancelled() {}
+
     companion object {
         private const val ALLOW_CONTROL = "ALLOW_CONTROL"
     }
 
     init {
+        appVersionService.onUpdateDownloaded = {
+            Log.d("lol", "startUpdate: toast DOWNLOADED")
+            showToast("Обновление загруженно!")
+            showSnackBar("Обновление загруженно!", "Установить")
+        }
+
         viewModelScope.launch(Dispatchers.IO) { interactor.startListeners() }
 
         viewModelScope.launch {
@@ -164,6 +194,19 @@ class MainViewModel @Inject constructor(
 
         uiPermissions = UiPermissions(interactor.findThisUser())
         uiPermissions.putPermissions(Permission(ALLOW_CONTROL, { hasAdminPerms() }))
+    }
+
+    override fun onSnackbarActionClick(message: String) {
+        Log.d("lol", "onSnackbarActionClick: $message")
+        when (message) {
+            "Доступна новая версия" -> {
+                appVersionService.startUpdate(
+                    activityRef.get()!!)
+            }
+            "Обновление загруженно!" -> {
+                appVersionService.installUpdate()
+            }
+        }
     }
 
     sealed class NavMenuState {

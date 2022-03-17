@@ -20,7 +20,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.denchic45.SvgColorListener
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentLessonEditorBinding
@@ -48,7 +48,13 @@ class LessonEditorFragment :
                 GlideApp.with(requireActivity())
                     .`as`(PictureDrawable::class.java)
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .listener(SvgColorListener(ivSubjectIc, colorId, activity))
+                    .listener(
+                        SvgColorListener(
+                            ivSubjectIc,
+                            colorId,
+                            requireContext()
+                        )
+                    )
                     .load(iconUrl)
                     .into(ivSubjectIc)
                 tvSubjectName.text = name

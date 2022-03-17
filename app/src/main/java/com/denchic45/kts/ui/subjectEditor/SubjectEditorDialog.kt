@@ -8,7 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.SvgColorListener
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.DialogSubjectEditorBinding
@@ -113,7 +113,13 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
                 )
                     .`as`(PictureDrawable::class.java)
                     .transition(DrawableTransitionOptions.withCrossFade())
-                    .listener(SvgColorListener(ivSubjectIc, viewModel.colorIcon.value!!, activity))
+                    .listener(
+                        SvgColorListener(
+                            ivSubjectIc,
+                            viewModel.colorIcon.value!!,
+                            requireContext()
+                        )
+                    )
                     .load(iconUrl)
                     .into(ivSubjectIc)
             }

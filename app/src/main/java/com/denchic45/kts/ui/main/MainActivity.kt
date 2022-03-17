@@ -14,38 +14,41 @@ import androidx.navigation.NavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
+import com.denchic45.kts.AppVersionService
 import com.denchic45.kts.CustomToolbar
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.ActivityMainBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
+import com.denchic45.kts.ui.BaseActivity
 import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.login.LoginActivity
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.utils.findFragmentContainerNavController
+import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+import com.google.android.play.core.install.model.ActivityResult
 import com.google.common.collect.Sets
 import dagger.android.AndroidInjection
 import kotlinx.coroutines.flow.collect
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory<MainViewModel>
-    private val binding: ActivityMainBinding by viewBinding(ActivityMainBinding::bind)
-    private val viewModel: MainViewModel by viewModels { viewModelFactory }
+class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
+
+    override val binding: ActivityMainBinding by viewBinding(ActivityMainBinding::bind)
+    override val viewModel: MainViewModel by viewModels { viewModelFactory }
     private lateinit var appBarLayout: AppBarLayout
     private lateinit var toolbar: CustomToolbar
     private lateinit var toggle: ActionBarDrawerToggle
 
     //    private var params: AppBarLayout.LayoutParams? = null
     private lateinit var bnv: BottomNavigationView
-    private lateinit var navController: NavController
     private val navAdapter = navAdapter {
         extensions {
             clickBuilder<NavItemHolder> {
@@ -66,8 +69,9 @@ class MainActivity : AppCompatActivity() {
         AndroidInjection.inject(this)
         setContentView(R.layout.activity_main)
 
+        viewModel.activityRef = WeakReference(this)
+
         bnv = findViewById(R.id.bottom_nav_view)
-        navController = findFragmentContainerNavController(R.id.nav_host_fragment)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         toolbar = findViewById(R.id.toolbar_main)
 //        params = toolbar.layoutParams as AppBarLayout.LayoutParams
@@ -177,6 +181,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        if (requestCode == AppVersionService.UPDATE_REQUEST_CODE) {
+//            if (resultCode == RESULT_OK) {
+//                viewModel.onUpdateDownloaded(this)
+//            } else if (resultCode == RESULT_CANCELED || resultCode == ActivityResult.RESULT_IN_APP_UPDATE_FAILED) {
+//                viewModel.onUpdateCancelled()
+//            }
+//        }
+//    }
+
+    override val navController: NavController by lazy {
+        findFragmentContainerNavController(R.id.nav_host_fragment)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.onOptionItemSelect(item.itemId)
         return super.onOptionsItemSelected(item)
@@ -185,11 +204,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
+        toast("34")
     }
 
     private fun refreshCurrentFragment() {
-        val ids: Set<Int> =
-            Sets.newHashSet(R.id.menu_timetable, R.id.menu_group, R.id.menu_admin_panel)
+        val ids = Sets.newHashSet(R.id.menu_timetable, R.id.menu_group, R.id.menu_admin_panel)
         var id = navController.currentDestination!!.id
         navController.popBackStack(id, true)
         while (!ids.contains(id)) {
@@ -197,5 +216,10 @@ class MainActivity : AppCompatActivity() {
             navController.popBackStack(id, true)
         }
         navController.navigate(id)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.activityRef.clear()
     }
 }

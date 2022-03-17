@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.denchic45.SvgColorListener;
+import com.denchic45.kts.SvgColorListener;
 import com.denchic45.kts.R;
 import com.denchic45.kts.glideSvg.GlideApp;
 
