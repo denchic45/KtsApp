@@ -1,10 +1,16 @@
 package com.denchic45.kts.ui.updateView
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import com.denchic45.kts.databinding.SnackbarUpdateBinding
+import com.denchic45.kts.ui.course.submission.windowHeight
+import com.denchic45.kts.utils.animateHeight
+
 
 class SnackbarUpdateView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null
@@ -22,13 +28,20 @@ class SnackbarUpdateView @JvmOverloads constructor(
     var onInstallClickListener: ()->Unit = {}
 
     fun showState(state: UpdateState) {
-        binding.vf.displayedChild = state.ordinal
+        with(binding.vf) {
+            if (state.ordinal != displayedChild) {
+                displayedChild = state.ordinal
+                animateHeight()
+            }
+        }
     }
 
-    fun updateLoadingProgress(progress: Int, progressInfo: String) {
-        binding.progressDownload.setProgress(progress, true)
+    fun updateLoadingProgress(progress: Long, progressInfo: String) {
+        binding.progressDownload.setProgress(progress.toInt(), true)
         binding.tvProgress.text = progressInfo
     }
+
+
 
     init {
         _binding = SnackbarUpdateBinding.inflate(LayoutInflater.from(context), this, true)
@@ -36,7 +49,7 @@ class SnackbarUpdateView @JvmOverloads constructor(
         with(binding) {
             btnUpdate.setOnClickListener { onDownloadClickListener() }
             btnLater.setOnClickListener { onLaterClickListener() }
-            // TODO кнопка установки еще нужна
+            btnInstall.setOnClickListener { onInstallClickListener() }
         }
     }
 
@@ -44,4 +57,15 @@ class SnackbarUpdateView @JvmOverloads constructor(
         super.onDetachedFromWindow()
         _binding = null
     }
+}
+
+fun View.getActivity(): Activity? {
+    var context = context
+    while (context is ContextWrapper) {
+        if (context is Activity) {
+            return context
+        }
+        context = context.baseContext
+    }
+    return null
 }

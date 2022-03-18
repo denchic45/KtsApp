@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.course.submission
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -190,12 +191,12 @@ class SubmissionDialog : BottomSheetDialogFragment() {
 
             viewModel.openRejectConfirmation.observe(viewLifecycleOwner) {
                 vf.displayedChild = 1
-                animateHeight()
+                animateHeight(requireActivity().windowHeight())
             }
 
             viewModel.closeRejectConfirmation.observe(viewLifecycleOwner) {
                 vf.displayedChild = 0
-                animateHeight()
+                animateHeight(requireActivity().windowHeight())
             }
 
             btnCancel.setOnClickListener { viewModel.onRejectCancelClick() }
@@ -204,8 +205,27 @@ class SubmissionDialog : BottomSheetDialogFragment() {
         }
     }
 
-    private fun animateHeight() {
-//        val rvExplore = binding.rvExplore
+    private fun animateHeight(windowHeight:Int) {
+
+//        inline val androidx.fragment.app.Fragment.windowHeight: Int
+//        get() {
+//            val view = requireActivity().window.decorView
+//            return resources.displayMetrics.heightPixels
+//        }
+
+
+         fun preMeasureViewHeight(): Int {
+            val currentView = binding.vf.currentView
+            currentView.measure(windowWidth, windowHeight)
+            return currentView.measuredHeight
+        }
+
+        fun changeBottomSheetHeight(`val`: Int) {
+            val layoutParams: ViewGroup.LayoutParams = binding.root.layoutParams
+            layoutParams.height = `val`
+            binding.root.layoutParams = layoutParams
+        }
+
         val newHeight = preMeasureViewHeight() + binding.vf.paddingBottom
         val anim = ValueAnimator.ofInt(
             requireView().height,
@@ -216,7 +236,6 @@ class SubmissionDialog : BottomSheetDialogFragment() {
                 (windowHeight - windowWidth * 9 / 16).coerceAtMost(newHeight)
         )
 
-//        updateList = true
         anim.addUpdateListener { valueAnimator ->
             val `val` = valueAnimator.animatedValue as Int
             changeBottomSheetHeight(`val`)
@@ -225,35 +244,16 @@ class SubmissionDialog : BottomSheetDialogFragment() {
         anim.duration = 300
         anim.start()
         anim.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-//                rvExplore.post { updateList = false }
+            override fun onAnimationEnd(animation: Animator) {
                 changeBottomSheetHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
-//                binding.ivDropdown.isClickable = true
             }
         })
     }
 
-    private fun preMeasureViewHeight(): Int {
-        val currentView = binding.vf.currentView
-        currentView.measure(windowWidth, windowHeight)
-        return currentView.measuredHeight
-
-    }
-
-    private fun changeBottomSheetHeight(`val`: Int) {
-        val layoutParams: ViewGroup.LayoutParams = binding.root.layoutParams
-        layoutParams.height = `val`
-        binding.root.layoutParams = layoutParams
-    }
-
-    private inline val Fragment.windowHeight: Int
-        get() {
-            val view = requireActivity().window.decorView
-            return resources.displayMetrics.heightPixels
-        }
 
 
-    private inline val Fragment.windowWidth: Int
+
+    private inline val windowWidth: Int
         get() {
             val view = requireActivity().window.decorView
             val insets = WindowInsetsCompat.toWindowInsetsCompat(view.rootWindowInsets, view)
@@ -265,4 +265,9 @@ class SubmissionDialog : BottomSheetDialogFragment() {
         super.onAttach(context)
         AndroidSupportInjection.inject(this)
     }
+}
+
+fun Activity.windowHeight(): Int {
+    val view = window.decorView
+    return resources.displayMetrics.heightPixels
 }

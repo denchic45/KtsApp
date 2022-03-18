@@ -26,6 +26,7 @@ import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.login.LoginActivity
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.updateView.SnackbarUpdateView
+import com.denchic45.kts.utils.collectWhenResumed
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.findFragmentContainerNavController
 import com.denchic45.kts.utils.toast
@@ -38,6 +39,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.common.collect.Sets
 import dagger.android.AndroidInjection
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
 
 
 class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
@@ -74,14 +76,15 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         viewModel.setActivityForService(this)
 
         snackbar = Snackbar.make(this, binding.container, "", Snackbar.LENGTH_INDEFINITE)
-        val customSnackView = SnackbarUpdateView(this)
+        val snackbarUpdateView = SnackbarUpdateView(this)
         snackbar.view.setBackgroundColor(Color.TRANSPARENT)
         val snackbarLayout = snackbar.view as Snackbar.SnackbarLayout
         snackbarLayout.setPadding(0, 0, 0, 0)
-        snackbarLayout.addView(customSnackView, 0)
+        snackbarLayout.addView(snackbarUpdateView, 0)
 
-        customSnackView.onDownloadClickListener = { viewModel.onDownloadUpdateClick() }
-        customSnackView.onLaterClickListener = { viewModel.onLaterUpdateClick() }
+        snackbarUpdateView.onDownloadClickListener = { viewModel.onDownloadUpdateClick() }
+        snackbarUpdateView.onLaterClickListener = { viewModel.onLaterUpdateClick() }
+        snackbarUpdateView.onInstallClickListener = {viewModel.onInstallClick()}
 
         bnv = findViewById(R.id.bottom_nav_view)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
@@ -97,23 +100,27 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
         bnv.setOnItemReselectedListener { refreshCurrentFragment() }
 
-        viewModel.updateBannerState.collectWhenStarted(lifecycleScope) { bannerState ->
+        viewModel.updateBannerState.debounce(1000).collectWhenResumed(lifecycleScope) { bannerState ->
             if (bannerState !is MainViewModel.UpdateBannerState.Hidden)
                 snackbar.show()
+            else {
+                snackbar.dismiss()
+                return@collectWhenResumed
+            }
 
             when (bannerState) {
                 MainViewModel.UpdateBannerState.Hidden -> snackbar.dismiss()
                 MainViewModel.UpdateBannerState.Remind -> {
-                    customSnackView.showState(
+                    snackbarUpdateView.showState(
                         SnackbarUpdateView.UpdateState.REMIND
                     )
                 }
                 is MainViewModel.UpdateBannerState.Loading -> {
-                    customSnackView.showState(SnackbarUpdateView.UpdateState.LOADING)
-                    customSnackView.updateLoadingProgress(bannerState.progress, bannerState.info)
+                    snackbarUpdateView.showState(SnackbarUpdateView.UpdateState.LOADING)
+                    snackbarUpdateView.updateLoadingProgress(bannerState.progress, bannerState.info)
                 }
                 MainViewModel.UpdateBannerState.Install -> {
-                    customSnackView.showState(
+                    snackbarUpdateView.showState(
                         SnackbarUpdateView.UpdateState.INSTALL
                     )
                 }

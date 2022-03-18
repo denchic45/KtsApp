@@ -10,9 +10,6 @@ class FakeAppVersionService @Inject constructor(
     private val coroutineScope: CoroutineScope
 ) : AppVersionService() {
 
-    override var onUpdateDownloaded: () -> Unit = {}
-    override var onUpdateLoading: (progress: Int, megabyteTotal: Int) -> Unit = { _, _ -> }
-
     override fun observeUpdates(onUpdateAvailable: () -> Unit, onError: (Throwable) -> Unit) {
         onUpdateAvailable()
     }
@@ -21,20 +18,18 @@ class FakeAppVersionService @Inject constructor(
 
     }
 
-    override fun startUpdate() {
+    override fun startDownloadUpdate() {
         coroutineScope.launch(Dispatchers.IO) {
             onUpdateLoading(0,10)
             delay(500)
             onUpdateLoading(23,10)
             delay(1000)
             onUpdateLoading(24,10)
-            delay(4000)
+            delay(600)
             onUpdateLoading(56,10)
             delay(1000)
-            onUpdateLoading(94,10)
-            delay(500)
             onUpdateLoading(100,10)
-            delay(3000)
+            delay(1500)
             onUpdateDownloaded()
         }
     }

@@ -4,7 +4,9 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.appVersion.AppVersionService
 import com.denchic45.appVersion.FakeAppVersionService
+import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.*
@@ -15,11 +17,12 @@ import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val interactor: MainInteractor,
-    private val appVersionService: FakeAppVersionService
+    private val appVersionService: GoogleAppVersionService
 ) : BaseViewModel() {
 
     private val screenIdsWithFab: Set<Int> = setOf(
@@ -31,7 +34,7 @@ class MainViewModel @Inject constructor(
 
     fun setActivityForService(activity: Activity) {
         //todo раскммент
-//        appVersionService.activityRef = WeakReference(activity)
+        appVersionService.activityRef = WeakReference(activity)
     }
 
     private val mainScreenIds: Set<Int> = setOf(R.id.menu_timetable, R.id.menu_group)
@@ -144,8 +147,6 @@ class MainViewModel @Inject constructor(
         appVersionService.onUpdateDownloaded = {
             Log.d("lol", "startUpdate: toast DOWNLOADED")
             updateBannerState.value = UpdateBannerState.Install
-//            showToast("Обновление загруженно!")
-//            showSnackBar("Обновление загруженно!", "Установить")
         }
 
         appVersionService.onUpdateLoading = { progress, megabyteTotal ->
@@ -155,12 +156,11 @@ class MainViewModel @Inject constructor(
         appVersionService.observeUpdates(
             onUpdateAvailable = {
                 updateBannerState.value = UpdateBannerState.Remind
-//                showSnackBar("Доступна новая версия", "Заргузить")
             },
             onError = {
                 showToast("Ошибка")
                 it.printStackTrace()
-                showSnackBar(it.message ?: "Err...", "Установить")
+                showSnackBar(it.message ?: "Err...")
             }
         )
 
@@ -208,24 +208,16 @@ class MainViewModel @Inject constructor(
         uiPermissions.putPermissions(Permission(ALLOW_CONTROL, { hasAdminPerms() }))
     }
 
-    override fun onSnackbarActionClick(message: String) {
-        Log.d("lol", "onSnackbarActionClick: $message")
-        when (message) {
-            "Доступна новая версия" -> {
-
-            }
-            "Обновление загруженно!" -> {
-                appVersionService.installUpdate()
-            }
-        }
-    }
-
     fun onDownloadUpdateClick() {
-        appVersionService.startUpdate()
+        appVersionService.startDownloadUpdate()
     }
 
     fun onLaterUpdateClick() {
         updateBannerState.value = UpdateBannerState.Hidden
+    }
+
+    fun onInstallClick() {
+        appVersionService.installUpdate()
     }
 
     sealed class NavMenuState {
@@ -339,7 +331,7 @@ class MainViewModel @Inject constructor(
         object Remind : UpdateBannerState()
 
         data class Loading(
-            val progress: Int,
+            val progress: Long,
             val info: String
         ) : UpdateBannerState()
 

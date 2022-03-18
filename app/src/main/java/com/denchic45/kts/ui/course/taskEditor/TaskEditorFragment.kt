@@ -323,7 +323,6 @@ class TaskEditorFragment :
         }
     }
 
-
     private fun openFile(file: File) {
         // Get URI and MIME type of file
         // Open file with user selected app

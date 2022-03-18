@@ -4,15 +4,15 @@ import com.denchic45.kts.BuildConfig
 
 abstract class AppVersionService {
 
-    abstract var onUpdateDownloaded: () -> Unit
+    var onUpdateDownloaded: () -> Unit = {}
 
-    abstract var onUpdateLoading: (progress: Int, megabyteTotal: Int) -> Unit
+    var onUpdateLoading: (progress: Long, totalMegabyte: Long) -> Unit = { _, _ -> }
 
     abstract fun observeUpdates(onUpdateAvailable: () -> Unit, onError: (Throwable) -> Unit)
 
     abstract fun observeDownloadedUpdate()
 
-    abstract fun startUpdate()
+    abstract fun startDownloadUpdate()
 
     abstract val latestVersion: Int
 

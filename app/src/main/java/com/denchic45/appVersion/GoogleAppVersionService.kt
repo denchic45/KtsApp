@@ -10,16 +10,13 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import java.io.Closeable
 import java.lang.ref.WeakReference
+import javax.inject.Inject
 
-class GoogleAppVersionService constructor(context: Context) : AppVersionService(), Closeable {
+class GoogleAppVersionService @Inject constructor(context: Context) : AppVersionService(), Closeable {
 
     private val appUpdateManager = AppUpdateManagerFactory.create(context)
 
     private val info by lazy { appUpdateManager.appUpdateInfo }
-
-    override var onUpdateDownloaded: () -> Unit = {}
-
-    override var onUpdateLoading: (progress: Int, megabyteTotal: Int) -> Unit = { _, _ -> }
 
     var activityRef: WeakReference<Activity> = WeakReference(null)
 
@@ -69,7 +66,7 @@ class GoogleAppVersionService constructor(context: Context) : AppVersionService(
     override val latestVersion: Int
         get() = info.result.availableVersionCode()
 
-    override fun startUpdate() {
+    override fun startDownloadUpdate() {
         Log.d("lol", "startUpdate:")
         appUpdateManager.startUpdateFlowForResult(
             // Pass the intent that is returned by 'getAppUpdateInfo()'.
@@ -88,6 +85,8 @@ class GoogleAppVersionService constructor(context: Context) : AppVersionService(
                 InstallStatus.DOWNLOADING -> {
                     val bytesDownloaded = state.bytesDownloaded()
                     val totalBytesToDownload = state.totalBytesToDownload()
+                    val percentDownload = bytesDownloaded / totalBytesToDownload * 100
+                    onUpdateLoading(percentDownload,totalBytesToDownload)
                     // Show update progress bar.
                 }
                 InstallStatus.DOWNLOADED -> {

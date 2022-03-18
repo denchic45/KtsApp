@@ -24,8 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inAnimation="@anim/fade_in"
-            android:measureAllChildren="false"
-            android:outAnimation="@anim/fade_out">
+            android:outAnimation="@anim/fade_out"
+            android:measureAllChildren="false">
 
             <FrameLayout
                 android:id="@+id/fl_main"

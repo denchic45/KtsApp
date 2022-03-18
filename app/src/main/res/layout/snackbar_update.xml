@@ -10,16 +10,17 @@
 
     <ViewFlipper
         android:id="@+id/vf"
+        android:inAnimation="@anim/fade_in"
+        android:outAnimation="@anim/fade_out"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="16dp"
         android:measureAllChildren="false">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_remember"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="16dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tv_remember_header"
@@ -46,28 +47,26 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cornerRadius="20dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="16dp"
                 android:text="Напомнить позже"
                 android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
                 android:textColor="?colorControlNormal"
+                app:cornerRadius="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btn_update"
                 app:layout_constraintTop_toBottomOf="@id/tv_remember_message" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_update"
-                app:cornerRadius="20dp"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
-           android:paddingHorizontal="16dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
+                android:paddingHorizontal="16dp"
                 android:text="Загрузить"
                 android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
+                app:cornerRadius="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_remember_message" />
@@ -77,8 +76,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_download"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tv_download_header"
@@ -113,9 +111,44 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cl_install"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
+            <TextView
+                android:id="@+id/tv_install_header"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Обновление загружено"
+                android:layout_marginEnd="8dp"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
+                app:layout_constraintEnd_toStartOf="@id/btn_install"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_install_message"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btn_install"
+                android:text="Дело за малым!"
+                android:textAppearance="@style/TextAppearance.Kts.Body2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_install_header" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_install"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:text="Установить"
+                android:textAppearance="@style/TextAppearance.Kts.Subtitle1"
+                app:cornerRadius="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ViewFlipper>
 </com.google.android.material.card.MaterialCardView>
