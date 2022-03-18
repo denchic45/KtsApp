@@ -1,10 +1,11 @@
 package com.denchic45.kts.data
 
+import android.content.Context
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.Repository.Subscription
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.OldVersionException
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 import java.util.function.Consumer
 import kotlin.reflect.full.memberProperties
 
-abstract class Repository protected constructor() : RequireUpdateData {
+abstract class Repository protected constructor(override val context: Context) : RequireUpdateData {
     private val subscriptions: MutableMap<String, Subscription> = HashMap()
 
 
@@ -114,20 +115,26 @@ abstract class Repository protected constructor() : RequireUpdateData {
     protected inline fun <reified T : Any> T.asMutableMap(): MutableMap<String, Any?> {
         return asMap().toMutableMap()
     }
-
 }
 
 interface RequireUpdateData {
 
     val networkService: NetworkService
     val appVersionService: AppVersionService
+    val context: Context
 
     val isNetworkNotAvailable: Boolean
         get() = !networkService.isNetworkAvailable
 
+    fun isGoogleServicesAvailable(): Boolean {
+        return GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(context) == com.google.android.gms.common.ConnectionResult.SUCCESS
+    }
+
     fun requireInternetConnection() {
         if (isNetworkNotAvailable) throw NetworkException()
-        if (appVersionService.isOldCurrentVersion()) throw OldVersionException()
+        if (isGoogleServicesAvailable())
+            if (appVersionService.isOldCurrentVersion()) throw OldVersionException()
     }
 }
 

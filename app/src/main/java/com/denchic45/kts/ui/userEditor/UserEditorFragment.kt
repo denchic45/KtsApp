@@ -30,7 +30,6 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
     override val binding: FragmentUserEditorBinding by viewBinding(FragmentUserEditorBinding::bind)
     override val viewModel: UserEditorViewModel by viewModels { viewModelFactory }
     private lateinit var keyboardManager: KeyboardManager
-    private lateinit var menu: Menu
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -212,10 +211,7 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
     }
 
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        this.menu = menu
-        return super.onPrepareOptionsMenu(menu)
-    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {

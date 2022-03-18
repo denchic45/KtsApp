@@ -33,7 +33,6 @@ class ProfileFragment :
 
     override val binding: FragmentProfileBinding by viewBinding(FragmentProfileBinding::bind)
     override val viewModel: ProfileViewModel by viewModels { viewModelFactory }
-    private lateinit var menu: Menu
 
     private var galleryResult = registerForActivityResult(PickImageContract()) {
         cropImage.launch(
@@ -79,7 +78,6 @@ class ProfileFragment :
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
         super.onCreateOptionsMenu(menu, inflater)
         viewModel.onCreateOptions()
         inflater.inflate(R.menu.options_profile, menu)

@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -36,6 +37,7 @@ import java.util.*
 import javax.inject.Inject
 
 class CourseRepository @Inject constructor(
+    override val context: Context,
     override val appVersionService: AppVersionService,
     override val coroutineScope: CoroutineScope,
     override val userMapper: UserMapper,
@@ -68,7 +70,7 @@ class CourseRepository @Inject constructor(
     override val groupCourseDao: GroupCourseDao,
     override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
-) : Repository(), SaveGroupOperation, SaveCourseOperation, RemoveCourseOperation {
+) : Repository(context), SaveGroupOperation, SaveCourseOperation, RemoveCourseOperation {
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")

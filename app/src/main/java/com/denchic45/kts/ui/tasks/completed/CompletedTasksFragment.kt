@@ -18,7 +18,6 @@ class CompletedTasksFragment :
     BaseFragment<CompletedTasksViewModel, FragmentListBinding>(R.layout.fragment_list) {
     override val viewModel: CompletedTasksViewModel by viewModels { viewModelFactory }
     override val binding: FragmentListBinding by viewBinding(FragmentListBinding::bind)
-    private var menu: Menu? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +27,6 @@ class CompletedTasksFragment :
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.options_course_content, menu)
-        this.menu = menu
         viewModel.onCreateOptions()
     }
 
@@ -45,10 +43,5 @@ class CompletedTasksFragment :
                 }
             }
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        menu = null
     }
 }

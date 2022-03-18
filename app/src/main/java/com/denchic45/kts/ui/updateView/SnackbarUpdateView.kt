@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.denchic45.kts.databinding.SnackbarUpdateBinding
-import com.denchic45.kts.ui.course.submission.windowHeight
 import com.denchic45.kts.utils.animateHeight
 
 
@@ -23,15 +22,17 @@ class SnackbarUpdateView @JvmOverloads constructor(
         get() = _binding!!
 
 
-    var onLaterClickListener: ()->Unit = {}
-    var onDownloadClickListener: ()->Unit = {}
-    var onInstallClickListener: ()->Unit = {}
+    var onLaterClickListener: () -> Unit = {}
+    var onDownloadClickListener: () -> Unit = {}
+    var onInstallClickListener: () -> Unit = {}
 
     fun showState(state: UpdateState) {
         with(binding.vf) {
+            val snackbarOnShowed = binding.vf.height != 0
             if (state.ordinal != displayedChild) {
                 displayedChild = state.ordinal
-                animateHeight()
+                if (snackbarOnShowed)
+                    animateHeight()
             }
         }
     }
@@ -40,7 +41,6 @@ class SnackbarUpdateView @JvmOverloads constructor(
         binding.progressDownload.setProgress(progress.toInt(), true)
         binding.tvProgress.text = progressInfo
     }
-
 
 
     init {

@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
@@ -41,6 +42,7 @@ import java.util.*
 import javax.inject.Inject
 
 class EventRepository @Inject constructor(
+    override val context: Context,
     override val networkService: NetworkService,
     private val coroutineScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
@@ -64,7 +66,7 @@ class EventRepository @Inject constructor(
     private val userPreference: UserPreference,
     private val appPreference: AppPreference,
     override val appVersionService: AppVersionService
-) : Repository(), SaveGroupOperation {
+) : Repository(context), SaveGroupOperation {
 
     private val groupsRef = firestore.collection("Groups")
     private val daysRef: Query = firestore.collectionGroup("Days")

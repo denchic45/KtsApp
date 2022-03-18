@@ -83,10 +83,12 @@ class GoogleAppVersionService @Inject constructor(context: Context) : AppVersion
             Log.d("lol", "startUpdate state: ${state.installStatus()}")
             when (state.installStatus()) {
                 InstallStatus.DOWNLOADING -> {
-                    val bytesDownloaded = state.bytesDownloaded()
-                    val totalBytesToDownload = state.totalBytesToDownload()
-                    val percentDownload = bytesDownloaded / totalBytesToDownload * 100
-                    onUpdateLoading(percentDownload,totalBytesToDownload)
+                    Log.d("lol", "startUpdate DOWNLOADING: mega bytes downloaded ${state.bytesDownloaded()} and total ${state.totalBytesToDownload()}")
+                    val megaBytesDownloaded = state.bytesDownloaded().toFloat() / 1024 / 1024
+                    val totalMegaBytesToDownload = state.totalBytesToDownload().toFloat() / 1024 / 1024
+                    val percentDownload = megaBytesDownloaded / totalMegaBytesToDownload * 100
+                    Log.d("lol", "startUpdate DOWNLOADING: $percentDownload $totalMegaBytesToDownload")
+                    onUpdateLoading(percentDownload.toLong(),totalMegaBytesToDownload.toLong())
                     // Show update progress bar.
                 }
                 InstallStatus.DOWNLOADED -> {

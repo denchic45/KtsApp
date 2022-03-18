@@ -40,7 +40,8 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
 
     open val navController: NavController by lazy { findNavController() }
 
-    private lateinit var menu: Menu
+    lateinit var menu: Menu
+    private set
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -118,6 +119,11 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
         super.onCreateOptionsMenu(menu, inflater)
         this.menu = menu
         viewModel.onCreateOptions()
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        this.menu = menu
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

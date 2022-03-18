@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import com.denchic45.appVersion.AppVersionService
 import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
@@ -27,6 +28,7 @@ import java.util.*
 import javax.inject.Inject
 
 open class UserRepository @Inject constructor(
+    override val context: Context,
     override val appVersionService: AppVersionService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
@@ -36,14 +38,13 @@ open class UserRepository @Inject constructor(
     private val userDao: UserDao,
     private val userMapper: UserMapper,
     firestore: FirebaseFirestore
-) : Repository() {
+) : Repository(context) {
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarStorage: StorageReference = storage.reference.child("avatars")
 
     fun getByGroupId(groupId: String): Flow<List<User>> {
         return userDao.observeByGroupId(groupId).map { userMapper.entityToDomain(it) }
-
     }
 
     private fun loadUserPreference(user: User) {

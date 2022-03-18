@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import android.net.Uri
 import com.denchic45.appVersion.AppVersionService
 import com.denchic45.appVersion.GoogleAppVersionService
@@ -29,6 +30,7 @@ import java.util.*
 import javax.inject.Inject
 
 class SubjectRepository @Inject constructor(
+    override val context: Context,
     override val appVersionService: AppVersionService,
     override val coroutineScope: CoroutineScope,
     override val networkService: NetworkService,
@@ -44,7 +46,7 @@ class SubjectRepository @Inject constructor(
     override val subjectDao: SubjectDao,
     override val userDao: UserDao,
     @IoDispatcher override val dispatcher: CoroutineDispatcher
-) : Repository(), SaveCourseOperation, RemoveCourseOperation {
+) : Repository(context), SaveCourseOperation, RemoveCourseOperation {
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()

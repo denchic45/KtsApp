@@ -20,7 +20,6 @@ import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.collectWhenStarted
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.model.WeekItem
 import com.example.searchbar.SearchBar
@@ -37,7 +36,6 @@ class TimetableFinderFragment :
     private var popupWindow: ListPopupWindow? = null
 
     //    private var adapter: EventAdapter? = null
-    private lateinit var menu: Menu
     private var actionMode: ActionMode? = null
     private var popupAdapter: ListPopupWindowAdapter? = null
 
@@ -47,11 +45,8 @@ class TimetableFinderFragment :
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        this.menu = menu
-        menu.clear()
         inflater.inflate(R.menu.options_timetable_finder, menu)
-        viewModel.onCreateOptions()
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private val simpleCallback: ItemTouchHelper.SimpleCallback
@@ -150,10 +145,10 @@ class TimetableFinderFragment :
             viewModel.eventsOfDay.collectWhenStarted(lifecycleScope) { eventsOfDayState ->
                 when (eventsOfDayState) {
                     is TimetableFinderViewModel.EventsOfDayState.Current -> {
-                        setAllowEdit(adapter,false)
+                        setAllowEdit(adapter, false)
                     }
                     is TimetableFinderViewModel.EventsOfDayState.Edit -> {
-                        setAllowEdit(adapter,true)
+                        setAllowEdit(adapter, true)
                     }
                 }
 
@@ -163,7 +158,6 @@ class TimetableFinderFragment :
             viewModel.editTimetableOptionVisibility.observe(
                 viewLifecycleOwner
             ) { visible: Boolean ->
-                toast("edit timetable $visible")
                 menu.getItem(0).isVisible = visible
             }
 

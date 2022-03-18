@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -26,6 +27,7 @@ import java.util.*
 import javax.inject.Inject
 
 class SpecialtyRepository @Inject constructor(
+    override val context: Context,
     override val appVersionService: AppVersionService,
     private val coroutineScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
@@ -33,7 +35,7 @@ class SpecialtyRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val specialtyMapper: SpecialtyMapper,
     override val networkService: NetworkService
-) : Repository() {
+) : Repository(context) {
 
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val specialtyRef: CollectionReference = firestore.collection("Specialties")

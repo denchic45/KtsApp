@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import com.denchic45.appVersion.AppVersionService
 import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
@@ -21,6 +22,7 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class StudentRepository @Inject constructor(
+    override val context: Context,
     override val appVersionService: AppVersionService,
     override val networkService: NetworkService,
     private val userDao: UserDao,
@@ -28,7 +30,7 @@ class StudentRepository @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val userMapper: UserMapper,
     private val firestore: FirebaseFirestore
-) : Repository() {
+) : Repository(context) {
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarRef: StorageReference = storage.reference.child("avatars")
     private val userRef: CollectionReference = firestore.collection("Users")

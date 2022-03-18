@@ -26,8 +26,9 @@ import javax.inject.Inject
 class TeacherRepository @Inject constructor(
     context: Context,
     private val userMapper: UserMapper,
-    override val appVersionService: AppVersionService
-) : Repository() {
+    override val appVersionService: AppVersionService,
+    override val networkService: NetworkService
+) : Repository(context) {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -35,7 +36,6 @@ class TeacherRepository @Inject constructor(
 
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarsRef: StorageReference = storage.reference.child("avatars")
-    override val networkService: NetworkService = NetworkService(context)
     private var batch: WriteBatch? = null
 
     suspend fun add(teacher: User): User {

@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import android.util.Log
 import com.denchic45.appVersion.AppVersionService
 import com.denchic45.appVersion.GoogleAppVersionService
@@ -20,10 +21,11 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
+    override val context: Context,
     private val coroutineScope: CoroutineScope,
     override val networkService: NetworkService,
     override val appVersionService: AppVersionService
-) : Repository() {
+) : Repository(context) {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val authByPhoneNum = Channel<String>()

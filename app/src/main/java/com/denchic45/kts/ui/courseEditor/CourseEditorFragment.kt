@@ -41,7 +41,6 @@ class CourseEditorFragment :
     override val viewModel: CourseEditorViewModel by viewModels { viewModelFactory }
     private var imm: InputMethodManager? = null
     private var popupWindow: ListPopupWindow? = null
-    private lateinit var menu: Menu
 
     override val binding: FragmentCourseEditorBinding by viewBinding(FragmentCourseEditorBinding::bind)
 
@@ -71,7 +70,6 @@ class CourseEditorFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        this.menu = menu
         inflater.inflate(R.menu.options_course_editor, menu)
         viewModel.onCreateOptions()
     }

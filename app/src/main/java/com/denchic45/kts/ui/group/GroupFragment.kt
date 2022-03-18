@@ -26,7 +26,6 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(R.layou
 
     override val binding: FragmentGroupBinding by viewBinding(FragmentGroupBinding::bind)
     override val viewModel: GroupViewModel by viewModels { viewModelFactory }
-    private var menu: Menu? = null
     private lateinit var appBarController: AppBarController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +40,6 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(R.layou
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        this.menu = menu
         inflater.inflate(R.menu.options_group, menu)
     }
 
@@ -51,7 +49,7 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(R.layou
         viewModel.menuItemVisibility.observe(
             viewLifecycleOwner
         ) { idAndVisiblePair: Pair<Int, Boolean> ->
-            val menuItem = menu!!.findItem(
+            val menuItem = menu.findItem(
                 idAndVisiblePair.first
             )
             if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second

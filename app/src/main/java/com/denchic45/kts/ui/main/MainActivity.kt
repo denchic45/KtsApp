@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
+import com.denchic45.kts.BuildConfig
 import com.denchic45.kts.CustomToolbar
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
@@ -227,17 +228,6 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         }
     }
 
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//        if (requestCode == AppVersionService.UPDATE_REQUEST_CODE) {
-//            if (resultCode == RESULT_OK) {
-//                viewModel.onUpdateDownloaded(this)
-//            } else if (resultCode == RESULT_CANCELED || resultCode == ActivityResult.RESULT_IN_APP_UPDATE_FAILED) {
-//                viewModel.onUpdateCancelled()
-//            }
-//        }
-//    }
-
     override val navController: NavController by lazy {
         findFragmentContainerNavController(R.id.nav_host_fragment)
     }
@@ -250,7 +240,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
-        toast("39")
+        toast(BuildConfig.VERSION_CODE.toString())
     }
 
     private fun refreshCurrentFragment() {

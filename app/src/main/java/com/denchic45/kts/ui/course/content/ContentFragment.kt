@@ -27,7 +27,6 @@ class ContentFragment :
     BaseFragment<ContentViewModel, FragmentContentBinding>(R.layout.fragment_content) {
     override val viewModel: ContentViewModel by viewModels { viewModelFactory }
     override val binding: FragmentContentBinding by viewBinding(FragmentContentBinding::bind)
-    private var menu: Menu? = null
 
     private val appBarController by lazy {
         AppBarController.findController(requireActivity())
@@ -40,7 +39,6 @@ class ContentFragment :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.options_course_content, menu)
-        this.menu = menu
         viewModel.onCreateOptions()
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -83,11 +81,6 @@ class ContentFragment :
                 )
             )
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        menu = null
     }
 
     companion object {

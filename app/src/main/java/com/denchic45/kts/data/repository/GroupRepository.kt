@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.repository
 
+import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
@@ -35,6 +36,7 @@ import java.util.*
 import javax.inject.Inject
 
 class GroupRepository @Inject constructor(
+    override val context: Context,
     override val appVersionService: AppVersionService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
@@ -52,7 +54,7 @@ class GroupRepository @Inject constructor(
     override val specialtyMapper: SpecialtyMapper,
     private val firestore: FirebaseFirestore,
     override val dataBase: DataBase
-) : Repository(), SaveGroupOperation {
+) : Repository(context), SaveGroupOperation {
 
     private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")

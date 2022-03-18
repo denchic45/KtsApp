@@ -86,7 +86,7 @@ class MainViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-//        appVersionVersionService.close() TODO раскоммент
+        appVersionService.close() // TODO раскоммент
         interactor.removeListeners()
     }
 
@@ -150,7 +150,7 @@ class MainViewModel @Inject constructor(
         }
 
         appVersionService.onUpdateLoading = { progress, megabyteTotal ->
-            updateBannerState.value = UpdateBannerState.Loading(progress, megabyteTotal.toString())
+            updateBannerState.value = UpdateBannerState.Loading(progress, "$progress% из $megabyteTotal МБ")
         }
 
         appVersionService.observeUpdates(
@@ -158,9 +158,9 @@ class MainViewModel @Inject constructor(
                 updateBannerState.value = UpdateBannerState.Remind
             },
             onError = {
-                showToast("Ошибка")
-                it.printStackTrace()
-                showSnackBar(it.message ?: "Err...")
+//                showToast("Ошибка")
+//                it.printStackTrace()
+//                showSnackBar(it.message ?: "Err...")
             }
         )
 
