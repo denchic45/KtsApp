@@ -9,7 +9,7 @@ class FindGroupUseCase @Inject constructor(
     private val groupRepository: GroupRepository
 ) {
 
-    operator fun invoke(groupId: String): Flow<Group> {
+    operator fun invoke(groupId: String): Flow<Group?> {
        return groupRepository.find(groupId)
     }
 }

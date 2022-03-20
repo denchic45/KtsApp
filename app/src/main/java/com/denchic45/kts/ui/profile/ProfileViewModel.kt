@@ -32,6 +32,7 @@ class ProfileViewModel @Inject constructor(
     private val uiPermissions: UiPermissions
     private var userOfProfile: User? = null
     private var group: Group? = null
+
     private fun mapRoleToNameRoleId(@User.Role role: String): Int {
         return when (role) {
             User.STUDENT -> R.string.role_student

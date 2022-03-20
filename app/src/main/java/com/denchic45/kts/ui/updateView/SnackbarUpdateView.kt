@@ -57,6 +57,10 @@ class SnackbarUpdateView @JvmOverloads constructor(
         super.onDetachedFromWindow()
         _binding = null
     }
+
+    fun indeterminate(value: Boolean) {
+       binding.progressDownload.isIndeterminate = value
+    }
 }
 
 fun View.getActivity(): Activity? {

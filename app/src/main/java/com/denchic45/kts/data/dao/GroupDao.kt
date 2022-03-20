@@ -15,11 +15,11 @@ abstract class GroupDao : BaseDao<GroupEntity>() {
 
     @Transaction
     @Query("SELECT * FROM `group` WHERE group_id=:id")
-    abstract fun get(id: String): Flow<GroupWithCuratorAndSpecialtyEntity>
+    abstract fun observe(id: String): Flow<GroupWithCuratorAndSpecialtyEntity?>
 
     @Transaction
     @Query("SELECT * FROM `group` WHERE group_id=:id")
-    abstract fun getSync(id: String): GroupWithCuratorAndSpecialtyEntity?
+    abstract fun get(id: String): GroupWithCuratorAndSpecialtyEntity?
 
     @Query("DELETE FROM `group` WHERE group_id NOT IN(:availableGroups)")
     abstract fun deleteMissing(availableGroups: String)

@@ -46,7 +46,7 @@ class SpecialtyRepository @Inject constructor(
             .addOnSuccessListener { value: DocumentSnapshot ->
                 coroutineScope.launch(dispatcher) {
                     specialtyDao.upsert(
-                        specialtyMapper.docToEntity(value.toObject(SpecialtyDoc::class.java))
+                        specialtyMapper.docToEntity(value.toObject(SpecialtyDoc::class.java)!!)
                     )
                 }
             }

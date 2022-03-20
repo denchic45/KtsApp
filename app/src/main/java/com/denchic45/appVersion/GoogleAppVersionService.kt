@@ -12,13 +12,50 @@ import java.io.Closeable
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
-class GoogleAppVersionService @Inject constructor(context: Context) : AppVersionService(), Closeable {
+class GoogleAppVersionService @Inject constructor(
+    context: Context
+) : AppVersionService(), Closeable {
 
     private val appUpdateManager = AppUpdateManagerFactory.create(context)
 
     private val info by lazy { appUpdateManager.appUpdateInfo }
 
     var activityRef: WeakReference<Activity> = WeakReference(null)
+
+    val listener: InstallStateUpdatedListener = InstallStateUpdatedListener { state ->
+        Log.d("lol", "startUpdate state: ${state.installStatus()}")
+        when (state.installStatus()) {
+            InstallStatus.DOWNLOADING -> {
+                Log.d(
+                    "lol",
+                    "startUpdate DOWNLOADING: mega bytes downloaded ${state.bytesDownloaded()} and total ${state.totalBytesToDownload()}"
+                )
+                val megaBytesDownloaded = state.bytesDownloaded().toFloat() / 1024 / 1024
+
+                val totalMegaBytesToDownload = String.format(
+                    "%,2f",
+                    state.totalBytesToDownload().toFloat() / 1024 / 1024
+                ).toFloat()
+
+                val percentDownload = megaBytesDownloaded / totalMegaBytesToDownload * 100
+                Log.d(
+                    "lol",
+                    "startUpdate DOWNLOADING: $percentDownload $totalMegaBytesToDownload"
+                )
+                onUpdateLoading(percentDownload.toLong(), totalMegaBytesToDownload)
+            }
+            InstallStatus.DOWNLOADED -> {
+                Log.d("lol", "startUpdate: DOWNLOADED")
+                onUpdateDownloaded()
+            }
+            InstallStatus.FAILED -> {
+                Log.d("lol", "startUpdate: FAILED ${state.installErrorCode()}")
+            }
+        }
+    }
+
+    override val latestVersion: Int
+        get() = info.result.availableVersionCode()
 
     companion object {
         const val UPDATE_REQUEST_CODE = 1
@@ -55,60 +92,22 @@ class GoogleAppVersionService @Inject constructor(context: Context) : AppVersion
                     "lol",
                     "observeDownloadedUpdate availableVersionCode: ${appUpdateInfo.availableVersionCode()}"
                 )
-                // If the update is downloaded but not installed,
-                // notify the user to complete the update.
                 if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                     onUpdateDownloaded()
                 }
             }
     }
 
-    override val latestVersion: Int
-        get() = info.result.availableVersionCode()
-
     override fun startDownloadUpdate() {
         Log.d("lol", "startUpdate:")
+        appUpdateManager.registerListener(listener)
         appUpdateManager.startUpdateFlowForResult(
-            // Pass the intent that is returned by 'getAppUpdateInfo()'.
             info.result,
-            // Or 'AppUpdateType.IMMEDIATE for immediate updates.
             AppUpdateType.FLEXIBLE,
             // The current activity.
             activityRef.get()!!,
             UPDATE_REQUEST_CODE
         )
-
-        val listener = InstallStateUpdatedListener { state ->
-            // (Optional) Provide a download progress bar.
-            Log.d("lol", "startUpdate state: ${state.installStatus()}")
-            when (state.installStatus()) {
-                InstallStatus.DOWNLOADING -> {
-                    Log.d("lol", "startUpdate DOWNLOADING: mega bytes downloaded ${state.bytesDownloaded()} and total ${state.totalBytesToDownload()}")
-                    val megaBytesDownloaded = state.bytesDownloaded().toFloat() / 1024 / 1024
-                    val totalMegaBytesToDownload = state.totalBytesToDownload().toFloat() / 1024 / 1024
-                    val percentDownload = megaBytesDownloaded / totalMegaBytesToDownload * 100
-                    Log.d("lol", "startUpdate DOWNLOADING: $percentDownload $totalMegaBytesToDownload")
-                    onUpdateLoading(percentDownload.toLong(),totalMegaBytesToDownload.toLong())
-                    // Show update progress bar.
-                }
-                InstallStatus.DOWNLOADED -> {
-                    Log.d("lol", "startUpdate: DOWNLOADED")
-                    onUpdateDownloaded()
-                }
-                InstallStatus.FAILED -> {
-                    Log.d("lol", "startUpdate: FAILED ${state.installErrorCode()}")
-                }
-            }
-            // Log state or install the update.
-        }
-
-// Before starting an update, register a listener for updates.
-        appUpdateManager.registerListener(listener)
-
-// Start an update.
-
-// When status updates are no longer needed, unregister the listener.
-//        appUpdateManager.unregisterListener(listener)
     }
 
     override fun installUpdate() {
@@ -117,6 +116,7 @@ class GoogleAppVersionService @Inject constructor(context: Context) : AppVersion
     }
 
     override fun close() {
+        appUpdateManager.unregisterListener(listener)
         activityRef.clear()
     }
 }

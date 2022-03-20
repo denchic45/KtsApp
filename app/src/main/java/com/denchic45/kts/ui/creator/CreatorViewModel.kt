@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.creator
 
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.EitherResource
+import com.denchic45.kts.data.model.domain.EitherMessage
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
@@ -37,12 +37,12 @@ class CreatorViewModel @Inject constructor() : BaseViewModel() {
 
     fun createEntityList(): List<ListItem> {
         return listOf(
-            ListItem(title = "Студента", icon = EitherResource.Id(R.drawable.ic_student)),
-            ListItem(title = "Преподавателя", icon = EitherResource.Id(R.drawable.ic_teacher)),
-            ListItem(title = "Группу", icon = EitherResource.Id(R.drawable.ic_group)),
-            ListItem(title = "Предмет", icon = EitherResource.Id(R.drawable.ic_subject)),
-            ListItem(title = "Специальность", icon = EitherResource.Id(R.drawable.ic_specialty)),
-            ListItem(title = "Курс", icon = EitherResource.Id(R.drawable.ic_course))
+            ListItem(title = "Студента", icon = EitherMessage.Id(R.drawable.ic_student)),
+            ListItem(title = "Преподавателя", icon = EitherMessage.Id(R.drawable.ic_teacher)),
+            ListItem(title = "Группу", icon = EitherMessage.Id(R.drawable.ic_group)),
+            ListItem(title = "Предмет", icon = EitherMessage.Id(R.drawable.ic_subject)),
+            ListItem(title = "Специальность", icon = EitherMessage.Id(R.drawable.ic_specialty)),
+            ListItem(title = "Курс", icon = EitherMessage.Id(R.drawable.ic_course))
         )
     }
 }

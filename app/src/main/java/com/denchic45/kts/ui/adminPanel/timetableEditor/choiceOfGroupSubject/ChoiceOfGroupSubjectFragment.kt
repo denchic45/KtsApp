@@ -20,7 +20,8 @@ import com.denchic45.widget.ListStateLayout
 
 class ChoiceOfGroupSubjectFragment :
     BaseFragment<GroupSubjectChooserViewModel, FragmentChoiceOfGroupSubjectBinding>(
-        R.layout.fragment_choice_of_group_subject
+        R.layout.fragment_choice_of_group_subject,
+        R.menu.options_choice_of_group
     ) {
 
     override val binding: FragmentChoiceOfGroupSubjectBinding by viewBinding(
@@ -28,17 +29,6 @@ class ChoiceOfGroupSubjectFragment :
     )
 
     override val viewModel: GroupSubjectChooserViewModel by viewModels { viewModelFactory }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        menu.clear()
-        inflater.inflate(R.menu.options_choice_of_group, menu)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

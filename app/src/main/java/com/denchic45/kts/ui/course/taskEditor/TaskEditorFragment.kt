@@ -6,7 +6,9 @@ import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.InputFilter
-import android.view.*
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.webkit.MimeTypeMap
 import android.widget.EditText
 import android.widget.Toast
@@ -53,7 +55,10 @@ import kotlin.properties.Delegates
 
 
 class TaskEditorFragment :
-    BaseFragment<TaskEditorViewModel, FragmentTaskEditorBinding>(R.layout.fragment_task_editor) {
+    BaseFragment<TaskEditorViewModel, FragmentTaskEditorBinding>(
+        R.layout.fragment_task_editor,
+        R.menu.options_task_editor
+    ) {
 
     companion object {
         const val TASK_ID = "TaskEditor TASK_ID"
@@ -95,17 +100,10 @@ class TaskEditorFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
 
         filePicker = FilePicker(this, {
             it?.let { viewModel.onAttachmentsSelect(it) }
         }, true)
-    }
-
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.options_task_editor, menu)
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -147,7 +145,7 @@ class TaskEditorFragment :
             etAttachmentsSizeLimit.filters =
                 arrayOf(ValueFilter(0, 999), InputFilter.LengthFilter(3))
 
-            actSection.setOnTouchListener { v, event ->
+            actSection.setOnTouchListener { _, event ->
                 if (MotionEvent.ACTION_DOWN == event.action)
                     viewModel.onSectionClick()
                 false

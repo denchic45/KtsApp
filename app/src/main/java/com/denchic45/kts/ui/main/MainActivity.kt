@@ -3,12 +3,11 @@ package com.denchic45.kts.ui.main
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.core.os.bundleOf
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
@@ -23,9 +22,7 @@ import com.denchic45.kts.ui.BaseActivity
 import com.denchic45.kts.ui.adapter.NavDropdownItemHolder
 import com.denchic45.kts.ui.adapter.NavItemHolder
 import com.denchic45.kts.ui.adapter.navAdapter
-import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.login.LoginActivity
-import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.updateView.SnackbarUpdateView
 import com.denchic45.kts.utils.collectWhenResumed
 import com.denchic45.kts.utils.collectWhenStarted
@@ -37,13 +34,11 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.common.collect.Sets
-import dagger.android.AndroidInjection
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 
 
-class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
+class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(R.layout.activity_main) {
 
     override val binding: ActivityMainBinding by viewBinding(ActivityMainBinding::bind)
     override val viewModel: MainViewModel by viewModels { viewModelFactory }
@@ -58,6 +53,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
         extensions {
             clickBuilder<NavItemHolder> {
                 onClick = {
+                    binding.drawerLayout.close()
                     viewModel.onNavItemClick(it)
                 }
             }
@@ -71,8 +67,6 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AndroidInjection.inject(this)
-        setContentView(R.layout.activity_main)
 
         viewModel.setActivityForService(this)
 
@@ -85,13 +79,11 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
         snackbarUpdateView.onDownloadClickListener = { viewModel.onDownloadUpdateClick() }
         snackbarUpdateView.onLaterClickListener = { viewModel.onLaterUpdateClick() }
-        snackbarUpdateView.onInstallClickListener = {viewModel.onInstallClick()}
+        snackbarUpdateView.onInstallClickListener = { viewModel.onInstallClick() }
 
         bnv = findViewById(R.id.bottom_nav_view)
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         toolbar = findViewById(R.id.toolbar_main)
 
-//        params = toolbar.layoutParams as AppBarLayout.LayoutParams
         appBarLayout = findViewById(R.id.app_bar)
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         AppBarController.create(this, appBarLayout)
@@ -101,34 +93,40 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
 
         bnv.setOnItemReselectedListener { refreshCurrentFragment() }
 
-        viewModel.updateBannerState.debounce(1000).collectWhenResumed(lifecycleScope) { bannerState ->
-            if (bannerState !is MainViewModel.UpdateBannerState.Hidden)
-                snackbar.show()
-            else {
-                snackbar.dismiss()
-                return@collectWhenResumed
+        viewModel.updateBannerState.debounce(1000)
+            .collectWhenResumed(lifecycleScope) { bannerState ->
+                if (bannerState !is MainViewModel.UpdateBannerState.Hidden)
+                    snackbar.show()
+                else {
+                    snackbar.dismiss()
+                    return@collectWhenResumed
+                }
+
+                when (bannerState) {
+                    MainViewModel.UpdateBannerState.Hidden -> snackbar.dismiss()
+                    MainViewModel.UpdateBannerState.Remind -> {
+                        snackbarUpdateView.showState(
+                            SnackbarUpdateView.UpdateState.REMIND
+                        )
+                    }
+                    is MainViewModel.UpdateBannerState.WaitLoading -> {
+                        snackbarUpdateView.showState(SnackbarUpdateView.UpdateState.LOADING)
+                        snackbarUpdateView.indeterminate(true)
+                    }
+                    is MainViewModel.UpdateBannerState.Loading -> {
+                        snackbarUpdateView.showState(SnackbarUpdateView.UpdateState.LOADING)
+                        snackbarUpdateView.updateLoadingProgress(
+                            bannerState.progress,
+                            bannerState.info
+                        )
+                    }
+                    MainViewModel.UpdateBannerState.Install -> {
+                        snackbarUpdateView.showState(
+                            SnackbarUpdateView.UpdateState.INSTALL
+                        )
+                    }
+                }
             }
-
-            when (bannerState) {
-                MainViewModel.UpdateBannerState.Hidden -> snackbar.dismiss()
-                MainViewModel.UpdateBannerState.Remind -> {
-                    snackbarUpdateView.showState(
-                        SnackbarUpdateView.UpdateState.REMIND
-                    )
-                }
-                is MainViewModel.UpdateBannerState.Loading -> {
-                    snackbarUpdateView.showState(SnackbarUpdateView.UpdateState.LOADING)
-                    snackbarUpdateView.updateLoadingProgress(bannerState.progress, bannerState.info)
-                }
-                MainViewModel.UpdateBannerState.Install -> {
-                    snackbarUpdateView.showState(
-                        SnackbarUpdateView.UpdateState.INSTALL
-                    )
-                }
-
-
-            }
-        }
 
         viewModel.menuBtnVisibility.observe(
             this
@@ -146,85 +144,67 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
             viewModel.fabVisibility.observe(this@MainActivity) {
                 if (it) fabMain.show() else fabMain.hide()
             }
-        }
 
-        lifecycleScope.launchWhenResumed {
-            viewModel.toolbarNavigationState.collect {
 
-                toggle = ActionBarDrawerToggle(
-                    this@MainActivity,
-                    drawerLayout,
-                    toolbar,
-                    R.string.navigation_drawer_open,
-                    R.string.navigation_drawer_close
-                )
-
-                when (it) {
-                    MainViewModel.ToolbarNavigationState.MENU -> {
-                        drawerLayout.addDrawerListener(toggle)
-                        toggle.isDrawerIndicatorEnabled = true
-                        toggle.syncState()
+            lifecycleScope.launchWhenResumed {
+                viewModel.toolbarNavigationState.collect {
+                    toggle = ActionBarDrawerToggle(
+                        this@MainActivity,
+                        drawerLayout,
+                        toolbar,
+                        R.string.navigation_drawer_open,
+                        R.string.navigation_drawer_close
+                    )
+                    when (it) {
+                        MainViewModel.ToolbarNavigationState.MENU -> {
+                            drawerLayout.addDrawerListener(toggle)
+                            toggle.isDrawerIndicatorEnabled = true
+                            toggle.syncState()
+                        }
+                        MainViewModel.ToolbarNavigationState.BACK -> {
+                            toggle.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+                            toggle.isDrawerIndicatorEnabled = false
+                            toggle.syncState()
+                        }
                     }
-                    MainViewModel.ToolbarNavigationState.BACK -> {
-                        toggle.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
-                        toggle.isDrawerIndicatorEnabled = false
-                        toggle.syncState()
+
+                    toggle.toolbarNavigationClickListener = View.OnClickListener {
+                        onBackPressed()
                     }
                 }
-
-                toggle.toolbarNavigationClickListener = View.OnClickListener {
-                    onBackPressed()
-                }
-
             }
-        }
 
-        viewModel.userInfo.observe(this) { user: User ->
-            val headerView = binding.navHeader.root
-            headerView.setOnClickListener { v: View -> viewModel.onProfileClick() }
-            Glide.with(this@MainActivity)
-                .load(user.photoUrl)
-                .into(binding.navHeader.ivAvatar)
-            binding.navHeader.tvFullName.text = user.fullName
-        }
-        viewModel.navigate.observe(this) {
-            binding.drawerLayout.close()
-            navController.navigate(it)
-        }
+            viewModel.userInfo.collectWhenStarted(lifecycleScope) { user: User ->
+                val headerView = binding.navHeader.root
+                headerView.setOnClickListener {
+                    binding.drawerLayout.close()
+                    viewModel.onProfileClick()
+                }
+                Glide.with(this@MainActivity)
+                    .load(user.photoUrl)
+                    .into(binding.navHeader.ivAvatar)
+                binding.navHeader.tvFullName.text = user.fullName
+            }
 
-        viewModel.openCourse.observe(this) { id ->
-            binding.drawerLayout.close()
-            navController.navigate(
-                R.id.action_global_courseFragment,
-                bundleOf(CourseFragment.COURSE_ID to id)
-            )
-        }
-
-        viewModel.openLogin.observe(this) {
-            finish()
-            startActivity(Intent(this, LoginActivity::class.java))
-        }
-        viewModel.openProfile.observe(this) { id ->
-            binding.drawerLayout.close()
-            val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_ID, id)
-            drawerLayout.close()
-            navController.navigate(R.id.action_global_profileFragment, bundle)
-        }
-
-        viewModel.goBack.observe(this) {
-            navController.navigateUp()
-        }
-
-        lifecycleScope.launchWhenStarted {
-            viewModel.navMenuItems.collect {
+            viewModel.navMenuItems.collectWhenStarted(lifecycleScope) {
                 if (it is MainViewModel.NavMenuState.NavMenu) {
                     navAdapter.submit(it.items)
                 }
             }
+
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                Log.d("lol","destination: ${destination.label}")
+                viewModel.onDestinationChanged(destination.id)
+            }
         }
-        navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            viewModel.onDestinationChanged(destination.id)
+
+        viewModel.openLogin.observe(this) {
+            finish()
+            startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+        }
+
+        viewModel.goBack.observe(this) {
+            navController.navigateUp()
         }
     }
 
@@ -244,7 +224,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>() {
     }
 
     private fun refreshCurrentFragment() {
-        val ids = Sets.newHashSet(R.id.menu_timetable, R.id.menu_group, R.id.menu_admin_panel)
+        val ids = setOf(R.id.menu_timetable, R.id.menu_group)
         var id = navController.currentDestination!!.id
         navController.popBackStack(id, true)
         while (!ids.contains(id)) {

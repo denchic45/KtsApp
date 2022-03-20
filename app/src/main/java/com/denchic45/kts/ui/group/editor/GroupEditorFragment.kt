@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.group.editor
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import android.widget.AdapterView
 import android.widget.TextView
@@ -22,22 +20,15 @@ import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
 
 class GroupEditorFragment :
-    BaseFragment<GroupEditorViewModel, FragmentGroupEditorBinding>(R.layout.fragment_group_editor) {
+    BaseFragment<GroupEditorViewModel, FragmentGroupEditorBinding>(
+        R.layout.fragment_group_editor,
+        R.menu.options_group_editor
+    ) {
 
     override val binding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
     override val viewModel: GroupEditorViewModel by viewModels { viewModelFactory }
     private val viewBinding: FragmentGroupEditorBinding by viewBinding(FragmentGroupEditorBinding::bind)
     private var specialtyAdapter: ListPopupWindowAdapter? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.options_group_editor, menu)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

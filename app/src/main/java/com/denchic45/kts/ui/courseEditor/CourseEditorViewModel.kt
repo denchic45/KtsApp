@@ -16,7 +16,7 @@ import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.NetworkException
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
@@ -85,7 +85,7 @@ class CourseEditorViewModel @Inject constructor(
                             ListItem(
                                 id = user.id,
                                 title = user.fullName,
-                                icon = EitherResource.String(user.photoUrl),
+                                icon = EitherMessage.String(user.photoUrl),
                                 type = ListPopupWindowAdapter.TYPE_AVATAR
                             )
                         }
@@ -108,7 +108,7 @@ class CourseEditorViewModel @Inject constructor(
                             ListItem(
                                 id = id,
                                 title = name,
-                                icon = EitherResource.String(iconUrl)
+                                icon = EitherMessage.String(iconUrl)
                             )
                         }
                     }
@@ -135,13 +135,15 @@ class CourseEditorViewModel @Inject constructor(
     private val existCourse: Unit
         get() {
             viewModelScope.launch {
-                interactor.findCourse(courseId).collect { course: Course ->
-                    uiEditor.oldItem = course
-                    nameField.value = course.name
-                    selectTeacher.value = course.teacher
-                    selectSubject.value = course.subject
-                    groups = course.groups.toMutableList()
-                    groupList.value = addAdderGroupItem(groups)
+                interactor.findCourse(courseId).collect { course: Course? ->
+                    course?.let {
+                        uiEditor.oldItem = course
+                        nameField.value = course.name
+                        selectTeacher.value = course.teacher
+                        selectSubject.value = course.subject
+                        groups = course.groups.toMutableList()
+                        groupList.value = addAdderGroupItem(groups)
+                    } ?: finish()
                 }
             }
         }
@@ -150,7 +152,7 @@ class CourseEditorViewModel @Inject constructor(
         groups.map { ListItem(id = it.id, title = it.name, type = 1) } + ListItem(
             id = "ADD_GROUP",
             title = "Добавить",
-            icon = EitherResource.Id(R.drawable.ic_add)
+            icon = EitherMessage.Id(R.drawable.ic_add)
         )
 
     private fun onSaveClick() {
@@ -167,7 +169,7 @@ class CourseEditorViewModel @Inject constructor(
                         showToast(R.string.error_check_network)
                     }
                     is SameCoursesException -> {
-                   showSnackBar("Такой курс уже существует!")
+                        showSnackBar("Такой курс уже существует!")
                     }
                 }
                 e.printStackTrace()
@@ -196,7 +198,8 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     private fun enablePositiveBtn() {
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch {
+            delay(500) // Needed for waiting menu of this fragment
             setSaveOptionVisibility(uiValidator.runValidates() && uiEditor.hasBeenChanged())
         }
     }
@@ -220,7 +223,6 @@ class CourseEditorViewModel @Inject constructor(
 
     fun onSubjectNameClick() {
         subjectNameTypeEnable.value = true
-        optionVisibility
         setSaveOptionVisibility(false)
     }
 
@@ -255,7 +257,7 @@ class CourseEditorViewModel @Inject constructor(
     fun onGroupAddClick() {
         openChoiceOfGroup.call()
         viewModelScope.launch {
-            groupChooserInteractor.observeSelectedGroup()
+            groupChooserInteractor.receiveSelectedGroup()
                 .let { courseGroup ->
                     groups.add(courseGroup)
                     groupList.value = addAdderGroupItem(groups)
@@ -291,10 +293,10 @@ class CourseEditorViewModel @Inject constructor(
                     "Удаление курса" to "Удаленный курс нельзя будет восстановить"
                 )
                 if (confirmInteractor.receiveConfirm()) {
-                    deleteCourse()
+                    removeCourse()
                 }
             } else {
-                deleteCourse()
+                removeCourse()
             }
         }
     }
@@ -322,7 +324,7 @@ class CourseEditorViewModel @Inject constructor(
         }
     }
 
-    private suspend fun deleteCourse() {
+    private suspend fun removeCourse() {
         try {
             interactor.removeCourse(uiEditor.item)
             finish()

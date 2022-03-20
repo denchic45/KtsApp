@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.EitherResource
+import com.denchic45.kts.data.model.domain.EitherMessage
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.onId
@@ -124,7 +124,7 @@ class SubjectEditorViewModel @Inject constructor(
     private fun findColorId(colorName: String): Int {
         return colors.stream()
             .filter { listItem -> listItem.title == colorName }
-            .map { (it.color as EitherResource.Id).a }
+            .map { (it.color as EitherMessage.Id).value }
             .findFirst()
             .orElse(R.color.blue)
     }

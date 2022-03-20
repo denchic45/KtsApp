@@ -8,27 +8,27 @@ data class ListItem(
     @SerializedName("_id")
     override var id: String = "",
     var title: String = "",
-    var icon: EitherResource = emptyIcon,
-    var color: EitherResource = emptyColor,
+    var icon: EitherMessage = emptyIcon,
+    var color: EitherMessage = emptyColor,
     var content: Any? = null,
     val enable: Boolean = true,
     var type: Int = 0
 ) : DomainModel() {
 
     companion object {
-        val emptyIcon = EitherResource.Id(0)
+        val emptyIcon = EitherMessage.Id(0)
 
-        val emptyColor = EitherResource.Id(0)
+        val emptyColor = EitherMessage.Id(0)
     }
 
     fun hasIcon(): Boolean = icon != emptyIcon
 }
 
-sealed class EitherResource {
+sealed class EitherMessage {
 
-    data class Id(val a: Int) : EitherResource()
+    data class Id(val value: Int) : EitherMessage()
 
-    data class String(val b: kotlin.String) : EitherResource()
+    data class String(val value: kotlin.String) : EitherMessage()
 
     val isString get() = this is String
 
@@ -36,13 +36,13 @@ sealed class EitherResource {
 
     fun fold(fnL: (Int) -> Any, fnR: (kotlin.String) -> Any): Any =
         when (this) {
-            is Id -> fnL(a)
-            is String -> fnR(b)
+            is Id -> fnL(value)
+            is String -> fnR(value)
         }
 }
 
-fun EitherResource.onString(fn: (success: String) -> Unit): EitherResource =
-    this.apply { if (this is EitherResource.String) fn(b) }
+fun EitherMessage.onString(fn: (success: String) -> Unit): EitherMessage =
+    this.apply { if (this is EitherMessage.String) fn(value) }
 
-fun EitherResource.onId(fn: (failure: Int) -> Unit): EitherResource =
-    this.apply { if (this is EitherResource.Id) fn(a) }
+fun EitherMessage.onId(fn: (failure: Int) -> Unit): EitherMessage =
+    this.apply { if (this is EitherMessage.Id) fn(value) }

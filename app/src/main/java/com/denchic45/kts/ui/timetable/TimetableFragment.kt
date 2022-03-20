@@ -2,8 +2,6 @@ package com.denchic45.kts.ui.timetable
 
 import android.animation.ValueAnimator
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.fragment.app.viewModels
@@ -26,7 +24,9 @@ import java.time.LocalDate
 import kotlin.properties.Delegates
 
 class TimetableFragment :
-    BaseFragment<TimetableViewModel, FragmentTimetableBinding>(R.layout.fragment_timetable),
+    BaseFragment<TimetableViewModel, FragmentTimetableBinding>(
+        R.layout.fragment_timetable, R.menu.options_timtable
+    ),
     WeekCalendarListener,
     OnLoadListener {
 
@@ -35,16 +35,6 @@ class TimetableFragment :
     private lateinit var appBarController: AppBarController
 
     private var adapter: EventAdapter by Delegates.notNull()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.options_timtable, menu)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -24,7 +24,7 @@ class GroupChooserInteractor @Inject constructor(
         groupRepository.findGroupInfoById(groupId)
     }
 
-    suspend fun observeSelectedGroup(): CourseGroup {
+    suspend fun receiveSelectedGroup(): CourseGroup {
         return selectedGroup.receive()
     }
 

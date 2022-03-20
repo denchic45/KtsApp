@@ -3,10 +3,10 @@ package com.denchic45.kts.uipermissions
 import com.denchic45.kts.data.model.domain.User
 
 class UiPermissions(private val user: User) {
-    private val permissions: MutableSet<Permission> = mutableSetOf()
+    private val permissions: MutableMap<String, Permission> = mutableMapOf()
 
-    fun putPermissions(vararg permission: Permission): Boolean {
-        return permissions.addAll(mutableListOf(*permission))
+    fun putPermissions(vararg permission: Permission) {
+        return permissions.putAll(permission.associateBy { it.name })
     }
 
     fun runIfHasPermission(permissionName: String, action: Runnable) {
@@ -32,9 +32,6 @@ class UiPermissions(private val user: User) {
     }
 
     private fun getPermission(permissionName: String): Permission {
-        return permissions.stream()
-            .filter { permission: Permission -> permission.name == permissionName }
-            .findFirst()
-            .get()
+        return permissions.getValue(permissionName)
     }
 }

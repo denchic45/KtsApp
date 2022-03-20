@@ -18,6 +18,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentVerifyPhoneNumberBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.login.LoginViewModel
+import com.denchic45.kts.utils.closeKeyboard
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
@@ -93,10 +94,7 @@ class VerifyPhoneNumFragment :
                 .subscribe { s: CharSequence ->
                     viewModel.onCharTyped(typedCode)
                     if (s.toString().isNotEmpty()) {
-                        etCode6.clearFocus()
-                        val imm =
-                            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                        imm.hideSoftInputFromWindow(etCode6.applicationWindowToken, 0)
+                        etCode6.closeKeyboard()
                     }
                 }
             btnAuth.setOnClickListener {

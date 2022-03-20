@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
@@ -73,7 +72,7 @@ class EventRepository @Inject constructor(
 
     fun findEventsOfDayByGroupIdAndDate(groupId: String, date: LocalDate): Flow<EventsOfDay> {
         addListenerRegistrationIfNotExist("$date of $groupId") {
-            getQueryOfLessonsOfGroupByDate(date, groupId)
+            getQueryOfEventsOfGroupByDate(date, groupId)
                 .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
                     coroutineScope.launch(dispatcher) {
                         snapshots?.let {
@@ -88,10 +87,10 @@ class EventRepository @Inject constructor(
             .map { eventMapper.entitiesToEventsOfDay(it, date) }
     }
 
-    fun findLessonOfYourGroupByDate(date: LocalDate, groupId: String): Flow<EventsOfDay> {
+    fun findEventsOfDayByYourGroupAndDate(date: LocalDate, groupId: String): Flow<EventsOfDay> {
         if (date.toDateUTC() > nextSaturday || date.toDateUTC() < previousMonday) {
             addListenerRegistrationIfNotExist("$date of $groupId") {
-                getQueryOfLessonsOfGroupByDate(
+                getQueryOfEventsOfGroupByDate(
                     date,
                     groupId
                 ).addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
@@ -113,7 +112,7 @@ class EventRepository @Inject constructor(
             .map { eventMapper.entitiesToEventsOfDay(it, date) }
     }
 
-    fun findLessonsForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {
+    fun findEventsForDayForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {
         val teacherId = userPreference.id
         addListenerRegistrationIfNotExist("$date of teacher") {
             getListenerOfLessonsOfTeacherByDate(date, teacherId)
@@ -124,7 +123,7 @@ class EventRepository @Inject constructor(
             .map { eventMapper.entitiesToEventsOfDay(it, date) }
     }
 
-    private fun getQueryOfLessonsOfGroupByDate(date: LocalDate, groupId: String): Query {
+    private fun getQueryOfEventsOfGroupByDate(date: LocalDate, groupId: String): Query {
         val toDate = date.toDateUTC()
         return groupsRef
             .document(groupId)
@@ -133,37 +132,37 @@ class EventRepository @Inject constructor(
     }
 
     private suspend fun saveDay(dayDoc: DayDoc) {
-        courseDao.getNotRelatedTeacherIdsToGroup(dayDoc.teacherIds, dayDoc.groupId)
-            .map { teacherId: String ->
-                val documentSnapshot = firestore.collection("Users").document(teacherId)
-                    .get()
-                    .await()
-
-                coroutineScope.launch(dispatcher) {
-                    userDao.upsert(
-                        userMapper.docToEntity(documentSnapshot.toObject(UserDoc::class.java)!!)
-                    )
-                }
-            }
-
-        courseDao.getNotRelatedSubjectIdsToGroup(dayDoc.subjectIds, dayDoc.groupId)
-            .map { subjectId: String ->
-                val documentSnapshot = firestore.collection("Subjects").document(subjectId)
-                    .get()
-                    .await()
-                coroutineScope.launch(dispatcher) {
-                    subjectDao.upsert(
-                        subjectMapper.docToEntity(documentSnapshot.toObject(SubjectDoc::class.java)!!)
-                    )
-                }
-            }
-
         dataBase.withTransaction {
+            courseDao.getNotRelatedTeacherIdsToGroup(dayDoc.teacherIds, dayDoc.groupId)
+                .map { teacherId ->
+                    firestore.collection("Users").document(teacherId)
+                        .get()
+                        .await()
+                        .apply {
+                            userDao.upsert(
+                                userMapper.docToEntity(toObject(UserDoc::class.java)!!)
+                            )
+                        }
+                }
+
+            courseDao.getNotRelatedSubjectIdsToGroup(dayDoc.subjectIds, dayDoc.groupId)
+                .map { subjectId: String ->
+                    firestore.collection("Subjects").document(subjectId)
+                        .get()
+                        .await()
+                        .apply {
+                            subjectDao.upsert(
+                                subjectMapper.docToEntity(toObject(SubjectDoc::class.java)!!)
+                            )
+                        }
+                }
+
             dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date.toLocalDate(), dayDoc.groupId))
             val eventEntities = eventMapper.docToEntity(dayDoc.events)
             eventDao.replaceByDateAndGroup(eventEntities, dayDoc.date.toLocalDate(), dayDoc.groupId)
             val teacherEventCrossRefs =
-                eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities) // TODO Здесь могут быть преподаватели, которых нет в группе
+                eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
+
             teacherEventDao.upsert(teacherEventCrossRefs)
         }
     }
@@ -210,7 +209,7 @@ class EventRepository @Inject constructor(
             appPreference.lessonTime = lessonTime
         }
 
-    fun listenLessonsOfYourGroup() {
+    fun observeEventsOfYourGroup() {
         if (!hasListener("lessonsOfYouGroup")) addListenerRegistrationIfNotExist("lessonsOfYouGroup") {
             daysRef.whereGreaterThanOrEqualTo("date", previousMonday)
                 .whereLessThanOrEqualTo("date", nextSaturday)

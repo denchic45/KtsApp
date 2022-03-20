@@ -1,13 +1,10 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.loader
 
-import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -29,7 +26,6 @@ import com.denchic45.kts.ui.adapter.preferenceAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.lessonsOfDay.EventsFragment
 import com.denchic45.kts.utils.FilePicker
-import com.denchic45.kts.utils.path
 import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.extension.check
@@ -39,7 +35,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.collect
-import java.io.File
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
@@ -64,21 +59,11 @@ class TimetableLoaderFragment :
 
     private lateinit var filePicker: FilePicker
 
-    override fun onResume() {
-        super.onResume()
-        setHasOptionsMenu(true)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         filePicker = FilePicker(this, { list ->
             list?.let { viewModel.onSelectedFile(list[0]) }
         })
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        menu.clear()
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -336,10 +321,6 @@ class TimetableLoaderFragment :
         }
 
         internal enum class PAYLOAD { UPDATE_EVENTS }
-    }
-
-    companion object {
-        const val PICK_FILE_RESULT_CODE = 1
     }
 
     override fun onLessonEditClick(position: Int, dayOfWeek: Int) {

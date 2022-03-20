@@ -1,8 +1,7 @@
 package com.denchic45.kts.ui.group
 
-import androidx.lifecycle.LiveData
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
@@ -32,10 +31,8 @@ class GroupViewModel @Inject constructor(
     val openUserEditor = SingleLiveData<Pair<String, String>>()
 
     val openGroupEditor = SingleLiveData<String>()
-    private val isExistGroup: LiveData<Boolean>
 
     val groupId: String = groupId ?: interactor.yourGroupId
-    private val isExistGroupObserver: Observer<Boolean>
     private val uiPermissions: UiPermissions
     private val groupNameByGroupId: StateFlow<String> =
         interactor.getNameByGroupId(this.groupId)
@@ -67,7 +64,6 @@ class GroupViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        isExistGroup.removeObserver(isExistGroupObserver)
         interactor.removeListeners()
     }
 
@@ -86,16 +82,18 @@ class GroupViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             groupNameByGroupId.collect {
+                it.length
+                Log.d("lol", "groupNameByGroupId: $it")
                 toolbarTitle = it
             }
         }
-        isExistGroup = interactor.isExistGroup(this.groupId)
-        isExistGroupObserver = Observer { exist: Boolean ->
-            if (!exist) {
-                 finish()
+        viewModelScope.launch {
+            interactor.isExistGroup(this@GroupViewModel.groupId).collect { exist ->
+                if (!exist) {
+                    finish()
+                }
             }
         }
-        isExistGroup.observeForever(isExistGroupObserver)
         uiPermissions = UiPermissions(interactor.findThisUser())
         uiPermissions.putPermissions(
             Permission(

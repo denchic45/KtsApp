@@ -54,19 +54,27 @@ class CourseViewModel @Inject constructor(
 
         viewModelScope.launch {
             findCourseFlow.collect { course ->
-                courseName.value = course.name
-                uiPermissions.putPermissions(
-                    Permission(ALLOW_COURSE_EDIT, { this == course.teacher }, { hasAdminPerms() }),
-                    Permission(
-                        ALLOW_ADD_COURSE_CONTENT,
-                        { this == course.teacher },
-                        { hasAdminPerms() })
-                )
-                val allowCourseEdit = uiPermissions.isNotAllowed(ALLOW_COURSE_EDIT)
-                optionVisibility.emit(R.id.option_edit_course to allowCourseEdit)
-                optionVisibility.emit(R.id.option_edit_sections to allowCourseEdit)
+                course?.let {
+                    showToast("${findSelfUserUseCase() == course.teacher}")
+                    courseName.value = course.name
+                    uiPermissions.putPermissions(
+                        Permission(ALLOW_COURSE_EDIT, { this == course.teacher }, { hasAdminPerms() }),
+                        Permission(
+                            ALLOW_ADD_COURSE_CONTENT,
+                            {
+                                id == course.teacher.id
+                            },
+                            { hasAdminPerms() })
+                    )
+                    val allowCourseEdit = uiPermissions.isNotAllowed(ALLOW_COURSE_EDIT)
+                    optionVisibility.emit(R.id.option_edit_course to allowCourseEdit)
+                    optionVisibility.emit(R.id.option_edit_sections to allowCourseEdit)
 
-                fabVisibility.value = uiPermissions.isAllowed(ALLOW_ADD_COURSE_CONTENT)
+                    fabVisibility.value = uiPermissions.isAllowed(ALLOW_ADD_COURSE_CONTENT)
+                } ?: run {
+                    showToast("Курс был удален")
+                    finish()
+                }
             }
         }
     }

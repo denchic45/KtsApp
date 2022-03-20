@@ -327,7 +327,7 @@ class TimetableLoaderViewModel @Inject constructor(
     fun onAddGroupClick() {
         openChoiceOfGroup.call()
         viewModelScope.launch {
-            groupChooserInteractor.observeSelectedGroup()
+            groupChooserInteractor.receiveSelectedGroup()
                 .let { group ->
                     groups.add(group)
                     groupNames.add(group.name)

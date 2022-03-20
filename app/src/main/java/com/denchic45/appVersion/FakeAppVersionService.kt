@@ -20,15 +20,15 @@ class FakeAppVersionService @Inject constructor(
 
     override fun startDownloadUpdate() {
         coroutineScope.launch(Dispatchers.IO) {
-            onUpdateLoading(0,10)
+            onUpdateLoading(0,10F)
             delay(500)
-            onUpdateLoading(23,10)
+            onUpdateLoading(23,10F)
             delay(1000)
-            onUpdateLoading(24,10)
+            onUpdateLoading(24,10F)
             delay(600)
-            onUpdateLoading(56,10)
+            onUpdateLoading(56,10F)
             delay(1000)
-            onUpdateLoading(100,10)
+            onUpdateLoading(100, 10F)
             delay(1500)
             onUpdateDownloaded()
         }

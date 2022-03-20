@@ -2,8 +2,6 @@ package com.denchic45.kts.ui.userEditor
 
 import android.os.Bundle
 import android.telephony.PhoneNumberFormattingTextWatcher
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -25,7 +23,10 @@ import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.filter
 
-class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorBinding>(R.layout.fragment_user_editor) {
+class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorBinding>(
+    R.layout.fragment_user_editor,
+    R.menu.options_user_editor
+) {
 
     override val binding: FragmentUserEditorBinding by viewBinding(FragmentUserEditorBinding::bind)
     override val viewModel: UserEditorViewModel by viewModels { viewModelFactory }
@@ -200,18 +201,6 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.options_user_editor, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
@@ -220,19 +209,6 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
             viewModel.onOptionClick(item.itemId)
         }
         return true
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        with(binding) {
-//            keyboardManager.registerKeyboardListener(findViewById(android.R.id.content)) {
-//                if (it) {
-//                    fab.postDelayed({ fab.hide() }, DELAY_FAB_VISIBILITY.toLong())
-//                } else {
-//                    fab.postDelayed({ fab.show() }, DELAY_FAB_VISIBILITY.toLong())
-//                }
-//            }
-//        }
     }
 
     override fun onPause() {
@@ -244,6 +220,5 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
         const val USER_ROLE = "USER_TYPE"
         const val USER_ID = "USER_ID"
         const val USER_GROUP_ID = "USER_GROUP_ID"
-        const val DELAY_FAB_VISIBILITY = 300
     }
 }

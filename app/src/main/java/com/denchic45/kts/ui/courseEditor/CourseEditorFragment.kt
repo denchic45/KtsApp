@@ -3,8 +3,10 @@ package com.denchic45.kts.ui.courseEditor
 import android.content.Context
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
-import android.view.*
+import android.view.KeyEvent
+import android.view.View
 import android.view.View.OnFocusChangeListener
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
@@ -16,8 +18,8 @@ import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
@@ -27,7 +29,9 @@ import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
+import com.denchic45.kts.utils.closeKeyboard
 import com.denchic45.kts.utils.setActivityTitle
+import com.denchic45.kts.utils.showKeyboard
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
@@ -37,16 +41,14 @@ import com.jakewharton.rxbinding4.widget.textChanges
 import io.reactivex.rxjava3.internal.util.AppendOnlyLinkedArrayList.NonThrowingPredicate
 
 class CourseEditorFragment :
-    BaseFragment<CourseEditorViewModel, FragmentCourseEditorBinding>(R.layout.fragment_course_editor) {
+    BaseFragment<CourseEditorViewModel, FragmentCourseEditorBinding>(
+        layoutId = R.layout.fragment_course_editor,
+        menuResId = R.menu.options_course_editor
+    ) {
     override val viewModel: CourseEditorViewModel by viewModels { viewModelFactory }
-    private var imm: InputMethodManager? = null
     private var popupWindow: ListPopupWindow? = null
 
     override val binding: FragmentCourseEditorBinding by viewBinding(FragmentCourseEditorBinding::bind)
-
-    private fun closeKeyboard(view: View) {
-        imm!!.hideSoftInputFromWindow(view.windowToken, 0)
-    }
 
     private val adapter = adapter {
         delegates(CourseGroupsAdapterDelegate(), ItemAdapterDelegate())
@@ -63,21 +65,10 @@ class CourseEditorFragment :
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.options_course_editor, menu)
-        viewModel.onCreateOptions()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         popupWindow = ListPopupWindow(requireActivity())
-        imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
         binding.apply {
             tvSubjectName.setOnClickListener { viewModel.onSubjectNameClick() }
             tvTeacherName.setOnClickListener { viewModel.onTeacherNameClick() }
@@ -102,7 +93,7 @@ class CourseEditorFragment :
             etSubjectName.setOnEditorActionListener(OnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     viewModel.onSubjectNameType(etSubjectName.text.toString())
-                    closeKeyboard(etSubjectName)
+                    etSubjectName.closeKeyboard()
                     return@OnEditorActionListener true
                 }
                 false
@@ -110,7 +101,7 @@ class CourseEditorFragment :
             etTeacherName.setOnEditorActionListener(OnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     viewModel.onTeacherNameType(etTeacherName.text.toString())
-                    closeKeyboard(etTeacherName)
+                    etTeacherName.closeKeyboard()
                     return@OnEditorActionListener true
                 }
                 false
@@ -130,10 +121,9 @@ class CourseEditorFragment :
                 vsSubjectName.displayedChild = if (visible) 1 else 0
                 ivSubjectEdit.setImageResource(if (visible) R.drawable.ic_arrow_left else R.drawable.ic_edit)
                 if (visible) {
-                    etSubjectName.requestFocus()
-                    imm!!.showSoftInput(etSubjectName, 0)
+                    etSubjectName.showKeyboard()
                 } else {
-                    closeKeyboard(etSubjectName)
+                    etSubjectName.closeKeyboard()
                 }
             }
 
@@ -143,10 +133,9 @@ class CourseEditorFragment :
                 vsTeacherName.displayedChild = if (visible) 1 else 0
                 ivTeacherEdit.setImageResource(if (visible) R.drawable.ic_arrow_left else R.drawable.ic_edit)
                 if (visible) {
-                    etTeacherName.requestFocus()
-                    imm!!.showSoftInput(etTeacherName, InputMethodManager.HIDE_IMPLICIT_ONLY)
+                    etTeacherName.showKeyboard()
                 } else {
-                    closeKeyboard(etTeacherName)
+                    etTeacherName.closeKeyboard()
                 }
             }
             viewModel.selectSubject.observe(viewLifecycleOwner) { (_, name, iconUrl, colorName) ->
@@ -200,7 +189,7 @@ class CourseEditorFragment :
             viewModel.openChoiceOfGroup.observe(viewLifecycleOwner) {
                 findNavController().navigate(R.id.action_global_choiceOfGroupFragment)
             }
-            
+
             etSubjectName.textChanges()
                 .compose(EditTextTransformer())
                 .filter(NonThrowingPredicate { charSequence: CharSequence -> charSequence.length > 1 && etSubjectName.hasFocus() } as NonThrowingPredicate<CharSequence>)

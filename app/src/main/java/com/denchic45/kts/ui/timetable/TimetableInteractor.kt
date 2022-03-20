@@ -7,6 +7,7 @@ import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.data.repository.EventRepository
 import com.denchic45.kts.data.repository.SubjectRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filter
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -18,11 +19,11 @@ class TimetableInteractor @Inject constructor(
 ) : Interactor {
 
     fun findEventsOfGroupByDate(date: LocalDate, groupId: String): Flow<EventsOfDay> {
-        return eventRepository.findLessonOfYourGroupByDate(date, groupId)
+        return eventRepository.findEventsOfDayByYourGroupAndDate(date, groupId)
     }
 
     fun findEventsForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {
-        return eventRepository.findLessonsForTeacherByDate(date)
+        return eventRepository.findEventsForDayForTeacherByDate(date)
     }
 
     fun hasGroup() = groupPreference.groupId.isNotEmpty()
@@ -36,6 +37,7 @@ class TimetableInteractor @Inject constructor(
 
     fun yourGroupId(): String = groupPreference.groupId
 
+    fun observeYourGroupId() = groupPreference.observeValue(GroupPreference.GROUP_ID,"").filter(String::isNotEmpty)
 
     val role: String
         get() = userPreference.role

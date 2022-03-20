@@ -2,24 +2,33 @@ package com.denchic45.kts.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavArgs
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.viewbinding.ViewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmDialog
+import com.denchic45.kts.ui.course.CourseFragmentArgs
 import com.denchic45.kts.utils.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -30,8 +39,14 @@ interface HasViewModel<VM : BaseViewModel> {
     val viewModel: VM
 }
 
-abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int) :
-    Fragment(layoutId), HasViewModel<VM> {
+interface HasNavArgs<T: NavArgs> {
+    val navArgs: T
+}
+
+abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
+    layoutId: Int,
+    private val menuResId: Int = 0
+) : Fragment(layoutId), HasViewModel<VM> {
 
     @Inject
     override lateinit var viewModelFactory: ViewModelFactory<VM>
@@ -40,8 +55,14 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
 
     open val navController: NavController by lazy { findNavController() }
 
-    lateinit var menu: Menu
-    private set
+    protected lateinit var menu: Menu
+        private set
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (menuResId != 0)
+            setHasOptionsMenu(true)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -50,21 +71,32 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
         collectOnShowToolbarTitle()
         collectOnOptionVisibility()
 
-        viewModel.finish.collectWhenStarted(lifecycleScope) {
+                viewModel.navigate.collectWhenStarted(viewLifecycleOwner.lifecycleScope) { command ->
+                    when (command) {
+                        is NavigationCommand.To -> navController.navigate(command.directions)
+                        NavigationCommand.Back -> navController.popBackStack()
+                        is NavigationCommand.BackTo ->
+                            navController.popBackStack(command.destinationId, false)
+                        NavigationCommand.ToRoot ->
+                            navController.popBackStack(navController.graph.startDestinationId, false)
+                    }
+                }
+
+        viewModel.finish.collectWhenStarted(viewLifecycleOwner.lifecycleScope) {
             findNavController().navigateUp()
         }
 
-        viewModel.toast.collectWhenStarted(lifecycleScope, this::toast)
+        viewModel.toast.collectWhenStarted(viewLifecycleOwner.lifecycleScope, this::toast)
 
-        viewModel.toastRes.collectWhenStarted(lifecycleScope, this::toast)
+        viewModel.toastRes.collectWhenStarted(viewLifecycleOwner.lifecycleScope, this::toast)
 
-        viewModel.snackBar.collectWhenStarted(lifecycleScope) { (message, action) ->
+        viewModel.snackBar.collectWhenStarted(viewLifecycleOwner.lifecycleScope) { (message, action) ->
             val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
             action?.let { snackbar.setAction(action) { viewModel.onSnackbarActionClick(message) } }
             snackbar.show()
         }
 
-        viewModel.snackBarRes.collectWhenStarted(lifecycleScope) { (messageRes, action) ->
+        viewModel.snackBarRes.collectWhenStarted(viewLifecycleOwner.lifecycleScope) { (messageRes, action) ->
             val snackbar = Snackbar.make(binding.root, messageRes, Snackbar.LENGTH_LONG)
             action?.let {
                 snackbar.setAction(action) {
@@ -111,13 +143,13 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
         viewModel.showToolbarTitle.collectWhenResumed(lifecycleScope) {
             setActivityTitle(it)
         }
-
     }
 
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    final override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         this.menu = menu
+        inflater.inflate(menuResId, menu)
         viewModel.onCreateOptions()
     }
 
@@ -135,4 +167,11 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(layoutId: Int)
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
     }
+}
+
+sealed class NavigationCommand {
+    data class To(val directions: NavDirections) : NavigationCommand()
+    object Back : NavigationCommand()
+    data class BackTo(val destinationId: Int) : NavigationCommand()
+    object ToRoot : NavigationCommand()
 }

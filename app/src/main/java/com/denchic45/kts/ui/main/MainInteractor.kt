@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.main
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.asFlow
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.CourseHeader
@@ -85,18 +84,17 @@ class MainInteractor @Inject constructor(
     fun observeHasGroup(): Flow<Boolean> {
         return groupRepository.observeHasGroup().onEach {
             if (it) {
-                eventRepository.listenLessonsOfYourGroup()
+                eventRepository.observeEventsOfYourGroup()
             }
         }
-
     }
 
     fun findThisUser(): User = userRepository.findSelf()
 
-    fun listenThisUser(): Flow<User?> = userRepository.thisUserObserver
+    fun observeThisUser(): Flow<User?> = userRepository.thisUserObserver
 
     suspend fun startListeners() {
-        listenThisUser().collect { user ->
+        observeThisUser().collect { user ->
             user?.let {
                 if (user.isTeacher) {
                     groupRepository.listenYouGroupByCurator()
@@ -116,7 +114,7 @@ class MainInteractor @Inject constructor(
         val thisUser = findThisUser()
         return when {
             thisUser.isTeacher -> courseRepository.findByYourAsTeacher()
-            thisUser.isStudent -> courseRepository.findByYourGroup().asFlow()
+            thisUser.isStudent -> courseRepository.findByYourGroup()
             else -> emptyFlow()
         }
     }

@@ -70,6 +70,9 @@
         <action
             android:id="@+id/action_profileFragment_to_group"
             app:destination="@id/group" />
+        <argument
+            android:name="userId"
+            app:argType="string" />
     </fragment>
     <action
         android:id="@+id/action_global_profileFragment"
@@ -97,6 +100,9 @@
         <action
             android:id="@+id/action_courseFragment_to_courseSectionsFragment"
             app:destination="@id/courseSectionsFragment" />
+        <argument
+            android:name="courseId"
+            app:argType="string" />
     </fragment>
     <action
         android:id="@+id/action_global_courseFragment"

@@ -1,6 +1,7 @@
 package com.denchic45.kts.data.model.firestore
 
 import com.denchic45.kts.data.model.DocModel
+import com.denchic45.kts.utils.SearchKeysGenerator
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
@@ -16,7 +17,8 @@ data class CourseDoc(
         oldCourseDoc.subject != subject
                 && oldCourseDoc.teacher != teacher
 
-    var searchKeys: List<String>? = null
+    val searchKeys: List<String>
+        get() = SearchKeysGenerator().generateKeys(name) { predicate: String -> predicate.length > 1 }
 
     @ServerTimestamp
     val timestamp: Date? = null

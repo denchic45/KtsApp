@@ -36,6 +36,17 @@ abstract class BaseActivity<VM : BaseViewModel, VB : ViewBinding>(
         super.onCreate(savedInstanceState)
         AndroidInjection.inject(this)
 
+        viewModel.navigate.collectWhenStarted(lifecycleScope) { command ->
+            when (command) {
+                is NavigationCommand.To -> navController.navigate(command.directions)
+                NavigationCommand.Back -> navController.popBackStack()
+                is NavigationCommand.BackTo ->
+                    navController.popBackStack(command.destinationId, false)
+                NavigationCommand.ToRoot ->
+                    navController.popBackStack(navController.graph.startDestinationId, false)
+            }
+        }
+
         viewModel.finish.collectWhenStarted(lifecycleScope) {
             finish()
         }

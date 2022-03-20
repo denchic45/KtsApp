@@ -6,7 +6,7 @@ abstract class AppVersionService {
 
     var onUpdateDownloaded: () -> Unit = {}
 
-    var onUpdateLoading: (progress: Long, totalMegabyte: Long) -> Unit = { _, _ -> }
+    var onUpdateLoading: (progress: Long, totalMegabyte: Float) -> Unit = { _, _ -> }
 
     abstract fun observeUpdates(onUpdateAvailable: () -> Unit, onError: (Throwable) -> Unit)
 

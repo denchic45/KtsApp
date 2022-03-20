@@ -44,7 +44,6 @@ class GroupEditorViewModel @Inject constructor(
     val courseField = MutableLiveData<String>()
     val curatorField = MutableLiveData<User>()
     val fieldErrorMessage = SingleLiveData<Pair<Int, String?>>()
-    val deleteOptionVisibility = MutableLiveData<Boolean>()
     val openTeacherChooser = SingleLiveData<Void>()
     private val typedSpecialtyByName = MutableSharedFlow<String>()
     private val uiValidator: UIValidator
@@ -123,14 +122,16 @@ class GroupEditorViewModel @Inject constructor(
     private fun existGroup() {
         viewModelScope.launch {
             findGroupUseCase(id).collect { group ->
-                uiEditor.oldItem = group
-                uiEditor.oldItem = group
-                curatorField.value = group.curator
-                nameField.value = group.name
-                specialtyField.value = group.specialty
-                courseField.value = courseList[group.course - 1].title
+                group?.let {
+                    uiEditor.oldItem = group
+                    uiEditor.oldItem = group
+                    curatorField.value = group.curator
+                    nameField.value = group.name
+                    specialtyField.value = group.specialty
+                    courseField.value = courseList[group.course - 1].title
 
-                course = group.course
+                    course = group.course
+                } ?: finish()
             }
         }
     }
@@ -177,7 +178,7 @@ class GroupEditorViewModel @Inject constructor(
             )
             if (confirmInteractor.receiveConfirm()) {
                 try {
-                    removeGroupUseCase(uiEditor.item)
+                    removeGroupUseCase(uiEditor.item.id)
                     finish()
                 } catch (e: Exception) {
                     if (e is NetworkException) {
@@ -191,7 +192,9 @@ class GroupEditorViewModel @Inject constructor(
     override fun onCreateOptions() {
         super.onCreateOptions()
         if (uiEditor.isNew) {
-            deleteOptionVisibility.value = false
+            viewModelScope.launch {
+                optionVisibility.emit(R.id.option_course_delete to false)
+            }
         }
     }
 

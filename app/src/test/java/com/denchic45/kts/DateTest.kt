@@ -1,6 +1,6 @@
 package com.denchic45.kts
 
-import com.denchic45.kts.utils.DateFormatUtil
+import com.denchic45.kts.utils.DatePatterns
 import com.denchic45.kts.utils.toString
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
@@ -12,7 +12,7 @@ class DateTest {
     fun mondayOfThisWeekTest() {
         print(
             "Monday is: " + LocalDate.now().plusWeeks(1).with(DayOfWeek.MONDAY)
-                .toString(DateFormatUtil.DD_MM_yy)
+                .toString(DatePatterns.DD_MM_yy)
         )
     }
 }

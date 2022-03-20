@@ -7,7 +7,6 @@ import javax.inject.Inject
 
 class FindSelfUserUseCase @Inject constructor(
     private val userRepository: UserRepository
-) : SyncUseCase<User, Nothing>() {
-    override fun invoke(params: Nothing?): User = userRepository.findSelf()
-
+) {
+    operator fun invoke(): User = userRepository.findSelf()
 }

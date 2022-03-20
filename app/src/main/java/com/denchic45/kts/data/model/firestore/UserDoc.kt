@@ -2,6 +2,7 @@ package com.denchic45.kts.data.model.firestore
 
 import com.denchic45.kts.data.model.DocModel
 import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.utils.SearchKeysGenerator
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
@@ -17,18 +18,35 @@ data class UserDoc(
     var admin: Boolean,
     @ServerTimestamp
     val timestamp: Date? = null,
-    var searchKeys: List<String>,
     var generatedAvatar: Boolean,
     var groupId: String? = null,
-    var patronymic: String?=null
+    var patronymic: String? = null
 
 ) : DocModel {
 
-    private constructor():this("", "","","","","", "",0,false, null, emptyList(), true, "", "")
+    val searchKeys: List<String>
+        get() = SearchKeysGenerator().generateKeys(fullName) { predicate: String -> predicate.length > 2 }
+
+    private constructor() : this(
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        0,
+        false,
+        null,
+        true,
+        "",
+        ""
+    )
 
     companion object {
         fun createEmpty() = UserDoc()
     }
+
     val isTeacher: Boolean
         get() = role == User.TEACHER || role == User.HEAD_TEACHER
     val isStudent: Boolean

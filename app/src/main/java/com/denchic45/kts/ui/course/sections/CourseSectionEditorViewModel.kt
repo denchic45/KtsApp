@@ -85,7 +85,7 @@ class CourseSectionEditorViewModel @Inject constructor(
         if (name.isEmpty()) return
         viewModelScope.launch {
             addCourseSectionsUseCase(
-                Section(courseId, name, sections.first().last().order + 1024)
+                Section(courseId, name, sections.first().lastOrNull()?.order?.plus(1024) ?: 1024)
             )
         }
     }

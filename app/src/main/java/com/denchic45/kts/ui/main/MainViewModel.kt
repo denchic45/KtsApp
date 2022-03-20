@@ -4,14 +4,18 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.FakeAppVersionService
 import com.denchic45.appVersion.GoogleAppVersionService
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.ui.NavigationCommand
 import com.denchic45.kts.ui.adapter.*
+import com.denchic45.kts.ui.adminPanel.AdminPanelFragmentDirections
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.course.CourseFragmentDirections
+import com.denchic45.kts.ui.settings.SettingsFragmentDirections
+import com.denchic45.kts.ui.tasks.TasksFragmentDirections
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import kotlinx.coroutines.Dispatchers
@@ -33,19 +37,22 @@ class MainViewModel @Inject constructor(
     val updateBannerState = MutableStateFlow<UpdateBannerState>(UpdateBannerState.Hidden)
 
     fun setActivityForService(activity: Activity) {
-        //todo раскммент
         appVersionService.activityRef = WeakReference(activity)
     }
 
     private val mainScreenIds: Set<Int> = setOf(R.id.menu_timetable, R.id.menu_group)
     private val onNavItemClickActions = mapOf(
-        R.string.nav_tasks to { navigate.value = R.id.action_global_tasksFragment },
-        R.string.nav_duty_roster to { navigate.value = 0 },
-        R.string.nav_schedule to { navigate.value = 0 },
+        R.string.nav_tasks to {
+            navigateTo(TasksFragmentDirections.actionGlobalTasksFragment())
+        },
+        R.string.nav_duty_roster to { throw IllegalStateException() },
+        R.string.nav_schedule to { throw IllegalStateException() },
 
-        R.string.nav_control_panel to { navigate.value = R.id.action_global_menu_admin_panel },
-        R.string.nav_settings to { navigate.value = R.id.action_global_menu_settings },
-        R.string.nav_help to { navigate.value = 0 },
+        R.string.nav_control_panel to {
+            navigateTo(AdminPanelFragmentDirections.actionGlobalMenuAdminPanel())
+        },
+        R.string.nav_settings to { navigateTo(SettingsFragmentDirections.actionGlobalMenuSettings()) },
+        R.string.nav_help to { throw IllegalStateException() },
     )
 
     val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
@@ -56,19 +63,13 @@ class MainViewModel @Inject constructor(
 
     val closeNavMenu = SingleLiveData<Unit>()
 
-    val navigate = SingleLiveData<Int>()
-
-    val openCourse = SingleLiveData<String>()
-
     val menuBtnVisibility = SingleLiveData<Pair<Int, Boolean>>()
 
     val toolbarNavigationState = MutableStateFlow(ToolbarNavigationState.MENU)
 
     enum class ToolbarNavigationState { NONE, MENU, BACK }
 
-    val openProfile = SingleLiveData<String>()
-
-    val userInfo = MutableLiveData<User>()
+    val userInfo = interactor.observeThisUser().filterNotNull().stateIn(viewModelScope, SharingStarted.Lazily,User.createEmpty())
 
     private val uiPermissions: UiPermissions
 
@@ -86,32 +87,35 @@ class MainViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
-        appVersionService.close() // TODO раскоммент
         interactor.removeListeners()
     }
 
     fun onResume() {
         appVersionService.observeDownloadedUpdate()
-//        menuBtnVisibility.value = Pair(
-//            R.id.menu_admin_panel,
-//            uiPermissions.isAllowed(ALLOW_CONTROL)
-//        )
     }
 
     fun onProfileClick() {
-        openProfile.value = userInfo.value!!.id
+        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(userInfo.value!!.id))
     }
 
     fun onNavItemClick(position: Int) {
+
         val name =
             ((navMenuItems.value as NavMenuState.NavMenu).items[position] as NavTextItem).name
         name.onId {
             onNavItemClickActions.getValue(it).invoke()
         }.onString {
-            openCourse.postValue(courseIds[it])
+            viewModelScope.launch {
+                navigate.emit(
+                    NavigationCommand.To(
+                        CourseFragmentDirections.actionGlobalCourseFragment(
+                            courseIds[it]!!
+                        )
+                    )
+                )
+
+            }
         }
-
-
     }
 
     fun onExpandCoursesClick() {
@@ -133,24 +137,20 @@ class MainViewModel @Inject constructor(
         fabVisibility.postValue(screenIdsWithFab.contains(id))
     }
 
-    fun onUpdateDownloaded() {
-
-    }
-
-    fun onUpdateCancelled() {}
-
     companion object {
         private const val ALLOW_CONTROL = "ALLOW_CONTROL"
     }
 
     init {
+        addCloseable(appVersionService)
         appVersionService.onUpdateDownloaded = {
             Log.d("lol", "startUpdate: toast DOWNLOADED")
             updateBannerState.value = UpdateBannerState.Install
         }
 
         appVersionService.onUpdateLoading = { progress, megabyteTotal ->
-            updateBannerState.value = UpdateBannerState.Loading(progress, "$progress% из $megabyteTotal МБ")
+            updateBannerState.value =
+                UpdateBannerState.Loading(progress, "$progress% из $megabyteTotal МБ")
         }
 
         appVersionService.observeUpdates(
@@ -173,26 +173,24 @@ class MainViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            interactor.findOwnCourses()
-                .combine(interactor.observeHasGroup()) { courses, hasGroup ->
-                    courseIds = courses.associate { it.name to it.id }
-                    NavMenuState.NavMenu(
-                        courses,
-                        interactor.findThisUser(),
-                        hasGroup
-                    )
-                }.stateIn(
-                    viewModelScope,
-                    SharingStarted.WhileSubscribed(5000),
-                    NavMenuState.NavMenuEmpty
-                ).collect {
-                    navMenuItems.value = it
-                }
-        }
-
-        viewModelScope.launch {
-            interactor.listenThisUser()
-                .collect { user -> user?.let(userInfo::setValue) }
+            combine(
+                interactor.findOwnCourses(),
+                interactor.observeHasGroup()
+            ) { courses, hasGroup ->
+                Log.d("lol", "courses, hasGroup: $courses, $hasGroup")
+                courseIds = courses.associate { it.name to it.id }
+                NavMenuState.NavMenu(
+                    courses,
+                    interactor.findThisUser(),
+                    hasGroup
+                )
+            }.stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5000),
+                NavMenuState.NavMenuEmpty
+            ).collect {
+                navMenuItems.value = it
+            }
         }
 
         viewModelScope.launch {
@@ -210,6 +208,7 @@ class MainViewModel @Inject constructor(
 
     fun onDownloadUpdateClick() {
         appVersionService.startDownloadUpdate()
+        updateBannerState.value = UpdateBannerState.WaitLoading
     }
 
     fun onLaterUpdateClick() {
@@ -237,7 +236,7 @@ class MainViewModel @Inject constructor(
                 list.add(DividerItem())
                 if (courses.isNotEmpty()) {
                     val nameOfDropdownCoursesNavItem: Int
-                    list.add(NavSubHeaderItem(EitherResource.Id(R.string.nav_courses_my)))
+                    list.add(NavSubHeaderItem(EitherMessage.Id(R.string.nav_courses_my)))
                     val visibleCourses = if (expandAllCourse) {
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_hide
                         courses
@@ -247,23 +246,23 @@ class MainViewModel @Inject constructor(
                     }
                     list.addAll(visibleCourses.map {
                         NavTextItem(
-                            EitherResource.String(it.name),
+                            EitherMessage.String(it.name),
                             id = it.id,
                             iconType = NavTextItem.IconType.CIRCLE,
-                            color = EitherResource.String(it.subject.colorName)
+                            color = EitherMessage.String(it.subject.colorName)
                         )
                     })
                     if (courses.size > 5)
                         list.add(
                             NavDropdownItem(
-                                EitherResource.Id(nameOfDropdownCoursesNavItem),
+                                EitherMessage.Id(nameOfDropdownCoursesNavItem),
                                 expandAllCourse
                             )
                         )
                     list.add(
                         NavTextItem(
-                            EitherResource.Id(R.string.nav_courses_archive),
-                            EitherResource.Id(R.drawable.ic_archive)
+                            EitherMessage.Id(R.string.nav_courses_archive),
+                            EitherMessage.Id(R.drawable.ic_archive)
                         )
                     )
                     list.add(DividerItem())
@@ -277,22 +276,22 @@ class MainViewModel @Inject constructor(
                     if (user.isTeacher || user.isStudent)
                         mainTextItems.add(
                             NavTextItem(
-                                EitherResource.Id(R.string.nav_tasks),
-                                EitherResource.Id(R.drawable.ic_tasks)
+                                EitherMessage.Id(R.string.nav_tasks),
+                                EitherMessage.Id(R.drawable.ic_tasks)
                             )
                         )
                     if (hasGroup) {
                         mainTextItems.add(
                             NavTextItem(
-                                EitherResource.Id(R.string.nav_duty_roster),
-                                EitherResource.Id(R.drawable.ic_clean)
+                                EitherMessage.Id(R.string.nav_duty_roster),
+                                EitherMessage.Id(R.drawable.ic_clean)
                             )
                         )
                     }
                     add(
                         NavTextItem(
-                            EitherResource.Id(R.string.nav_schedule),
-                            EitherResource.Id(R.drawable.ic_time)
+                            EitherMessage.Id(R.string.nav_schedule),
+                            EitherMessage.Id(R.drawable.ic_time)
                         )
                     )
                 }
@@ -300,19 +299,19 @@ class MainViewModel @Inject constructor(
                     if (user.admin) {
                         add(
                             NavTextItem(
-                                EitherResource.Id(R.string.nav_control_panel),
-                                EitherResource.Id(R.drawable.ic_control_panel)
+                                EitherMessage.Id(R.string.nav_control_panel),
+                                EitherMessage.Id(R.drawable.ic_control_panel)
                             )
                         )
                     }
                     addAll(
                         listOf(
                             NavTextItem(
-                                EitherResource.Id(R.string.nav_settings),
-                                EitherResource.Id(R.drawable.ic_settings)
+                                EitherMessage.Id(R.string.nav_settings),
+                                EitherMessage.Id(R.drawable.ic_settings)
                             ), NavTextItem(
-                                EitherResource.Id(R.string.nav_help),
-                                EitherResource.Id(R.drawable.ic_help)
+                                EitherMessage.Id(R.string.nav_help),
+                                EitherMessage.Id(R.drawable.ic_help)
                             )
                         )
                     )
@@ -329,6 +328,8 @@ class MainViewModel @Inject constructor(
         object Hidden : UpdateBannerState()
 
         object Remind : UpdateBannerState()
+
+        object WaitLoading : UpdateBannerState()
 
         data class Loading(
             val progress: Long,

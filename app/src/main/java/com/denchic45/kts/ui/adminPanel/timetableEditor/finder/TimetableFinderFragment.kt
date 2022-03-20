@@ -27,7 +27,8 @@ import java.time.LocalDate
 
 class TimetableFinderFragment :
     BaseFragment<TimetableFinderViewModel, FragmentTimetableFinderBinding>(
-        R.layout.fragment_timetable_finder
+        R.layout.fragment_timetable_finder,
+        R.menu.options_timetable_finder
     ) {
     override val binding: FragmentTimetableFinderBinding by viewBinding(
         FragmentTimetableFinderBinding::bind
@@ -39,15 +40,6 @@ class TimetableFinderFragment :
     private var actionMode: ActionMode? = null
     private var popupAdapter: ListPopupWindowAdapter? = null
 
-    override fun onResume() {
-        super.onResume()
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.options_timetable_finder, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
 
     private val simpleCallback: ItemTouchHelper.SimpleCallback
         get() {

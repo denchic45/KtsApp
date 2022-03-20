@@ -12,7 +12,7 @@ import org.mapstruct.Mapping
 
 @Mapper(uses = [UserMapper::class, SpecialtyMapper::class])
 abstract class GroupMapper {
-    @Mapping(target = "searchKeys", ignore = true)
+
     @Mapping(target = "allUsers", ignore = true)
     @Mapping(target = "students", ignore = true)
     abstract fun domainToDoc(domain: Group): GroupDoc

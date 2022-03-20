@@ -58,8 +58,8 @@ class FinderInteractor @Inject constructor(
         return subjectRepository.remove(subject)
     }
 
-    suspend fun removeGroup(group: Group) {
-        courseRepository.removeGroupFromCourses(group)
-        groupRepository.remove(group)
-    }
+//    suspend fun removeGroup(groupId: String) {
+//        courseRepository.removeGroupFromCourses(groupId)
+//        groupRepository.remove(groupId)
+//    }
 }

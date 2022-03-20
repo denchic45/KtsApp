@@ -64,7 +64,7 @@ object IntentModule {
     @Named(ProfileFragment.USER_ID)
     @Provides
     fun provideUserIdFromProfileFragment(profileFragment: ProfileFragment): String {
-        return profileFragment.requireArguments().getString(ProfileFragment.USER_ID)!!
+        return profileFragment.navArgs.userId
     }
 
     @Named(GroupFragment.GROUP_ID)
@@ -101,8 +101,7 @@ object IntentModule {
     @Named(CourseFragment.COURSE_ID)
     @Provides
     fun provideCourseIdFromCourse(courseFragment: CourseFragment): String {
-        return courseFragment.requireArguments()
-            .getString(CourseFragment.COURSE_ID)!!
+        return courseFragment.navArgs.courseId
     }
 
     @Named(TaskEditorFragment.TASK_ID)

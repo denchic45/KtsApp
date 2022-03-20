@@ -1,31 +1,31 @@
 package com.denchic45.kts.data.prefs
 
 import android.content.Context
+import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.room.GroupEntity
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GroupPreference @Inject constructor(context: Context) :
     BaseSharedPreference(context, "Group") {
+
+    val observeGroupId: Flow<String> = observeValue(GROUP_ID, "")
+
     var groupCourse: Int
         get() = getValue(GROUP_COURSE, 0)
-        set(course) {
-            setValue(GROUP_COURSE, course)
-        }
+        set(course) = setValue(GROUP_COURSE, course)
+
     var groupName: String
         get() = getValue(GROUP_NAME, "")
-        set(groupName) {
-            setValue(GROUP_NAME, groupName)
-        }
+        set(groupName) = setValue(GROUP_NAME, groupName)
+
     var groupId: String
         get() = getValue(GROUP_ID, "")
-        set(groupId) {
-            setValue(GROUP_ID, groupId)
-        }
+        set(groupId) = setValue(GROUP_ID, groupId)
+
     var groupSpecialtyId: String
         get() = getValue(GROUP_SPECIALTY_ID, "")
-        set(groupSpecialtyId) {
-            setValue(GROUP_SPECIALTY_ID, groupSpecialtyId)
-        }
+        set(groupSpecialtyId) = setValue(GROUP_SPECIALTY_ID, groupSpecialtyId)
 
     fun saveGroupInfo(group: GroupEntity) {
         groupName = group.name

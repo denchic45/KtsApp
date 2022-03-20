@@ -29,7 +29,7 @@ class CourseEditorInteractor @Inject constructor(
         return subjectRepository.findByTypedName(name)
     }
 
-    fun findCourse(courseId: String): Flow<Course> {
+    fun findCourse(courseId: String): Flow<Course?> {
         return courseRepository.find(courseId)
     }
 

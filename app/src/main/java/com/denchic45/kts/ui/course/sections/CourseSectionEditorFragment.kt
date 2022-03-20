@@ -19,7 +19,7 @@ import com.denchic45.kts.databinding.ItemAddSectionBinding
 import com.denchic45.kts.databinding.ItemEditSectionBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
-import com.denchic45.kts.utils.hideKeyboard
+import com.denchic45.kts.utils.closeKeyboard
 import com.denchic45.kts.utils.setActivityTitle
 import com.denchic45.kts.utils.showKeyboard
 import com.denchic45.kts.utils.viewBinding
@@ -162,7 +162,7 @@ class EditSectionAdapterDelegate(
                     vsName.displayedChild = 0
                     vsRemove.displayedChild = 0
                     vsEditWithDone.displayedChild = 0
-                    etName.hideKeyboard()
+                    etName.closeKeyboard()
                 }
 
                 tvName.text = item.name
@@ -214,7 +214,7 @@ class AddSectionAdapterDelegate(private val doneCallback: (name: String) -> Unit
                     vs.displayedChild = 0
                     etName.setText("")
                     ivDone.visibility = View.INVISIBLE
-                    etName.hideKeyboard()
+                    etName.closeKeyboard()
                 }
                 etName.setOnFocusChangeListener { _, focus ->
                     if (focus) {
@@ -225,7 +225,7 @@ class AddSectionAdapterDelegate(private val doneCallback: (name: String) -> Unit
                     }
                 }
                 ivClose.setOnClickListener {
-                    etName.hideKeyboard()
+                    etName.closeKeyboard()
                 }
                 ivAdd.setOnClickListener {
 

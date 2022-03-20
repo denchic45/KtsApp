@@ -7,12 +7,14 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentCourseBinding
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.HasNavArgs
 import com.denchic45.kts.ui.adapter.CourseSectionAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
 import com.denchic45.kts.ui.adapter.TaskHolder
@@ -29,7 +31,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
     R.layout.fragment_course
-) {
+), HasNavArgs<CourseFragmentArgs> {
+
+    override val navArgs: CourseFragmentArgs by navArgs()
 
     override val binding: FragmentCourseBinding by viewBinding(FragmentCourseBinding::bind)
     override val viewModel: CourseViewModel by viewModels { viewModelFactory }
@@ -151,7 +155,12 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
             }
             viewModel.fabVisibility.observe(viewLifecycleOwner) {
                 requireActivity().findViewById<FloatingActionButton>(R.id.fab_main)
-                    .visibility = if (it) View.VISIBLE else View.INVISIBLE
+                    .apply {
+                        if (it)
+                            show()
+                        else
+                            hide()
+                    }
             }
         }
 

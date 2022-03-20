@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.denchic45.kts.R
 import com.denchic45.kts.ui.login.LoginViewModel
+import com.denchic45.kts.utils.closeKeyboard
 import com.google.android.material.textfield.TextInputLayout
 
 class LoginByPhoneNumFragment : Fragment() {
@@ -38,9 +39,7 @@ class LoginByPhoneNumFragment : Fragment() {
         btnGetCode.setOnClickListener {
             val phoneNum = etNum.text.toString()
             loginViewModel.onGetCodeClick(phoneNum)
-            val imm =
-                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(etNum.applicationWindowToken, 0)
+            etNum.closeKeyboard()
         }
     }
 }

@@ -79,8 +79,8 @@ class GroupChooserViewModel @Inject constructor(
         val groupId = _groupAndSpecialtyList.value[position].id
         groupChooserInteractor.findGroupInfoById(groupId)
         viewModelScope.launch {
-            groupChooserInteractor.postSelectGroup((_groupAndSpecialtyList.value[position] as CourseGroup))
             finish()
+            groupChooserInteractor.postSelectGroup((_groupAndSpecialtyList.value[position] as CourseGroup))
         }
     }
 }

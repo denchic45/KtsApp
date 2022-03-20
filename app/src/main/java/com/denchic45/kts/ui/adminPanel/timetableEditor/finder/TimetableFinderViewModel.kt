@@ -296,7 +296,7 @@ class TimetableFinderViewModel @Inject constructor(
                             ListItem(
                                 id = id,
                                 title = name,
-                                icon = EitherResource.Id(R.drawable.ic_group)
+                                icon = EitherMessage.Id(R.drawable.ic_group)
                             )
                         }
                 }

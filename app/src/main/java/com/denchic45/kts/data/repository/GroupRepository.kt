@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
@@ -64,7 +63,7 @@ class GroupRepository @Inject constructor(
     private suspend fun saveUsersAndTeachersWithSubjectsAndCoursesOfYourGroup(groupDoc: GroupDoc) {
         saveGroup(groupDoc)
         groupPreference.saveGroupInfo(groupMapper.docToEntity(groupDoc))
-        timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses!!.time)
+        timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses?.time ?: 0)
     }
 
     fun listenYourGroup() {
@@ -120,8 +119,7 @@ class GroupRepository @Inject constructor(
     private val yourGroupByIdListener: ListenerRegistration
         get() {
             val queryGroup: Query = if (isStudent(userPreference.role)) {
-                val yourGroupId = groupPreference.groupId
-                getQueryOfGroupById(yourGroupId)
+                getQueryOfGroupById(userPreference.groupId)
             } else {
                 queryOfYourGroupByCurator
             }
@@ -198,11 +196,13 @@ class GroupRepository @Inject constructor(
         return groupPreference.groupId.isNotEmpty()
     }
 
-    fun find(groupId: String): Flow<Group> {
+    fun find(groupId: String): Flow<Group?> {
         getGroupByIdRemotely(groupId)
-        return groupDao.get(groupId).map {
-            groupMapper.entityToDomain(it)
-        }
+        return groupDao.observe(groupId)
+            .map {
+                it?.let { groupMapper.entityToDomain(it) }
+            }
+            .distinctUntilChanged()
     }
 
     private fun getGroupByIdRemotely(groupId: String) {
@@ -263,14 +263,14 @@ class GroupRepository @Inject constructor(
             .await()
     }
 
-    suspend fun remove(group: Group) {
+    suspend fun remove(groupId: String) {
         requireInternetConnection()
         val batch = firestore.batch()
 
-        groupsRef.document(group.id)
+        groupsRef.document(groupId)
             .get()
             .await().apply {
-                batch.delete(groupsRef.document(group.id))
+                batch.delete(groupsRef.document(groupId))
                 this.toObject(GroupDoc::class.java)!!
                     .students!!
                     .values
@@ -279,14 +279,14 @@ class GroupRepository @Inject constructor(
                     }
             }
 
-        coursesRef.whereArrayContains("groupIds", group.id)
+        coursesRef.whereArrayContains("groupIds", groupId)
             .get()
             .await()
             .forEach { courseDocSnapshot ->
                 batch.update(
                     coursesRef.document(courseDocSnapshot.id),
                     "groupIds",
-                    FieldValue.arrayRemove(group.id)
+                    FieldValue.arrayRemove(groupId)
                 )
             }
 
@@ -312,7 +312,7 @@ class GroupRepository @Inject constructor(
                 getGroupByIdRemotely(groupId)
             }
         }
-        return groupDao.getNameById(groupId)
+        return groupDao.getNameById(groupId).filterNotNull()
     }
 
     fun isExistGroup(groupId: String): Flow<Boolean> {

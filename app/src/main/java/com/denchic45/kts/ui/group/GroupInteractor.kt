@@ -18,6 +18,7 @@ class GroupInteractor @Inject constructor(
         get() = groupRepository.yourGroupId
 
     override fun removeListeners() {}
+
     val yourGroupName: String
         get() = groupRepository.yourGroupName
 
@@ -25,8 +26,8 @@ class GroupInteractor @Inject constructor(
         return groupRepository.getNameByGroupId(groupId)
     }
 
-    fun isExistGroup(groupId: String): LiveData<Boolean> {
-        return groupRepository.isExistGroup(groupId).asLiveData()
+    fun isExistGroup(groupId: String): Flow<Boolean> {
+        return groupRepository.isExistGroup(groupId)
     }
 
     fun findThisUser(): User {

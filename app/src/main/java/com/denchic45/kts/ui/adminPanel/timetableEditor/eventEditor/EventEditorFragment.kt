@@ -30,7 +30,8 @@ import java.util.*
 
 
 class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEditorBinding>(
-    R.layout.fragment_event_editor
+    R.layout.fragment_event_editor,
+    R.menu.options_lesson_editor
 ) {
     private lateinit var toolbarEventEditor: View
     private lateinit var tvTitleBar: TextView
@@ -39,15 +40,6 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
     override val binding: FragmentEventEditorBinding by viewBinding(FragmentEventEditorBinding::bind)
     override val viewModel: EventEditorViewModel by activityViewModels { viewModelFactory }
     private var navHostFragment: Fragment? = null
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.options_lesson_editor, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

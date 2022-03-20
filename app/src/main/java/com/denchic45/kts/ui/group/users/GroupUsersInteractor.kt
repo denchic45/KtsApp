@@ -18,7 +18,7 @@ class GroupUsersInteractor @Inject constructor(
         get() = groupRepository.yourGroupId
 
     fun getUsersByGroupId(groupId: String): Flow<List<User>> {
-        return userRepository.getByGroupId(groupId)
+        return userRepository.findByGroupId(groupId)
     }
 
     suspend fun removeStudent(student: User) {

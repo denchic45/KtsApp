@@ -2,6 +2,9 @@ package com.denchic45.kts.ui.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavDirections
+import com.denchic45.kts.ui.NavigationCommand
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +31,15 @@ abstract class BaseViewModel : ViewModel() {
 
     val openConfirmation = _openConfirmation.receiveAsFlow()
 
-    internal val showToolbarTitle = MutableStateFlow<String>("")
+    internal val showToolbarTitle = MutableStateFlow("")
+
+    val navigate = MutableSharedFlow<NavigationCommand>()
+
+    fun navigateTo(navDirections: NavDirections) {
+        viewModelScope.launch {
+            navigate.emit(NavigationCommand.To(navDirections))
+        }
+    }
 
     val optionVisibility = MutableSharedFlow<Pair<Int, Boolean>>()
 

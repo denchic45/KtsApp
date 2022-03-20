@@ -2,7 +2,6 @@ package com.denchic45.kts.data.repository
 
 import android.content.Context
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
@@ -43,15 +42,20 @@ open class UserRepository @Inject constructor(
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarStorage: StorageReference = storage.reference.child("avatars")
 
-    fun getByGroupId(groupId: String): Flow<List<User>> {
+    fun findByGroupId(groupId: String): Flow<List<User>> {
         return userDao.observeByGroupId(groupId).map { userMapper.entityToDomain(it) }
     }
 
-    private fun loadUserPreference(user: User) {
+    fun observeHasGroup(): Flow<Boolean> {
+        return userPreference.observeValue(UserPreference.GROUP_ID, "")
+            .map(String::isNotEmpty)
+    }
+
+    private fun saveUserPreference(user: User) {
         userPreference.id = user.id
         userPreference.firstName = user.firstName
         userPreference.patronymic = user.patronymic ?: ""
-        userPreference.setSurname(user.surname)
+        userPreference.surName = user.surname
         userPreference.role = user.role
         userPreference.gender = user.gender
         userPreference.photoUrl = user.photoUrl
@@ -60,7 +64,7 @@ open class UserRepository @Inject constructor(
         userPreference.isAdmin = user.admin
         userPreference.timestamp = user.timestamp!!.time
         userPreference.isGeneratedAvatar = user.generatedAvatar
-        user.groupId?.let { groupPreference.groupId = it }
+        user.groupId?.let { userPreference.groupId = it }
     }
 
     fun findSelf(): User {
@@ -69,7 +73,12 @@ open class UserRepository @Inject constructor(
             userPreference.firstName,
             userPreference.surName,
             userPreference.patronymic,
-            groupPreference.groupId,
+            userPreference.groupId.let {
+                if (userPreference.groupId.isNotEmpty())
+                    it
+                else
+                    null
+            },
             userPreference.role,
             userPreference.phoneNum,
             userPreference.email,
@@ -89,18 +98,14 @@ open class UserRepository @Inject constructor(
     suspend fun add(user: User) {
         requireInternetConnection()
         val userDoc = userMapper.domainToDoc(user)
-        val generator = SearchKeysGenerator()
-        userDoc.searchKeys =
-            generator.generateKeys(user.fullName) { predicate: String -> predicate.length > 2 }
         usersRef.document(user.id).set(userDoc)
             .await()
     }
 
-    suspend fun update(user: UserEntity, searchKeys: List<String>) {
+    suspend fun update(user: UserEntity) {
         requireInternetConnection()
         userDao.update(user)
         val userDoc = userMapper.entityToDoc(user)
-        userDoc.searchKeys = searchKeys
         usersRef.document(user.id).set(userDoc)
             .await()
 
@@ -153,7 +158,7 @@ open class UserRepository @Inject constructor(
                 val user = documents[0].toObject(
                     User::class.java
                 )
-                loadUserPreference(user!!)
+                saveUserPreference(user!!)
             }
     }
 
@@ -169,7 +174,7 @@ open class UserRepository @Inject constructor(
                     )
                 }
                 val user = documents[0].toObject(User::class.java)!!
-                loadUserPreference(user)
+                saveUserPreference(user)
             }
 
     }
@@ -189,7 +194,7 @@ open class UserRepository @Inject constructor(
                         User::class.java
                     )!!
                     if (user.timestamp != null) {
-                        loadUserPreference(user)
+                        saveUserPreference(user)
                         trySend(user)
                     }
                 }

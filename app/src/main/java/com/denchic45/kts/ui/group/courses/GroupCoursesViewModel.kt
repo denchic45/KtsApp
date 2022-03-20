@@ -1,13 +1,17 @@
 package com.denchic45.kts.ui.group.courses
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.CourseHeader
+import com.denchic45.kts.ui.NavigationCommand
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.course.CourseFragmentDirections
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -25,7 +29,17 @@ class GroupCoursesViewModel @Inject constructor(
         )
 
     fun onCourseItemClick(position: Int) {
-
+        Log.d("lol", "onCourseItemClick: ")
+        viewModelScope.launch {
+            Log.d("lol", "onCourseItemClick emit: ")
+            navigate.emit(
+                NavigationCommand.To(
+                    CourseFragmentDirections.actionGlobalCourseFragment(
+                        courses.value[position].id
+                    )
+                )
+            )
+        }
     }
 
     fun onCourseLongItemClick(position: Int) {

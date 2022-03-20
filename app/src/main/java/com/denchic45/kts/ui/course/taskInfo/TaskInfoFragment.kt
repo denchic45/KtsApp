@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.course.taskInfo
 
-import android.app.Activity
 import android.os.Bundle
 import android.text.InputFilter
 import android.view.Gravity
@@ -34,7 +33,6 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.collect
-import java.io.File
 
 class TaskInfoFragment :
     BaseFragment<TaskInfoViewModel, FragmentTaskInfoBinding>(R.layout.fragment_task_info) {
@@ -120,7 +118,7 @@ class TaskInfoFragment :
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 viewModel.onBottomSheetStateChanged(newState)
                 if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                    binding.submissionExpanded.etText.hideKeyboard()
+                    binding.submissionExpanded.etText.closeKeyboard()
                     view.postDelayed({
                         appBarController.showToolbar()
                     }, 100)

@@ -2,10 +2,15 @@ package com.denchic45.kts.ui.adminPanel.finder
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.domain.EitherMessage
+import com.denchic45.kts.data.model.domain.ListItem
+import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.usecase.RemoveGroupUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
@@ -14,7 +19,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import java.util.function.Consumer
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -23,6 +27,7 @@ class FinderViewModel @Inject constructor(
     @Named("options_group") groupOptions: List<ListItem>,
     @Named("options_subject") subjectOptions: List<ListItem>,
     private val interactor: FinderInteractor,
+    private val removeGroupUseCase: RemoveGroupUseCase,
     private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
 
@@ -52,12 +57,12 @@ class FinderViewModel @Inject constructor(
 
     val showOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
     private val queryByName = MutableSharedFlow<String>()
-    private val onFinderItemClickActions: List<Consumer<String>> = listOf(
-        Consumer { t: String -> openProfile.setValue(t) },
-        Consumer { t: String -> openGroup.setValue(t) },
-        Consumer { t: String -> openSubject.setValue(t) },
-        Consumer { t: String -> openSpecialtyEditor.setValue(t) },
-        Consumer { t: String -> openCourse.setValue(t) })
+    private val onFinderItemClickActions: List<(String) -> Unit> = listOf(
+        { openProfile.setValue(it) },
+        { openGroup.setValue(it) },
+        { openSubject.setValue(it) },
+        { openSpecialtyEditor.setValue(it) },
+        { navigateTo(MobileNavigationDirections.actionGlobalCourseFragment(it)) })
     private val queryTexts = mutableListOf<String?>(null, null, null, null, null)
     private val startEmptyList: List<DomainModel> = emptyList()
     private val foundEntities = mutableListOf(
@@ -108,7 +113,7 @@ class FinderViewModel @Inject constructor(
 
     fun onFinderItemClick(position: Int) {
         val item = foundEntities[currentSelectedEntity.value!!][position]
-        onFinderItemClickActions[currentSelectedEntity.value!!].accept(item.id)
+        onFinderItemClickActions[currentSelectedEntity.value!!](item.id)
     }
 
     fun onFinderItemLongClick(position: Int) {
@@ -130,27 +135,27 @@ class FinderViewModel @Inject constructor(
             ListItem(
                 id = "ITEM_FIND_USER",
                 title = "Пользователи",
-                icon = EitherResource.Id(R.drawable.ic_user)
+                icon = EitherMessage.Id(R.drawable.ic_user)
             ),
             ListItem(
                 id = "ITEM_FIND_GROUP",
                 title = "Группы",
-                icon = EitherResource.Id(R.drawable.ic_group)
+                icon = EitherMessage.Id(R.drawable.ic_group)
             ),
             ListItem(
                 id = "ITEM_FIND_SUBJECT",
                 title = "Предметы",
-                icon = EitherResource.Id(R.drawable.ic_subject)
+                icon = EitherMessage.Id(R.drawable.ic_subject)
             ),
             ListItem(
                 id = "ITEM_FIND_SPECIALTY",
                 title = "Специальности",
-                icon = EitherResource.Id(R.drawable.ic_specialty)
+                icon = EitherMessage.Id(R.drawable.ic_specialty)
             ),
             ListItem(
                 id = "ITEM_FIND_COURSE",
                 title = "Курсы",
-                icon = EitherResource.Id(R.drawable.ic_course)
+                icon = EitherMessage.Id(R.drawable.ic_course)
             ),
         )
         optionsList = listOf(userOptions, groupOptions, subjectOptions)
@@ -211,7 +216,7 @@ class FinderViewModel @Inject constructor(
                     if (confirmInteractor.receiveConfirm()) {
                         viewModelScope.launch {
                             try {
-                                interactor.removeGroup(selectedEntity as Group)
+                                removeGroupUseCase(selectedEntity!!.id)
                             } catch (e: Exception) {
                                 if (e is NetworkException) {
                                     showToast(R.string.error_check_network)

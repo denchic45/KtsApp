@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.course.content
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -24,23 +22,15 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 class ContentFragment :
-    BaseFragment<ContentViewModel, FragmentContentBinding>(R.layout.fragment_content) {
+    BaseFragment<ContentViewModel, FragmentContentBinding>(
+        R.layout.fragment_content,
+        R.menu.options_course_content
+    ) {
     override val viewModel: ContentViewModel by viewModels { viewModelFactory }
     override val binding: FragmentContentBinding by viewBinding(FragmentContentBinding::bind)
 
     private val appBarController by lazy {
         AppBarController.findController(requireActivity())
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.options_course_content, menu)
-        viewModel.onCreateOptions()
-        super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

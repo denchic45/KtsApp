@@ -2,12 +2,8 @@ package com.denchic45.kts.data.repository
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.asFlow
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.*
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.DomainModel
@@ -75,7 +71,7 @@ class CourseRepository @Inject constructor(
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
 
-    fun find(courseId: String): Flow<Course> {
+    fun find(courseId: String): Flow<Course?> {
         addListenerRegistration("findCourseById $courseId") {
             coursesRef.document(courseId).addSnapshotListener { value, error ->
                 coroutineScope.launch(dispatcher) {
@@ -102,8 +98,8 @@ class CourseRepository @Inject constructor(
                 }
             }
         }
-        return courseDao.get(courseId)
-            .map { courseMapper.entityToDomain2(it) }
+        return courseDao.observe(courseId)
+            .map { it?.let { courseMapper.entityToDomain2(it) } }
             .distinctUntilChanged()
     }
 
@@ -113,17 +109,22 @@ class CourseRepository @Inject constructor(
 
     private fun coursesByTeacherIdQuery(teacherId: String): Query {
         return coursesRef.whereEqualTo("teacher.id", teacherId)
-            .whereGreaterThan("timestamp", timestampPreference.lastUpdateTeacherCoursesTimestamp)
+            .whereGreaterThan(
+                "timestamp",
+                Date(timestampPreference.lastUpdateTeacherCoursesTimestamp)
+            )
     }
 
-
     suspend fun observeByYourGroup() {
-        timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
-            .filter { it != 0L }
-            .drop(if (appPreference.coursesLoadedFirstTime) 1 else 0)
-            .collect {
+        combine(
+            timestampPreference.observeValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
+                .filter { it != 0L }
+                .drop(if (appPreference.coursesLoadedFirstTime) 1 else 0),
+            groupPreference.observeValue(GroupPreference.GROUP_ID, "").filter(String::isNotEmpty)
+        ) { timestamp, groupId -> timestamp to groupId }
+            .collect { (timestamp, groupId) ->
                 appPreference.coursesLoadedFirstTime = true
-                getCoursesByGroupIdRemotely(groupPreference.groupId)
+                getCoursesByGroupIdRemotely(groupId)
             }
     }
 
@@ -154,7 +155,9 @@ class CourseRepository @Inject constructor(
                         coroutineScope.launch(dispatcher) {
                             val courseContents = courseContentMapper.docToEntity(value)
 
-                            saveCourseContentsLocal(courseContents)
+                            dataBase.withTransaction {
+                                saveCourseContentsLocal(courseContents)
+                            }
 
                             coursePreference.setTimestampContentsOfCourse(
                                 courseId,
@@ -219,7 +222,7 @@ class CourseRepository @Inject constructor(
 
     private suspend fun saveCourseOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
         saveCourses(courseDocs)
-        deleteMissingCoursesOfTeacher(courseDocs, teacherId)
+//        deleteMissingCoursesOfTeacher(courseDocs, teacherId)
     }
 
     private suspend fun deleteMissingCoursesOfTeacher(
@@ -233,7 +236,7 @@ class CourseRepository @Inject constructor(
 
     private suspend fun saveCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
         saveCourses(courseDocs)
-        deleteMissingCoursesOfGroup(courseDocs, groupId)
+//        deleteMissingCoursesOfGroup(courseDocs, groupId)
     }
 
     private suspend fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
@@ -246,16 +249,18 @@ class CourseRepository @Inject constructor(
 
     fun findByGroupId(groupId: String): Flow<List<CourseHeader>> {
         if (groupId != groupPreference.groupId)
-            getCoursesByGroupIdRemotely(groupId)
-        return courseDao.observeCoursesByGroupId(groupId).asFlow()
+            coroutineScope.launch {
+                dataBase.withTransaction {
+                    getCoursesByGroupIdRemotely(groupId)
+                }
+            }
+        return courseDao.observeCoursesByGroupId(groupId)
             .map { courseMapper.entityToDomainHeaders(it) }
     }
 
-    private fun getCoursesByGroupIdRemotely(groupId: String) {
-        coroutineScope.launch(dispatcher) {
-            coursesByGroupIdQuery(groupId).get().await().let {
-                saveCoursesOfGroup(it.toObjects(CourseDoc::class.java), groupId)
-            }
+    private suspend fun getCoursesByGroupIdRemotely(groupId: String) {
+        coursesByGroupIdQuery(groupId).get().await().let {
+            saveCoursesOfGroup(it.toObjects(CourseDoc::class.java), groupId)
         }
     }
 
@@ -263,23 +268,39 @@ class CourseRepository @Inject constructor(
         coursesByTeacherIdQuery(teacherId).addSnapshotListener { value, error ->
             coroutineScope.launch {
                 value?.let { value ->
-                    if (!value.isEmpty)
+                    Log.d(
+                        "lol", "getCoursesByTeacherRemotely size: ${value.size()} id: $teacherId " +
+                                "timestap: ${timestampPreference.lastUpdateTeacherCoursesTimestamp}"
+                    )
+                    if (!value.isEmpty) {
+                        Log.d("lol", "getCoursesByTeacherRemotely not empty ")
                         value.toObjects(CourseDoc::class.java).apply {
                             timestampPreference.lastUpdateTeacherCoursesTimestamp =
-                                this.maxOf { it.timestamp!!.time }
-                            saveCourseOfTeacher(this, teacherId)
+                                this.maxOf {
+                                    Log.d(
+                                        "lol",
+                                        "getCoursesByTeacherRemotely timestamp: ${it.name} ${it.timestamp}"
+                                    )
+                                    it.timestamp!!.time
+                                }
+                            Log.d("lol", "savingCourse: $this")
+                            dataBase.withTransaction {
+                                saveCourseOfTeacher(this, teacherId)
+                            }
                         }
-                }
+                    }
+                } ?: error?.printStackTrace()
             }
         }
     }
 
-    fun findByYourGroup(): LiveData<List<CourseHeader>> {
-        return Transformations.map(
-            courseDao.observeCoursesByGroupId(groupPreference.groupId)
-        ) { entity ->
-            courseMapper.entityToDomainHeaders(entity)
-        }
+    fun findByYourGroup(): Flow<List<CourseHeader>> {
+        return groupPreference.observeGroupId
+            .filter(String::isNotEmpty)
+            .flatMapLatest { courseDao.observeCoursesByGroupId(it) }
+            .map { entity ->
+                courseMapper.entityToDomainHeaders(entity)
+            }
     }
 
     suspend fun add(course: Course) {
@@ -287,25 +308,36 @@ class CourseRepository @Inject constructor(
         val courseDoc = courseMapper.domainToDoc(course)
         val batch = firestore.batch()
         batch.set(coursesRef.document(courseDoc.id), courseDoc)
-        coroutineScope.launch(dispatcher) { batch.commit().await() }
+        batch.commit().await()
     }
 
     suspend fun update(course: Course) {
         requireInternetConnection()
-        coroutineScope.launch(dispatcher) {
-            val batch = firestore.batch()
-            val courseDoc = courseMapper.domainToDoc(course)
+        val batch = firestore.batch()
+        val courseDoc = courseMapper.domainToDoc(course)
 
-            val oldCourse = courseMapper.entityToDomain2(courseDao.getSync(course.id))
-            val oldCourseDoc = courseMapper.domainToDoc(oldCourse)
+        val oldCourse = courseMapper.entityToDomain2(courseDao.get(course.id))
+        val oldCourseDoc = courseMapper.domainToDoc(oldCourse)
 
+        (oldCourseDoc.groupIds + courseDoc.groupIds).forEach { groupId ->
             batch.update(
-                coursesRef.document(courseDoc.id),
-                FieldsComparator.mapOfDifference(oldCourseDoc, courseDoc)
+                groupsRef.document(groupId),
+                "timestamp",
+                FieldValue.serverTimestamp()
             )
 
-            coroutineScope.launch(dispatcher) { batch.commit().await() }
+            batch.update(
+                groupsRef.document(groupId),
+                "timestampCourses",
+                FieldValue.serverTimestamp()
+            )
         }
+
+        batch.update(
+            coursesRef.document(courseDoc.id),
+            FieldsComparator.mapOfDifference(oldCourseDoc, courseDoc)
+        )
+        batch.commit().await()
     }
 
 
@@ -317,7 +349,11 @@ class CourseRepository @Inject constructor(
                 .whereArrayContains("searchKeys", name.lowercase())
                 .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                     val courseDocs = value!!.toObjects(CourseDoc::class.java)
-                    coroutineScope.launch(dispatcher) { saveCourses(courseDocs) }
+                    launch {
+                        dataBase.withTransaction {
+                            saveCourses(courseDocs)
+                        }
+                    }
                     trySend(
                         courseMapper.docToDomain(courseDocs)
                     )
@@ -327,9 +363,9 @@ class CourseRepository @Inject constructor(
     }
 
 
-    suspend fun removeGroupFromCourses(group: Group) {
+    suspend fun removeGroupFromCourses(groupId: String) {
         requireInternetConnection()
-        val courseDocs = coursesByGroupIdQuery(group.id)
+        val courseDocs = coursesByGroupIdQuery(groupId)
             .get()
             .await()
             .toObjects(CourseDoc::class.java)
@@ -339,7 +375,7 @@ class CourseRepository @Inject constructor(
                 coursesRef.document(courseDoc.id),
                 mapOf(
                     timestampFiledPair(),
-                    "groupIds" to FieldValue.arrayRemove(group.id)
+                    "groupIds" to FieldValue.arrayRemove(groupId)
                 )
             )
         }
@@ -655,9 +691,11 @@ class CourseRepository @Inject constructor(
             .addSnapshotListener { value, error ->
                 coroutineScope.launch {
                     value?.let {
-                        saveCourseContentsLocal(
-                            courseContentMapper.docToEntity(it)
-                        )
+                        dataBase.withTransaction {
+                            saveCourseContentsLocal(
+                                courseContentMapper.docToEntity(it)
+                            )
+                        }
                     }
                 }
 
@@ -732,7 +770,7 @@ interface RemoveCourseOperation : RequireUpdateData {
         val batch = firestore.batch()
         batch.delete(coursesRef.document(courseId))
         coursesRef.document(courseId).collection("Contents").deleteCollection(10)
-        coroutineScope.launch(dispatcher) { batch.commit().await() }
+        batch.commit().await()
     }
 }
 
@@ -761,6 +799,10 @@ interface SaveCourseOperation {
         }
         userDao.upsert(teacherEntities)
         subjectDao.upsert(subjectEntities)
+        Log.d("lol", "saveCourses subjects: $")
+        subjectEntities.forEach {
+            Log.d("lol", "subject: ${it.name}")
+        }
         courseDao.upsert(courseEntities)
 
         sectionDao.upsert(courseDocs.flatMap {

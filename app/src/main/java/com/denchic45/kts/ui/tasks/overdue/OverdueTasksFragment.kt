@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.tasks.overdue
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -15,20 +13,13 @@ import com.denchic45.widget.extendedAdapter.adapter
 import kotlinx.coroutines.flow.collect
 
 class OverdueTasksFragment :
-    BaseFragment<OverdueTasksViewModel, FragmentListBinding>(R.layout.fragment_list) {
+    BaseFragment<OverdueTasksViewModel, FragmentListBinding>(
+        R.layout.fragment_list,
+        R.menu.options_course_content
+    ) {
     override val viewModel: OverdueTasksViewModel by viewModels { viewModelFactory }
     override val binding: FragmentListBinding by viewBinding(FragmentListBinding::bind)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.options_course_content, menu)
-        viewModel.onCreateOptions()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

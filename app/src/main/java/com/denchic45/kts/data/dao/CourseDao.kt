@@ -17,13 +17,13 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     abstract fun clearByGroupId(groupId: String)
 
     @Query("SELECT * FROM course WHERE course_id =:id")
-    abstract fun get(id: String): Flow<CourseWithSubjectWithTeacherAndGroupsEntities>
+    abstract fun observe(id: String): Flow<CourseWithSubjectWithTeacherAndGroupsEntities?>
 
     @Query("SELECT * FROM course WHERE course_id =:id")
-    abstract fun getSync(id: String): CourseWithSubjectWithTeacherAndGroupsEntities
+    abstract suspend fun get(id: String): CourseWithSubjectWithTeacherAndGroupsEntities
 
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
-    abstract fun observeCoursesByGroupId(groupId: String): LiveData<List<CourseWithSubjectAndTeacherEntities>>
+    abstract fun observeCoursesByGroupId(groupId: String): Flow<List<CourseWithSubjectAndTeacherEntities>>
 
     @Query("SELECT gc.course_id FROM group_course gc WHERE gc.group_id =:groupId")
     abstract fun getCourseIdsByGroupId(groupId: String): Flow<List<String>>

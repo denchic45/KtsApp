@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.simpleEventE
 import androidx.lifecycle.MutableLiveData
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.EitherResource
+import com.denchic45.kts.data.model.domain.EitherMessage
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.SimpleEventDetails
 import com.denchic45.kts.data.model.room.EventEntity
@@ -37,10 +37,10 @@ class SimpleEventEditorViewModel @Inject constructor(
         return events
             .map { eventDetails: SimpleEventDetails ->
                 ListItem(
-                    title = eventDetails.name, color = EitherResource.String(eventDetails.color),
-                    icon = EitherResource.String(eventDetails.iconUrl),
+                    title = eventDetails.name, color = EitherMessage.String(eventDetails.color),
+                    icon = EitherMessage.String(eventDetails.iconUrl),
                 )
-            } + ListItem(title = "Создать", icon = EitherResource.Id(R.drawable.ic_add))
+            } + ListItem(title = "Создать", icon = EitherMessage.Id(R.drawable.ic_add))
     }
 
     fun onEventSelect(position: Int) {

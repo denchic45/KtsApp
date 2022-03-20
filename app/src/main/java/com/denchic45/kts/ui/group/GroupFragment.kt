@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.group
 import android.content.Context
 import android.os.Bundle
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
@@ -22,25 +21,18 @@ import com.denchic45.kts.ui.timetable.TimetableFragment
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
-class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(R.layout.fragment_group) {
+class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(
+    R.layout.fragment_group,
+    R.menu.options_group
+) {
 
     override val binding: FragmentGroupBinding by viewBinding(FragmentGroupBinding::bind)
     override val viewModel: GroupViewModel by viewModels { viewModelFactory }
     private lateinit var appBarController: AppBarController
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         viewModel.onPrepareOptions(binding.vp.currentItem)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.options_group, menu)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -4,13 +4,12 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.navArgs
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -21,6 +20,7 @@ import com.canhub.cropper.options
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentProfileBinding
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.HasNavArgs
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
@@ -29,7 +29,12 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 
 class ProfileFragment :
-    BaseFragment<ProfileViewModel, FragmentProfileBinding>(R.layout.fragment_profile) {
+    BaseFragment<ProfileViewModel, FragmentProfileBinding>(
+        R.layout.fragment_profile,
+        R.menu.options_profile
+    ), HasNavArgs<ProfileFragmentArgs> {
+
+    override val navArgs: ProfileFragmentArgs by navArgs()
 
     override val binding: FragmentProfileBinding by viewBinding(FragmentProfileBinding::bind)
     override val viewModel: ProfileViewModel by viewModels { viewModelFactory }
@@ -70,17 +75,6 @@ class ProfileFragment :
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream)
         return stream.toByteArray()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        viewModel.onCreateOptions()
-        inflater.inflate(R.menu.options_profile, menu)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

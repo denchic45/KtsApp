@@ -12,7 +12,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.main.MainActivity
 import com.denchic45.kts.utils.findFragmentContainerNavController
-import com.denchic45.kts.utils.hideKeyboard
+import com.denchic45.kts.utils.closeKeyboard
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.richpath.RichPath
 import com.richpath.RichPathView
@@ -60,7 +60,7 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
         }
         viewModel.backToFragment.observe(this) {
             super.onBackPressed()
-            currentFocus?.hideKeyboard()
+            currentFocus?.closeKeyboard()
         }
         viewModel.fabVisibility.observe(
             this
