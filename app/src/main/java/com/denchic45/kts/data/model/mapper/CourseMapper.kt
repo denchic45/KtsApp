@@ -18,6 +18,8 @@ abstract class CourseMapper {
 
     abstract fun docToDomain(docs: List<CourseDoc>): List<CourseHeader>
 
+    abstract fun docToDomain2(docs: List<CourseDoc>): List<CourseHeader>
+
     @Named("groupWithCuratorAndSpecialtyEntityToCourseGroup")
     @Mapping(source = "entities.groupEntity", target = ".")
     abstract fun groupWithCuratorAndSpecialtyEntityToCourseGroup(entities: GroupWithCuratorAndSpecialtyEntity): CourseGroup

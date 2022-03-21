@@ -131,7 +131,7 @@ class SubjectRepository @Inject constructor(
                     Subject::class.java
                 )
                 trySend(subjects)
-                coroutineScope.launch(dispatcher) {
+                launch(dispatcher) {
                     subjectDao.upsert(subjectMapper.domainToEntity(subjects))
                 }
             }

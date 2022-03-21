@@ -148,21 +148,45 @@ data class EventsOfDay(
     }
 
     private fun removeRedundantEmptyEvents(events: List<Event>): List<Event> {
+        if (events.isEmpty()) return events
         val updatedEvents: MutableList<Event> = events.toMutableList()
-        if (updatedEvents.isEmpty()) return events
-        val emptyEvents: MutableList<Event> = ArrayList()
-        val firstEvent = updatedEvents[0]
-        if (firstEvent.order == 0 && firstEvent.isEmpty) {
-            emptyEvents.add(firstEvent)
+
+        while (true) {
+            if (updatedEvents.last().isEmpty) {
+                updatedEvents.removeLast()
+                if (updatedEvents.isEmpty())
+                    break
+            } else {
+                break
+            }
         }
-        var i = updatedEvents.size
-        while (i-- > 0) {
-            val event = updatedEvents[i]
-            if (updatedEvents.isEmpty()) {
-                updatedEvents.add(event)
-            } else break
+
+        if (updatedEvents.isEmpty()) return updatedEvents
+
+        while (true) {
+            if (updatedEvents.first().isEmpty) {
+                updatedEvents.removeFirst()
+                if (updatedEvents.isEmpty())
+                    break
+            } else {
+                break
+            }
         }
-        updatedEvents.removeAll(emptyEvents)
+
+//        if (updatedEvents.isEmpty()) return events
+//        val emptyEvents: MutableList<Event> = ArrayList()
+//        val firstEvent = updatedEvents[0]
+//        if (firstEvent.order == 0 && firstEvent.isEmpty) {
+//            emptyEvents.add(firstEvent)
+//        }
+//        var i = updatedEvents.size
+//        while (i-- > 0) {
+//            val event = updatedEvents[i]
+//            if (updatedEvents.isEmpty()) {
+//                updatedEvents.add(event)
+//            } else break
+//        }
+//        updatedEvents.removeAll(emptyEvents)
         return updatedEvents
     }
 

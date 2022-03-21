@@ -30,7 +30,7 @@ class TimetableParser {
     private lateinit var table: XWPFTable
     private var currentRow = 0
     private var currentDayOfWeek = 0
-    private var currentGroup: GroupCourses? = null
+    private var currentGroupCourse: GroupCourses? = null
 
     suspend fun parseDoc(
         docFile: File,
@@ -47,22 +47,22 @@ class TimetableParser {
             cellsInGroups.addAll(table.getRow(1).tableCells)
             cellsInGroups.addAll(table.getRow(2).tableCells)
 
-            val groupCourses = callbackGroupInfo(findCourseNumber())
+            val groupCoursesList = callbackGroupInfo(findCourseNumber())
 
             val cellsCount = table.getRow(1).tableCells.size
 
-            for (group in groupCourses) {
-                currentGroup = group
+            for (groupCourses in groupCoursesList) {
+                currentGroupCourse = groupCourses
                 cellOfGroupPos = cellsInGroups.indexOf(
                     getCellByGroupName(
                         cellsInGroups,
-                        group.group.name
+                        groupCourses.group.name
                     )
                 )
                 if (cellOfGroupPos == -1) continue
                 cellOfGroupPos =
                     if (cellOfGroupPos > cellsCount) cellOfGroupPos - cellsCount else cellOfGroupPos
-                groupTimetableList.add(GroupTimetable(group.group, lessonsOfGroup))
+                groupTimetableList.add(GroupTimetable(groupCourses.group, lessonsOfGroup))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -83,13 +83,11 @@ class TimetableParser {
         tableCells: List<XWPFTableCell>,
         groupName: String
     ): XWPFTableCell? {
-        return tableCells.stream()
-            .filter { cell: XWPFTableCell ->
+        return tableCells
+            .find { cell: XWPFTableCell ->
                 val text = cell.text
-                resetFormatting(text).contains(resetFormatting(groupName))
+                text.resetFormatting().contains(groupName.resetFormatting())
             }
-            .findAny()
-            .orElse(null)
     }
 
     private val lessonsOfGroup: List<EventsOfDay>
@@ -134,12 +132,12 @@ class TimetableParser {
     У урока нет порядкового номера! 
     Дата: $dateText
     Поле урока: $subjectAndRoomText
-    Группа: ${currentGroup!!.group.name}
+    Группа: ${currentGroupCourse!!.group.name}
     """.trimIndent()
                 )
             }
         }
-        return EventsOfDay(date,events)
+        return EventsOfDay(date, events)
     }
 
     private fun hasRowsOfCurrentDate(): Boolean {
@@ -154,7 +152,7 @@ class TimetableParser {
     private fun createEvent(order: Int, subjectAndRoom: String, date: LocalDate): Event {
         var subjectAndRoom = subjectAndRoom
         if (subjectAndRoom.isEmpty()) {
-            return empty(group = currentGroup!!.group, order = order, date = date)
+            return empty(group = currentGroupCourse!!.group, order = order, date = date)
         }
         val separatorSubjectRoomPos = subjectAndRoom.indexOf('\\')
         val eventName: String
@@ -167,11 +165,10 @@ class TimetableParser {
             eventName = subjectAndRoom
             room = ""
         }
-        val subjectByName = findSubjectByName(eventName)
-        return if (subjectByName.isPresent) {
-            val subject = subjectByName.get()
+        val subject = findSubjectByName(eventName)
+        return if (subject != null) {
             Event(
-                group = currentGroup!!.group,
+                group = currentGroupCourse!!.group,
                 order = order,
                 date = date,
                 room = room,
@@ -179,7 +176,7 @@ class TimetableParser {
             )
         } else {
             Event(
-                group = currentGroup!!.group,
+                group = currentGroupCourse!!.group,
                 order = order,
                 date = date,
                 room = room,
@@ -188,16 +185,13 @@ class TimetableParser {
         }
     }
 
-    private fun findSubjectByName(subjectName: String): Optional<Subject> {
-        return currentGroup!!.courses
-            .stream()
-            .filter { course: Course ->
-                resetFormatting(course.subject.name).contains(
-                    resetFormatting(subjectName)
+    private fun findSubjectByName(subjectName: String): Subject? {
+        return currentGroupCourse!!.courses
+            .firstOrNull { course ->
+                course.subject.name.resetFormatting().contains(
+                    subjectName.resetFormatting()
                 )
-            }
-            .findFirst()
-            .map { it.subject }
+            }?.subject
     }
 
     private fun createEventDetails(eventName: String): EventDetails {
@@ -209,18 +203,19 @@ class TimetableParser {
     }
 
     private fun findTeachersBySubject(subject: Subject): List<User> {
-        return currentGroup!!.courses.stream()
+        return currentGroupCourse!!.courses.stream()
             .filter { it.subject == subject }
             .map { it.teacher }
             .collect(Collectors.toList())
     }
 
-    private fun resetFormatting(s: String): String {
-        return s.replace(" ", "")
+    private fun String.resetFormatting(): String {
+        return replace(" ", "")
             .replace("-", "")
             .replace("–", "")
             .lowercase(Locale.getDefault())
     }
+
 
     open class TimetableParserException(message: String?) : Exception(message)
     class TimetableInvalidDateException(message: String?) : TimetableParserException(message)

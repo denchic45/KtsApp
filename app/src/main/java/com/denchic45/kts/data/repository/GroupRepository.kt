@@ -7,17 +7,12 @@ import com.denchic45.appVersion.AppVersionService
 import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.dao.CourseDao
-import com.denchic45.kts.data.dao.GroupDao
-import com.denchic45.kts.data.dao.SpecialtyDao
-import com.denchic45.kts.data.dao.UserDao
+import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
+import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.mapper.CourseMapper
-import com.denchic45.kts.data.model.mapper.GroupMapper
-import com.denchic45.kts.data.model.mapper.SpecialtyMapper
-import com.denchic45.kts.data.model.mapper.UserMapper
+import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
@@ -39,7 +34,7 @@ class GroupRepository @Inject constructor(
     override val appVersionService: AppVersionService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
-    private val courseDao: CourseDao,
+    override val courseDao: CourseDao,
     override val userDao: UserDao,
     override val groupDao: GroupDao,
     override val specialtyDao: SpecialtyDao,
@@ -49,11 +44,16 @@ class GroupRepository @Inject constructor(
     private val userPreference: UserPreference,
     override val userMapper: UserMapper,
     override val groupMapper: GroupMapper,
-    private val courseMapper: CourseMapper,
+    override val courseMapper: CourseMapper,
     override val specialtyMapper: SpecialtyMapper,
+    override val sectionMapper: SectionMapper,
+    override val subjectMapper: SubjectMapper,
+    override val groupCourseDao: GroupCourseDao,
+    override val sectionDao: SectionDao,
+    override val subjectDao: SubjectDao,
     private val firestore: FirebaseFirestore,
     override val dataBase: DataBase
-) : Repository(context), SaveGroupOperation {
+) : Repository(context), SaveGroupOperation, SaveCourseOperation {
 
     private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -230,7 +230,7 @@ class GroupRepository @Inject constructor(
                 if (error != null) {
                     Log.d("lol", "onError: ", error)
                 }
-                coroutineScope.launch(dispatcher) {
+                launch(dispatcher) {
                     snapshots?.let {
                         if (timestampsNotNull(snapshots)) {
                             val groupDocs = snapshots.toObjects(GroupDoc::class.java)
@@ -320,18 +320,28 @@ class GroupRepository @Inject constructor(
     }
 
     suspend fun findGroupsWithCoursesByCourse(course: Int): List<GroupCourses> {
-        val snapshots = groupsRef
+        val groupDocs = groupsRef
             .whereEqualTo("course", course)
             .get()
             .await()
+            .toObjects(GroupDoc::class.java)
 
-        val groupDocs = snapshots.toObjects(GroupDoc::class.java)
+        val courseDocs = coursesRef
+            .whereArrayContainsAny("groupIds", groupDocs.map { it.id })
+            .get()
+            .await()
+            .toObjects(CourseDoc::class.java)
+
+        dataBase.withTransaction {
+            saveGroups(groupDocs)
+            saveCourses(courseDocs)
+        }
+
         val groupsInfo: List<GroupCourses> = groupDocs.map { groupDoc: GroupDoc ->
-            saveGroup(groupDoc)
             GroupCourses(
                 groupMapper.docToCourseGroupDomain(groupDoc),
-                courseMapper.entityToDomain2(
-                    courseDao.getCoursesByGroupId(groupDoc.id)
+                courseMapper.docToDomain2(
+                    courseDocs.filter { it.groupIds.contains(groupDoc.id) }
                 )
             )
         }

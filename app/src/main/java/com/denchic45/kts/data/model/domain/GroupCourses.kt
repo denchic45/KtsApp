@@ -4,6 +4,6 @@ import com.denchic45.kts.data.model.DomainModel
 
 data class GroupCourses(
     val group: CourseGroup,
-    val courses: List<Course>
+    val courses: List<CourseHeader>
 ) : DomainModel()
 

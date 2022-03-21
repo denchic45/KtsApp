@@ -19,7 +19,7 @@ class TimetableInteractor @Inject constructor(
 ) : Interactor {
 
     fun findEventsOfGroupByDate(date: LocalDate, groupId: String): Flow<EventsOfDay> {
-        return eventRepository.findEventsOfDayByYourGroupAndDate(date, groupId)
+        return eventRepository.findEventsOfDayByGroupIdAndDate(groupId, date)
     }
 
     fun findEventsForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {
@@ -37,7 +37,8 @@ class TimetableInteractor @Inject constructor(
 
     fun yourGroupId(): String = groupPreference.groupId
 
-    fun observeYourGroupId() = groupPreference.observeValue(GroupPreference.GROUP_ID,"").filter(String::isNotEmpty)
+    fun observeYourGroupId() =
+        groupPreference.observeValue(GroupPreference.GROUP_ID, "").filter(String::isNotEmpty)
 
     val role: String
         get() = userPreference.role

@@ -64,7 +64,7 @@ class SpecialtyRepository @Inject constructor(
                     val specialties = value!!.toObjects(
                         Specialty::class.java
                     )
-                    coroutineScope.launch(dispatcher) {
+                    launch {
                         specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
                         trySend(specialties)
                     }

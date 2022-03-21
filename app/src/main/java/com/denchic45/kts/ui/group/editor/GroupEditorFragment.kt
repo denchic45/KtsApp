@@ -49,7 +49,6 @@ class GroupEditorFragment :
                 setOnClickListener { viewModel.onFabClick() }
             }
 
-
             rlCurator.setOnClickListener { viewModel.onCuratorClick() }
             curatorHeader.text = "Куратор"
             etSpecialty.textChanges()
