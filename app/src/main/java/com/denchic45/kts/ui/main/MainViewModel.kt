@@ -69,7 +69,8 @@ class MainViewModel @Inject constructor(
 
     enum class ToolbarNavigationState { NONE, MENU, BACK }
 
-    val userInfo = interactor.observeThisUser().filterNotNull().stateIn(viewModelScope, SharingStarted.Lazily,User.createEmpty())
+    val userInfo = interactor.observeThisUser().filterNotNull()
+        .stateIn(viewModelScope, SharingStarted.Lazily, User.createEmpty())
 
     private val uiPermissions: UiPermissions
 
@@ -95,7 +96,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onProfileClick() {
-        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(userInfo.value!!.id))
+        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(userInfo.value.id))
     }
 
     fun onNavItemClick(position: Int) {
@@ -273,7 +274,7 @@ class MainViewModel @Inject constructor(
 
             init {
                 with(mainTextItems) {
-                    if (user.isTeacher || user.isStudent)
+                    if (user.isStudent)
                         mainTextItems.add(
                             NavTextItem(
                                 EitherMessage.Id(R.string.nav_tasks),

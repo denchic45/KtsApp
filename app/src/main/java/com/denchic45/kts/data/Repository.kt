@@ -2,6 +2,7 @@ package com.denchic45.kts.data
 
 import android.content.Context
 import com.denchic45.appVersion.AppVersionService
+import com.denchic45.kts.BuildConfig
 import com.denchic45.kts.data.Repository.Subscription
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.OldVersionException
@@ -133,7 +134,7 @@ interface RequireUpdateData {
 
     fun requireInternetConnection() {
         if (isNetworkNotAvailable) throw NetworkException()
-        if (isGoogleServicesAvailable())
+        if (!BuildConfig.DEBUG)
             if (appVersionService.isOldCurrentVersion()) throw OldVersionException()
     }
 }

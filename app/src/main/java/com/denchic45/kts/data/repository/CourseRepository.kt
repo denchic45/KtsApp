@@ -235,15 +235,8 @@ class CourseRepository @Inject constructor(
     }
 
     private suspend fun saveCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
-        saveCourses(courseDocs)
-//        deleteMissingCoursesOfGroup(courseDocs, groupId)
-    }
 
-    private suspend fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
-        groupCourseDao.deleteMissingByGroup(courseDocs.map(CourseDoc::id), groupId)
-        courseDao.deleteUnrelatedByGroup()
-        subjectDao.deleteUnrelatedByCourse()
-        userDao.deleteUnrelatedTeachersByCourseOrGroupAsCurator()
+        saveCourses(courseDocs)
     }
 
 
@@ -787,28 +780,35 @@ interface SaveCourseOperation {
     val sectionDao: SectionDao
     val groupCourseDao: GroupCourseDao
 
+    private suspend fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>) {
+        courseDocs.forEach { groupCourseDao.deleteByCourse(it.id) }
+//        groupCourseDao.deleteMissingByGroup(courseDocs.map(CourseDoc::id), groupId)
+//        courseDao.deleteUnrelatedByGroup()
+        subjectDao.deleteUnrelatedByCourse()
+        userDao.deleteUnrelatedTeachersByCourseOrGroupAsCurator()
+    }
 
     suspend fun saveCourses(courseDocs: List<CourseDoc>) {
-        val courseEntities = courseMapper.docToEntity(courseDocs)
-        val teacherEntities = courseDocs.map { userMapper.docToEntity(it.teacher) }
-        val subjectEntities = courseDocs.map { subjectMapper.docToEntity(it.subject) }
-        val groupWithCourseEntities = courseDocs.flatMap { courseDoc ->
-            courseDoc.groupIds
-                .filter { groupDao.isExistSync(it) }
-                .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
-        }
-        userDao.upsert(teacherEntities)
-        subjectDao.upsert(subjectEntities)
-        Log.d("lol", "saveCourses subjects: $")
-        subjectEntities.forEach {
-            Log.d("lol", "subject: ${it.name}")
-        }
-        courseDao.upsert(courseEntities)
+        deleteMissingCoursesOfGroup(courseDocs)
+
+        userDao.upsert(courseDocs.map { userMapper.docToEntity(it.teacher) })
+
+        subjectDao.upsert(courseDocs.map { subjectMapper.docToEntity(it.subject) })
+
+        courseDao.upsert(courseMapper.docToEntity(courseDocs))
 
         sectionDao.upsert(courseDocs.flatMap {
             sectionMapper.docToEntity(it.sections ?: emptyList())
         })
+
         sectionDao.deleteMissing(courseDocs.flatMap { it.sections ?: emptyList() }.map { it.id })
-        groupCourseDao.upsert(groupWithCourseEntities)
+
+        groupCourseDao.upsert(
+            courseDocs.flatMap { courseDoc ->
+                courseDoc.groupIds
+                    .filter { groupDao.isExistSync(it) }
+                    .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
+            }
+        )
     }
 }

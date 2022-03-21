@@ -8,6 +8,7 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.android.play.core.tasks.Tasks
 import java.io.Closeable
 import java.lang.ref.WeakReference
 import javax.inject.Inject
@@ -55,7 +56,7 @@ class GoogleAppVersionService @Inject constructor(
     }
 
     override val latestVersion: Int
-        get() = info.result.availableVersionCode()
+        get() = Tasks.await(info).availableVersionCode()
 
     companion object {
         const val UPDATE_REQUEST_CODE = 1

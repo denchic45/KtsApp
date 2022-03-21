@@ -26,5 +26,7 @@ import com.denchic45.kts.data.model.EntityModel
 )
 class GroupCourseCrossRef(
     @field:ColumnInfo(index = true, name = "group_id")
-    val groupId: String, @field:ColumnInfo(index = true, name = "course_id") val courseId: String
+    val groupId: String,
+    @field:ColumnInfo(index = true, name = "course_id")
+    val courseId: String
 ) : EntityModel

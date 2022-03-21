@@ -1,6 +1,5 @@
 package com.denchic45.kts.data.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
@@ -8,7 +7,6 @@ import com.denchic45.kts.data.model.room.CourseEntity
 import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacherEntities
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroupsEntities
 import kotlinx.coroutines.flow.Flow
-import java.util.stream.Collectors
 
 @Dao
 abstract class CourseDao : BaseDao<CourseEntity>() {
@@ -52,20 +50,17 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
         teacherIds: List<String>,
         groupId: String
     ): List<String> {
-        return teacherIds.stream()
+        return teacherIds
             .filter { teacherId: String -> !hasRelatedTeacherToGroup(teacherId, groupId) }
-            .collect(Collectors.toList())
     }
 
     @Transaction
     open fun getNotRelatedSubjectIdsToGroup(
         subjectIds: List<String>,
         groupId: String
-    ): List<String> {
-        return subjectIds.stream()
-            .filter { subjectId: String -> !hasRelatedSubjectToGroup(subjectId, groupId) }
-            .collect(Collectors.toList())
-    }
+    ): List<String> = subjectIds
+        .filter { subjectId -> !hasRelatedSubjectToGroup(subjectId, groupId) }
+
 
     @Query("DELETE FROM course WHERE course_id NOT IN(SELECT c.course_id FROM course c INNER JOIN group_course gc INNER JOIN `group` g  ON c.course_id = gc.course_id AND g.group_id = gc.group_id)")
     abstract fun deleteUnrelatedByGroup()
