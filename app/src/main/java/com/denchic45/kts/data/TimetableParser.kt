@@ -62,7 +62,7 @@ class TimetableParser {
                 if (cellOfGroupPos == -1) continue
                 cellOfGroupPos =
                     if (cellOfGroupPos > cellsCount) cellOfGroupPos - cellsCount else cellOfGroupPos
-                groupTimetableList.add(GroupTimetable(groupCourses.group, lessonsOfGroup))
+                groupTimetableList.add(GroupTimetable(groupCourses.group, getLessonsOfGroup()))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -90,34 +90,37 @@ class TimetableParser {
             }
     }
 
-    private val lessonsOfGroup: List<EventsOfDay>
-        get() {
-            val weekLessons: MutableList<EventsOfDay> = ArrayList()
-            currentRow = 3
-            currentDayOfWeek = 0
-            while (!table.getRow(currentRow).getCell(0).text.contains("ПОНЕДЕЛЬНИК")) currentRow++
-            for (i in 0 until STUDY_DAY_COUNT) {
-                val dateInCell = table.getRow(currentRow).getCell(0).text
-                currentRow++
-                val date = dateInCell.substring(dateInCell.lastIndexOf(" ") + 1)
-                if (Dates.isValidDate(date, DatePatterns.DD_MM_yy)) {
-                    weekLessons.add(getEventsOfTheDay(date))
-                    currentDayOfWeek++
-                } else {
-                    throw  TimetableInvalidDateException("Некоректная дата: $dateInCell")
-                }
+    private fun getLessonsOfGroup(): List<EventsOfDay> {
+        val weekLessons: MutableList<EventsOfDay> = ArrayList()
+        currentRow = 3
+        currentDayOfWeek = 0
+        while (!table.getRow(currentRow).getCell(0).text.contains("ПОНЕДЕЛЬНИК")) currentRow++
+        for (i in 0 until STUDY_DAY_COUNT) {
+            val dateInCell = table.getRow(currentRow).getCell(0).text
+            currentRow++
+            val date = dateInCell.substring(dateInCell.lastIndexOf(" ") + 1)
+            if (Dates.isValidDate(date, DatePatterns.DD_MM_yy)) {
+                weekLessons.add(getEventsOfTheDay(date))
+                currentDayOfWeek++
+            } else {
+                throw  TimetableInvalidDateException("Некоректная дата: $dateInCell")
             }
-            return weekLessons
         }
+        return weekLessons
+    }
 
     private fun getEventsOfTheDay(dateText: String): EventsOfDay {
         val date = dateText.toLocalDate(DatePatterns.DD_MM_yy)
         val events: MutableList<Event> = mutableListOf()
         if (currentRow == table.rows.size) return EventsOfDay.createEmpty(date)
         var cells = table.getRow(currentRow).tableCells
+
+
+        val startAtZero = cells[0].text == "0" && cells[cellOfGroupPos].text.isNotEmpty()
+
         while (hasRowsOfCurrentDate()) {
             val orderText = cells[0].text
-            val subjectAndRoomText = cells[cellOfGroupPos].text
+            val subjectAndRoomText: String = cells[cellOfGroupPos].text
                 .replace("\\(.*\\)".toRegex(), "")
                 .trim { it <= ' ' }
             currentRow++
@@ -125,6 +128,9 @@ class TimetableParser {
                 cells = table.getRow(currentRow).tableCells
             }
             if (orderText.isNotEmpty()) {
+                if (orderText == "0" && subjectAndRoomText.isEmpty()) {
+                    continue
+                }
                 events.add(createEvent(orderText.toInt(), subjectAndRoomText, date))
             } else if (subjectAndRoomText.isNotEmpty()) {
                 throw TimetableOrderLessonException(
@@ -137,7 +143,8 @@ class TimetableParser {
                 )
             }
         }
-        return EventsOfDay(date, events)
+
+        return EventsOfDay(date, events, startAtZero)
     }
 
     private fun hasRowsOfCurrentDate(): Boolean {

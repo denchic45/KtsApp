@@ -7,10 +7,11 @@ import java.time.LocalDate
 data class EventsOfDay(
     val date: LocalDate,
     private val startedEvents: List<Event> = mutableListOf(),
-    private val startsOfZero: Boolean = false
+    private val startsAtZero: Boolean = false
 ) {
 
-    private val _events: List<Event> = removeRedundantEmptyEvents(startedEvents.onEach { it.eventsOfDay = this })
+    private val _events: List<Event> =
+        removeRedundantEmptyEvents(startedEvents.onEach { it.eventsOfDay = this })
 
     val events: List<Event>
         get() = _events
@@ -37,95 +38,11 @@ data class EventsOfDay(
     }
 
     private val offsetIndex: Int
-        get() = if (startsOfZero) 1 else 0
-
-//    private fun decrementOrdersIfNecessary(
-//        events: List<Event>,
-//        editedEvent: Event,
-//        oldEvent: Event
-//    ): List<Event> {
-//        var updatedEvents: MutableList<Event> = events.toMutableList()
-//        val eventWithConflictedOrder = findConflictEventByOrder(updatedEvents, editedEvent)
-//        if (eventWithConflictedOrder != null) {
-//            if (!eventWithConflictedOrder.isEmpty)
-//                decrementOrders(
-//                    updatedEvents,
-//                    getIndex(updatedEvents, oldEvent),
-//                    getIndex(updatedEvents, eventWithConflictedOrder)
-//                )
-//            else {
-//                updatedEvents.remove(eventWithConflictedOrder)
-//            }
-//        } else {
-//            updatedEvents =
-//                decrementOrders(updatedEvents, getIndex(updatedEvents, oldEvent)).toMutableList()
-//        }
-//        return updatedEvents
-//    }
-//
-//    private fun findById(id: String): Event {
-//        return startedEvents.first { event: Event -> event.id == id }
-//    }
-//
-//    private fun addEmptyEventsIfNecessary(
-//        events: List<Event>,
-//        editedEvent: Event
-//    ): List<Event> {
-//        val updatedEvents: MutableList<Event> = events.toMutableList()
-//        if (updatedEvents.size < editedEvent.order - 1) {
-//            for (i in updatedEvents.size until editedEvent.order - 1) {
-//                val updatedOrder =
-//                    if (updatedEvents.isNotEmpty()) updatedEvents.last().order + 1 else 1
-//                updatedEvents.add(
-//                    Event.createEmpty(
-//                        group = editedEvent.group,
-//                        order = updatedOrder,
-//                        date = editedEvent.date
-//                    )
-//                )
-//            }
-//        }
-//        return updatedEvents
-//    }
-//
-//    private fun incrementOrdersIfNecessary(
-//        events: List<Event>,
-//        editedEvent: Event
-//    ): List<Event> {
-//        val updatedEvents: MutableList<Event> = events.toMutableList()
-//        val eventWithConflictedOrder = findConflictEventByOrder(updatedEvents, editedEvent)
-//        if (eventWithConflictedOrder != null) {
-//            if (!eventWithConflictedOrder.isEmpty)
-//                incrementOrders(updatedEvents, eventWithConflictedOrder.order - 1)
-//            else {
-//                updatedEvents.remove(eventWithConflictedOrder)
-//            }
-//        }
-//        return updatedEvents
-//    }
+        get() = if (startsAtZero) 0 else 1
 
     fun swap(oldIndex: Int, newIndex: Int): EventsOfDay {
         return copy(startedEvents = events.swap(oldIndex, newIndex))
     }
-
-//    private fun getIndex(events: List<Event>, event: Event): Int {
-//        return if (event.order > 0) event.order - 1 else 0 + if (events.first().order == 0) 1 else 0
-//    }
-//
-//    private fun findConflictEventByOrder(events: List<Event>, editedEvent: Event): Event? {
-//        return events.stream()
-//            .filter { event: Event -> editedEvent.order == event.order }
-//            .findFirst()
-//            .orElse(null)
-//    }
-//
-//    private fun incrementOrders(events: List<Event>, startIndex: Int): List<Event> {
-//        val updatedEvents: MutableList<Event> = events.toMutableList()
-//        for (event in updatedEvents.subList(startIndex, this.events.size)) {
-//            updatedEvents[this.events.indexOf(event)] = event.copy(order = event.order + 1)
-//        }
-//        return updatedEvents
-//    }
 
     private fun removeRedundantEmptyEvents(events: List<Event>): List<Event> {
         if (events.isEmpty()) return events
@@ -142,31 +59,6 @@ data class EventsOfDay(
         }
 
         if (updatedEvents.isEmpty()) return updatedEvents
-
-//        while (true) {
-//            if (updatedEvents.first().isEmpty) {
-//                updatedEvents.removeFirst()
-//                if (updatedEvents.isEmpty())
-//                    break
-//            } else {
-//                break
-//            }
-//        }
-
-//        if (updatedEvents.isEmpty()) return events
-//        val emptyEvents: MutableList<Event> = ArrayList()
-//        val firstEvent = updatedEvents[0]
-//        if (firstEvent.order == 0 && firstEvent.isEmpty) {
-//            emptyEvents.add(firstEvent)
-//        }
-//        var i = updatedEvents.size
-//        while (i-- > 0) {
-//            val event = updatedEvents[i]
-//            if (updatedEvents.isEmpty()) {
-//                updatedEvents.add(event)
-//            } else break
-//        }
-//        updatedEvents.removeAll(emptyEvents)
         return updatedEvents
     }
 
