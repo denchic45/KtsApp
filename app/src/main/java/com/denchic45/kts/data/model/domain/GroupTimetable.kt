@@ -3,8 +3,8 @@ package com.denchic45.kts.data.model.domain
 import java.time.LocalDate
 
 data class GroupTimetable(
-    var group: CourseGroup,
-    var weekEvents: List<EventsOfDay>
+    val group: CourseGroup,
+    val weekEvents: List<EventsOfDay>
 ) {
 
 

@@ -64,14 +64,11 @@ class SimpleEventEditorViewModel @Inject constructor(
                 Validation(Rule { showSelectedEvent.value != null })
                     .sendActionResult({
                         showErrorField.setValue(
-                            Pair(
-                                R.id.rl_event,
-                                true
-                            )
+                            R.id.rl_event to true
                         )
                     }) {
                         showErrorField.setValue(
-                            Pair(R.id.rl_event, false)
+                            R.id.rl_event to false
                         )
                     }
             ).runValidates()

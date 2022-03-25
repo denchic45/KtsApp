@@ -1,8 +1,8 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor
 
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.EventDetails
+import com.denchic45.kts.data.model.domain.EventsOfDay
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,27 +11,34 @@ import javax.inject.Singleton
 
 @Singleton
 class EventEditorInteractor @Inject constructor() {
-    private var editedEvent = Channel<Resource<Pair<Event, String>>>()
+    private var editedEventOfDay = Channel<EventsOfDay>()
+    var oldEventsOfDay: MutableStateFlow<EventsOfDay?> = MutableStateFlow(null)
     var oldEvent: MutableStateFlow<Event?> = MutableStateFlow(null)
-    var isNew = false
-        private set
+//    var isNew = false
+//        private set
     lateinit var validateEventDetails: (() -> Boolean)
 
-    fun setEditedEvent(editedEvent: Event, isNew: Boolean) {
-        this.oldEvent.value = editedEvent.copy()
-        this.isNew = isNew
+    fun setEditedEvent(eventsOfDay: EventsOfDay, event: Event) {
+        this.oldEventsOfDay.value = eventsOfDay
+        this.oldEvent.value = event
+//        this.isNew = isNew
     }
 
     lateinit var getDetails: (() -> EventDetails)
 
-    suspend fun receiveEvent(): Resource<Pair<Event, String>> {
-        return editedEvent.receive()
+    val isNew: Boolean
+    get() = !oldEvent.value!!.isAttached
+
+    suspend fun receiveEvent(): EventsOfDay {
+        return editedEventOfDay.receive()
     }
+
+    fun observeOldEventOfDay(): StateFlow<EventsOfDay?> = oldEventsOfDay
 
     fun observeOldEvent(): StateFlow<Event?> = oldEvent
 
-    suspend fun postEvent(event: Resource.Success<Pair<Event, String>>) {
-        editedEvent.send(event)
+    suspend fun postEvent(event: (EventsOfDay) -> EventsOfDay) {
+        editedEventOfDay.send(event(oldEventsOfDay.value!!))
     }
 
     companion object {

@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.*
+import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.viewModels
@@ -18,6 +18,7 @@ import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
+import com.denchic45.kts.ui.base.PrimaryActionModeCallback
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.calendar.WeekCalendarListener
@@ -37,7 +38,7 @@ class TimetableFinderFragment :
     private var popupWindow: ListPopupWindow? = null
 
     //    private var adapter: EventAdapter? = null
-    private var actionMode: ActionMode? = null
+    private var actionMode: PrimaryActionModeCallback = PrimaryActionModeCallback()
     private var popupAdapter: ListPopupWindowAdapter? = null
 
 
@@ -77,7 +78,7 @@ class TimetableFinderFragment :
             viewModel.lessonTime, false,
             onCreateLessonClickListener = { viewModel.onCreateEventItemClick() },
             onEditEventItemClickListener = { position, _ ->
-                viewModel.onLessonItemEditClick(position)
+                viewModel.onEventEditItemEditClick(position)
             },
             onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
                 itemTouchHelper.startDrag(
@@ -127,6 +128,8 @@ class TimetableFinderFragment :
                 popupWindow!!.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
             }
 
+            actionMode.onActionItemClickListener = { viewModel.onActionItemClick(it.itemId) }
+
 //            viewModel.enableEditMode.observe(viewLifecycleOwner) { allow: Boolean ->
 //                setAllowEdit(allow)
 //            }
@@ -168,37 +171,17 @@ class TimetableFinderFragment :
 
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        actionMode.finishActionMode()
+    }
+
     private fun FragmentTimetableFinderBinding.setAllowEdit(adapter: EventAdapter, allow: Boolean) {
         adapter.enableEditMode = allow
         if (allow) {
             wcv.isEnabled = false
 
-            actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
-                override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-                    mode.menuInflater.inflate(R.menu.action_timetable_editor, menu)
-                    return true
-                }
-
-                override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-                    return true
-                }
-
-                override fun onActionItemClicked(
-                    mode: ActionMode,
-                    item: MenuItem
-                ): Boolean {
-                    viewModel.onActionItemClick(item.itemId)
-                    return true
-                }
-
-                override fun onDestroyActionMode(mode: ActionMode) {
-                    viewModel.onDestroyActionMode()
-                    actionMode = null
-                    wcv.isEnabled = true
-                }
-            })
-        } else if (actionMode != null) {
-            actionMode!!.finish()
+            actionMode.startActionMode(binding.root, R.menu.action_timetable_editor)
         }
     }
 

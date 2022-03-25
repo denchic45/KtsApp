@@ -50,7 +50,6 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
                 false
             )
         tvTitleBar = toolbarEventEditor.findViewById(R.id.tv_toolbar)
-        viewModel.title.observe(requireActivity()) { s: String -> tvTitleBar.text = s }
 
         with(binding) {
             viewModel.dateField.observe(

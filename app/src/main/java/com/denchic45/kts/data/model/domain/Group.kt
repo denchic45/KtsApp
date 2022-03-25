@@ -31,12 +31,11 @@ data class Group @Default constructor(
     }
 
     companion object {
-        @JvmStatic
+
         fun createEmpty(): Group {
             return Group()
         }
 
-        @JvmStatic
         fun deleted(): Group {
             return Group("", "DELETED", 0, Specialty.createEmpty(), User.createEmpty())
         }

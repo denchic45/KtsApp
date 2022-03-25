@@ -2,7 +2,7 @@ package com.denchic45.kts.data
 
 import android.util.Log
 import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.data.model.domain.Event.Companion.empty
+import com.denchic45.kts.data.model.domain.Event.Companion.createEmpty
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.dinner
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.practice
 import com.denchic45.kts.utils.DatePatterns
@@ -152,7 +152,7 @@ class TimetableParser {
     private fun createEvent(order: Int, subjectAndRoom: String, date: LocalDate): Event {
         var subjectAndRoom = subjectAndRoom
         if (subjectAndRoom.isEmpty()) {
-            return empty(group = currentGroupCourse!!.group, order = order, date = date)
+            return createEmpty(group = currentGroupCourse!!.group, order = order, date = date)
         }
         val separatorSubjectRoomPos = subjectAndRoom.indexOf('\\')
         val eventName: String
@@ -169,7 +169,6 @@ class TimetableParser {
         return if (subject != null) {
             Event(
                 group = currentGroupCourse!!.group,
-                order = order,
                 date = date,
                 room = room,
                 details = Lesson(subject, teachers = findTeachersBySubject(subject))
@@ -177,7 +176,6 @@ class TimetableParser {
         } else {
             Event(
                 group = currentGroupCourse!!.group,
-                order = order,
                 date = date,
                 room = room,
                 details = createEventDetails(eventName)

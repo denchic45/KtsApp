@@ -57,7 +57,6 @@ class TimetableLoaderViewModel @Inject constructor(
         )
     )
 
-
     val timetables = MutableSharedFlow<List<List<List<DomainModel>>>>(replay = 1)
 
     val tabs = MutableSharedFlow<List<String>>()
@@ -224,75 +223,102 @@ class TimetableLoaderViewModel @Inject constructor(
     fun onLessonItemEditClick(eventPosition: Int, dayOfWeek: Int) {
         val event =
             groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek].events[eventPosition]
-        eventEditorInteractor.setEditedEvent(event, false)
+        eventEditorInteractor.setEditedEvent(
+            groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek],
+            event
+        )
         openEventEditor.call()
         viewModelScope.launch {
             eventEditorInteractor.receiveEvent()
-                .let { resource ->
-                    when ((resource as Resource.Success).data.second) {
-                        EventEditorInteractor.LESSON_CREATED -> {
-                            findLessonOfDay(
-                                resource.data.first,
-                                this@TimetableLoaderViewModel.positionOfCurrentTimetable
-                            )
-                                .ifPresent { eventsOfDay: EventsOfDay ->
-                                    eventsOfDay.add(resource.data.first)
-                                    postUpdateLessonsOfGroup(this@TimetableLoaderViewModel.positionOfCurrentTimetable)
-                                }
-                            updateEventOfGroup(positionOfCurrentTimetable, resource.data.first)
-                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-                        }
-                        EventEditorInteractor.LESSON_EDITED -> {
-                            updateEventOfGroup(positionOfCurrentTimetable, resource.data.first)
-                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-                        }
-                        EventEditorInteractor.LESSON_REMOVED -> {
-                            findLessonOfDay(resource.data.first, positionOfCurrentTimetable)
-                                .ifPresent { eventsOfDay: EventsOfDay ->
-                                    eventsOfDay.remove(resource.data.first)
-                                }
-                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-                        }
-                    }
+                .let { eventsOfDay ->
+                    groupsTimetables[positionOfCurrentTimetable] =
+                        groupsTimetables[positionOfCurrentTimetable]
+                            .run {
+                                copy(
+                                    weekEvents = weekEvents.toMutableList()
+                                        .apply { set(eventsOfDay.dayOfWeek, eventsOfDay) }
+                                )
+                            }
+
+                    postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+
+//                    when ((eventsOfDay as Resource.Success).data.second) {
+//                        EventEditorInteractor.LESSON_CREATED -> {
+//                            findLessonOfDay(
+//                                eventsOfDay.data.first,
+//                                this@TimetableLoaderViewModel.positionOfCurrentTimetable
+//                            )
+//                                .ifPresent { eventsOfDay: EventsOfDay ->
+//                                    eventsOfDay.add(eventsOfDay.data.first)
+//                                    postUpdateLessonsOfGroup(this@TimetableLoaderViewModel.positionOfCurrentTimetable)
+//                                }
+//                            updateEventOfGroup(positionOfCurrentTimetable, eventsOfDay.data.first)
+//                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+//                        }
+//                        EventEditorInteractor.LESSON_EDITED -> {
+//                            updateEventOfGroup(positionOfCurrentTimetable, eventsOfDay.data.first)
+//                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+//                        }
+//                        EventEditorInteractor.LESSON_REMOVED -> {
+//                            findLessonOfDay(eventsOfDay.data.first, positionOfCurrentTimetable)
+//                                .ifPresent { eventsOfDay: EventsOfDay ->
+//                                    eventsOfDay.remove(eventsOfDay.data.first)
+//                                }
+//                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+//                        }
+//                    }
                 }
         }
     }
 
-    private fun updateEventOfGroup(positionGroup: Int, editedEvent: Event) {
-        findLessonOfDay(editedEvent, positionGroup)
-            .ifPresent { eventsOfDay: EventsOfDay ->
-                eventsOfDay.events.stream()
-                    .filter { oldLesson: Event -> oldLesson.id == editedEvent.id }
-                    .findFirst()
-                    .ifPresent {
-                        eventsOfDay.update(editedEvent)
-                    }
-            }
-    }
+//    private fun updateEventOfGroup(positionGroup: Int, editedEvent: Event) {
+//        findLessonOfDay(editedEvent, positionGroup)
+//            .ifPresent { eventsOfDay: EventsOfDay ->
+//                eventsOfDay.events.stream()
+//                    .filter { oldLesson: Event -> oldLesson.id == editedEvent.id }
+//                    .findFirst()
+//                    .ifPresent {
+//                        eventsOfDay.update(
+//                            eventEditorInteractor.oldEventsOfDay.value!!.order,
+//                            editedEvent
+//                        )
+//                    }
+//            }
+//    }
 
     fun onCreateLessonItemClick(dayOfWeek: Int) {
         val eventsOfTheDay = groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek]
 
         val order = if (eventsOfTheDay.isEmpty()) 1 else eventsOfTheDay.last().order + 1
         val createdLesson =
-            Event.empty(
+            Event.createEmpty(
                 group = groups[positionOfCurrentTimetable],
                 order = order,
                 date = eventsOfTheDay.date
             )
-        eventEditorInteractor.setEditedEvent(createdLesson, true)
+        eventEditorInteractor.setEditedEvent(groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek], createdLesson)
         openEventEditor.call()
         viewModelScope.launch {
             eventEditorInteractor.receiveEvent()
-                .let { event ->
-                    if ((event as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
-                        val event1 = event.data.first
-                        findLessonOfDay(event1, positionOfCurrentTimetable)
-                            .ifPresent { eventsOfDay: EventsOfDay ->
-                                eventsOfDay.add(event1)
-                                postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+                .let { eventsOfDay ->
+                    groupsTimetables[positionOfCurrentTimetable] =
+                        groupsTimetables[positionOfCurrentTimetable]
+                            .run {
+                                copy(
+                                    weekEvents = weekEvents.toMutableList()
+                                        .apply { set(eventsOfDay.dayOfWeek, eventsOfDay) }
+                                )
                             }
-                    }
+
+                    postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+//                    if ((eventsOfDay as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
+//                        val event1 = eventsOfDay.data.first
+//                        findLessonOfDay(event1, positionOfCurrentTimetable)
+//                            .ifPresent { eventsOfDay: EventsOfDay ->
+//                                eventsOfDay.add(event1)
+//                                postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+//                            }
+//                    }
                 }
         }
     }
@@ -310,11 +336,11 @@ class TimetableLoaderViewModel @Inject constructor(
         updateEventsOfGroup.value = Pair(positionGroup, timetable)
     }
 
-    private fun findLessonOfDay(lesson: Event, positionGroup: Int): Optional<EventsOfDay> {
-        return groupsTimetables[positionGroup].weekEvents.stream()
-            .filter { eventsOfDay: EventsOfDay -> lesson.date == eventsOfDay.date }
-            .findAny()
-    }
+//    private fun findLessonOfDay(lesson: Event, positionGroup: Int): Optional<EventsOfDay> {
+//        return groupsTimetables[positionGroup].weekEvents.stream()
+//            .filter { eventsOfDay: EventsOfDay -> lesson.date == eventsOfDay.date }
+//            .findAny()
+//    }
 
     private suspend fun preferences(): List<PreferenceItem> {
         return preferences.first()

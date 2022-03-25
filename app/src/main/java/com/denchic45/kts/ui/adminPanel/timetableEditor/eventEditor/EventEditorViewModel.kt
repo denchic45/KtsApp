@@ -5,10 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.EmptyEventDetails
 import com.denchic45.kts.data.model.domain.Event
-import com.denchic45.kts.data.model.domain.Event.Companion.empty
+import com.denchic45.kts.data.model.domain.Event.Companion.createEmpty
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
-import java.util.*
 import javax.inject.Inject
 
 class EventEditorViewModel @Inject constructor(
@@ -34,7 +32,7 @@ class EventEditorViewModel @Inject constructor(
 
     val dateField = MutableLiveData<String>()
 
-    val orderField = SingleLiveData("")
+    val orderField = SingleLiveData("1")
 
     val orderEditEnable = MutableStateFlow(false)
 
@@ -43,22 +41,24 @@ class EventEditorViewModel @Inject constructor(
     val showListOfEventTypes = SingleLiveData<Pair<Array<CharSequence>, Int>>()
 
     val openDatePicker = SingleLiveData<Void>()
-
-    val title = MutableLiveData("Редактировать урок")
     private val uiValidator: UIValidator
-    private val uiEditor: UIEditor<Event> = UIEditor(interactor.isNew) {
+    private val uiEditor: UIEditor<Event> = UIEditor(!interactor.oldEvent.value!!.isAttached) {
         interactor.oldEvent.value!!.copy(
-            order = orderField.value!!.toInt(),
             room = roomField.value!!,
             details = interactor.getDetails()
         )
     }
     private val eventTypeNames = arrayOf<CharSequence>("Урок", "Другое событие", "Окно")
+
+    init {
+        toolbarTitle = "Редактировать урок"
+    }
+
     private fun fillFields() {
         viewModelScope.launch {
             interactor.observeOldEvent().collect { event ->
                 event?.let {
-                    orderEditEnable.emit(interactor.isNew)
+                    orderEditEnable.emit(!interactor.oldEvent.value!!.isAttached)
                     roomField.value = event.room
                     dateField.value = event.date.toString(DatePatterns.dd_MMMM)
                     orderField.value = event.order.toString()
@@ -72,14 +72,15 @@ class EventEditorViewModel @Inject constructor(
     }
 
     private fun saveChanges() {
-        if (uiEditor.isNew) uiEditor.item.id = UUID.randomUUID().toString()
+//        if (uiEditor.isNew) uiEditor.item.id = UUID.randomUUID().toString()
         viewModelScope.launch {
-            interactor.postEvent(
-                Resource.Success(
-                    uiEditor.item to
-                            if (uiEditor.isNew) EventEditorInteractor.LESSON_CREATED else EventEditorInteractor.LESSON_EDITED
-                )
-            )
+            interactor.postEvent {
+                if (uiEditor.isNew) {
+                    it.add(uiEditor.item)
+                } else {
+                    it.update(uiEditor.item)
+                }
+            }
             finish()
         }
     }
@@ -109,38 +110,32 @@ class EventEditorViewModel @Inject constructor(
                 viewModelScope.launch {
                     uiValidator.runValidates { saveChanges() }
                     if (uiValidator.runValidates()) {
-                        val duplicatedLesson = uiEditor.item.copy(
-                            id = UUID.randomUUID().toString(),
-                            order = uiEditor.item.order + 1
-                        )
-                        interactor.postEvent(
-                            Resource.Success(
-                                duplicatedLesson to
-                                        EventEditorInteractor.LESSON_CREATED
-                            )
-                        )
+                        interactor.postEvent {
+                            it.add(uiEditor.item, interactor.oldEvent.value!!.order)
+                        }
                     }
                     finish()
                 }
             }
             R.id.option_delete_lesson -> {
                 viewModelScope.launch {
-                    interactor.postEvent(Resource.Success(uiEditor.item to EventEditorInteractor.LESSON_REMOVED))
+                    interactor.postEvent {
+                        it.remove(uiEditor.item)
+                    }
                     finish()
                 }
             }
             R.id.option_clear_lesson -> {
                 viewModelScope.launch {
-                    interactor.postEvent(
-                        Resource.Success(
-                            empty(
-                                uiEditor.item.id,
-                                uiEditor.item.group,
-                                uiEditor.item.order,
-                                uiEditor.item.date
-                            ) to EventEditorInteractor.LESSON_EDITED
-                        )
-                    )
+                    interactor.postEvent {
+                        uiEditor.item.run {
+                            it.update(
+                                createEmpty(
+                                    id, group, order, date, details
+                                )
+                            )
+                        }
+                    }
                     finish()
                 }
             }
@@ -170,26 +165,27 @@ class EventEditorViewModel @Inject constructor(
 //            showDetailEditor.value = R.id.lessonEditorFragment
 //            return
 //        }
-        when (position) {
+        toolbarTitle = when (position) {
             0 -> {
-                title.value = "Редактировать урок"
-                showDetailEditor.setValue(R.id.eventEditorFragment)
+                showDetailEditor.value = R.id.eventEditorFragment
+                "Редактировать урок"
             }
             1 -> {
-                title.value = "Редактировать событие"
-                showDetailEditor.setValue(R.id.simpleEventEditorFragment)
+                showDetailEditor.value = R.id.simpleEventEditorFragment
+                "Редактировать событие"
             }
             2 -> {
-                title.value = "Редактировать окно"
                 showDetailEditor.value = 0
                 interactor.getDetails = { EmptyEventDetails() }
                 interactor.validateEventDetails = { true }
+                "Редактировать окно"
             }
+            else -> throw IllegalStateException()
         }
     }
 
     init {
-        uiEditor.oldItem = interactor.oldEvent.value
+        uiEditor.oldItem = interactor.oldEvent.value!!
         fillFields()
         uiValidator = UIValidator.of(
             Validation(Rule { uiEditor.item.order != -1 })
@@ -215,7 +211,7 @@ class EventEditorViewModel @Inject constructor(
                         Pair(R.id.rl_lesson_room, false)
                     )
                 },
-            Validation(Rule({ interactor.validateEventDetails() }, "qwe"))
+            Validation(Rule({ interactor.validateEventDetails() }, ""))
         )
         showDetailEditor(interactor.oldEvent.value!!.type.ordinal)
     }

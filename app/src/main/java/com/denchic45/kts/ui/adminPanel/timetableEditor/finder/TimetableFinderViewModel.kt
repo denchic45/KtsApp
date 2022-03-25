@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.ui.adapter.EventAdapter
@@ -42,15 +41,15 @@ class TimetableFinderViewModel @Inject constructor(
             EventsOfDay.createEmpty(LocalDate.now())
         )
 
-    private val _eventsOfDay1: MutableStateFlow<EventsOfDay> =
+    private val _eventsOfDay: MutableStateFlow<EventsOfDay> =
         MutableStateFlow(EventsOfDay.createEmpty(LocalDate.now()))
 
     init {
-        viewModelScope.launch { _eventsOfDay1.emitAll(_eventsOfDayFromDataSource) }
+        viewModelScope.launch { _eventsOfDay.emitAll(_eventsOfDayFromDataSource) }
     }
 
     val eventsOfDay: StateFlow<EventsOfDayState> =
-        combine(_eventsOfDay1, selectedDate, enableEditEvents)
+        combine(_eventsOfDay, selectedDate, enableEditEvents)
         { eventsOfDay, selectedDate, editing ->
             if (editing)
                 EventsOfDayState.Edit(selectedDate, eventsOfDay.events)
@@ -133,47 +132,16 @@ class TimetableFinderViewModel @Inject constructor(
         editTimetableOptionVisibility.value = selectedGroup.replayCache.isNotEmpty()
     }
 
-    fun onLessonItemEditClick(position: Int) {
-        eventEditorInteractor.setEditedEvent(eventsOfDay.value.events[position] as Event, false)
+    fun onEventEditItemEditClick(position: Int) {
+        eventEditorInteractor.setEditedEvent(
+            _eventsOfDay.value,
+            eventsOfDay.value.events[position] as Event
+        )
         openEventEditor.call()
         viewModelScope.launch {
             eventEditorInteractor.receiveEvent()
                 .let { resource ->
-//                    val updatedEventsOfDay =
-//                        EventsOfDay(selectedDate.first(), editingEvents.toMutableList())
-                    when ((resource as Resource.Success).data.second) {
-                        EventEditorInteractor.LESSON_CREATED -> {
-
-                            _eventsOfDay1.emit(
-                                _eventsOfDay1.first().add(resource.data.first)
-                            )
-
-//                            _eventsOfDayFromDataSource.value.add(resource.data.first)
-                        }
-                        EventEditorInteractor.LESSON_EDITED -> {
-
-                            _eventsOfDay1.emit(
-                                _eventsOfDay1.first().update(resource.data.first)
-                            )
-
-//                            _eventsOfDayFromDataSource.value.update(
-//                                resource.data.first
-//                            )
-                        }
-                        EventEditorInteractor.LESSON_REMOVED -> {
-
-                            _eventsOfDay1.emit(
-                                _eventsOfDay1.first().remove(resource.data.first)
-                            )
-
-//                            _eventsOfDayFromDataSource.value.remove(
-//                                resource.data.first
-//                            )
-                        }
-                        else -> throw IllegalStateException()
-                    }
-//                    editingEvents = updatedEventsOfDay.events
-//                    postUpdateLessonsOfGroup()
+                    _eventsOfDay.update { resource }
                 }
         }
     }
@@ -185,7 +153,7 @@ class TimetableFinderViewModel @Inject constructor(
             viewModelScope.launch {
                 try {
                     interactor.updateGroupLessonOfDay(
-                        _eventsOfDay1.first().events,
+                        _eventsOfDay.first().events,
                         selectedDate.first(),
                         selectedGroup.first()
                     )
@@ -211,8 +179,8 @@ class TimetableFinderViewModel @Inject constructor(
 
 
         viewModelScope.launch {
-            _eventsOfDay1.emit(
-                _eventsOfDay1.first().swap(oldPosition, targetPosition)
+            _eventsOfDay.emit(
+                _eventsOfDay.first().swap(oldPosition, targetPosition)
             )
         }
 
@@ -237,35 +205,20 @@ class TimetableFinderViewModel @Inject constructor(
     fun onCreateEventItemClick() {
         viewModelScope.launch {
             val order =
-                if (_eventsOfDay1.first().isEmpty()) 1 else _eventsOfDay1.first().last().order + 1
+                if (_eventsOfDay.first().isEmpty()) 1 else _eventsOfDay.first().last().order + 1
             val createdLesson =
-                Event.empty(
+                Event.createEmpty(
                     group = selectedGroup.first(),
                     order = order,
                     date = selectedDate.first(),
                     details = Lesson.createEmpty()
                 )
-            eventEditorInteractor.setEditedEvent(createdLesson, true)
+            eventEditorInteractor.setEditedEvent(_eventsOfDay.value, createdLesson)
             openEventEditor.call()
 
             eventEditorInteractor.receiveEvent()
-                .let { resource ->
-                    if ((resource as Resource.Success).data.second == EventEditorInteractor.LESSON_CREATED) {
-                        val event = resource.data.first
-//                        EventsOfDay(
-//                            selectedDate.replayCache[0],
-//                            editingEvents.toMutableList()
-//                        ).apply {
-////                            Events.add(editingEvents, event)
-//                            this.add(event)
-//                            editingEvents = this.events
-//                            postUpdateLessonsOfGroup()
-//                        }
-
-                        _eventsOfDay1.emit(
-                            _eventsOfDay1.first().add(event)
-                        )
-                    }
+                .let {
+                    _eventsOfDay.update { it }
                 }
         }
     }

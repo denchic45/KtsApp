@@ -87,87 +87,73 @@ class EventRepository @Inject constructor(
     }
 
     fun findEventsOfDayByYourGroupAndDate(date: LocalDate): Flow<EventsOfDay> {
-        return groupPreference.observeGroupId
-            .filterNotNull()
-            .flatMapLatest { groupId ->
-                if (date.toDateUTC() > nextSaturday || date.toDateUTC() < previousMonday) {
-                    coroutineScope.launch {
-                        callbackFlow<Unit> {
-                            val registration = getQueryOfEventsOfGroupByDate(
-                                date,
-                                groupId
-                            ).addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                                if (error != null) {
-                                    Log.w("lol", "listen:error", error)
-                                    return@addSnapshotListener
-                                }
-                                if (!snapshots!!.isEmpty) {
-                                    launch {
-                                        saveDay(snapshots.toObjects(DayDoc::class.java)[0])
-                                    }
+        return callbackFlow {
+            groupPreference.observeGroupId
+                .filterNotNull()
+                .collect { groupId ->
+                    Log.d("lol", "ON events flatMap: ")
+                    launch {
+                        eventDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
+                            .distinctUntilChanged()
+                            .map { eventMapper.entitiesToEventsOfDay(it, date) }
+                            .collect {
+                                Log.d("lol", "ON events collect dao: ")
+                                send(it)
+                            }
+                    }
+                    if (date.toDateUTC() > nextSaturday || date.toDateUTC() < previousMonday) {
+                        Log.d("lol", "ON available date ")
+                        Log.d("lol", "ON events coroutine launch: ")
+
+                        val registration = getQueryOfEventsOfGroupByDate(
+                            date,
+                            groupId
+                        ).addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                            Log.d("lol", "ON events snapshot: ")
+                            if (error != null) {
+                                Log.w("lol", "ON events error:", error)
+                                return@addSnapshotListener
+                            }
+                            if (!snapshots!!.isEmpty) {
+                                launch {
+                                    saveDay(snapshots.toObjects(DayDoc::class.java)[0])
                                 }
                             }
-                            awaitClose { registration.remove() }
-                        }.collect()
+                        }
+                        awaitClose {
+                            Log.d("lol", "ON event awaitClose: ")
+                            registration.remove()
+                        }
                     }
                 }
-
-                eventDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
-                    .distinctUntilChanged()
-                    .map { eventMapper.entitiesToEventsOfDay(it, date) }
-            }
-
-        //TODO просулшивать groupId из groupPreference
-
-//        if (date.toDateUTC() > nextSaturday || date.toDateUTC() < previousMonday) {
-//            addListenerRegistrationIfNotExist("$date of $groupId") {
-//                getQueryOfEventsOfGroupByDate(
-//                    date,
-//                    groupId
-//                ).addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-//                    if (error != null) {
-//                        Log.w("lol", "listen:error", error)
-//                        return@addSnapshotListener
-//                    }
-//                    if (!snapshots!!.isEmpty) {
-//                        coroutineScope.launch(dispatcher) {
-//                            saveDay(snapshots.toObjects(DayDoc::class.java)[0])
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
-//        return eventDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
-//            .distinctUntilChanged()
-//            .map { eventMapper.entitiesToEventsOfDay(it, date) }
+        }
     }
 
     fun findEventsForDayForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {
-        return flow {
-            Log.d("lol", "ON flow: ")
+        return callbackFlow {
+            Log.d("lol", "ON callback flow: ")
             val teacherId = userPreference.id
-            coroutineScope.launch {
-                Log.d("lol", "ON coroutineScope: ")
-                callbackFlow {
-                    val eventsOfTeacherByDate = eventsOfTeacherByDate(date, teacherId)
-                    awaitClose {
 
-                        Log.d("lol", "ON awaitClose: ")
-                        eventsOfTeacherByDate.remove()
-                    }
-
-                    eventDao.getLessonWithHomeWorkWithSubjectByDateAndTeacherId(date, teacherId)
-                        .distinctUntilChanged()
-                        .map { eventMapper.entitiesToEventsOfDay(it, date) }.collect { send(it) }
-                }.collect()
-            }
-            emitAll(
+            launch {
+                Log.d("lol", "ON launch dao: ")
                 eventDao.getLessonWithHomeWorkWithSubjectByDateAndTeacherId(date, teacherId)
                     .onEach { Log.d("lol", "ON each: ") }
                     .distinctUntilChanged()
                     .map { eventMapper.entitiesToEventsOfDay(it, date) }
-            )
+                    .collect {
+                        Log.d("lol", "ON collect: ")
+                        send(it)
+                    }
+            }
+
+
+            val eventsOfTeacherByDate = eventsOfTeacherByDate(date, teacherId)
+            awaitClose {
+                Log.d("lol", "ON awaitClose: ")
+                eventsOfTeacherByDate.remove()
+            }
+
+
         }
     }
 
