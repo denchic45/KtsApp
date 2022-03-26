@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import java.time.LocalDate
-import java.util.*
 
 @Entity(tableName = "day")
 data class DayEntity(
@@ -14,6 +13,7 @@ data class DayEntity(
     var id: String,
     @field:TypeConverters(LocalDateConverter::class)
     var date: LocalDate,
+    var startAtZero: Boolean,
     @ColumnInfo(name = "group_id")
     var groupId: String
 )

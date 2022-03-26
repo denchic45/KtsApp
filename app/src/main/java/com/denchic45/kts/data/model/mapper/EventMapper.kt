@@ -22,14 +22,11 @@ abstract class EventMapper {
 
     @Named("mapDetails")
     fun mapDetails(entities: EventWithSubjectAndTeachersEntities): EventDetails {
-        val type = entities.eventEntity.type
-        return if (type == TYPE.LESSON) {
-            eventEntityToLesson(entities)
-        } else if (type == TYPE.SIMPLE) {
-            eventEntityToSimple(entities)
-        } else if (type == TYPE.EMPTY) {
-            eventEntityToEmpty(entities)
-        } else throw IllegalArgumentException()
+        return when (entities.eventEntity.type) {
+            TYPE.LESSON -> eventEntityToLesson(entities)
+            TYPE.SIMPLE -> eventEntityToSimple(entities)
+            TYPE.EMPTY -> eventEntityToEmpty(entities)
+        }
     }
 
     @Mapping(source = "teacherEntities", target = "teachers")
@@ -38,13 +35,14 @@ abstract class EventMapper {
 
     @Mapping(source = "eventEntity", target = ".")
     abstract fun eventEntityToSimple(entities: EventWithSubjectAndTeachersEntities): SimpleEventDetails
+
     abstract fun eventEntityToEmpty(entities: EventWithSubjectAndTeachersEntities): EmptyEventDetails
+
     fun entityToDomain(eventWithSubjectAndTeachersEntities: List<EventWithSubjectAndTeachersEntities>): List<Event> {
-        return eventWithSubjectAndTeachersEntities.stream()
+        return eventWithSubjectAndTeachersEntities
             .map { eventEntity: EventWithSubjectAndTeachersEntities ->
                 eventEntityToEvent(eventEntity)
             }
-            .collect(Collectors.toList())
     }
 
     fun entitiesToEventsOfDay(
@@ -88,16 +86,19 @@ abstract class EventMapper {
 
     @Named("detailsToDetailsDoc")
     fun detailsToDetailsDoc(eventDetails: EventDetails): EventDetailsDoc {
-        if (eventDetails.type == TYPE.LESSON) return lessonToDetailsDoc(eventDetails as Lesson) else if (eventDetails.type == TYPE.SIMPLE) return simpleToDetailsDoc(
-            eventDetails as SimpleEventDetails
-        ) else if (eventDetails.type == TYPE.EMPTY) return emptyToDetailsDoc()
-        throw IllegalArgumentException()
+        return when (eventDetails.type) {
+            TYPE.LESSON -> lessonToDetailsDoc(eventDetails as Lesson)
+            TYPE.SIMPLE -> simpleToDetailsDoc(eventDetails as SimpleEventDetails)
+            TYPE.EMPTY -> emptyToDetailsDoc()
+        }
     }
 
     @Mapping(source = "teachers", target = "teacherIds", qualifiedByName = ["mapTeacherList"])
     @Mapping(source = "subject.id", target = "subjectId")
     abstract fun lessonToDetailsDoc(eventDetails: Lesson): EventDetailsDoc
+
     abstract fun simpleToDetailsDoc(eventDetails: SimpleEventDetails): EventDetailsDoc
+
     fun emptyToDetailsDoc(): EventDetailsDoc {
         return createEmpty()
     }

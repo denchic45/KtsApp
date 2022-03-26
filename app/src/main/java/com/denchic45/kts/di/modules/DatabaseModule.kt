@@ -57,7 +57,7 @@ object DatabaseModule {
     fun provideGroupCourseDao(dataBase: DataBase): GroupCourseDao = dataBase.groupCourseDao()
 
     @Provides
-    fun provideLessonDao(dataBase: DataBase): LessonDao = dataBase.lessonDao()
+    fun provideLessonDao(dataBase: DataBase): EventDao = dataBase.lessonDao()
 
     @Provides
     fun provideSpecialtyDao(dataBase: DataBase): SpecialtyDao = dataBase.specialtyDao()

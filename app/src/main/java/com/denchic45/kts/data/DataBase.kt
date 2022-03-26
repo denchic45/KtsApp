@@ -28,7 +28,7 @@ import com.denchic45.kts.data.model.room.*
 )
 abstract class DataBase : RoomDatabase() {
     abstract fun subjectDao(): SubjectDao
-    abstract fun lessonDao(): LessonDao
+    abstract fun lessonDao(): EventDao
     abstract fun courseContentDao(): CourseContentDao
     abstract fun dayDao(): DayDao
     abstract fun userDao(): UserDao

@@ -9,6 +9,7 @@ import java.util.*
 data class DayDoc(
     val id: String = UUIDS.createShort(),
     var date: Date,
+    var startAtZero:Boolean,
     private var _events: List<EventDoc>,
     @ServerTimestamp
     var timestamp: Date? = null,
@@ -18,6 +19,7 @@ data class DayDoc(
     private constructor() : this(
         "",
         Date(),
+        false,
         emptyList(),
         Date(),
         ""

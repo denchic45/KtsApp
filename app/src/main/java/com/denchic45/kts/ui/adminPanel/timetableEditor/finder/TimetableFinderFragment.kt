@@ -37,7 +37,6 @@ class TimetableFinderFragment :
     override val viewModel: TimetableFinderViewModel by viewModels { viewModelFactory }
     private var popupWindow: ListPopupWindow? = null
 
-    //    private var adapter: EventAdapter? = null
     private var actionMode: PrimaryActionModeCallback = PrimaryActionModeCallback()
     private var popupAdapter: ListPopupWindowAdapter? = null
 
@@ -53,7 +52,7 @@ class TimetableFinderFragment :
                         viewHolder: RecyclerView.ViewHolder,
                         target: RecyclerView.ViewHolder
                     ): Boolean {
-                        if (viewHolder is EventHolder<*> && target is EventHolder<*>) viewModel.onLessonItemMove(
+                        if (viewHolder is EventHolder<*> && target is EventHolder<*>) viewModel.onEventItemMove(
                             viewHolder.getAbsoluteAdapterPosition(),
                             target.getAbsoluteAdapterPosition()
                         )
@@ -128,14 +127,10 @@ class TimetableFinderFragment :
                 popupWindow!!.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
             }
 
-            actionMode.onActionItemClickListener = { viewModel.onActionItemClick(it.itemId) }
-
-//            viewModel.enableEditMode.observe(viewLifecycleOwner) { allow: Boolean ->
-//                setAllowEdit(allow)
-//            }
-//            viewModel.showEditedLessons.observe(viewLifecycleOwner) { lessons: List<DomainModel> ->
-//                adapter!!.submitList(ArrayList(lessons))
-//            }
+            actionMode.apply {
+                onActionItemClickListener = { viewModel.onActionItemClick(it.itemId) }
+                onActionModeFinish = {viewModel.onDestroyActionMode()}
+            }
 
             viewModel.eventsOfDay.collectWhenStarted(lifecycleScope) { eventsOfDayState ->
                 when (eventsOfDayState) {
@@ -159,12 +154,6 @@ class TimetableFinderFragment :
             itemTouchHelper.attachToRecyclerView(rvTimetable)
         }
 
-//        viewModel.eventsOfDay.collectWhenStarted(
-//            lifecycleScope
-//        ) { lessons ->
-//            adapter!!.submitList(ArrayList<DomainModel>(lessons))
-//        }
-
         viewModel.openEventEditor.observe(viewLifecycleOwner) {
             startActivity(Intent(requireActivity(), EventEditorActivity::class.java))
         }
@@ -186,8 +175,6 @@ class TimetableFinderFragment :
     }
 
     companion object {
-        fun newInstance(): TimetableFinderFragment {
-            return TimetableFinderFragment()
-        }
+        fun newInstance(): TimetableFinderFragment = TimetableFinderFragment()
     }
 }

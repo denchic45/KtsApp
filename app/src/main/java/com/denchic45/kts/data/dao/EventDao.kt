@@ -4,34 +4,46 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.TypeConverters
-import com.denchic45.kts.data.model.room.EventEntity
-import com.denchic45.kts.data.model.room.EventWithSubjectAndTeachersEntities
-import com.denchic45.kts.data.model.room.LocalDateConverter
+import com.denchic45.kts.data.model.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 @Dao
-abstract class LessonDao : BaseDao<EventEntity>() {
+abstract class EventDao : BaseDao<EventEntity>() {
     @Query("SELECT * FROM event WHERE event_id=:id")
     abstract fun get(id: String): EventEntity?
 
     @Transaction
-    @Query("SELECT * FROM event WHERE date=:date AND group_id =:groupId ORDER BY `order`")
-    abstract fun getLessonWithHomeWorkWithSubjectByDateAndGroupId(
+    fun observeEventsByDateAndGroupId(
         @TypeConverters(
             LocalDateConverter::class
         ) date: LocalDate, groupId: String
-    ): Flow<List<EventWithSubjectAndTeachersEntities>>
+    ): Flow<DayWithEventsEntities> {
+        return getDayByDateAndGroupId(date, groupId)
+            .flatMapLatest { dayEntity ->
+                observeEventsByDayId(dayEntity.id).map { events ->
+                    DayWithEventsEntities(dayEntity, events)
+                }
+            }
+    }
+
+    @Query("SELECT * FROM day WHERE date=:date AND group_id =:groupId")
+    abstract fun getDayByDateAndGroupId(date: LocalDate, groupId: String): Flow<DayEntity>
+
+    @Query("SELECT * FROM event WHERE day_id=:dayId ORDER BY position")
+    abstract fun observeEventsByDayId(dayId: String): Flow<List<EventWithSubjectAndTeachersEntities>>
 
     @Transaction
-    @Query("SELECT * FROM event l JOIN teacher_event tl ON l.event_id == tl.event_id WHERE date=:date AND tl.user_id =:teacherId ORDER BY `order`")
-    abstract fun getLessonWithHomeWorkWithSubjectByDateAndTeacherId(
+    @Query("SELECT * FROM event e JOIN teacher_event tl ON e.event_id == tl.event_id WHERE e.date=:date AND tl.user_id =:teacherId ORDER BY position")
+    abstract fun observeEventsByDateAndTeacherId(
         @TypeConverters(
             LocalDateConverter::class
         ) date: LocalDate, teacherId: String
     ): Flow<List<EventWithSubjectAndTeachersEntities>>
 
-    @Query("DELETE FROM event WHERE date BETWEEN :start AND :end AND group_id =:groupId")
+    @Query("DELETE FROM day WHERE date BETWEEN :start AND :end AND group_id =:groupId")
     abstract suspend fun deleteByGroupAndDateRange(
         groupId: String,
         @TypeConverters(LocalDateConverter::class)
@@ -40,7 +52,7 @@ abstract class LessonDao : BaseDao<EventEntity>() {
         end: LocalDate
     )
 
-    @Query("DELETE FROM event WHERE date =:date AND group_id =:groupId")
+    @Query("DELETE FROM day WHERE date =:date AND group_id =:groupId")
     abstract fun deleteByDateAndGroup(
         @TypeConverters(
             LocalDateConverter::class

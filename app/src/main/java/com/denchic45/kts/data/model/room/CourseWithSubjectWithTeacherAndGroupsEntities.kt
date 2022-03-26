@@ -25,11 +25,6 @@ data class CourseWithSubjectWithTeacherAndGroupsEntities(
     @Relation(parentColumn = "teacher_id", entityColumn = "user_id")
     var teacherEntity: UserEntity
 ) : EntityModel {
-    init {
-        if (subjectEntity == null) {
-            print("nulnul: ${this.courseEntity.id} ${this.courseEntity.name}")
-        }
-    }
 }
 
 data class CourseWithSubjectAndTeacherEntities(

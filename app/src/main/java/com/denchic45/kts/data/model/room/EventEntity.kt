@@ -1,20 +1,26 @@
 package com.denchic45.kts.data.model.room
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import androidx.room.*
 import com.denchic45.kts.data.model.EntityModel
-import java.time.LocalDate
 
-@Entity(tableName = "event")
+@Entity(
+    tableName = "event", foreignKeys = [
+        ForeignKey(
+            entity = DayEntity::class,
+            parentColumns = ["day_id"],
+            childColumns = ["day_id"],
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ]
+)
 data class EventEntity(
     @PrimaryKey
     @ColumnInfo(name = "event_id")
     var id: String,
-    var order: Int = 0,
-    @field:TypeConverters(LocalDateConverter::class)
-    var date: LocalDate,
+    @ColumnInfo(name = "day_id")
+    var dayId: String,
+    var position:Int,
     var room: String,
     @ColumnInfo(name = "subject_id")
     var subjectId: String,

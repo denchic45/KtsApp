@@ -48,7 +48,7 @@ class EventRepository @Inject constructor(
     override val groupMapper: GroupMapper,
     override val specialtyMapper: SpecialtyMapper,
     override val dataBase: DataBase,
-    private val eventDao: LessonDao,
+    private val eventDao: EventDao,
     override val userDao: UserDao,
     private val courseDao: CourseDao,
     private val teacherEventDao: TeacherEventDao,
@@ -82,7 +82,7 @@ class EventRepository @Inject constructor(
                     }
                 }
         }
-        return eventDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
+        return eventDao.observeEventsByDateAndGroupId(date, groupId)
             .map { eventMapper.entitiesToEventsOfDay(it, date) }
     }
 
@@ -93,7 +93,7 @@ class EventRepository @Inject constructor(
                 .collect { groupId ->
                     Log.d("lol", "ON events flatMap: ")
                     launch {
-                        eventDao.getLessonWithHomeWorkWithSubjectByDateAndGroupId(date, groupId)
+                        eventDao.observeEventsByDateAndGroupId(date, groupId)
                             .distinctUntilChanged()
                             .map { eventMapper.entitiesToEventsOfDay(it, date) }
                             .collect {
@@ -136,7 +136,7 @@ class EventRepository @Inject constructor(
 
             launch {
                 Log.d("lol", "ON launch dao: ")
-                eventDao.getLessonWithHomeWorkWithSubjectByDateAndTeacherId(date, teacherId)
+                eventDao.observeEventsByDateAndTeacherId(date, teacherId)
                     .onEach { Log.d("lol", "ON each: ") }
                     .distinctUntilChanged()
                     .map { eventMapper.entitiesToEventsOfDay(it, date) }

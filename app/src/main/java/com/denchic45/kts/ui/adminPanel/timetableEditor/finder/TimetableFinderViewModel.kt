@@ -25,7 +25,7 @@ class TimetableFinderViewModel @Inject constructor(
     private val selectedGroup = MutableSharedFlow<CourseGroup>(replay = 1)
     private val selectedDate = MutableSharedFlow<LocalDate>(replay = 1)
 
-    private val enableEditEvents = MutableStateFlow(false)
+    private val editEventsMode = MutableStateFlow(false)
 
     private val _eventsOfDayFromDataSource: StateFlow<EventsOfDay> =
         combine(
@@ -45,13 +45,19 @@ class TimetableFinderViewModel @Inject constructor(
         MutableStateFlow(EventsOfDay.createEmpty(LocalDate.now()))
 
     init {
-        viewModelScope.launch { _eventsOfDay.emitAll(_eventsOfDayFromDataSource) }
+        viewModelScope.launch {
+            _eventsOfDayFromDataSource.combine(editEventsMode) { eventsOfDay, enableEditMode -> eventsOfDay to enableEditMode }
+                .collect { (eventsOfDay, enableEditMode) ->
+                    if (!enableEditMode)
+                        _eventsOfDay.emit(eventsOfDay)
+                }
+        }
     }
 
     val eventsOfDay: StateFlow<EventsOfDayState> =
-        combine(_eventsOfDay, selectedDate, enableEditEvents)
-        { eventsOfDay, selectedDate, editing ->
-            if (editing)
+        combine(_eventsOfDay, selectedDate, editEventsMode)
+        { eventsOfDay, selectedDate, enableEditMode ->
+            if (enableEditMode)
                 EventsOfDayState.Edit(selectedDate, eventsOfDay.events)
             else {
                 EventsOfDayState.Current(selectedDate, eventsOfDay.events)
@@ -62,19 +68,13 @@ class TimetableFinderViewModel @Inject constructor(
             EventsOfDayState.Current(LocalDate.now(), emptyList())
         )
 
-//    val showEditedLessons = MutableLiveData<List<DomainModel>>()
-
     val editTimetableOptionVisibility = SingleLiveData<Boolean>()
 
-    //    val enableEditMode = MutableLiveData<Boolean>()
     private val typedGroupName = MutableSharedFlow<String>()
-//    private val lastEvents: MutableList<Event> = ArrayList()
-//    private var editingEvents: List<Event> = ArrayList()
 
     private var saveEditedLessons = false
     private var foundGroups: List<CourseGroup>? = null
 
-    //    private var selectedDate1 = LocalDate.now()
     fun onGroupNameType(groupName: String) {
         viewModelScope.launch {
             typedGroupName.emit(groupName)
@@ -100,11 +100,8 @@ class TimetableFinderViewModel @Inject constructor(
     override fun onOptionClick(itemId: Int) {
         viewModelScope.launch {
             if (itemId == R.id.menu_timetable_edit) {
-                enableEditEvents.emit(true)
-//                enableEditMode.value = true
-//                editingEvents = eventsOfDay.value
-//                lastEvents.addAll(eventsOfDay.value)
-                postUpdateLessonsOfGroup()
+                editEventsMode.emit(true)
+//                postUpdateLessonsOfGroup()
             }
         }
     }
@@ -115,8 +112,7 @@ class TimetableFinderViewModel @Inject constructor(
                 R.id.menu_timetable_edit_save -> saveEditedLessons = true
                 R.id.menu_timetable_edit_cancel -> saveEditedLessons = false
             }
-            enableEditEvents.emit(false)
-//        enableEditMode.value = false
+            editEventsMode.emit(false)
         }
     }
 
@@ -149,7 +145,6 @@ class TimetableFinderViewModel @Inject constructor(
     fun onDestroyActionMode() {
         if (saveEditedLessons) {
             saveEditedLessons = false
-//            if (editingEvents != lastEvents) {
             viewModelScope.launch {
                 try {
                     interactor.updateGroupLessonOfDay(
@@ -163,34 +158,16 @@ class TimetableFinderViewModel @Inject constructor(
                     }
                 }
             }
-//            } else {
-//                showEditedLessons.setValue(ArrayList<DomainModel>(lastEvents))
-//            }
-        } else {
-//            showEditedLessons.setValue(ArrayList<DomainModel>(lastEvents))
         }
-//        lastEvents.clear()
-//        editingEvents = emptyList()
     }
 
-    fun onLessonItemMove(oldPosition: Int, targetPosition: Int) {
-//        val shiftedEvent = editingEvents[oldPosition]
-//        val movedEvent = editingEvents[targetPosition]
-
+    fun onEventItemMove(oldPosition: Int, targetPosition: Int) {
 
         viewModelScope.launch {
             _eventsOfDay.emit(
                 _eventsOfDay.first().swap(oldPosition, targetPosition)
             )
         }
-
-
-//        EventsOfDay(selectedDate.replayCache[0], editingEvents.toMutableList()).apply {
-////            Events.swap(editingEvents, shiftedEvent, movedEvent)
-//            this.swap(oldPosition, targetPosition)
-//            editingEvents = this.events
-//            postUpdateLessonsOfGroup()
-//        }
     }
 
     private fun postUpdateLessonsOfGroup() {

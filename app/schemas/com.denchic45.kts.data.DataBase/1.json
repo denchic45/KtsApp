@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "8cbb7ea534982e89d50c5398f4b28e87",
+    "identityHash": "5b0a2d1f052095478b32da7e14e28fe0",
     "entities": [
       {
         "tableName": "subject",
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `order` INTEGER NOT NULL, `date` TEXT NOT NULL, `room` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `teacher_ids` TEXT NOT NULL, `group_id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `icon_url` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`event_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `day_id` TEXT NOT NULL, `room` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `teacher_ids` TEXT NOT NULL, `group_id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `icon_url` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`event_id`), FOREIGN KEY(`day_id`) REFERENCES `day`(`day_id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -53,14 +53,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "order",
-            "columnName": "order",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "date",
-            "columnName": "date",
+            "fieldPath": "dayId",
+            "columnName": "day_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -120,7 +114,19 @@
           "autoGenerate": false
         },
         "indices": [],
-        "foreignKeys": []
+        "foreignKeys": [
+          {
+            "table": "day",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "day_id"
+            ],
+            "referencedColumns": [
+              "day_id"
+            ]
+          }
+        ]
       },
       {
         "tableName": "course_content",
@@ -314,7 +320,7 @@
       },
       {
         "tableName": "day",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_id` TEXT NOT NULL, `date` TEXT NOT NULL, `group_id` TEXT NOT NULL, PRIMARY KEY(`day_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_id` TEXT NOT NULL, `date` TEXT NOT NULL, `startAtZero` INTEGER NOT NULL, `group_id` TEXT NOT NULL, PRIMARY KEY(`day_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -326,6 +332,12 @@
             "fieldPath": "date",
             "columnName": "date",
             "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startAtZero",
+            "columnName": "startAtZero",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -491,7 +503,7 @@
       },
       {
         "tableName": "teacher_event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `user_id` TEXT NOT NULL, PRIMARY KEY(`event_id`, `user_id`), FOREIGN KEY(`user_id`) REFERENCES `user`(`user_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`event_id`) REFERENCES `event`(`event_id`) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `user_id` TEXT NOT NULL, PRIMARY KEY(`event_id`, `user_id`), FOREIGN KEY(`user_id`) REFERENCES `user`(`user_id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`event_id`) REFERENCES `event`(`event_id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "eventId",
@@ -920,7 +932,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8cbb7ea534982e89d50c5398f4b28e87')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b0a2d1f052095478b32da7e14e28fe0')"
     ]
   }
 }

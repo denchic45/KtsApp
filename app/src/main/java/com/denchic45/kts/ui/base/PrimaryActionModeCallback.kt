@@ -10,6 +10,7 @@ import androidx.annotation.MenuRes
 class PrimaryActionModeCallback : ActionMode.Callback {
 
     var onActionItemClickListener: ((MenuItem) -> Unit)? = null
+    var onActionModeFinish: (()->Unit)? = null
 
     private var mode: ActionMode? = null
 
