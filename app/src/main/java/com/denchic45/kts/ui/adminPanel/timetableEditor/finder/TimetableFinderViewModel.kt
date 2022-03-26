@@ -46,9 +46,9 @@ class TimetableFinderViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _eventsOfDayFromDataSource.combine(editEventsMode) { eventsOfDay, enableEditMode -> eventsOfDay to enableEditMode }
-                .collect { (eventsOfDay, enableEditMode) ->
-                    if (!enableEditMode)
+            _eventsOfDayFromDataSource.combine(editEventsMode) {a, b -> a to b }
+                .collect { (eventsOfDay, editMode) ->
+                    if (!editMode && !savingEditedEvents)
                         _eventsOfDay.emit(eventsOfDay)
                 }
         }
@@ -72,7 +72,7 @@ class TimetableFinderViewModel @Inject constructor(
 
     private val typedGroupName = MutableSharedFlow<String>()
 
-    private var saveEditedLessons = false
+    private var savingEditedEvents = false
     private var foundGroups: List<CourseGroup>? = null
 
     fun onGroupNameType(groupName: String) {
@@ -109,8 +109,8 @@ class TimetableFinderViewModel @Inject constructor(
     fun onActionItemClick(itemId: Int) {
         viewModelScope.launch {
             when (itemId) {
-                R.id.menu_timetable_edit_save -> saveEditedLessons = true
-                R.id.menu_timetable_edit_cancel -> saveEditedLessons = false
+                R.id.menu_timetable_edit_save -> savingEditedEvents = true
+                R.id.menu_timetable_edit_cancel -> savingEditedEvents = false
             }
             editEventsMode.emit(false)
         }
@@ -135,27 +135,27 @@ class TimetableFinderViewModel @Inject constructor(
         )
         openEventEditor.call()
         viewModelScope.launch {
-            eventEditorInteractor.receiveEvent()
-                .let { resource ->
-                    _eventsOfDay.update { resource }
-                }
+            eventEditorInteractor.receiveEvent().apply {
+                _eventsOfDay.update {this  }
+            }
+
         }
     }
 
     fun onDestroyActionMode() {
-        if (saveEditedLessons) {
-            saveEditedLessons = false
+        if (savingEditedEvents) {
+            savingEditedEvents = false
             viewModelScope.launch {
                 try {
-                    interactor.updateGroupLessonOfDay(
-                        _eventsOfDay.first().events,
-                        selectedDate.first(),
+                    interactor.updateGroupEventsOfDay(
+                        _eventsOfDay.value,
                         selectedGroup.first()
                     )
                 } catch (e: Exception) {
                     if (e is NetworkException) {
                         showToast(R.string.error_check_network)
                     }
+                e.printStackTrace()
                 }
             }
         }
@@ -165,7 +165,7 @@ class TimetableFinderViewModel @Inject constructor(
 
         viewModelScope.launch {
             _eventsOfDay.emit(
-                _eventsOfDay.first().swap(oldPosition, targetPosition)
+                _eventsOfDay.value.swap(oldPosition, targetPosition)
             )
         }
     }
@@ -182,21 +182,18 @@ class TimetableFinderViewModel @Inject constructor(
     fun onCreateEventItemClick() {
         viewModelScope.launch {
             val order =
-                if (_eventsOfDay.first().isEmpty()) 1 else _eventsOfDay.first().last().order + 1
+                if (_eventsOfDay.value.isEmpty()) 1 else _eventsOfDay.value.last().order + 1
             val createdLesson =
                 Event.createEmpty(
                     group = selectedGroup.first(),
                     order = order,
-                    date = selectedDate.first(),
                     details = Lesson.createEmpty()
                 )
             eventEditorInteractor.setEditedEvent(_eventsOfDay.value, createdLesson)
             openEventEditor.call()
 
-            eventEditorInteractor.receiveEvent()
-                .let {
-                    _eventsOfDay.update { it }
-                }
+
+            _eventsOfDay.update { eventEditorInteractor.receiveEvent() }
         }
     }
 

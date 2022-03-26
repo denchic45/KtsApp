@@ -7,8 +7,10 @@ import java.time.LocalDate
 data class EventsOfDay(
     val date: LocalDate,
     private val _events: List<Event> = mutableListOf(),
-    private val startsAtZero: Boolean = false
+    val startsAtZero: Boolean = false
 ) {
+
+    val size: Int = _events.size
 
     val events: List<Event> =
         removeRedundantEmptyEvents(_events.onEach { it.eventsOfDay = this })
@@ -16,7 +18,7 @@ data class EventsOfDay(
     val dayOfWeek: Int
         get() = date.dayOfWeek.value
 
-    fun add(event: Event): EventsOfDay = copy(_events = events + event)
+    fun add(event: Event): EventsOfDay = copy(_events = events.map(Event::copy) + event)
 
     fun add(event: Event, order: Int): EventsOfDay {
         return copy(
@@ -38,7 +40,7 @@ data class EventsOfDay(
         get() = if (startsAtZero) 0 else 1
 
     fun swap(oldIndex: Int, newIndex: Int): EventsOfDay {
-        return copy(_events = events.swap(oldIndex, newIndex))
+        return copy(_events = events.swap(oldIndex, newIndex).map { it.copy() })
     }
 
     private fun removeRedundantEmptyEvents(events: List<Event>): List<Event> {
@@ -64,6 +66,7 @@ data class EventsOfDay(
     }
 
     fun isEmpty(): Boolean = _events.isEmpty()
+
     fun last(): Event = _events.last()
 
     fun orderOf(event: Event): Int {

@@ -9,7 +9,6 @@ import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.domain.CourseGroup
-import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.EventsOfDay
 import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.model.firestore.DayDoc
@@ -47,6 +46,7 @@ class EventRepository @Inject constructor(
     override val userMapper: UserMapper,
     override val groupMapper: GroupMapper,
     override val specialtyMapper: SpecialtyMapper,
+    private val dayMapper: DayMapper,
     override val dataBase: DataBase,
     private val eventDao: EventDao,
     override val userDao: UserDao,
@@ -83,7 +83,7 @@ class EventRepository @Inject constructor(
                 }
         }
         return eventDao.observeEventsByDateAndGroupId(date, groupId)
-            .map { eventMapper.entitiesToEventsOfDay(it, date) }
+            .map { dayMapper.entityToDomain(it) }
     }
 
     fun findEventsOfDayByYourGroupAndDate(date: LocalDate): Flow<EventsOfDay> {
@@ -94,10 +94,11 @@ class EventRepository @Inject constructor(
                     Log.d("lol", "ON events flatMap: ")
                     launch {
                         eventDao.observeEventsByDateAndGroupId(date, groupId)
+                            .map { dayMapper.entityToDomain(it) }
                             .distinctUntilChanged()
-                            .map { eventMapper.entitiesToEventsOfDay(it, date) }
                             .collect {
-                                Log.d("lol", "ON events collect dao: ")
+                                Log.d("lol", "ON events collect dao!:")
+                                it.events.forEach { Log.d("lol", "event: $it") }
                                 send(it)
                             }
                     }
@@ -191,13 +192,15 @@ class EventRepository @Inject constructor(
                         }
                 }
 
-            dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date.toLocalDate(), dayDoc.groupId))
-            val eventEntities = eventMapper.docToEntity(dayDoc.events)
-            eventDao.replaceByDateAndGroup(eventEntities, dayDoc.date.toLocalDate(), dayDoc.groupId)
-            val teacherEventCrossRefs =
-                eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
+            dayDao.deleteByDate(dayDoc.date.toLocalDate())
+            dayDao.upsert(dayMapper.docToEntity(dayDoc))
 
-            teacherEventDao.upsert(teacherEventCrossRefs)
+            val eventEntities = eventMapper.docToEntity(dayDoc.events, dayDoc.id)
+            eventDao.upsert(eventEntities)
+
+            teacherEventDao.upsert(
+                eventMapper.lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities)
+            )
         }
     }
 
@@ -307,19 +310,16 @@ class EventRepository @Inject constructor(
             val dayDoc: DayDoc = maybeDayDoc?.let {
                 it.events = addableEvents
                 it
-            } ?: DayDoc(
-                date = eventsOfTheDay.date.toDateUTC(),
-                _events = addableEvents,
-                groupId = groupTimetable.group.id
-            )
+            } ?: dayMapper.domainToDoc(eventsOfTheDay, groupTimetable.group.id)
 
             batch[dayRef.document(dayDoc.id), dayDoc] = SetOptions.merge()
 
             dayDao.upsert(
                 DayEntity(
-                    dayDoc.id,
-                    dayDoc.date.toLocalDate(),
-                    groupTimetable.group.id
+                    id = dayDoc.id,
+                    date = dayDoc.date.toLocalDate(),
+                    startsAtZero = eventsOfTheDay.startsAtZero,
+                    groupId = groupTimetable.group.id
                 )
             )
         }
@@ -342,21 +342,21 @@ class EventRepository @Inject constructor(
     }
 
 
-    suspend fun updateEventsOfDay(events: List<Event>, date: LocalDate, group: CourseGroup) {
-        val dayDocId = dayDao.getIdByDateAndGroupId(date, group.id)
+    suspend fun updateEventsOfDay(eventsOfDay: EventsOfDay, group: CourseGroup) {
+        val dayDocId = dayDao.getIdByDateAndGroupId(eventsOfDay.date, group.id)
         if (isNetworkNotAvailable) return
         val daysRef = groupsRef.document(group.id)
             .collection("Days")
         if (dayDocId != null) {
-            val snapshot = daysRef.whereEqualTo("date", date.toDateUTC())
+            val snapshot = daysRef.whereEqualTo("date", eventsOfDay.date.toDateUTC())
                 .get()
                 .await()
 
             if (!snapshot.isEmpty) {
-                val dayDoc = snapshot.documents[0].toObject(DayDoc::class.java)
-                dayDao.insert(DayEntity(dayDoc!!.id, dayDoc.date.toLocalDate(), group.id))
+                val dayDoc = snapshot.documents[0].toObject(DayDoc::class.java)!!
+                dayDao.upsert(dayMapper.docToEntity(dayDoc))
 
-                val eventDocs = eventMapper.domainToDoc(events)
+                val eventDocs = eventMapper.domainToDoc(eventsOfDay.events)
                 daysRef.document(dayDoc.id)
                     .update(
                         "events",
@@ -366,13 +366,9 @@ class EventRepository @Inject constructor(
                     ).await()
             }
         } else {
-            val dayDoc = DayDoc(
-                date = date.toDateUTC(),
-                _events = eventMapper.domainToDoc(events),
-                groupId = group.id,
-            )
+            val dayDoc = dayMapper.domainToDoc(eventsOfDay, group.id)
             daysRef.document(dayDoc.id).set(dayDoc, SetOptions.merge()).await()
-            dayDao.upsert(DayEntity(dayDoc.id, dayDoc.date.toLocalDate(), group.id))
+            dayDao.upsert(dayMapper.docToEntity(dayDoc))
         }
     }
 

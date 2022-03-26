@@ -1,6 +1,7 @@
 package com.denchic45.kts.ui.login
 
 import android.telephony.PhoneNumberUtils
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
@@ -98,6 +99,7 @@ class LoginViewModel @Inject constructor(
 
     fun onSuccessfulLogin() {
         incrementProgress(1f)
+        Log.d("lol", "A openMain: ")
         openMain.call()
     }
 
@@ -120,7 +122,9 @@ class LoginViewModel @Inject constructor(
         }
         viewModelScope.launch {
             try {
+                Log.d("lol", "A try authByEmail: ")
                 interactor.authByEmail(mail, password)
+                Log.d("lol", "A onSuccessfulLogin: ")
                 onSuccessfulLogin()
             } catch (t: Throwable) {
                 t.printStackTrace()

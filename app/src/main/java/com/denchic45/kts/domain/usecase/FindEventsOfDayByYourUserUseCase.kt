@@ -17,7 +17,7 @@ class FindEventsOfDayByYourUserUseCase @Inject constructor(
     operator fun invoke(date: LocalDate): Flow<EventsOfDay> = when {
         user.isStudent -> eventRepository.findEventsOfDayByYourGroupAndDate(date)
         user.isTeacher -> eventRepository.findEventsForDayForTeacherByDate(date)
-        else -> throw IllegalStateException("Illegal user role!")
+        else -> throw IllegalStateException("Illegal user role! ${user.role}")
     }
 
 }

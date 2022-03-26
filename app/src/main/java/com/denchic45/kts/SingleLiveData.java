@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SingleLiveData<T> extends MutableLiveData<T> {
 
-
     private final AtomicBoolean mPending = new AtomicBoolean(false);
 
     public SingleLiveData(T value) {
@@ -24,7 +23,6 @@ public class SingleLiveData<T> extends MutableLiveData<T> {
 
     @MainThread
     public void observe(@NotNull LifecycleOwner owner, @NotNull final Observer<? super T> observer) {
-
         super.observe(owner, t -> {
             if (mPending.compareAndSet(true, false)) {
                 observer.onChanged(t);

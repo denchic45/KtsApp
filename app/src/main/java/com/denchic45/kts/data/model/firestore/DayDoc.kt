@@ -1,35 +1,44 @@
 package com.denchic45.kts.data.model.firestore
 
 import com.denchic45.kts.data.model.DocModel
+import com.denchic45.kts.data.model.mapper.Default
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.utils.UUIDS
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
 data class DayDoc(
-    val id: String = UUIDS.createShort(),
+    val id: String,
     var date: Date,
-    var startAtZero:Boolean,
-    private var _events: List<EventDoc>,
-    @ServerTimestamp
-    var timestamp: Date? = null,
+    var startsAtZero: Boolean,
+    var events: List<EventDoc>,
     var groupId: String
 ) : DocModel {
+
+    @Default
+    constructor(
+        date: Date,
+        startsAtZero: Boolean,
+        events: List<EventDoc>,
+        groupId: String
+    ) : this(
+        id = UUIDS.createShort(),
+        date = date,
+        startsAtZero = startsAtZero,
+        events = events,
+        groupId = groupId
+    )
 
     private constructor() : this(
         "",
         Date(),
         false,
         emptyList(),
-        Date(),
         ""
     )
 
-    var events: List<EventDoc>
-        set(value) {
-            _events = value
-        }
-        get() = _events
+    @ServerTimestamp
+    var timestamp: Date? = null
 
     val teacherIds: List<String>
         get() = events

@@ -15,7 +15,6 @@ import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.DatePatterns
 import com.denchic45.kts.utils.toString
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -33,8 +32,6 @@ class EventEditorViewModel @Inject constructor(
     val dateField = MutableLiveData<String>()
 
     val orderField = SingleLiveData("1")
-
-    val orderEditEnable = MutableStateFlow(false)
 
     val roomField = SingleLiveData("")
 
@@ -58,10 +55,9 @@ class EventEditorViewModel @Inject constructor(
         viewModelScope.launch {
             interactor.observeOldEvent().collect { event ->
                 event?.let {
-                    orderEditEnable.emit(!interactor.oldEvent.value!!.isAttached)
                     roomField.value = event.room
-                    dateField.value = event.date.toString(DatePatterns.dd_MMMM)
-                    orderField.value = event.order.toString()
+                    dateField.value = interactor.oldEventsOfDay.value!!.date.toString(DatePatterns.dd_MMMM)
+                    orderField.value = if (interactor.isNew) (interactor.oldEventsOfDay.value!!.size + 1).toString() else event.order.toString()
                 }
             }
         }
@@ -106,7 +102,7 @@ class EventEditorViewModel @Inject constructor(
 
     override fun onOptionClick(itemId: Int) {
         when (itemId) {
-            R.id.option_duplicate_lesson -> {
+            R.id.option_duplicate_event -> {
                 viewModelScope.launch {
                     uiValidator.runValidates { saveChanges() }
                     if (uiValidator.runValidates()) {
@@ -117,7 +113,7 @@ class EventEditorViewModel @Inject constructor(
                     finish()
                 }
             }
-            R.id.option_delete_lesson -> {
+            R.id.option_delete_event -> {
                 viewModelScope.launch {
                     interactor.postEvent {
                         it.remove(uiEditor.item)
@@ -125,13 +121,13 @@ class EventEditorViewModel @Inject constructor(
                     finish()
                 }
             }
-            R.id.option_clear_lesson -> {
+            R.id.option_clear_event -> {
                 viewModelScope.launch {
                     interactor.postEvent {
                         uiEditor.item.run {
                             it.update(
                                 createEmpty(
-                                    id, group, order, date, details
+                                    id, group, order, details
                                 )
                             )
                         }
@@ -188,19 +184,6 @@ class EventEditorViewModel @Inject constructor(
         uiEditor.oldItem = interactor.oldEvent.value!!
         fillFields()
         uiValidator = UIValidator.of(
-            Validation(Rule { uiEditor.item.order != -1 })
-                .sendActionResult({
-                    showErrorField.setValue(
-                        Pair(
-                            R.id.rl_lesson_order,
-                            true
-                        )
-                    )
-                }) {
-                    showErrorField.setValue(
-                        Pair(R.id.rl_lesson_order, false)
-                    )
-                },
             Validation(Rule { !TextUtils.isEmpty(uiEditor.item.room) })
                 .sendActionResult({
                     showErrorField.setValue(

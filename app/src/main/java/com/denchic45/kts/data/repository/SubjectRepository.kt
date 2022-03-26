@@ -2,8 +2,9 @@ package com.denchic45.kts.data.repository
 
 import android.content.Context
 import android.net.Uri
+import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
+import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
@@ -45,6 +46,7 @@ class SubjectRepository @Inject constructor(
     override val sectionDao: SectionDao,
     override val subjectDao: SubjectDao,
     override val userDao: UserDao,
+    private val dataBase: DataBase,
     @IoDispatcher override val dispatcher: CoroutineDispatcher
 ) : Repository(context), SaveCourseOperation, RemoveCourseOperation {
 
@@ -148,15 +150,16 @@ class SubjectRepository @Inject constructor(
     }
 
     fun findByGroup(groupId: String): Flow<List<Subject>> {
-        requireInternetConnection()
         coroutineScope.launch {
+            requireInternetConnection()
             coursesRef.whereArrayContains("groupIds", groupId)
                 .get()
                 .await().apply {
-                    saveCourses(toObjects(CourseDoc::class.java))
+                    dataBase.withTransaction {
+                        saveCourses(toObjects(CourseDoc::class.java))
+                    }
                 }
         }
-
         return subjectDao.observeByGroupId(groupId)
             .map(subjectMapper::entityToDomain)
     }

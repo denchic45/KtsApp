@@ -59,28 +59,6 @@ class EventAdapter(
             }, 300)
         }
 
-//    fun enableEditMode() {
-//        enableEditMode = true
-//        Handler(Looper.getMainLooper()).postDelayed({
-//            notifyItemRangeChanged(
-//                0,
-//                itemCount,
-//                PAYLOAD.ENABLE_EDIT_MODE
-//            )
-//        }, 300)
-//    }
-//
-//    fun disableEditMode() {
-//        enableEditMode = false
-//        Handler(Looper.getMainLooper()).postDelayed({
-//            notifyItemRangeChanged(
-//                0,
-//                itemCount,
-//                PAYLOAD.DISABLE_EDIT_MODE
-//            )
-//        }, 300)
-//    }
-
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -464,7 +442,7 @@ class EventAdapter(
                     newItem: DomainModel
                 ): Boolean {
                     return if (oldItem is Event && newItem is Event) {
-                        oldItem == newItem
+                        oldItem == newItem && oldItem.order == newItem.order
                     } else oldItem is ListItem && newItem is ListItem
                             && oldItem == newItem
                 }
@@ -472,7 +450,9 @@ class EventAdapter(
                 override fun getChangePayload(oldItem: DomainModel, newItem: DomainModel): Any? {
                     if (oldItem is Event && newItem is Event) {
                         if (oldItem.date == newItem.date &&
-                            oldItem.room == newItem.room && oldItem.details == newItem.details && oldItem.order != newItem.order
+                            oldItem.room == newItem.room &&
+                            oldItem.details == newItem.details &&
+                            oldItem.order != newItem.order
                         ) {
                             return PAYLOAD.UPDATE_ORDER
                         }

@@ -1,4 +1,5 @@
-package com.denchic45.kts.data.repository;
+package com.denchic45.kts.data.repository
 
-public class SameSubjectIconException extends Exception{
-}
+import java.lang.Exception
+
+class SameSubjectIconException : Exception()

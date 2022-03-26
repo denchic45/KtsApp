@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.timetable
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Event
@@ -68,7 +67,10 @@ class TimetableViewModel @Inject constructor(
         events = selectedDate.flatMapLatest { selectedDate ->
             when {
                 selectedDate.dayOfWeek == DayOfWeek.SUNDAY -> flowOf(EventsState.DayOff)
-                receivedGroupId != null -> interactor.findEventsOfGroupByDate(selectedDate, receivedGroupId)
+                receivedGroupId != null -> interactor.findEventsOfGroupByDate(
+                    selectedDate,
+                    receivedGroupId
+                )
                     .map { EventsState.Events(it.events) }
                 else -> findEventsOfDayByYourUserUseCase(selectedDate).map { EventsState.Events(it.events) }
             }

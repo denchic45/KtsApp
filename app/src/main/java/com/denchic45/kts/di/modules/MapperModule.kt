@@ -29,6 +29,9 @@ object MapperModule {
     fun provideSpecialtyMapper(): SpecialtyMapper = SpecialtyMapperImpl()
 
     @Provides
+    fun provideDayMapper(): DayMapper = DayMapperImpl()
+
+    @Provides
     fun provideSectionMapper(): SectionMapper = SectionMapperImpl()
 
     @Provides

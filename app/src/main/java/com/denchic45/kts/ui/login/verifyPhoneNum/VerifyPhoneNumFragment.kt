@@ -2,23 +2,23 @@ package com.denchic45.kts.ui.login.verifyPhoneNum
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentVerifyPhoneNumberBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.login.LoginViewModel
 import com.denchic45.kts.utils.closeKeyboard
+import com.denchic45.kts.utils.collectWhenStarted
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
@@ -40,7 +40,7 @@ class VerifyPhoneNumFragment :
             loginViewModel.verifyUser.observe(viewLifecycleOwner) { phoneNum: String ->
                 viewModel.onVerifyClick(phoneNum)
             }
-            viewModel.authSuccessful.observe(viewLifecycleOwner) { code: String ->
+            viewModel.authSuccessful.collectWhenStarted(lifecycleScope) { code: String ->
                 fillFieldsWithCode(code)
                 loginViewModel.onSuccessfulLogin()
             }

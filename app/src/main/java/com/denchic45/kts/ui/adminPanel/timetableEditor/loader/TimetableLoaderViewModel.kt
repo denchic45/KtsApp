@@ -293,8 +293,7 @@ class TimetableLoaderViewModel @Inject constructor(
         val createdLesson =
             Event.createEmpty(
                 group = groups[positionOfCurrentTimetable],
-                order = order,
-                date = eventsOfTheDay.date
+                order = order
             )
         eventEditorInteractor.setEditedEvent(groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek], createdLesson)
         openEventEditor.call()

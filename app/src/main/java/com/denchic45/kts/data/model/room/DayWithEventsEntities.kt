@@ -13,9 +13,7 @@ data class DayWithEventsEntities(
         entity = GroupEntity::class,
         parentColumn = "day_id",
         entityColumn = "day_id",
-        associateBy = Junction(
-            GroupCourseCrossRef::class
-        )
+        associateBy = Junction(GroupCourseCrossRef::class)
     )
     var eventEntities: List<EventWithSubjectAndTeachersEntities>
 ) : EntityModel

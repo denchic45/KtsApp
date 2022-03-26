@@ -8,10 +8,14 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.google.android.play.core.tasks.Tasks
+import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.Closeable
 import java.lang.ref.WeakReference
+import java.text.NumberFormat
+import java.util.*
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class GoogleAppVersionService @Inject constructor(
     context: Context
@@ -33,10 +37,14 @@ class GoogleAppVersionService @Inject constructor(
                 )
                 val megaBytesDownloaded = state.bytesDownloaded().toFloat() / 1024 / 1024
 
-                val totalMegaBytesToDownload = String.format(
-                    "%,2f",
-                    state.totalBytesToDownload().toFloat() / 1024 / 1024
-                ).toFloat()
+
+                val totalMegaBytesToDownload =
+                    NumberFormat.getInstance(Locale.getDefault()).parse(
+                        String.format(
+                            "%.2f",
+                            state.totalBytesToDownload().toFloat() / 1024 / 1024
+                        )
+                    )!!.toFloat()
 
                 val percentDownload = megaBytesDownloaded / totalMegaBytesToDownload * 100
                 Log.d(
@@ -55,8 +63,21 @@ class GoogleAppVersionService @Inject constructor(
         }
     }
 
-    override val latestVersion: Int
-        get() = Tasks.await(info).availableVersionCode()
+    override suspend fun getLatestVersion(): Int {
+        return suspendCancellableCoroutine { cont ->
+            info.addOnCompleteListener {
+                Log.d("lol", "getLatestVersion addOnCompleteListener: ")
+                val e = it.exception
+                if (e == null) {
+                    Log.d("lol", "getLatestVersion resume: ")
+                    @Suppress("UNCHECKED_CAST") cont.resume(it.result.availableVersionCode())
+                } else {
+                    Log.d("lol", "getLatestVersion error: ")
+                    cont.resumeWithException(e)
+                }
+            }
+        }
+    }
 
     companion object {
         const val UPDATE_REQUEST_CODE = 1

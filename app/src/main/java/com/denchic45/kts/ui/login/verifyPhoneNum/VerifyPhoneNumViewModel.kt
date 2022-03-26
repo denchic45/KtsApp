@@ -8,6 +8,8 @@ import com.denchic45.kts.ui.base.BaseViewModel
 import com.google.firebase.FirebaseTooManyRequestsException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,7 +21,8 @@ class VerifyPhoneNumViewModel @Inject constructor(
 
     val btnAuthVisibility = SingleLiveData(false)
 
-    val authSuccessful = SingleLiveData<String>()
+    val _authSuccessful = Channel<String>()
+    val authSuccessful = _authSuccessful.receiveAsFlow()
 
     val errorToManyRequest: SingleLiveData<*> = SingleLiveData<Any>()
 
@@ -31,7 +34,7 @@ class VerifyPhoneNumViewModel @Inject constructor(
     fun onVerifyClick(phoneNum: String) {
         viewModelScope.launch {
             try {
-                authSuccessful.value = interactor.sendUserPhoneNumber(phoneNum).receive()
+                _authSuccessful.send(interactor.sendUserPhoneNumber(phoneNum).receive())
             } catch (t: Throwable) {
                 when (t) {
                     is FirebaseTooManyRequestsException -> {

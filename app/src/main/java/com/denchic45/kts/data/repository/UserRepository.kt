@@ -1,6 +1,7 @@
 package com.denchic45.kts.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.denchic45.appVersion.AppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
@@ -163,10 +164,13 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun findAndSaveByEmail(email: String) {
+        Log.d("lol", "AA requireInternetConnection: ")
         requireInternetConnection()
+        Log.d("lol", "AA usersRef.whereEqualTo: ")
         usersRef.whereEqualTo("email", email)
             .get()
             .await().apply {
+                Log.d("lol", "A whereEqualTo awaited: ")
                 if (isEmpty) {
                     throw  FirebaseAuthException(
                         "ERROR_USER_NOT_FOUND",
@@ -174,6 +178,7 @@ open class UserRepository @Inject constructor(
                     )
                 }
                 val user = documents[0].toObject(User::class.java)!!
+                Log.d("lol", "A saveUserPreference: ")
                 saveUserPreference(user)
             }
 

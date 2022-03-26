@@ -129,7 +129,7 @@ class TimetableFinderFragment :
 
             actionMode.apply {
                 onActionItemClickListener = { viewModel.onActionItemClick(it.itemId) }
-                onActionModeFinish = {viewModel.onDestroyActionMode()}
+                onActionModeFinish = { viewModel.onDestroyActionMode() }
             }
 
             viewModel.eventsOfDay.collectWhenStarted(lifecycleScope) { eventsOfDayState ->

@@ -13,7 +13,16 @@ data class DayEntity(
     var id: String,
     @field:TypeConverters(LocalDateConverter::class)
     var date: LocalDate,
-    var startAtZero: Boolean,
+    var startsAtZero: Boolean,
     @ColumnInfo(name = "group_id")
     var groupId: String
-)
+) {
+    companion object {
+        fun createEmpty(date: LocalDate, groupId: String):DayEntity = DayEntity(
+            "",
+            date,
+            false,
+            groupId
+        )
+    }
+}

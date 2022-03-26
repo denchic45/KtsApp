@@ -1,5 +1,6 @@
 package com.denchic45.appVersion
 
+import android.util.Log
 import com.denchic45.kts.BuildConfig
 
 abstract class AppVersionService {
@@ -14,9 +15,13 @@ abstract class AppVersionService {
 
     abstract fun startDownloadUpdate()
 
-    abstract val latestVersion: Int
+    abstract suspend fun getLatestVersion(): Int
 
     abstract fun installUpdate()
 
-    fun isOldCurrentVersion(): Boolean = BuildConfig.VERSION_CODE < latestVersion
+    suspend fun isOldCurrentVersion(): Boolean {
+        Log.d("lol", "AA version code: ${BuildConfig.VERSION_CODE}")
+        Log.d("lol", "AA latest: ${getLatestVersion()}")
+        return BuildConfig.VERSION_CODE < getLatestVersion()
+    }
 }

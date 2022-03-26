@@ -16,4 +16,10 @@ abstract class DayDao : BaseDao<DayEntity>() {
     abstract suspend fun getIdByDateAndGroupId(
         @TypeConverters(LocalDateConverter::class) date: LocalDate, groupId: String
     ): String?
+
+    @Query("DELETE FROM day WHERE date=:date")
+    abstract fun deleteByDate(
+        @TypeConverters(LocalDateConverter::class)
+        date: LocalDate
+    )
 }

@@ -3,7 +3,6 @@ package com.denchic45.kts.ui.main
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
@@ -114,6 +113,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(R.layout.a
                         snackbarUpdateView.indeterminate(true)
                     }
                     is MainViewModel.UpdateBannerState.Loading -> {
+                        snackbarUpdateView.indeterminate(false)
                         snackbarUpdateView.showState(SnackbarUpdateView.UpdateState.LOADING)
                         snackbarUpdateView.updateLoadingProgress(
                             bannerState.progress,
@@ -193,7 +193,6 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(R.layout.a
             }
 
             navController.addOnDestinationChangedListener { _, destination, _ ->
-                Log.d("lol","destination: ${destination.label}")
                 viewModel.onDestinationChanged(destination.id)
             }
         }
@@ -220,7 +219,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(R.layout.a
     override fun onResume() {
         super.onResume()
         viewModel.onResume()
-        toast(BuildConfig.VERSION_CODE.toString())
+//        toast(BuildConfig.VERSION_CODE.toString())
     }
 
     private fun refreshCurrentFragment() {

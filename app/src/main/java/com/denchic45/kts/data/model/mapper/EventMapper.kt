@@ -13,7 +13,6 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Named
 import java.time.LocalDate
-import java.util.stream.Collectors
 
 @Mapper(uses = [CourseContentMapper::class, UserMapper::class, GroupMapper::class, SubjectMapper::class])
 abstract class EventMapper {
@@ -59,29 +58,32 @@ abstract class EventMapper {
 
     @Named("mapTeacherList")
     fun mapTeacherList(teachers: List<User>): List<String> {
-        return teachers.stream()
-            .map<String>(User::id)
-            .collect(Collectors.toList())
+        return teachers.map(User::id)
     }
 
-    abstract fun docToEntity(doc: List<EventDoc>): List<EventEntity>
-    fun domainToDoc(domain: Event): EventDoc {
-        val eventDoc = eventToEventDoc(domain)
+    fun docToEntity(docs: List<EventDoc>, dayId: String): List<EventEntity> {
+        return docs.map { eventDoc ->
+            docToEntity(eventDoc, dayId)
+        }
+    }
+
+    fun domainToDoc(domain: Event, index: Int): EventDoc {
+        val eventDoc = eventToEventDoc(domain, index)
         eventDoc.eventDetailsDoc = detailsToDetailsDoc(domain.details)
         return eventDoc
     }
 
-    @Mapping(source = "group.id", target = "groupId")
+    @Mapping(source = "domain.group.id", target = "groupId")
     @Mapping(
-        source = "details",
+        source = "domain.details",
         target = "eventDetailsDoc",
         qualifiedByName = ["detailsToDetailsDoc"]
     )
-    abstract fun eventToEventDoc(domain: Event): EventDoc
+    abstract fun eventToEventDoc(domain: Event, position: Int): EventDoc
+
     fun domainToDoc(docs: List<Event>): List<EventDoc> {
-        return docs.stream()
-            .map { domain: Event -> this.domainToDoc(domain) }
-            .collect(Collectors.toList())
+        return docs.withIndex()
+            .map { (index, event) -> this.domainToDoc(event, index) }
     }
 
     @Named("detailsToDetailsDoc")
@@ -97,20 +99,30 @@ abstract class EventMapper {
     @Mapping(source = "subject.id", target = "subjectId")
     abstract fun lessonToDetailsDoc(eventDetails: Lesson): EventDetailsDoc
 
-    abstract fun simpleToDetailsDoc(eventDetails: SimpleEventDetails): EventDetailsDoc
+    abstract fun simpleToDetailsDoc(
+        simpleEventDetails: SimpleEventDetails
+    ): EventDetailsDoc
 
-    fun emptyToDetailsDoc(): EventDetailsDoc {
+    private fun emptyToDetailsDoc(): EventDetailsDoc {
         return createEmpty()
     }
 
-    @Mapping(source = "eventDetailsDoc", target = ".")
-    abstract fun docToEntity(doc: EventDoc): EventEntity
+    @Mapping(source = "dayId", target = "dayId")
+    @Mapping(source = "doc.eventDetailsDoc", target = ".")
+    abstract fun docToEntity(doc: EventDoc, dayId: String): EventEntity
+
     abstract fun entityToDoc(entity: EventEntity): EventDoc
+
     fun lessonEntitiesToTeacherLessonCrossRefEntities(eventEntities: List<EventEntity>): List<TeacherEventCrossRef> {
         return eventEntities
+            .filter { !it.teacherIds.isNullOrEmpty() }
             .flatMap { eventEntity ->
-                eventEntity.teacherIds
-                    .map { id: String -> TeacherEventCrossRef(eventEntity.id, id) }
+                eventEntity.teacherIds!!.map { id: String ->
+                    TeacherEventCrossRef(
+                        eventEntity.id,
+                        id
+                    )
+                }
             }
     }
 }

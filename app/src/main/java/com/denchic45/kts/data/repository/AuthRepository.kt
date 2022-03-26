@@ -106,6 +106,7 @@ class AuthRepository @Inject constructor(
 
 
     suspend fun authByEmail(email: String, password: String) {
+        Log.d("lol", "A authByEmail: ")
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .await()
     }

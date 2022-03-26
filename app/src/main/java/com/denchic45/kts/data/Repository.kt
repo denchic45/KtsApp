@@ -1,8 +1,8 @@
 package com.denchic45.kts.data
 
 import android.content.Context
+import android.util.Log
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.BuildConfig
 import com.denchic45.kts.data.Repository.Subscription
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.OldVersionException
@@ -132,10 +132,16 @@ interface RequireUpdateData {
             .isGooglePlayServicesAvailable(context) == com.google.android.gms.common.ConnectionResult.SUCCESS
     }
 
-    fun requireInternetConnection() {
+    suspend fun requireInternetConnection() {
+        Log.d("lol", "AA requireInternetConnection: ")
         if (isNetworkNotAvailable) throw NetworkException()
-        if (!BuildConfig.DEBUG)
+        Log.d("lol", "AA isGoogleServicesAvailable: ")
+        if (isGoogleServicesAvailable()) {
+            Log.d("lol", "AA isOldCurrentVersion: ")
+
             if (appVersionService.isOldCurrentVersion()) throw OldVersionException()
+            Log.d("lol", "AA END requireInternetConnection: ")
+        }
     }
 }
 

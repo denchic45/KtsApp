@@ -34,7 +34,9 @@ class FakeAppVersionService @Inject constructor(
         }
     }
 
-    override val latestVersion: Int = 0
+    override suspend fun getLatestVersion(): Int {
+        return 0
+    }
 
     override fun installUpdate() {
 

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "5b0a2d1f052095478b32da7e14e28fe0",
+    "identityHash": "86fda0408b629b08da7735b07c75de2f",
     "entities": [
       {
         "tableName": "subject",
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "event",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `day_id` TEXT NOT NULL, `room` TEXT NOT NULL, `subject_id` TEXT NOT NULL, `teacher_ids` TEXT NOT NULL, `group_id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT NOT NULL, `icon_url` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`event_id`), FOREIGN KEY(`day_id`) REFERENCES `day`(`day_id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`event_id` TEXT NOT NULL, `day_id` TEXT NOT NULL, `position` INTEGER NOT NULL, `room` TEXT, `subject_id` TEXT, `teacher_ids` TEXT, `group_id` TEXT NOT NULL, `type` TEXT NOT NULL, `name` TEXT, `icon_url` TEXT, `color` TEXT, PRIMARY KEY(`event_id`), FOREIGN KEY(`day_id`) REFERENCES `day`(`day_id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -59,22 +59,28 @@
             "notNull": true
           },
           {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "room",
             "columnName": "room",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "subjectId",
             "columnName": "subject_id",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "teacherIds",
             "columnName": "teacher_ids",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "groupId",
@@ -92,19 +98,19 @@
             "fieldPath": "name",
             "columnName": "name",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "iconUrl",
             "columnName": "icon_url",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "color",
             "columnName": "color",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -320,7 +326,7 @@
       },
       {
         "tableName": "day",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_id` TEXT NOT NULL, `date` TEXT NOT NULL, `startAtZero` INTEGER NOT NULL, `group_id` TEXT NOT NULL, PRIMARY KEY(`day_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`day_id` TEXT NOT NULL, `date` TEXT NOT NULL, `startsAtZero` INTEGER NOT NULL, `group_id` TEXT NOT NULL, PRIMARY KEY(`day_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -335,8 +341,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "startAtZero",
-            "columnName": "startAtZero",
+            "fieldPath": "startsAtZero",
+            "columnName": "startsAtZero",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -932,7 +938,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b0a2d1f052095478b32da7e14e28fe0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '86fda0408b629b08da7735b07c75de2f')"
     ]
   }
 }

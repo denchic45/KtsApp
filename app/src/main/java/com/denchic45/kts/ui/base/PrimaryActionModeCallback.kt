@@ -32,6 +32,7 @@ class PrimaryActionModeCallback : ActionMode.Callback {
     }
 
     override fun onDestroyActionMode(mode: ActionMode) {
+        onActionModeFinish?.invoke()
         this.mode = null
     }
 

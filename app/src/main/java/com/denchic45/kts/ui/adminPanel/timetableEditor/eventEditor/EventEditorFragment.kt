@@ -3,7 +3,9 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor
 import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Parcel
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -11,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -20,7 +21,6 @@ import com.denchic45.kts.databinding.FragmentEventEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.collectWhenStarted
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -55,9 +55,12 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
             viewModel.dateField.observe(
                 viewLifecycleOwner
             ) { text -> tvDate.text = text }
+
             viewModel.orderField.observe(
                 viewLifecycleOwner
-            ) { text1 -> if (etOrder.text.toString() != text1) etOrder.setText(text1) }
+            ) { text1 ->
+                tvOrder.text = text1
+            }
             viewModel.roomField.observe(
                 viewLifecycleOwner
             ) { text -> if (etRoom.text.toString() != text) etRoom.setText(text) }
@@ -75,10 +78,6 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
                 }
             }
 
-            viewModel.orderEditEnable.collectWhenStarted(lifecycleScope) {
-                etOrder.isEnabled = it
-            }
-
             fab.setOnClickListener { viewModel.onFabClick() }
             toolbarEventEditor.setOnClickListener { viewModel.onToolbarClick() }
 
@@ -86,20 +85,13 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
 
             etRoom.textChanges()
                 .compose(EditTextTransformer())
-                .subscribe { room: String? ->
-                    viewModel.onRoomType(
-                        room!!
-                    )
-                }
-            etOrder.textChanges()
+                .subscribe(viewModel::onRoomType)
+
+            tvOrder.textChanges()
                 .compose(EditTextTransformer())
                 .filter(String::isNotEmpty)
-                .map { s: String -> s.toInt() }
-                .subscribe { order: Int? ->
-                    viewModel.onOrderType(
-                        order!!
-                    )
-                }
+                .map(String::toInt)
+                .subscribe(viewModel::onOrderType)
         }
 
         viewModel.openDatePicker.observe(viewLifecycleOwner) {

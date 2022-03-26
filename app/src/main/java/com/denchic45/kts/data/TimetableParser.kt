@@ -30,7 +30,7 @@ class TimetableParser {
     private lateinit var table: XWPFTable
     private var currentRow = 0
     private var currentDayOfWeek = 0
-    private var currentGroupCourse: GroupCourses? = null
+    private lateinit var currentGroupCourse: GroupCourses
 
     suspend fun parseDoc(
         docFile: File,
@@ -138,7 +138,7 @@ class TimetableParser {
     У урока нет порядкового номера! 
     Дата: $dateText
     Поле урока: $subjectAndRoomText
-    Группа: ${currentGroupCourse!!.group.name}
+    Группа: ${currentGroupCourse.group.name}
     """.trimIndent()
                 )
             }
@@ -159,7 +159,7 @@ class TimetableParser {
     private fun createEvent(order: Int, subjectAndRoom: String, date: LocalDate): Event {
         var subjectAndRoom = subjectAndRoom
         if (subjectAndRoom.isEmpty()) {
-            return createEmpty(group = currentGroupCourse!!.group, order = order, date = date)
+            return createEmpty(group = currentGroupCourse.group, order = order)
         }
         val separatorSubjectRoomPos = subjectAndRoom.indexOf('\\')
         val eventName: String
@@ -175,15 +175,14 @@ class TimetableParser {
         val subject = findSubjectByName(eventName)
         return if (subject != null) {
             Event(
-                group = currentGroupCourse!!.group,
-                date = date,
+                group = currentGroupCourse.group,
+
                 room = room,
                 details = Lesson(subject, teachers = findTeachersBySubject(subject))
             )
         } else {
             Event(
-                group = currentGroupCourse!!.group,
-                date = date,
+                group = currentGroupCourse.group,
                 room = room,
                 details = createEventDetails(eventName)
             )
@@ -191,7 +190,7 @@ class TimetableParser {
     }
 
     private fun findSubjectByName(subjectName: String): Subject? {
-        return currentGroupCourse!!.courses
+        return currentGroupCourse.courses
             .firstOrNull { course ->
                 course.subject.name.resetFormatting().contains(
                     subjectName.resetFormatting()
@@ -208,7 +207,7 @@ class TimetableParser {
     }
 
     private fun findTeachersBySubject(subject: Subject): List<User> {
-        return currentGroupCourse!!.courses.stream()
+        return currentGroupCourse.courses.stream()
             .filter { it.subject == subject }
             .map { it.teacher }
             .collect(Collectors.toList())
