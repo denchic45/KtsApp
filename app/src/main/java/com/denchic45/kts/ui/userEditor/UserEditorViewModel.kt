@@ -22,7 +22,6 @@ import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.Validations
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
@@ -38,31 +37,31 @@ open class UserEditorViewModel @Inject constructor(
     private val confirmInteractor: ConfirmInteractor
 ) : BaseViewModel() {
 
-    val fieldRoles = MutableStateFlow<Int>(0)
+    val fieldRoles = MutableStateFlow(0)
 
     val fieldGenders = MutableLiveData<List<ListItem>>()
 
     val groupList = MutableLiveData<List<ListItem>>()
 
-    val fieldFirstName = MutableStateFlow<String>("")
+    val fieldFirstName = MutableStateFlow("")
 
     val fieldSurname = MutableStateFlow("")
 
     val fieldPatronymic = MutableStateFlow("")
 
-    val fieldPhoneNum = MutableStateFlow<String>("")
+    val fieldPhoneNum = MutableStateFlow("")
 
-    val fieldEmail = MutableStateFlow<String>("")
+    val fieldEmail = MutableStateFlow("")
 
-    val fieldGender = MutableStateFlow<String>("")
+    val fieldGender = MutableStateFlow("")
 
-    val fieldRole = MutableStateFlow<Int>(R.string.role_student)
+    val fieldRole = MutableStateFlow(R.string.role_student)
 
-    val fieldGroup = MutableStateFlow<String>("")
+    val fieldGroup = MutableStateFlow("")
 
-    val avatarUser = MutableStateFlow<String>("")
+    val avatarUser = MutableStateFlow("")
 
-    val fieldGroupVisibility = MutableStateFlow<Boolean>(false)
+    val fieldGroupVisibility = MutableStateFlow(false)
 
     val fieldEmailEnable = MutableStateFlow(true)
 
@@ -289,7 +288,7 @@ open class UserEditorViewModel @Inject constructor(
         viewModelScope.launch { typedNameGroup.emit(groupName) }
     }
 
-    fun onFabClick() {
+    private fun onFabClick() {
         uiValidator.runValidates {
             if (uiEditor.hasBeenChanged())
                 saveChanges()

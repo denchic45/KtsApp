@@ -4,7 +4,6 @@ import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.SpecialtyDoc
 import com.denchic45.kts.data.model.room.SpecialtyEntity
 import org.mapstruct.Mapper
-import org.mapstruct.Mapping
 
 @Mapper
 interface SpecialtyMapper {

@@ -1,5 +1,6 @@
 package com.denchic45.widget.extendedAdapter
 
+import android.annotation.SuppressLint
 import android.view.ViewGroup
 import androidx.collection.SparseArrayCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -93,6 +94,7 @@ class DelegationAdapterExtended(
 //    }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun notifyAdapterItemSetChanged() {
         notifyDataSetChanged()
     }

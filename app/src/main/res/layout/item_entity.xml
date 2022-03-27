@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_marginVertical="8dp"
     android:layout_height="96dp"
@@ -14,7 +15,8 @@
         android:layout_height="52dp"
         android:background="@drawable/shape_round_outline_btn"
         android:padding="12dp"
-        app:srcCompat="@drawable/ic_user" />
+        app:srcCompat="@drawable/ic_user"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/textView_title"

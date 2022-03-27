@@ -1,42 +1,37 @@
-package com.denchic45.widget.transition;
+package com.denchic45.widget.transition
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
-import android.view.View;
-import android.view.ViewGroup;
+import android.animation.Animator
+import android.animation.ObjectAnimator
+import android.view.View
+import android.view.ViewGroup
+import androidx.transition.Transition
+import androidx.transition.TransitionValues
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.transition.Transition;
-import androidx.transition.TransitionValues;
-
-public class Rotation extends Transition {
-
-    public static final String ROTATION = "ROTATION";
-
-    @Override
-    public void captureStartValues(@NonNull TransitionValues transitionValues) {
-        captureValues(transitionValues);
+class Rotation : Transition() {
+    override fun captureStartValues(transitionValues: TransitionValues) {
+        captureValues(transitionValues)
     }
 
-    @Override
-    public void captureEndValues(@NonNull TransitionValues transitionValues) {
-        captureValues(transitionValues);
+    override fun captureEndValues(transitionValues: TransitionValues) {
+        captureValues(transitionValues)
     }
 
-    private void captureValues(TransitionValues transitionValues) {
-        View view = transitionValues.view;
-        transitionValues.values.put(ROTATION, view.getRotation());
+    private fun captureValues(transitionValues: TransitionValues) {
+        val view = transitionValues.view
+        transitionValues.values[ROTATION] = view.rotation
     }
 
-    @Nullable
-    @Override
-    public Animator createAnimator(@NonNull ViewGroup sceneRoot,
-                                   @Nullable TransitionValues startValues,
-                                   @Nullable TransitionValues endValues) {
+    override fun createAnimator(
+        sceneRoot: ViewGroup,
+        startValues: TransitionValues?,
+        endValues: TransitionValues?
+    ): Animator? {
+        val startRotate = startValues!!.values[ROTATION] as Float
+        val endRotate = endValues!!.values[ROTATION] as Float
+        return ObjectAnimator.ofFloat(endValues.view, View.ROTATION, startRotate, endRotate)
+    }
 
-        float startRotate = (float) startValues.values.get(ROTATION);
-        float endRotate = (float) endValues.values.get(ROTATION);
-        return ObjectAnimator.ofFloat(endValues.view, View.ROTATION, startRotate, endRotate);
+    companion object {
+        const val ROTATION = "ROTATION"
     }
 }

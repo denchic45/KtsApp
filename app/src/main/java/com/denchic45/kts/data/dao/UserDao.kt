@@ -13,9 +13,6 @@ abstract class UserDao : BaseDao<UserEntity>() {
     @Query("SELECT * FROM user WHERE user_group_id =:groupId ORDER BY surname")
     abstract fun observeByGroupId(groupId: String): Flow<List<UserEntity>>
 
-    @Query("SELECT * FROM user WHERE user_group_id =:groupId ORDER BY surname")
-    abstract suspend fun getByGroupId(groupId: String): List<UserEntity>
-
     @Query("SELECT EXISTS(SELECT * FROM user WHERE user_id = :id)")
     abstract suspend fun isExist(id: String): Boolean
 
@@ -61,9 +58,6 @@ abstract class UserDao : BaseDao<UserEntity>() {
 
     @Query("DELETE FROM user WHERE user_group_id =:groupId AND user_id NOT IN(:availableStudents) ")
     abstract suspend fun deleteMissingStudentsByGroup(availableStudents: List<String>, groupId: String)
-
-    @Query("SELECT * FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u INNER JOIN course c INNER JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
-    abstract suspend fun findUnrelatedTeachersByCourseOrGroupAsCurator(): List<UserEntity>
 
     @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u LEFT JOIN course c LEFT JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
     abstract suspend fun deleteUnrelatedTeachersByCourseOrGroupAsCurator()

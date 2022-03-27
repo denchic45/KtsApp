@@ -60,10 +60,6 @@ class SubjectAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>
         holder.onBind(getItem(position))
     }
 
-    enum class PAYLOAD {
-        UPDATE_ICON
-    }
-
     internal class SubjectHolder(
         itemIconContentBinding: ItemIconContentBinding,
         itemClickListener: OnItemClickListener,

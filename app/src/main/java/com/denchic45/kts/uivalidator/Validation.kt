@@ -6,7 +6,7 @@ import com.denchic45.kts.uivalidator.validatorlistener.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import java.util.function.Consumer
 
-class Validation(private vararg val rules: Rule) {
+open class Validation(private vararg val rules: Rule) {
     private var errorRunnable: Runnable? = null
     private var messageConsumer: Consumer<String>? = null
     private var resIdConsumer: Consumer<Int>? = null
@@ -73,14 +73,14 @@ class Validation(private vararg val rules: Rule) {
         return this
     }
 
-    fun sendMessageResult(mutableLiveData: MutableLiveData<String?>): Validation {
+    fun sendMessageResult(mutableLiveData: SingleLiveData<String?>): Validation {
         validationListener = MessageLiveDataValidationListener(mutableLiveData)
         return this
     }
 
     fun sendMessageIdResult(
         id: Int,
-        mutableLiveData: MutableLiveData<Pair<Int, Int?>>
+        mutableLiveData: SingleLiveData<Pair<Int, Int?>>
     ): Validation {
         validationListener = FieldMessageIdLiveDataValidationListener(id, mutableLiveData)
         return this
@@ -88,13 +88,13 @@ class Validation(private vararg val rules: Rule) {
 
     fun sendMessageResult(
         id: Int,
-        mutableLiveData: MutableLiveData<Pair<Int, String?>>
+        mutableLiveData: SingleLiveData<Pair<Int, String?>>
     ): Validation {
         validationListener = FieldMessageLiveDataValidationListener(id, mutableLiveData)
         return this
     }
 
-    fun sendMessageIdResult(mutableLiveData: MutableLiveData<Int>): Validation {
+    fun sendMessageIdResult(mutableLiveData: SingleLiveData<Int>): Validation {
         validationListener = MessageIdLiveDataValidationListener(mutableLiveData)
         return this
     }
@@ -104,7 +104,7 @@ class Validation(private vararg val rules: Rule) {
         return this
     }
 
-    fun sendActionResult(errorAction: Consumer<Rule?>?, successAction: Runnable?): Validation {
+    fun sendActionResult(errorAction: Consumer<Rule>, successAction: Runnable): Validation {
         validationListener = ActionValidationListener(errorAction, successAction)
         return this
     }
@@ -127,14 +127,14 @@ class Validation(private vararg val rules: Rule) {
             return true
         }
 
-    protected fun onPostSuccess() {
+    private fun onPostSuccess() {
         if (successRunnable != null) successRunnable!!.run()
         if (runResetLiveData != null) runResetLiveData!!.run()
     }
 
-    protected fun onPostError(rule: Rule) {
+    private fun onPostError(rule: Rule) {
         if (errorRunnable != null) errorRunnable!!.run()
-        if (messageConsumer != null) messageConsumer!!.accept(rule.errorMessage)
+        if (messageConsumer != null) messageConsumer!!.accept(rule.errorMessage ?: "")
         if (resIdConsumer != null) resIdConsumer!!.accept(rule.errorResId)
     }
 

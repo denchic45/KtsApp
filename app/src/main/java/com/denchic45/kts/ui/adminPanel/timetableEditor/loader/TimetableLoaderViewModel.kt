@@ -4,9 +4,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.Event
+import com.denchic45.kts.data.model.domain.GroupTimetable
+import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.PreferenceContentItem
 import com.denchic45.kts.ui.adapter.PreferenceItem
@@ -25,7 +27,6 @@ import java.io.File
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.util.*
 import javax.inject.Inject
 
 class TimetableLoaderViewModel @Inject constructor(

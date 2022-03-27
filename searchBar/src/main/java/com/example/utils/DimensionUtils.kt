@@ -1,19 +1,17 @@
-package com.example.utils;
+package com.example.utils
 
-import android.content.Context;
-import android.util.DisplayMetrics;
+import android.content.Context
+import android.util.DisplayMetrics
+import kotlin.math.roundToInt
 
-import org.jetbrains.annotations.NotNull;
-
-public final class DimensionUtils {
-
-    public static int pxToDp(int px, @NotNull Context context) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+object DimensionUtils {
+    fun pxToDp(px: Int, context: Context): Int {
+        val displayMetrics = context.resources.displayMetrics
+        return (px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
     }
 
-    public static int dpToPx(int dp, @NotNull Context context) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    fun dpToPx(dp: Int, context: Context): Int {
+        val displayMetrics = context.resources.displayMetrics
+        return (dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT)).roundToInt()
     }
 }

@@ -308,7 +308,7 @@ class GroupRepository @Inject constructor(
 
     fun getNameByGroupId(groupId: String): Flow<String> {
         coroutineScope.launch(dispatcher) {
-            if (!groupDao.isExistSync(groupId)) {
+            if (!groupDao.isExist(groupId)) {
                 getGroupByIdRemotely(groupId)
             }
         }
@@ -316,7 +316,7 @@ class GroupRepository @Inject constructor(
     }
 
     fun isExistGroup(groupId: String): Flow<Boolean> {
-        return groupDao.isExist(groupId)
+        return groupDao.observeIsExist(groupId)
     }
 
     suspend fun findGroupsWithCoursesByCourse(course: Int): List<GroupCourses> {

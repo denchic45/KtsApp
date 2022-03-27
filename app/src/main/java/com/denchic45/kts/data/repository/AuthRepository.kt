@@ -3,7 +3,6 @@ package com.denchic45.kts.data.repository
 import android.content.Context
 import android.util.Log
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.google.firebase.FirebaseException

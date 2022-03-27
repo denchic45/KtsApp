@@ -2,22 +2,18 @@ package com.denchic45.kts.data.repository
 
 import android.content.Context
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
-import com.denchic45.kts.di.modules.IoDispatcher
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.WriteBatch
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -26,8 +22,6 @@ class StudentRepository @Inject constructor(
     override val appVersionService: AppVersionService,
     override val networkService: NetworkService,
     private val userDao: UserDao,
-    @IoDispatcher private val dispatcher: CoroutineDispatcher,
-    private val coroutineScope: CoroutineScope,
     private val userMapper: UserMapper,
     private val firestore: FirebaseFirestore
 ) : Repository(context) {

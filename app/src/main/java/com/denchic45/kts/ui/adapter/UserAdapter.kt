@@ -58,7 +58,6 @@ class UserAdapter(
         private val ivAvatar: ImageView = itemView.findViewById(R.id.iv_avatar)
         private val tvName: TextView = itemView.findViewById(R.id.tv_name)
         private val tvAdditionally: TextView = itemView.findViewById(R.id.tv_user_role)
-        private val rlForeground: ConstraintLayout = itemView.findViewById(R.id.rl_foreground)
         override fun onBind(user: User) {
             Glide.with(itemView)
                 .load(user.photoUrl)

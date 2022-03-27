@@ -1,20 +1,17 @@
-package com.denchic45.kts.data.dao;
+package com.denchic45.kts.data.dao
 
-import androidx.lifecycle.LiveData;
-import androidx.room.Dao;
-import androidx.room.Query;
-
-import com.denchic45.kts.data.model.room.SpecialtyEntity;
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Query
+import com.denchic45.kts.data.model.room.SpecialtyEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
-public abstract class SpecialtyDao extends BaseDao<SpecialtyEntity> {
-
-    @Query("DELETE FROM specialty WHERE specialty_id NOT IN (:availableSpecialties)")
-    public abstract void deleteMissing(String availableSpecialties);
+abstract class SpecialtyDao : BaseDao<SpecialtyEntity>() {
 
     @Query("SELECT * FROM specialty WHERE specialty_id =:id")
-    public abstract SpecialtyEntity getSync(String id);
+    abstract fun get(id: String): SpecialtyEntity?
 
     @Query("SELECT * FROM specialty WHERE specialty_id =:id")
-    public abstract LiveData<SpecialtyEntity> get(String id);
+    abstract fun observe(id: String): Flow<SpecialtyEntity?>
 }

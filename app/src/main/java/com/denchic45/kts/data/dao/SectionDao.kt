@@ -11,6 +11,9 @@ abstract class SectionDao : BaseDao<SectionEntity>() {
     @Query("SELECT * FROM section WHERE course_id =:courseId ORDER BY `order`")
     abstract fun getByCourseId(courseId: String): Flow<List<SectionEntity>>
 
+    @Query("DELETE FROM section WHERE course_id =:courseId")
+    abstract fun deleteByCourseId(courseId: String)
+
     @Query("SELECT * FROM section WHERE section_id=:sectionId")
     abstract suspend fun get(sectionId: String): SectionEntity?
 

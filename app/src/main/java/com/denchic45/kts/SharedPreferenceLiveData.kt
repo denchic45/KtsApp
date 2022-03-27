@@ -1,104 +1,71 @@
-package com.denchic45.kts;
+package com.denchic45.kts
 
-import android.content.SharedPreferences;
-import android.util.Log;
+import android.content.SharedPreferences
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.util.Log
+import androidx.lifecycle.LiveData
 
-import androidx.lifecycle.LiveData;
-
-public abstract class SharedPreferenceLiveData<T> extends LiveData<T> {
-
-    public T defValue;
-    SharedPreferences sharedPrefs;
-    String key;
-    private final SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            Log.d("lol", "onSharedPreferenceChanged: " + key);
-            if (SharedPreferenceLiveData.this.key.equals(key)) {
-                setValue(getValue(key, defValue));
+abstract class SharedPreferenceLiveData<T>(
+    val sharedPrefs: SharedPreferences,
+    val key: String,
+    var defValue: T
+) : LiveData<T>() {
+    private val preferenceChangeListener =
+        OnSharedPreferenceChangeListener { sharedPreferences, key ->
+            Log.d("lol", "onSharedPreferenceChanged: $key")
+            if (this@SharedPreferenceLiveData.key == key) {
+                value = getValue(key, defValue)
             }
         }
-    };
 
-    public SharedPreferenceLiveData(SharedPreferences prefs, String key, T defValue) {
-        this.sharedPrefs = prefs;
-        this.key = key;
-        this.defValue = defValue;
+    abstract fun getValue(key: String, defValue: T): T
+    override fun onActive() {
+        super.onActive()
+        value = getValue(key, defValue)
+        sharedPrefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
     }
 
-    abstract T getValue(String key, T defValue);
-
-    @Override
-    protected void onActive() {
-        super.onActive();
-        setValue(getValue(key, defValue));
-        sharedPrefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+    override fun onInactive() {
+        sharedPrefs.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener)
+        super.onInactive()
     }
 
-    @Override
-    protected void onInactive() {
-
-        sharedPrefs.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
-        super.onInactive();
+    fun getLiveData(key: String, defaultValue: Boolean): SharedPreferenceLiveData<Boolean> {
+        return SharedPreferenceBooleanLiveData(sharedPrefs, key, defaultValue)
     }
 
-    public SharedPreferenceLiveData<Boolean> getLiveData(String key, Boolean defaultValue) {
-        return new SharedPreferenceBooleanLiveData(sharedPrefs, key, defaultValue);
+    fun getLiveData(key: String, defaultValue: String): SharedPreferenceLiveData<String> {
+        return SharedPreferenceStringLiveData(sharedPrefs, key, defaultValue)
     }
 
-    public SharedPreferenceLiveData<String> getLiveData(String key, String defaultValue) {
-        return new SharedPreferenceStringLiveData(sharedPrefs, key, defaultValue);
-    }
-
-    public static class SharedPreferenceBooleanLiveData extends SharedPreferenceLiveData<Boolean> {
-
-        public SharedPreferenceBooleanLiveData(SharedPreferences prefs, String key, Boolean defValue) {
-            super(prefs, key, defValue);
-        }
-
-        @Override
-        Boolean getValue(String key, Boolean defValue) {
-            return sharedPrefs.getBoolean(key, defValue);
+    class SharedPreferenceBooleanLiveData(
+        prefs: SharedPreferences,
+        key: String,
+        defValue: Boolean
+    ) : SharedPreferenceLiveData<Boolean>(prefs, key, defValue) {
+        override fun getValue(key: String, defValue: Boolean): Boolean {
+            return sharedPrefs.getBoolean(key, defValue)
         }
     }
 
-    public static class SharedPreferenceStringLiveData extends SharedPreferenceLiveData<String> {
-
-        public SharedPreferenceStringLiveData(SharedPreferences prefs, String key, String defValue) {
-            super(prefs, key, defValue);
-        }
-
-        @Override
-        String getValue(String key, String defValue) {
-            return sharedPrefs.getString(key, defValue);
+    class SharedPreferenceStringLiveData(prefs: SharedPreferences, key: String, defValue: String) :
+        SharedPreferenceLiveData<String>(prefs, key, defValue) {
+        override fun getValue(key: String, defValue: String): String {
+            return sharedPrefs.getString(key, defValue)!!
         }
     }
 
-    public static class SharedPreferenceIntegerLiveData extends SharedPreferenceLiveData<Integer> {
-        public SharedPreferenceIntegerLiveData(SharedPreferences prefs, String key, int defValue) {
-            super(prefs, key, defValue);
-        }
-
-        @Override
-        Integer getValue(String key, Integer defValue) {
-            return sharedPrefs.getInt(key, defValue);
+    class SharedPreferenceIntegerLiveData(prefs: SharedPreferences, key: String, defValue: Int) :
+        SharedPreferenceLiveData<Int>(prefs, key, defValue) {
+        override fun getValue(key: String, defValue: Int): Int {
+            return sharedPrefs.getInt(key, defValue)
         }
     }
 
-    public static class SharedPreferenceLongLiveData extends SharedPreferenceLiveData<Long> {
-        public SharedPreferenceLongLiveData(SharedPreferences prefs, String key, long defValue) {
-            super(prefs, key, defValue);
+    class SharedPreferenceLongLiveData(prefs: SharedPreferences, key: String, defValue: Long) :
+        SharedPreferenceLiveData<Long>(prefs, key, defValue) {
+        override fun getValue(key: String, defValue: Long): Long {
+            return sharedPrefs.getLong(key, defValue)
         }
-
-        @Override
-        Long getValue(String key, Long defValue) {
-            return sharedPrefs.getLong(key, defValue);
-        }
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        Log.d("lol", "finalize prefs: ");
     }
 }

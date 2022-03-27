@@ -18,7 +18,6 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.ItemPopupContentBinding
 import com.denchic45.kts.utils.viewBinding
-import java.util.*
 
 class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAdapter<ListItem>(
     context, 0, items
@@ -42,7 +41,7 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
 
     fun updateList(items: List<ListItem>) {
         list.clear()
-        list.addAll(items!!)
+        list.addAll(items)
         notifyDataSetChanged()
     }
 
@@ -59,9 +58,9 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
             if (item.hasIcon()) {
                 when (item.type) {
                     TYPE_NONE -> convertView = LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_popup_icon_content, null)
+                        .inflate(R.layout.item_popup_icon_content, parent, false)
                     TYPE_AVATAR -> convertView = LayoutInflater.from(parent.context)
-                        .inflate(R.layout.item_popup_avatar_content, null)
+                        .inflate(R.layout.item_popup_avatar_content, parent, false)
                 }
                 val tItemWithIconHolder = ItemWithIconHolder(convertView!!)
                 tItemWithIconHolder.onBind(item)

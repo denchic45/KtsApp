@@ -58,10 +58,6 @@ class SearchKeysGenerator {
         return wordKeys
     }
 
-    interface Filter : Predicate<String?> {
-        override fun test(predicate: String?): Boolean
-    }
-
     companion object {
         fun formatInput(input: String): String {
             return input.lowercase(Locale.getDefault()).replace("\\s+".toRegex(), "")

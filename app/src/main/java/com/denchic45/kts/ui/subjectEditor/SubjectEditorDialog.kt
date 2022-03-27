@@ -78,7 +78,7 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
                 adapter.list = listWithCurrentPair.first
                 adapter.setItemClickListener { position: Int ->
                     viewModel.onColorSelect(position)
-                    adapter.notifyDataSetChanged()
+                    adapter.notifyItemRangeChanged(0, adapter.itemCount)
                 }
                 viewModel.currentSelectedColor.observe(viewLifecycleOwner) { current: Int ->
                     adapter.setCurrent(current)

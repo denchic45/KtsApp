@@ -4,8 +4,6 @@ import androidx.room.*
 import com.denchic45.kts.data.model.DocModel
 import com.denchic45.kts.data.model.EntityModel
 import com.google.firebase.firestore.Exclude
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Entity(

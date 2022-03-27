@@ -46,7 +46,7 @@ class TimetableFinderViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _eventsOfDayFromDataSource.combine(editEventsMode) {a, b -> a to b }
+            _eventsOfDayFromDataSource.combine(editEventsMode) { a, b -> a to b }
                 .collect { (eventsOfDay, editMode) ->
                     if (!editMode && !savingEditedEvents)
                         _eventsOfDay.emit(eventsOfDay)
@@ -55,17 +55,17 @@ class TimetableFinderViewModel @Inject constructor(
     }
 
     val eventsOfDay: StateFlow<EventsOfDayState> =
-        combine(_eventsOfDay, selectedDate, editEventsMode)
-        { eventsOfDay, selectedDate, enableEditMode ->
+        combine(_eventsOfDay, editEventsMode)
+        { eventsOfDay, enableEditMode ->
             if (enableEditMode)
-                EventsOfDayState.Edit(selectedDate, eventsOfDay.events)
+                EventsOfDayState.Edit(eventsOfDay.events)
             else {
-                EventsOfDayState.Current(selectedDate, eventsOfDay.events)
+                EventsOfDayState.Current(eventsOfDay.events)
             }
         }.stateIn(
             viewModelScope,
             SharingStarted.Lazily,
-            EventsOfDayState.Current(LocalDate.now(), emptyList())
+            EventsOfDayState.Current(emptyList())
         )
 
     val editTimetableOptionVisibility = SingleLiveData<Boolean>()
@@ -101,7 +101,6 @@ class TimetableFinderViewModel @Inject constructor(
         viewModelScope.launch {
             if (itemId == R.id.menu_timetable_edit) {
                 editEventsMode.emit(true)
-//                postUpdateLessonsOfGroup()
             }
         }
     }
@@ -136,7 +135,7 @@ class TimetableFinderViewModel @Inject constructor(
         openEventEditor.call()
         viewModelScope.launch {
             eventEditorInteractor.receiveEvent().apply {
-                _eventsOfDay.update {this  }
+                _eventsOfDay.update { this }
             }
 
         }
@@ -155,7 +154,7 @@ class TimetableFinderViewModel @Inject constructor(
                     if (e is NetworkException) {
                         showToast(R.string.error_check_network)
                     }
-                e.printStackTrace()
+                    e.printStackTrace()
                 }
             }
         }
@@ -168,15 +167,6 @@ class TimetableFinderViewModel @Inject constructor(
                 _eventsOfDay.value.swap(oldPosition, targetPosition)
             )
         }
-    }
-
-    private fun postUpdateLessonsOfGroup() {
-//        showEditedLessons.value = editingEvents + ListItem(
-//            id = "",
-//            title = "",
-//            content = selectedDate1,
-//            type = EventAdapter.TYPE_CREATE
-//        )
     }
 
     fun onCreateEventItemClick() {
@@ -198,21 +188,6 @@ class TimetableFinderViewModel @Inject constructor(
     }
 
     init {
-
-//        eventsOfDay =
-//            Transformations.map(Transformations.switchMap(selectedGroup) { groupItem: CourseGroup ->
-//                interactor.findLessonsOfGroupByDate(
-//                    selectedDate1,
-//                    groupItem.id
-//                ).asLiveData()
-//            }) { eventsOfDay ->
-//                if (editingEvents.isNotEmpty()) {
-//                    return@map null
-//                } else {
-//                    return@map eventsOfDay
-//                }
-//            }
-
         viewModelScope.launch {
             typedGroupName.filter { s -> s.length > 1 }
                 .flatMapLatest { groupName -> interactor.findGroupByTypedName(groupName) }
@@ -231,22 +206,19 @@ class TimetableFinderViewModel @Inject constructor(
         }
     }
 
-    sealed class EventsOfDayState(
-        private val date: LocalDate,
-    ) {
+    sealed class EventsOfDayState {
 
         abstract val events: List<DomainModel>
 
-        data class Current(val date: LocalDate, override val events: List<Event>) :
-            EventsOfDayState(date)
+        data class Current(override val events: List<Event>) :
+            EventsOfDayState()
 
-        data class Edit(val date: LocalDate, private var editingEvents: List<Event>) :
-            EventsOfDayState(date) {
+        data class Edit(private var editingEvents: List<Event>) :
+            EventsOfDayState() {
 
             override val events: List<DomainModel> = editingEvents + ListItem(
                 id = "",
                 title = "",
-                content = date,
                 type = EventAdapter.TYPE_CREATE
             )
         }

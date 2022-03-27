@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_event_detail_editor"
-    >
+    tools:ignore="InvalidNavigation">
     <fragment
         android:id="@+id/eventEditorFragment"
         android:name="com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.lessonEditor.LessonEditorFragment"

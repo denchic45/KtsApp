@@ -41,7 +41,7 @@ class FinderViewModel @Inject constructor(
 
     val openGroup = SingleLiveData<String>()
 
-    val openSubject = SingleLiveData<String>()
+    private val openSubject = SingleLiveData<String>()
 
     val openProfile = SingleLiveData<String>()
 

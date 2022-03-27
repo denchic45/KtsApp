@@ -167,9 +167,8 @@ class TimetableFinderFragment :
 
     private fun FragmentTimetableFinderBinding.setAllowEdit(adapter: EventAdapter, allow: Boolean) {
         adapter.enableEditMode = allow
+        wcv.isEnabled = !allow
         if (allow) {
-            wcv.isEnabled = false
-
             actionMode.startActionMode(binding.root, R.menu.action_timetable_editor)
         }
     }

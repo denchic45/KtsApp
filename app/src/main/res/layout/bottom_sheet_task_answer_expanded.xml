@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/tv_submission_state"
+        android:id="@+id/tv_expand_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16sp"
@@ -18,14 +18,14 @@
         tools:text='Оценено: 5/5' />
 
     <TextView
-        android:id="@+id/tv_submission_description"
+        android:id="@+id/tv_expand_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16sp"
         android:layout_marginTop="4dp"
         android:textAppearance="@style/TextAppearance.Kts.Body2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_submission_state"
+        app:layout_constraintTop_toBottomOf="@id/tv_expand_state"
         tools:text="Проверено вчера, 18:34" />
 
     <androidx.constraintlayout.utils.widget.ImageFilterView
@@ -37,7 +37,7 @@
         android:background="@color/pale_white"
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_submission_description"
+        app:layout_constraintTop_toBottomOf="@id/tv_expand_description"
         app:roundPercent="1"
         tools:srcCompat="@tools:sample/avatars" />
 

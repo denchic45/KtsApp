@@ -1,221 +1,195 @@
-package com.denchic45.widget;
+package com.denchic45.widget
 
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ViewFlipper;
+import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ViewFlipper
+import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
+import com.denchic45.kts.R
 
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
+class ListStateLayout : FrameLayout {
+    private val stateViews: MutableMap<String, View> = HashMap()
+    private var contentView: View? = null
+    private var viewFlipper: ViewFlipper? = null
+    private var showContent = false
 
-import com.denchic45.kts.R;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Map;
-
-public class ListStateLayout extends FrameLayout {
-
-    public static final String EMPTY_VIEW = "EMPTY_VIEW";
-    public static final String ERROR_VIEW = "ERROR_VIEW";
-    public static final String LOADING_VIEW = "LOADING_VIEW";
-    public static final String NETWORK_VIEW = "NETWORK_VIEW";
-    public static final String START_VIEW = "START_VIEW";
-    public static final int ONE_CHILD_VIEW_AND_VIEWFLIPPER = 2;
-    private static final String NULL_VIEW = "NULL_VIEW";
-    private final Map<String, View> stateViews = new HashMap<>();
-    private View contentView;
-    private ViewFlipper viewFlipper;
-    private boolean showContent;
-
-    public ListStateLayout(@NonNull Context context) {
-        super(context);
-        init();
+    constructor(context: Context) : super(context) {
+        init()
     }
 
-    public ListStateLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init();
-        initAttributes(attrs);
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        init()
+        initAttributes(attrs)
     }
 
-    public ListStateLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-        initAttributes(attrs);
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
+        init()
+        initAttributes(attrs)
     }
 
-    public ListStateLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-        initAttributes(attrs);
+    constructor(
+        context: Context,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes) {
+        init()
+        initAttributes(attrs)
     }
 
-    private void init() {
-
-        post(() -> {
-            if (getChildCount() != ONE_CHILD_VIEW_AND_VIEWFLIPPER) {
-                throw new IllegalStateException("Must have only 1 view");
-            }
-            contentView = getChildAt(1);
-        });
-        viewFlipper = new ViewFlipper(getContext());
-        viewFlipper.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        addView(viewFlipper);
-        addView(new View(getContext()), NULL_VIEW);
-        setDefaultAnimation();
+    private fun init() {
+        post {
+            check(childCount == ONE_CHILD_VIEW_AND_VIEWFLIPPER) { "Must have only 1 view" }
+            contentView = getChildAt(1)
+        }
+        viewFlipper = ViewFlipper(context)
+        viewFlipper!!.layoutParams = LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+        addView(viewFlipper)
+        addView(View(context), NULL_VIEW)
+        setDefaultAnimation()
     }
 
-    private void initAttributes(AttributeSet attrs) {
+    private fun initAttributes(attrs: AttributeSet?) {
         if (attrs == null) {
-            return;
+            return
         }
-        TypedArray ta = getContext().obtainStyledAttributes(attrs, R.styleable.ListStateLayout);
-
-        int emptyViewId = ta.getResourceId(R.styleable.ListStateLayout_emptyView, -1);
+        val ta = context.obtainStyledAttributes(attrs, R.styleable.ListStateLayout)
+        val emptyViewId = ta.getResourceId(R.styleable.ListStateLayout_emptyView, -1)
         if (emptyViewId > -1) {
-            addView(inflateView(emptyViewId), EMPTY_VIEW);
+            addView(inflateView(emptyViewId), EMPTY_VIEW)
         }
-
-        int loadingViewId = ta.getResourceId(R.styleable.ListStateLayout_loadingView, -1);
+        val loadingViewId = ta.getResourceId(R.styleable.ListStateLayout_loadingView, -1)
         if (loadingViewId > -1) {
-            addView(inflateView(loadingViewId), LOADING_VIEW);
+            addView(inflateView(loadingViewId), LOADING_VIEW)
         }
-
-        int errorViewId = ta.getResourceId(R.styleable.ListStateLayout_errorView, -1);
+        val errorViewId = ta.getResourceId(R.styleable.ListStateLayout_errorView, -1)
         if (errorViewId > -1) {
-            addView(inflateView(errorViewId), ERROR_VIEW);
+            addView(inflateView(errorViewId), ERROR_VIEW)
         }
-
-        int networkViewId = ta.getResourceId(R.styleable.ListStateLayout_networkView, -1);
+        val networkViewId = ta.getResourceId(R.styleable.ListStateLayout_networkView, -1)
         if (networkViewId > -1) {
-            addView(inflateView(networkViewId), NETWORK_VIEW);
+            addView(inflateView(networkViewId), NETWORK_VIEW)
         }
-        ta.recycle();
+        ta.recycle()
     }
 
-    public void showView(String viewKey) {
-        showContent = false;
-        if (stateViews.containsKey(viewKey) && viewFlipper.getDisplayedChild() != viewFlipper.indexOfChild(stateViews.get(viewKey))) {
-            if (contentView instanceof RecyclerView) {
-                contentView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (((RecyclerView) contentView).isAnimating()) {
-                            ((RecyclerView) contentView).getItemAnimator().isRunning(()
-                                    -> new Handler(Looper.getMainLooper()).post(this));
-                            return;
+    fun showView(viewKey: String) {
+        showContent = false
+        if (stateViews.containsKey(viewKey) && viewFlipper!!.displayedChild != viewFlipper!!.indexOfChild(
+                stateViews[viewKey]
+            )
+        ) {
+            if (contentView is RecyclerView) {
+                (contentView as RecyclerView).post(object : Runnable {
+                    override fun run() {
+                        if ((contentView as RecyclerView).isAnimating) {
+                            (contentView as RecyclerView).itemAnimator!!
+                                .isRunning { Handler(Looper.getMainLooper()).post(this) }
+                            return
                         }
-                        if (!showContent)
-                            viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(stateViews.get(viewKey)));
+                        if (!showContent) viewFlipper!!.displayedChild = viewFlipper!!.indexOfChild(
+                            stateViews[viewKey]
+                        )
                     }
-                });
+                })
             } else {
-                viewFlipper.setDisplayedChild(viewFlipper.indexOfChild(stateViews.get(viewKey)));
+                viewFlipper!!.displayedChild = viewFlipper!!.indexOfChild(stateViews[viewKey])
             }
         }
     }
 
-    public void showList() {
-        if (showContent)
-            return;
-        showContent = true;
-        viewFlipper.setDisplayedChild(0);
-
+    fun showList() {
+        if (showContent) return
+        showContent = true
+        viewFlipper!!.displayedChild = 0
     }
 
-    public ListChangeListener getCommitCallback(RecyclerView.Adapter<?> adapter) {
-        return new ListChangeListener(adapter);
+    fun getCommitCallback(adapter: RecyclerView.Adapter<*>): ListChangeListener {
+        return ListChangeListener(adapter)
     }
 
-    private void setDefaultAnimation() {
-        viewFlipper.setInAnimation(getContext(), R.anim.fade_in);
-        viewFlipper.setOutAnimation(getContext(), R.anim.fade_out);
+    private fun setDefaultAnimation() {
+        viewFlipper!!.setInAnimation(context, R.anim.fade_in)
+        viewFlipper!!.setOutAnimation(context, R.anim.fade_out)
     }
 
-    public void addView(@LayoutRes int layoutId, String viewKey) {
-        if (layoutId != 0)
-            addView(inflateView(layoutId), viewKey);
+    fun addView(@LayoutRes layoutId: Int, viewKey: String) {
+        if (layoutId != 0) addView(inflateView(layoutId), viewKey)
     }
 
-    public void addView(View view, String viewKey) {
+    fun addView(view: View?, viewKey: String) {
         if (view != null) {
-            viewFlipper.addView(view);
-            stateViews.put(viewKey, view);
+            viewFlipper!!.addView(view)
+            stateViews[viewKey] = view
         }
     }
 
-    public View getStateView(String viewKey) {
-        return stateViews.get(viewKey);
+    fun getStateView(viewKey: String): View? {
+        return stateViews[viewKey]
     }
 
-    private View inflateView(@LayoutRes int layoutId) {
-        return LayoutInflater.from(getContext()).inflate(layoutId, null);
+    private fun inflateView(@LayoutRes layoutId: Int): View {
+        return LayoutInflater.from(context).inflate(layoutId, null)
     }
 
-    private void checkAndShowEmptyView(RecyclerView.@NotNull Adapter<?> adapter) {
-        if (adapter.getItemCount() == 0) {
-            showView(EMPTY_VIEW);
+    private fun checkAndShowEmptyView(adapter: RecyclerView.Adapter<*>) {
+        if (adapter.itemCount == 0) {
+            showView(EMPTY_VIEW)
         } else {
-            showList();
+            showList()
         }
     }
 
-    public void listenAdapterDataObserver(RecyclerView.@NotNull Adapter<?> adapter) {
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                checkAndShowEmptyView(adapter);
+    fun listenAdapterDataObserver(adapter: RecyclerView.Adapter<*>) {
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                checkAndShowEmptyView(adapter)
             }
 
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount) {
-                checkAndShowEmptyView(adapter);
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+                checkAndShowEmptyView(adapter)
             }
 
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount, @Nullable Object payload) {
-                super.onItemRangeChanged(positionStart, itemCount, payload);
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                checkAndShowEmptyView(adapter)
             }
 
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                checkAndShowEmptyView(adapter);
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                checkAndShowEmptyView(adapter)
             }
 
-            @Override
-            public void onItemRangeRemoved(int positionStart, int itemCount) {
-                checkAndShowEmptyView(adapter);
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+                checkAndShowEmptyView(adapter)
             }
-
-            @Override
-            public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
-                checkAndShowEmptyView(adapter);
-            }
-        });
+        })
     }
 
-
-    private class ListChangeListener implements Runnable {
-
-        private final RecyclerView.Adapter<?> adapter;
-
-        public ListChangeListener(RecyclerView.Adapter<?> adapter) {
-            this.adapter = adapter;
+    inner class ListChangeListener(private val adapter: RecyclerView.Adapter<*>) : Runnable {
+        override fun run() {
+            checkAndShowEmptyView(adapter)
         }
+    }
 
-        @Override
-        public void run() {
-            checkAndShowEmptyView(adapter);
-        }
+    companion object {
+        const val EMPTY_VIEW = "EMPTY_VIEW"
+        const val ERROR_VIEW = "ERROR_VIEW"
+        const val LOADING_VIEW = "LOADING_VIEW"
+        const val NETWORK_VIEW = "NETWORK_VIEW"
+        const val START_VIEW = "START_VIEW"
+        const val ONE_CHILD_VIEW_AND_VIEWFLIPPER = 2
+        private const val NULL_VIEW = "NULL_VIEW"
     }
 }

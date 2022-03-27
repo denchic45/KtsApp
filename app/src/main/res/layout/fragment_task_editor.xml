@@ -60,7 +60,8 @@
                 android:id="@+id/act_section"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -227,7 +228,8 @@
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:textColor="@color/text_selector"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:importantForAutofill="no" />
         </LinearLayout>
 
         <LinearLayout
@@ -287,7 +289,8 @@
                 android:maxLines="1"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:textColor="@color/text_selector"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:importantForAutofill="no" />
 
 
         </LinearLayout>
@@ -324,7 +327,8 @@
                 android:textAlignment="textEnd"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:textColor="@color/text_selector"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:importantForAutofill="no" />
 
             <TextView
                 android:id="@+id/tv_attachments_limit_mb"

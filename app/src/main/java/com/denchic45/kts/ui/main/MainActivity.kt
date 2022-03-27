@@ -12,7 +12,6 @@ import androidx.navigation.NavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
-import com.denchic45.kts.BuildConfig
 import com.denchic45.kts.CustomToolbar
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
@@ -26,7 +25,6 @@ import com.denchic45.kts.ui.updateView.SnackbarUpdateView
 import com.denchic45.kts.utils.collectWhenResumed
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.findFragmentContainerNavController
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.AppBarLayout

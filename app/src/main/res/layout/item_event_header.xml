@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:gravity="center_vertical"
@@ -28,7 +29,8 @@
         android:layout_marginStart="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_lesson_order"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/textView_lesson_name"
@@ -86,7 +88,8 @@
                 android:layout_height="26dp"
                 android:layout_margin="8dp"
                 app:srcCompat="@drawable/ic_group"
-                app:tint="@color/blue" />
+                app:tint="@color/blue"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/tv_group_name"
@@ -103,7 +106,8 @@
             android:layout_width="26dp"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="8dp"
-            app:srcCompat="@drawable/ic_baseline_keyboard_arrow_down" />
+            app:srcCompat="@drawable/ic_baseline_keyboard_arrow_down"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/iv_lesson_edit"
@@ -111,7 +115,8 @@
             android:layout_height="match_parent"
             android:layout_marginHorizontal="8dp"
             android:visibility="gone"
-            app:srcCompat="@drawable/ic_edit" />
+            app:srcCompat="@drawable/ic_edit"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/iv_lesson_drag"
@@ -119,7 +124,8 @@
             android:layout_height="match_parent"
             android:layout_marginHorizontal="8dp"
             android:visibility="gone"
-            app:srcCompat="@drawable/ic_drag" />
+            app:srcCompat="@drawable/ic_drag"
+            tools:ignore="ContentDescription" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

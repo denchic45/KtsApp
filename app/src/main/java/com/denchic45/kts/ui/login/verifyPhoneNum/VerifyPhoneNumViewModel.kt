@@ -21,7 +21,7 @@ class VerifyPhoneNumViewModel @Inject constructor(
 
     val btnAuthVisibility = SingleLiveData(false)
 
-    val _authSuccessful = Channel<String>()
+    private val _authSuccessful = Channel<String>()
     val authSuccessful = _authSuccessful.receiveAsFlow()
 
     val errorToManyRequest: SingleLiveData<*> = SingleLiveData<Any>()

@@ -183,6 +183,7 @@ class EventAdapter(
             itemView.findViewById(R.id.imageView_lesson_icon)
         protected val tvTitle: TextView = itemView.findViewById(R.id.textView_lesson_name)
 
+        @SuppressLint("ClickableViewAccessibility")
         override fun onBind(item: Event) {
             tvTime.text = LessonTimeCalculator().getCalculatedTime(item.order, lessonTime)
             tvOrder.text = item.order.toString()

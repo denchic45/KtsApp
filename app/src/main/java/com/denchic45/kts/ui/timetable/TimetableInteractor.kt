@@ -22,20 +22,12 @@ class TimetableInteractor @Inject constructor(
         return eventRepository.findEventsOfDayByGroupIdAndDate(groupId, date)
     }
 
-    fun findEventsForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {
-        return eventRepository.findEventsForDayForTeacherByDate(date)
-    }
-
-    fun hasGroup() = groupPreference.groupId.isNotEmpty()
-
     val lessonTime: Int get() = eventRepository.lessonTime
 
     override fun removeListeners() {
         eventRepository.removeListeners()
         subjectRepository.removeListeners()
     }
-
-    fun yourGroupId(): String = groupPreference.groupId
 
     fun observeYourGroupId() =
         groupPreference.observeValue(GroupPreference.GROUP_ID, "").filter(String::isNotEmpty)

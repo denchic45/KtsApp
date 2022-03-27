@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/tv_submission_state"
+        android:id="@+id/tv_collapse_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16sp"
@@ -45,14 +45,14 @@
     <!--        app:textStartPadding="4dp" />-->
 
     <TextView
-        android:id="@+id/tv_submission_description"
+        android:id="@+id/tv_collapse_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16sp"
         android:layout_marginTop="4dp"
         android:textAppearance="@style/TextAppearance.Kts.Body2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_submission_state"
+        app:layout_constraintTop_toBottomOf="@id/tv_collapse_state"
         tools:text="Проверено вчера, 18:34" />
 
     <com.google.android.material.chip.Chip
@@ -69,6 +69,6 @@
         app:chipIconSize="14dp"
         app:iconStartPadding="6dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_submission_description" />
+        app:layout_constraintTop_toBottomOf="@id/tv_collapse_description" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -126,9 +126,9 @@ class FinderFragment :
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
-        ) { args: Map<String, String> ->
+        ) { args->
             navController.navigate(R.id.action_global_userEditorFragment, Bundle(2).apply {
-                args.forEach { (key, value) ->
+                args!!.forEach { (key, value) ->
                     putString(key, value)
                 }
             })

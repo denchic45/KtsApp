@@ -31,7 +31,7 @@ class CourseEditorViewModel @Inject constructor(
     courseId: String?,
     private val interactor: CourseEditorInteractor,
     private val confirmInteractor: ConfirmInteractor,
-    var groupChooserInteractor: GroupChooserInteractor
+    private var groupChooserInteractor: GroupChooserInteractor
 ) : BaseViewModel() {
     val selectSubject = MutableLiveData<Subject>()
     val selectTeacher = MutableLiveData<User>()
@@ -46,8 +46,8 @@ class CourseEditorViewModel @Inject constructor(
     val openChoiceOfGroup = SingleLiveData<Unit>()
 
     private val courseId: String = courseId ?: UUID.randomUUID().toString()
-    var foundTeachers: List<User>? = null
-    var foundSubjects: List<Subject>? = null
+    private var foundTeachers: List<User>? = null
+    private var foundSubjects: List<Subject>? = null
     private val subjectId: String? = null
     private val teacherId: String? = null
 

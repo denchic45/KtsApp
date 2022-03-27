@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.choiceOfGroupSubject
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope

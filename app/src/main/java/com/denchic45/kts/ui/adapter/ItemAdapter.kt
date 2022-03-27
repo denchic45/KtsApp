@@ -6,14 +6,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.*
 import com.denchic45.kts.utils.viewBinding
 
 class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALLBACK) {
     var itemClickListener: OnItemClickListener = OnItemClickListener { }
-    var itemCheckListener: OnItemCheckListener = OnItemCheckListener { position, isChecked -> }
+    private var itemCheckListener: OnItemCheckListener = OnItemCheckListener { position, isChecked -> }
 
     override fun getItemViewType(position: Int): Int {
         return getItem(position)!!.type

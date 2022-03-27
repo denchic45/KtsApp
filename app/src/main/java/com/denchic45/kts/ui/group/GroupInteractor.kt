@@ -1,7 +1,5 @@
 package com.denchic45.kts.ui.group
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.asLiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.repository.GroupRepository

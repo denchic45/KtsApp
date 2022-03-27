@@ -1,8 +1,6 @@
 package com.denchic45.kts
 
 import org.junit.jupiter.api.Test
-import java.text.NumberFormat
-import java.util.*
 
 
 class SimpleTest {

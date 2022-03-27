@@ -14,6 +14,7 @@ import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -44,9 +45,13 @@ class SpecialtyEditorViewModel @Inject constructor(
 
     private fun setupForExistItem() {
         title.value = "Редактировать специальность"
-        LiveDataUtil.observeOnce(specialtyRepository.find(id)) { specialty: Specialty ->
-            uiEditor.oldItem = specialty
-            nameField.value = specialty.name
+        viewModelScope.launch {
+            specialtyRepository.observe(id).collect { specialty ->
+                specialty?.let {
+                    uiEditor.oldItem = specialty
+                    nameField.value = specialty.name
+                } ?: finish()
+            }
         }
     }
 

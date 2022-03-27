@@ -1,10 +1,10 @@
 package com.denchic45.kts.uivalidator.validatorlistener
 
 import androidx.lifecycle.MutableLiveData
+import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.uivalidator.Rule
-import com.denchic45.kts.uivalidator.validatorlistener.LiveDataValidationListener
 
-class MessageLiveDataValidationListener(mutableLiveData: MutableLiveData<String?>) :
+class MessageLiveDataValidationListener(mutableLiveData: SingleLiveData<String?>) :
     LiveDataValidationListener<String?>(mutableLiveData) {
     override fun onSuccess() {
         mutableLiveData.value = null

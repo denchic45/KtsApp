@@ -10,7 +10,6 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.UserEntity
-import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.SearchKeysGenerator
@@ -34,7 +33,6 @@ open class UserRepository @Inject constructor(
     private val coroutineScope: CoroutineScope,
     private val userPreference: UserPreference,
     override val networkService: NetworkService,
-    private val groupPreference: GroupPreference,
     private val userDao: UserDao,
     private val userMapper: UserMapper,
     firestore: FirebaseFirestore
@@ -45,11 +43,6 @@ open class UserRepository @Inject constructor(
 
     fun findByGroupId(groupId: String): Flow<List<User>> {
         return userDao.observeByGroupId(groupId).map { userMapper.entityToDomain(it) }
-    }
-
-    fun observeHasGroup(): Flow<Boolean> {
-        return userPreference.observeValue(UserPreference.GROUP_ID, "")
-            .map(String::isNotEmpty)
     }
 
     private fun saveUserPreference(user: User) {

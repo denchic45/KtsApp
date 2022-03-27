@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <integer-array name="gender_icons">
-        <item>@drawable/ic_send</item>
-    </integer-array>
-</resources>

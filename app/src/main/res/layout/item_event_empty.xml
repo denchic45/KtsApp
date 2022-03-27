@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:gravity="center_vertical"
@@ -68,7 +69,8 @@
             android:layout_height="match_parent"
             android:layout_marginHorizontal="8dp"
             android:visibility="gone"
-            app:srcCompat="@drawable/ic_edit" />
+            app:srcCompat="@drawable/ic_edit"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/iv_lesson_drag"
@@ -76,7 +78,8 @@
             android:layout_height="match_parent"
             android:layout_marginHorizontal="8dp"
             android:visibility="gone"
-            app:srcCompat="@drawable/ic_drag" />
+            app:srcCompat="@drawable/ic_drag"
+            tools:ignore="ContentDescription"/>
     </LinearLayout>
 
 </RelativeLayout>

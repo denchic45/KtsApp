@@ -1,42 +1,37 @@
-package com.denchic45.kts.ui.adapter;
+package com.denchic45.kts.ui.adapter
 
-import android.content.Context;
-import android.graphics.drawable.PictureDrawable;
-import android.net.Uri;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
+import android.content.Context
+import android.graphics.drawable.PictureDrawable
+import android.net.Uri
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.ImageView
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.denchic45.kts.R
+import com.denchic45.kts.SvgColorListener
+import com.denchic45.kts.glideSvg.GlideApp
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.denchic45.kts.SvgColorListener;
-import com.denchic45.kts.R;
-import com.denchic45.kts.glideSvg.GlideApp;
-
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-
-public class IconPickerAdapter extends ArrayAdapter<Uri> {
-    public IconPickerAdapter(@NonNull Context context) {
-        super(context, R.layout.item_icon);
-    }
-
-    @NonNull
-    @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+class IconPickerAdapter(context: Context) : ArrayAdapter<Uri?>(context, R.layout.item_icon) {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        var convertView = convertView
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.item_icon, parent, false);
+            convertView = LayoutInflater.from(context)
+                .inflate(R.layout.item_icon, parent, false)
         }
-
-        GlideApp.with(parent.getContext())
-                .as(PictureDrawable.class)
-                .transition(withCrossFade())
-                .load(getItem(position))
-                .listener(new SvgColorListener((ImageView) convertView, R.color.dark_gray, parent.getContext()))
-                .into((ImageView) convertView);
-        return convertView;
+        GlideApp.with(parent.context)
+            .`as`(PictureDrawable::class.java)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .load(getItem(position))
+            .listener(
+                SvgColorListener(
+                    (convertView as ImageView?)!!,
+                    R.color.dark_gray,
+                    parent.context
+                )
+            )
+            .into(convertView!!)
+        return convertView
     }
 }

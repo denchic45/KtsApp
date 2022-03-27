@@ -1,11 +1,7 @@
 package com.denchic45.kts.data.repository
 
 import android.content.Context
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.SpecialtyDao
@@ -13,7 +9,6 @@ import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SpecialtyDoc
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
-import com.denchic45.kts.data.model.room.SpecialtyEntity
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
@@ -21,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
@@ -40,19 +36,20 @@ class SpecialtyRepository @Inject constructor(
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val specialtyRef: CollectionReference = firestore.collection("Specialties")
 
-    fun find(id: String): LiveData<Specialty> {
-        specialtyRef.document(id)
-            .get()
-            .addOnSuccessListener { value: DocumentSnapshot ->
-                coroutineScope.launch(dispatcher) {
-                    specialtyDao.upsert(
-                        specialtyMapper.docToEntity(value.toObject(SpecialtyDoc::class.java)!!)
-                    )
+    fun observe(id: String): Flow<Specialty?> {
+        coroutineScope.launch {
+            specialtyRef.document(id)
+                .get()
+                .await().apply {
+                    coroutineScope.launch(dispatcher) {
+                        specialtyDao.upsert(
+                            specialtyMapper.docToEntity(toObject(SpecialtyDoc::class.java)!!)
+                        )
+                    }
                 }
-            }
-            .addOnFailureListener { e: Exception -> Log.d("lol", "onFailure: $e") }
-        return Transformations.map(specialtyDao.get(id)) { entity: SpecialtyEntity ->
-            specialtyMapper.entityToDomain(entity)
+        }
+        return specialtyDao.observe(id).map { entity ->
+            entity?.let { specialtyMapper.entityToDomain(entity) }
         }
     }
 

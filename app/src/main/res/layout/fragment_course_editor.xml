@@ -50,7 +50,8 @@
                 android:layout_height="36dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                app:srcCompat="@drawable/ic_subject" />
+                app:srcCompat="@drawable/ic_subject"
+                tools:ignore="ContentDescription" />
 
             <ViewSwitcher
                 android:id="@+id/vs_subject_name"
@@ -86,7 +87,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_margin="16dp"
-                app:srcCompat="@drawable/ic_edit" />
+                app:srcCompat="@drawable/ic_edit"
+                tools:ignore="ContentDescription" />
 
         </LinearLayout>
 
@@ -143,7 +145,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_margin="16dp"
-                app:srcCompat="@drawable/ic_edit" />
+                app:srcCompat="@drawable/ic_edit"
+                tools:ignore="ContentDescription" />
         </LinearLayout>
 
         <View style="@style/Divider" />

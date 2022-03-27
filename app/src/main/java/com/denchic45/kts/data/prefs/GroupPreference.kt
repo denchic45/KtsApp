@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.prefs
 
 import android.content.Context
-import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.room.GroupEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

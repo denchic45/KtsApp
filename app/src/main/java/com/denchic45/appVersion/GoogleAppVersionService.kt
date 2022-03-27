@@ -60,6 +60,12 @@ class GoogleAppVersionService @Inject constructor(
             InstallStatus.FAILED -> {
                 Log.d("lol", "startUpdate: FAILED ${state.installErrorCode()}")
             }
+            InstallStatus.CANCELED -> { }
+            InstallStatus.INSTALLED -> { }
+            InstallStatus.INSTALLING -> { }
+            InstallStatus.PENDING -> { }
+            InstallStatus.REQUIRES_UI_INTENT -> { }
+            InstallStatus.UNKNOWN -> { }
         }
     }
 

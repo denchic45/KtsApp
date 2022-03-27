@@ -97,8 +97,6 @@ class EventRepository @Inject constructor(
                             .map { dayMapper.entityToDomain(it) }
                             .distinctUntilChanged()
                             .collect {
-                                Log.d("lol", "ON events collect dao!:")
-                                it.events.forEach { Log.d("lol", "event: $it") }
                                 send(it)
                             }
                     }
@@ -122,7 +120,6 @@ class EventRepository @Inject constructor(
                             }
                         }
                         awaitClose {
-                            Log.d("lol", "ON event awaitClose: ")
                             registration.remove()
                         }
                     }
@@ -221,8 +218,7 @@ class EventRepository @Inject constructor(
                     for (dayDoc in dayDocs) {
                         coroutineScope.launch(dispatcher) {
                             dataBase.withTransaction {
-                                saveDay(dayDoc)
-                                if (!groupDao.isExistSync(dayDoc.groupId)) {
+                                if (!groupDao.isExist(dayDoc.groupId)) {
                                     val documentSnapshot = groupsRef.document(dayDoc.groupId)
                                         .get()
                                         .await()
@@ -231,6 +227,7 @@ class EventRepository @Inject constructor(
                                             documentSnapshot.toObject(GroupDoc::class.java)!!
                                         )
                                 }
+                                saveDay(dayDoc)
                             }
                         }
                     }

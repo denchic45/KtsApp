@@ -1,72 +1,41 @@
-package com.denchic45.kts.utils;
+package com.denchic45.kts.utils
 
-import android.content.Context;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
+import android.content.Context
+import android.graphics.Paint
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.graphics.PorterDuffColorFilter
+import android.graphics.PorterDuff
+import android.view.View
+import android.widget.ImageView
+import android.widget.ListAdapter
+import androidx.core.content.ContextCompat
 
-import androidx.core.content.ContextCompat;
-
-import org.jetbrains.annotations.NotNull;
-
-public class ViewUtils {
-
-    public static ViewGroup getParent(@NotNull View view) {
-        return (ViewGroup) view.getParent();
+object ViewUtils {
+    fun getParent(view: View): ViewGroup {
+        return view.parent as ViewGroup
     }
 
-    public static void removeView(View view) {
-        ViewGroup parent = getParent(view);
-        if (parent != null) {
-            parent.removeView(view);
-        }
-    }
-
-    public static void setClickable(View view, boolean clickable) {
-        if (view != null) {
-            if (view instanceof ViewGroup) {
-                ViewGroup viewGroup = (ViewGroup) view;
-                for (int i = 0; i < viewGroup.getChildCount(); i++) {
-                    setClickable(viewGroup.getChildAt(i), clickable);
-                }
-            }
-            view.setClickable(clickable);
-        }
-    }
-
-    public static void replaceView(View currentView, View newView) {
-        ViewGroup parent = getParent(currentView);
-        if (parent == null) {
-            return;
-        }
-        final int index = parent.indexOfChild(currentView);
-        removeView(currentView);
-        removeView(newView);
-        parent.addView(newView, index);
-    }
-
-    public static int measureAdapter(@NotNull ListAdapter listAdapter, Context context) {
-        ViewGroup mMeasureParent = new FrameLayout(context);
-        int longestWidth = listAdapter.getView(0, null, mMeasureParent).getMeasuredWidth();
-        for (int i = 0; i < listAdapter.getCount(); i++) {
-            View listItem = listAdapter.getView(i, null, mMeasureParent);
-            listItem.measure(0, 0);
-            int width = listItem.getMeasuredWidth();
+    fun measureAdapter(listAdapter: ListAdapter, context: Context?): Int {
+        val mMeasureParent: ViewGroup = FrameLayout(context!!)
+        var longestWidth = listAdapter.getView(0, null, mMeasureParent).measuredWidth
+        for (i in 0 until listAdapter.count) {
+            val listItem = listAdapter.getView(i, null, mMeasureParent)
+            listItem.measure(0, 0)
+            val width = listItem.measuredWidth
             if (width > longestWidth) {
-                longestWidth = width;
+                longestWidth = width
             }
         }
-        return longestWidth;
+        return longestWidth
     }
 
-    public static void paintImageView(@NotNull ImageView iv, int color, Context context) {
-        Paint paint = new Paint();
-        paint.setColorFilter(new PorterDuffColorFilter(ContextCompat.getColor(context, color), PorterDuff.Mode.SRC_ATOP));
-        iv.setLayerPaint(paint);
+    fun paintImageView(iv: ImageView, color: Int, context: Context?) {
+        val paint = Paint()
+        paint.colorFilter = PorterDuffColorFilter(
+            ContextCompat.getColor(context!!, color),
+            PorterDuff.Mode.SRC_ATOP
+        )
+        iv.setLayerPaint(paint)
     }
 }

@@ -1,24 +1,23 @@
-package com.example.appbarcontroller;
+package com.example.appbarcontroller
 
-import android.os.Handler;
-import android.os.Looper;
+import android.os.Handler
+import android.os.Looper
+import androidx.recyclerview.widget.RecyclerView
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-public class RecyclerViewFinishListener {
-
-    public RecyclerViewFinishListener(@NonNull RecyclerView recyclerView, Runnable runnable) {
-        recyclerView.postOnAnimationDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (recyclerView.isAnimating()) {
-                    recyclerView.getItemAnimator().isRunning(()
-                            -> new Handler(Looper.getMainLooper()).post(this));
-                    return;
+class RecyclerViewFinishListener(recyclerView: RecyclerView, runnable: Runnable) {
+    init {
+        recyclerView.postOnAnimationDelayed(object : Runnable {
+            override fun run() {
+                if (recyclerView.isAnimating) {
+                    recyclerView.itemAnimator!!.isRunning {
+                        Handler(Looper.getMainLooper()).post(
+                            this
+                        )
+                    }
+                    return
                 }
-                runnable.run();
+                runnable.run()
             }
-        },100);
+        }, 100)
     }
 }

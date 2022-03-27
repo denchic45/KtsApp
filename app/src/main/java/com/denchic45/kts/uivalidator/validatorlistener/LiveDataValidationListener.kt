@@ -1,12 +1,7 @@
-package com.denchic45.kts.uivalidator.validatorlistener;
+package com.denchic45.kts.uivalidator.validatorlistener
 
-import androidx.lifecycle.MutableLiveData;
+import com.denchic45.kts.SingleLiveData
 
-public abstract class LiveDataValidationListener<T> extends ValidationListener {
-
-    protected final MutableLiveData<T> mutableLiveData;
-
-    public LiveDataValidationListener(MutableLiveData<T> mutableLiveData) {
-        this.mutableLiveData = mutableLiveData;
-    }
-}
+abstract class LiveDataValidationListener<T>(
+    protected val mutableLiveData: SingleLiveData<T>
+) : ValidationListener()

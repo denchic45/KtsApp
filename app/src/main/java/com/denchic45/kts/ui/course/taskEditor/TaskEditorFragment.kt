@@ -1,5 +1,6 @@
 package com.denchic45.kts.ui.course.taskEditor
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -106,6 +107,7 @@ class TaskEditorFragment :
         }, true)
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

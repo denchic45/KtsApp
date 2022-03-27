@@ -1,28 +1,18 @@
-package com.denchic45.kts.uivalidator.validatorlistener;
+package com.denchic45.kts.uivalidator.validatorlistener
 
-import androidx.annotation.NonNull;
+import com.denchic45.kts.uivalidator.Rule
+import com.denchic45.kts.uivalidator.validatorlistener.ValidationListener
+import java.util.function.Consumer
 
-import com.denchic45.kts.uivalidator.Rule;
-
-import java.util.function.Consumer;
-
-public class ActionValidationListener extends ValidationListener {
-
-    private final Runnable successAction;
-    private final Consumer<Rule> errorAction;
-
-    public ActionValidationListener(Consumer<Rule> errorAction, Runnable successAction) {
-        this.errorAction = errorAction;
-        this.successAction = successAction;
+class ActionValidationListener(
+    private val errorAction: Consumer<Rule>,
+    private val successAction: Runnable
+) : ValidationListener() {
+    override fun onSuccess() {
+        successAction.run()
     }
 
-    @Override
-    public void onSuccess() {
-        successAction.run();
-    }
-
-    @Override
-    public void onError(@NonNull Rule rule) {
-        errorAction.accept(rule);
+    override fun onError(rule: Rule) {
+        errorAction.accept(rule)
     }
 }

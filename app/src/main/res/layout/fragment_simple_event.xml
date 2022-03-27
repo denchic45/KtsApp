@@ -16,7 +16,8 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="16sp"
         app:srcCompat="@drawable/ic_event"
-        app:tint="@color/gray" />
+        app:tint="@color/gray"
+        tools:ignore="ContentDescription" />
 
     <TextView
         android:id="@+id/tv_event_name"

@@ -119,7 +119,6 @@ class CourseSectionEditorFragment :
             (rvSections.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
             lifecycleScope.launchWhenStarted {
                 viewModel.sections.collect {
-                    Toast.makeText(requireContext(), "submit", Toast.LENGTH_SHORT).show()
                     adapter.submit(listOf(EditSectionAdapterDelegate.AddSectionItem) + it)
                 }
             }

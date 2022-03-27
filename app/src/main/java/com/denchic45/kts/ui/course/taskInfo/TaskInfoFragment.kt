@@ -246,17 +246,17 @@ class TaskInfoFragment :
                         }
                     }
 
-                    submissionCollapsed.tvSubmissionState.text = viewState.title
-                    submissionExpanded.tvSubmissionState.text = viewState.title
+                    submissionExpanded.tvExpandState.text = viewState.title
+                    submissionCollapsed.tvCollapseState.text = viewState.title
 
                     if (viewState.subtitleVisibility) {
-                        submissionCollapsed.tvSubmissionDescription.visibility = View.VISIBLE
-                        submissionExpanded.tvSubmissionDescription.visibility = View.VISIBLE
-                        submissionCollapsed.tvSubmissionDescription.text = viewState.subtitle
-                        submissionExpanded.tvSubmissionDescription.text = viewState.subtitle
+                        submissionCollapsed.tvCollapseDescription.visibility = View.VISIBLE
+                        submissionExpanded.tvExpandDescription.visibility = View.VISIBLE
+                        submissionCollapsed.tvCollapseDescription.text = viewState.subtitle
+                        submissionExpanded.tvExpandDescription.text = viewState.subtitle
                     } else {
-                        submissionCollapsed.tvSubmissionDescription.visibility = View.GONE
-                        submissionExpanded.tvSubmissionDescription.visibility = View.GONE
+                        submissionCollapsed.tvCollapseDescription.visibility = View.GONE
+                        submissionExpanded.tvExpandDescription.visibility = View.GONE
                     }
 
                     setTeacherData(viewState.teacher)

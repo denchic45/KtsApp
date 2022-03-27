@@ -31,10 +31,10 @@ abstract class GroupDao : BaseDao<GroupEntity>() {
     abstract fun getTimestampById(id: String): Long
 
     @Query("SELECT EXISTS(SELECT * FROM `group` WHERE group_id = :id)")
-    abstract fun isExist(id: String): Flow<Boolean>
+    abstract fun observeIsExist(id: String): Flow<Boolean>
 
     @Query("SELECT EXISTS(SELECT * FROM `group` WHERE group_id = :id)")
-    abstract suspend fun isExistSync(id: String): Boolean
+    abstract suspend fun isExist(id: String): Boolean
 
     @Query("DELETE FROM `group` WHERE group_id =:groupId")
     abstract fun deleteById(groupId: String)

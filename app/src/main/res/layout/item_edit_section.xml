@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?actionBarSize"
-    android:background="?colorSurface"
     android:stateListAnimator="@animator/item_dragged"
     tools:ignore="RtlSymmetry">
 

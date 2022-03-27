@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.courseEditor
 
-import android.content.Context
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
 import android.view.KeyEvent
@@ -8,7 +7,6 @@ import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener

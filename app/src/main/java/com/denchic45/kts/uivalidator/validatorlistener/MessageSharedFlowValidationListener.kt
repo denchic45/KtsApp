@@ -5,11 +5,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 class MessageSharedFlowValidationListener(sharedFlow: MutableSharedFlow<String>) :
     SharedFlowValidationListener<String>(sharedFlow) {
-    public override fun onSuccess() {
-//        mutableSharedFlow.tryEmit(null)
+    override fun onSuccess() {
     }
 
-    public override fun onError(rule: Rule) {
-        mutableSharedFlow.tryEmit(rule.errorMessage)
+    override fun onError(rule: Rule) {
+        mutableSharedFlow.tryEmit(rule.errorMessage ?: "")
     }
 }

@@ -28,7 +28,7 @@ class SubmissionAttachmentStorage @Inject constructor(
     private val internalDir = context.applicationContext.filesDir
     private val submissionLocalPath = File("${internalDir.path}/submissions")
 
-    suspend fun addSubmissionAttachments(
+    private suspend fun addSubmissionAttachments(
         contentId: String,
         studentId: String,
         attachments: List<Attachment>

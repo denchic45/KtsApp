@@ -92,7 +92,7 @@ class CourseRepository @Inject constructor(
                                 if (timestampsNotNull(querySnapshot))
                                     saveGroups(querySnapshot.toObjects(GroupDoc::class.java))
                             }
-                            saveCourses(listOf(courseDoc))
+                            saveCourse(courseDoc)
                         }
                     }
                 }
@@ -220,26 +220,6 @@ class CourseRepository @Inject constructor(
         }
     }
 
-    private suspend fun saveCourseOfTeacher(courseDocs: List<CourseDoc>, teacherId: String) {
-        saveCourses(courseDocs)
-//        deleteMissingCoursesOfTeacher(courseDocs, teacherId)
-    }
-
-    private suspend fun deleteMissingCoursesOfTeacher(
-        courseDocs: List<CourseDoc>,
-        teacherId: String
-    ) {
-        courseDao.deleteMissingByTeacher(courseDocs.map(CourseDoc::id), teacherId)
-        subjectDao.deleteUnrelatedByCourse()
-        groupDao.deleteUnrelatedByCourse()
-    }
-
-    private suspend fun saveCoursesOfGroup(courseDocs: List<CourseDoc>, groupId: String) {
-
-        saveCourses(courseDocs)
-    }
-
-
     fun findByGroupId(groupId: String): Flow<List<CourseHeader>> {
         if (groupId != groupPreference.groupId)
             coroutineScope.launch {
@@ -253,7 +233,10 @@ class CourseRepository @Inject constructor(
 
     private suspend fun getCoursesByGroupIdRemotely(groupId: String) {
         coursesByGroupIdQuery(groupId).get().await().let {
-            saveCoursesOfGroup(it.toObjects(CourseDoc::class.java), groupId)
+            if (!it.isEmpty)
+                dataBase.withTransaction {
+                    saveCourses(it.toObjects(CourseDoc::class.java))
+                }
         }
     }
 
@@ -261,24 +244,15 @@ class CourseRepository @Inject constructor(
         coursesByTeacherIdQuery(teacherId).addSnapshotListener { value, error ->
             coroutineScope.launch {
                 value?.let { value ->
-                    Log.d(
-                        "lol", "getCoursesByTeacherRemotely size: ${value.size()} id: $teacherId " +
-                                "timestap: ${timestampPreference.lastUpdateTeacherCoursesTimestamp}"
-                    )
+
                     if (!value.isEmpty) {
-                        Log.d("lol", "getCoursesByTeacherRemotely not empty ")
+
                         value.toObjects(CourseDoc::class.java).apply {
                             timestampPreference.lastUpdateTeacherCoursesTimestamp =
-                                this.maxOf {
-                                    Log.d(
-                                        "lol",
-                                        "getCoursesByTeacherRemotely timestamp: ${it.name} ${it.timestamp}"
-                                    )
-                                    it.timestamp!!.time
-                                }
+                                this.maxOf { it.timestamp!!.time }
                             Log.d("lol", "savingCourse: $this")
                             dataBase.withTransaction {
-                                saveCourseOfTeacher(this, teacherId)
+                                saveCourses(this)
                             }
                         }
                     }
@@ -780,35 +754,31 @@ interface SaveCourseOperation {
     val sectionDao: SectionDao
     val groupCourseDao: GroupCourseDao
 
-    private suspend fun deleteMissingCoursesOfGroup(courseDocs: List<CourseDoc>) {
-        courseDocs.forEach { groupCourseDao.deleteByCourse(it.id) }
-//        groupCourseDao.deleteMissingByGroup(courseDocs.map(CourseDoc::id), groupId)
-//        courseDao.deleteUnrelatedByGroup()
-        subjectDao.deleteUnrelatedByCourse()
-        userDao.deleteUnrelatedTeachersByCourseOrGroupAsCurator()
+
+    suspend fun saveCourse(courseDoc: CourseDoc) {
+
+        groupCourseDao.deleteByCourse(courseDoc.id)
+
+        userDao.upsert(userMapper.docToEntity(courseDoc.teacher))
+
+        subjectDao.upsert(subjectMapper.docToEntity(courseDoc.subject))
+
+        courseDao.upsert(courseMapper.docToEntity(courseDoc))
+
+        sectionDao.deleteByCourseId(courseDoc.id)
+
+        sectionDao.upsert(
+            sectionMapper.docToEntity(courseDoc.sections ?: emptyList())
+        )
+
+        groupCourseDao.upsert(
+            courseDoc.groupIds
+                .filter { groupDao.isExist(it) }
+                .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
+        )
     }
 
     suspend fun saveCourses(courseDocs: List<CourseDoc>) {
-        deleteMissingCoursesOfGroup(courseDocs)
-
-        userDao.upsert(courseDocs.map { userMapper.docToEntity(it.teacher) })
-
-        subjectDao.upsert(courseDocs.map { subjectMapper.docToEntity(it.subject) })
-
-        courseDao.upsert(courseMapper.docToEntity(courseDocs))
-
-        sectionDao.upsert(courseDocs.flatMap {
-            sectionMapper.docToEntity(it.sections ?: emptyList())
-        })
-
-        sectionDao.deleteMissing(courseDocs.flatMap { it.sections ?: emptyList() }.map { it.id })
-
-        groupCourseDao.upsert(
-            courseDocs.flatMap { courseDoc ->
-                courseDoc.groupIds
-                    .filter { groupDao.isExistSync(it) }
-                    .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
-            }
-        )
+        courseDocs.forEach { saveCourse(it) }
     }
 }
