@@ -60,18 +60,18 @@ class GroupRepository @Inject constructor(
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
 
-    private suspend fun saveUsersAndTeachersWithSubjectsAndCoursesOfYourGroup(groupDoc: GroupDoc) {
+    private suspend fun saveYourGroup(groupDoc: GroupDoc) {
         saveGroup(groupDoc)
         groupPreference.saveGroupInfo(groupMapper.docToEntity(groupDoc))
         timestampPreference.setTimestampGroupCourses(groupDoc.timestampCourses?.time ?: 0)
     }
 
     fun listenYourGroup() {
-        addListenerRegistration("yourGroup") { yourGroupByIdListener }
+        addListenerRegistration("yourGroup") { getYourGroupByIdListener() }
     }
 
     fun listenYouGroupByCurator() {
-        addListenerRegistration("byCurator") { yourGroupByCuratorListener }
+        addListenerRegistration("byCurator") { getYourGroupByCuratorListener() }
     }
 
     fun listenGroupsWhereThisUserIsTeacher(teacher: User) {
@@ -100,8 +100,8 @@ class GroupRepository @Inject constructor(
             }
     }
 
-    private val yourGroupByCuratorListener: ListenerRegistration
-        get() = groupsRef.whereEqualTo("curator.id", userPreference.id)
+    private fun getYourGroupByCuratorListener(): ListenerRegistration =
+        groupsRef.whereEqualTo("curator.id", userPreference.id)
             .addSnapshotListener { snapshot: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if (error != null) {
                     Log.d("lol", "getYourGroupByCuratorListener: ", error)
@@ -111,36 +111,36 @@ class GroupRepository @Inject constructor(
                     coroutineScope.launch(dispatcher) {
                         val groupDoc = snapshot.toObjects(GroupDoc::class.java)[0]
                         if (hasTimestamp(groupDoc)) {
-                            saveUsersAndTeachersWithSubjectsAndCoursesOfYourGroup(groupDoc)
+                            saveYourGroup(groupDoc)
                         }
                     }
                 }
             }
-    private val yourGroupByIdListener: ListenerRegistration
-        get() {
-            val queryGroup: Query = if (isStudent(userPreference.role)) {
-                getQueryOfGroupById(userPreference.groupId)
-            } else {
-                queryOfYourGroupByCurator
+
+    private fun getYourGroupByIdListener(): ListenerRegistration {
+        val queryGroup: Query = if (isStudent(userPreference.role)) {
+            getQueryOfGroupById(userPreference.groupId)
+        } else {
+            queryOfYourGroupByCurator
+        }
+        return queryGroup.addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
+            if (error != null) {
+                error.printStackTrace()
+                throw error
             }
-            return queryGroup.addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                if (error != null) {
-                    error.printStackTrace()
-                    throw error
-                }
-                if (!snapshots!!.isEmpty) {
-                    coroutineScope.launch(dispatcher) {
-                        val groupDoc = snapshots.toObjects(GroupDoc::class.java)[0]
-                        if (hasTimestamp(groupDoc)) {
-                            saveUsersAndTeachersWithSubjectsAndCoursesOfYourGroup(groupDoc)
-                        }
+            if (!snapshots!!.isEmpty) {
+                coroutineScope.launch(dispatcher) {
+                    val groupDoc = snapshots.toObjects(GroupDoc::class.java)[0]
+                    if (hasTimestamp(groupDoc)) {
+                        saveYourGroup(groupDoc)
                     }
                 }
             }
         }
+    }
 
 
-    suspend fun findBySpecialtyId(specialtyId: String): List<CourseGroup> {
+    suspend fun findBySpecialtyId(specialtyId: String): List<GroupHeader> {
         return groupsRef.whereEqualTo("specialty.id", specialtyId).get()
             .await().run {
                 groupMapper.docToCourseGroupDomain(toObjects(GroupDoc::class.java))
@@ -223,7 +223,7 @@ class GroupRepository @Inject constructor(
         }
     }
 
-    fun findByTypedName(name: String): Flow<List<CourseGroup>> = callbackFlow {
+    fun findByTypedName(name: String): Flow<List<GroupHeader>> = callbackFlow {
         val registration = groupsRef
             .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
             .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->

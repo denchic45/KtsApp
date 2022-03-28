@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.databinding.ItemSpecialtyBinding
@@ -58,7 +58,7 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
 
     override fun getItemViewType(position: Int): Int {
         val o = getItem(position)
-        if (o is CourseGroup) {
+        if (o is GroupHeader) {
             return TYPE_GROUP
         } else if (o is Specialty) {
             return TYPE_SPECIALTY
@@ -97,14 +97,14 @@ class GroupAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> 
         itemIconContentBinding: ItemIconContentBinding,
         clickListener: OnItemClickListener,
         longClickListener: OnItemLongClickListener
-    ) : BaseViewHolder<CourseGroup, ItemIconContentBinding>(
+    ) : BaseViewHolder<GroupHeader, ItemIconContentBinding>(
         itemIconContentBinding,
         clickListener,
         longClickListener
     ) {
         private val tvName: TextView = itemView.findViewById(R.id.tv_name)
         private val ivIcon: ImageView = itemView.findViewById(R.id.iv_icon)
-        override fun onBind(item: CourseGroup) {
+        override fun onBind(item: GroupHeader) {
             tvName.text = item.name
         }
 

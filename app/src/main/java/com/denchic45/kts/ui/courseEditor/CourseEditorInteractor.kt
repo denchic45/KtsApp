@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.courseEditor
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Course
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.GroupPreference
@@ -42,7 +43,7 @@ class CourseEditorInteractor @Inject constructor(
     }
 
     suspend fun removeCourse(course: Course) {
-        return courseRepository.removeCourse(course.id)
+        return courseRepository.removeCourse(course.id, course.groupHeaders.map(GroupHeader::id))
     }
 
     val yourGroupId: String

@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.login.groupChooser
 
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.*
@@ -17,7 +17,7 @@ class GroupChooserViewModel @Inject constructor(
 
     private var selectedSpecialtyId = MutableSharedFlow<String>()
 
-    private var groupsBySpecialty: Flow<List<CourseGroup>> =
+    private var groupsBySpecialty: Flow<List<GroupHeader>> =
         selectedSpecialtyId.flatMapLatest { id ->
             flow { emit(groupChooserInteractor.findGroupsBySpecialtyId(id)) }
         }
@@ -55,7 +55,7 @@ class GroupChooserViewModel @Inject constructor(
         return list.sortedWith(compareBy { item ->
             when (item) {
                 is Specialty -> item.id
-                is CourseGroup -> item.specialtyId
+                is GroupHeader -> item.specialtyId
                 else -> throw IllegalStateException("Not correct type: $item")
             }
         })
@@ -66,7 +66,7 @@ class GroupChooserViewModel @Inject constructor(
             val (specialityId, specialtyName) = _groupAndSpecialtyList.value[position] as Specialty
             if (expandableSpecialties.getValue(specialtyName)) {
                 _groupAndSpecialtyList.emit(
-                    _groupAndSpecialtyList.value.filterNot { it is CourseGroup && it.specialtyId == specialityId }
+                    _groupAndSpecialtyList.value.filterNot { it is GroupHeader && it.specialtyId == specialityId }
                 )
             } else {
                 selectedSpecialtyId.emit(specialityId)
@@ -80,7 +80,7 @@ class GroupChooserViewModel @Inject constructor(
         groupChooserInteractor.findGroupInfoById(groupId)
         viewModelScope.launch {
             finish()
-            groupChooserInteractor.postSelectGroup((_groupAndSpecialtyList.value[position] as CourseGroup))
+            groupChooserInteractor.postSelectGroup((_groupAndSpecialtyList.value[position] as GroupHeader))
         }
     }
 }

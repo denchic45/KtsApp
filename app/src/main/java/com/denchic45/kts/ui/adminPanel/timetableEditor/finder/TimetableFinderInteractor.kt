@@ -1,6 +1,6 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.EventsOfDay
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.repository.EventRepository
@@ -14,7 +14,7 @@ class TimetableFinderInteractor @Inject constructor(
     private val eventRepository: EventRepository,
     private val appPreference: AppPreference
 ) {
-    fun findGroupByTypedName(groupName: String): Flow<List<CourseGroup>> {
+    fun findGroupByTypedName(groupName: String): Flow<List<GroupHeader>> {
         return groupRepository.findByTypedName(groupName)
     }
 
@@ -25,7 +25,7 @@ class TimetableFinderInteractor @Inject constructor(
     val lessonTime: Int
         get() = appPreference.lessonTime
 
-    suspend fun updateGroupEventsOfDay(eventsOfDay: EventsOfDay, group: CourseGroup) {
-        eventRepository.updateEventsOfDay(eventsOfDay, group)
+    suspend fun updateGroupEventsOfDay(eventsOfDay: EventsOfDay, groupHeader: GroupHeader) {
+        eventRepository.updateEventsOfDay(eventsOfDay, groupHeader)
     }
 }

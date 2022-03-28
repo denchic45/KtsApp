@@ -7,7 +7,7 @@ data class Course(
     var name: String,
     var subject: Subject,
     var teacher: User,
-    var groups: List<CourseGroup>,
+    var groupHeaders: List<GroupHeader>,
 ) : DomainModel() {
 
     companion object {

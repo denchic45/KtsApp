@@ -53,14 +53,14 @@ class CourseEditorViewModel @Inject constructor(
 
     private val typedSubjectName = MutableSharedFlow<String>()
     private val typedTeacherName = MutableSharedFlow<String>()
-    private var groups: MutableList<CourseGroup> = mutableListOf()
+    private var groupHeaders: MutableList<GroupHeader> = mutableListOf()
     private val uiEditor: UIEditor<Course> = UIEditor(courseId == null) {
         Course(
             this.courseId,
             nameField.value ?: "",
             selectSubject.value ?: Subject.createEmpty(),
             selectTeacher.value ?: User.createEmpty(),
-            groups
+            groupHeaders
         )
     }
 
@@ -141,15 +141,15 @@ class CourseEditorViewModel @Inject constructor(
                         nameField.value = course.name
                         selectTeacher.value = course.teacher
                         selectSubject.value = course.subject
-                        groups = course.groups.toMutableList()
-                        groupList.value = addAdderGroupItem(groups)
+                        groupHeaders = course.groupHeaders.toMutableList()
+                        groupList.value = addAdderGroupItem(groupHeaders)
                     } ?: finish()
                 }
             }
         }
 
-    private fun addAdderGroupItem(groups: List<CourseGroup> = emptyList()): List<DomainModel> =
-        groups.map { ListItem(id = it.id, title = it.name, type = 1) } + ListItem(
+    private fun addAdderGroupItem(groupHeaders: List<GroupHeader> = emptyList()): List<DomainModel> =
+        groupHeaders.map { ListItem(id = it.id, title = it.name, type = 1) } + ListItem(
             id = "ADD_GROUP",
             title = "Добавить",
             icon = EitherMessage.Id(R.drawable.ic_add)
@@ -259,16 +259,16 @@ class CourseEditorViewModel @Inject constructor(
         viewModelScope.launch {
             groupChooserInteractor.receiveSelectedGroup()
                 .let { courseGroup ->
-                    groups.add(courseGroup)
-                    groupList.value = addAdderGroupItem(groups)
+                    groupHeaders.add(courseGroup)
+                    groupList.value = addAdderGroupItem(groupHeaders)
                     enablePositiveBtn()
                 }
         }
     }
 
     fun onGroupRemoveClick(position: Int) {
-        groups.removeAt(position)
-        groupList.value = addAdderGroupItem(groups)
+        groupHeaders.removeAt(position)
+        groupList.value = addAdderGroupItem(groupHeaders)
         enablePositiveBtn()
     }
 

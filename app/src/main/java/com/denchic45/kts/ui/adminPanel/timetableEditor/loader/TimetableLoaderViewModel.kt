@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.model.domain.ListItem
@@ -45,7 +45,7 @@ class TimetableLoaderViewModel @Inject constructor(
     val enableEditMode = MutableLiveData(false)
     val showPage = MutableLiveData<Int>()
 
-    private val groups: MutableList<CourseGroup> = mutableListOf()
+    private val groupHeaders: MutableList<GroupHeader> = mutableListOf()
 
     val preferences = MutableStateFlow<List<PreferenceItem>>(
         listOf(
@@ -81,8 +81,8 @@ class TimetableLoaderViewModel @Inject constructor(
                 withContext(Dispatchers.Main) {
                     for (groupTimetable in groupsTimetables) {
                         firstDateOfTimetable = groupTimetable.weekEvents[0].date
-                        groups.add(groupTimetable.group)
-                        groupNames.add(groupTimetable.group.name)
+                        groupHeaders.add(groupTimetable.groupHeader)
+                        groupNames.add(groupTimetable.groupHeader.name)
                     }
                     postStartedTimetables()
                     postAllowEditTimetablePreferences()
@@ -293,7 +293,7 @@ class TimetableLoaderViewModel @Inject constructor(
         val order = if (eventsOfTheDay.isEmpty()) 1 else eventsOfTheDay.last().order + 1
         val createdLesson =
             Event.createEmpty(
-                group = groups[positionOfCurrentTimetable],
+                groupHeader = groupHeaders[positionOfCurrentTimetable],
                 order = order
             )
         eventEditorInteractor.setEditedEvent(groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek], createdLesson)
@@ -355,7 +355,7 @@ class TimetableLoaderViewModel @Inject constructor(
         viewModelScope.launch {
             groupChooserInteractor.receiveSelectedGroup()
                 .let { group ->
-                    groups.add(group)
+                    groupHeaders.add(group)
                     groupNames.add(group.name)
                     groupsTimetables.add(GroupTimetable.createEmpty(group, firstDateOfTimetable))
 

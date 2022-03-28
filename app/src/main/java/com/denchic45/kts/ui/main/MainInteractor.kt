@@ -61,10 +61,6 @@ class MainInteractor @Inject constructor(
         }
     }
 
-    fun hasGroup(): Boolean {
-        return groupRepository.hasGroup()
-    }
-
     private fun groupsWereUpdateLongAgo(): Boolean {
         return TimestampUtil.isDateDiffsGreaterThanOrEqualTo(
             timestampPreference.lastUpdateGroupsTimestamp,

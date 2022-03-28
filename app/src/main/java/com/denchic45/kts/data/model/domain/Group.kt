@@ -42,7 +42,7 @@ data class Group @Default constructor(
     }
 }
 
-data class CourseGroup(
+data class GroupHeader(
     override var id: String,
     val name: String,
     val specialtyId: String
@@ -50,6 +50,6 @@ data class CourseGroup(
     private constructor() : this("", "", "")
 
     companion object {
-        fun createEmpty(): CourseGroup = CourseGroup()
+        fun createEmpty(): GroupHeader = GroupHeader()
     }
 }

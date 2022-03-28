@@ -3,7 +3,7 @@ package com.denchic45.kts.data.model.domain
 import java.time.LocalDate
 
 data class GroupTimetable(
-    val group: CourseGroup,
+    val groupHeader: GroupHeader,
     val weekEvents: List<EventsOfDay>
 ) {
 
@@ -17,10 +17,10 @@ data class GroupTimetable(
 
 
     companion object {
-        fun createEmpty(courseGroup: CourseGroup, mondayDate: LocalDate): GroupTimetable {
+        fun createEmpty(groupHeader: GroupHeader, mondayDate: LocalDate): GroupTimetable {
 
             return GroupTimetable(
-                courseGroup,
+                groupHeader,
                 List(6) { EventsOfDay(mondayDate.plusDays(it.toLong())) }
                 )
 

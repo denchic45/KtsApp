@@ -22,7 +22,7 @@ class TimetableFinderViewModel @Inject constructor(
 
     val openEventEditor = SingleLiveData<Void>()
 
-    private val selectedGroup = MutableSharedFlow<CourseGroup>(replay = 1)
+    private val selectedGroup = MutableSharedFlow<GroupHeader>(replay = 1)
     private val selectedDate = MutableSharedFlow<LocalDate>(replay = 1)
 
     private val editEventsMode = MutableStateFlow(false)
@@ -73,7 +73,7 @@ class TimetableFinderViewModel @Inject constructor(
     private val typedGroupName = MutableSharedFlow<String>()
 
     private var savingEditedEvents = false
-    private var foundGroups: List<CourseGroup>? = null
+    private var foundGroupHeaders: List<GroupHeader>? = null
 
     fun onGroupNameType(groupName: String) {
         viewModelScope.launch {
@@ -83,7 +83,7 @@ class TimetableFinderViewModel @Inject constructor(
 
     fun onGroupClick(position: Int) {
         viewModelScope.launch {
-            selectedGroup.emit(foundGroups!![position])
+            selectedGroup.emit(foundGroupHeaders!![position])
             updateVisibilityTimetableOption()
         }
     }
@@ -175,7 +175,7 @@ class TimetableFinderViewModel @Inject constructor(
                 if (_eventsOfDay.value.isEmpty()) 1 else _eventsOfDay.value.last().order + 1
             val createdLesson =
                 Event.createEmpty(
-                    group = selectedGroup.first(),
+                    groupHeader = selectedGroup.first(),
                     order = order,
                     details = Lesson.createEmpty()
                 )
@@ -192,7 +192,7 @@ class TimetableFinderViewModel @Inject constructor(
             typedGroupName.filter { s -> s.length > 1 }
                 .flatMapLatest { groupName -> interactor.findGroupByTypedName(groupName) }
                 .map { resource ->
-                    foundGroups = resource
+                    foundGroupHeaders = resource
                     resource
                         .map { (id, name) ->
                             ListItem(

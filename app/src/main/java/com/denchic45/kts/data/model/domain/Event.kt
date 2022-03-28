@@ -8,7 +8,7 @@ import java.util.*
 
 data class Event(
     override var id: String = UUIDS.createShort(),
-    val group: CourseGroup,
+    val groupHeader: GroupHeader,
 //    val date: LocalDate,
     private val _order: Int = 0,
     val timestamp: Date? = null,
@@ -28,7 +28,7 @@ data class Event(
         get() = details.type == TYPE.EMPTY
 
     override fun copy(): Event {
-        return Event(id, group, _order, timestamp, room, details)
+        return Event(id, groupHeader, _order, timestamp, room, details)
     }
 
     private fun requireEventsOfDay(): EventsOfDay {
@@ -45,11 +45,11 @@ data class Event(
 
         fun createEmpty(
             id: String = UUIDS.createShort(),
-            group: CourseGroup,
+            groupHeader: GroupHeader,
             order: Int,
             details: EventDetails = EmptyEventDetails()
         ): Event {
-            return Event(id, group, order, details = details)
+            return Event(id, groupHeader, order, details = details)
         }
     }
 }

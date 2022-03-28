@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.mapper
 
 import com.denchic45.kts.data.model.domain.Course
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.room.CourseEntity
@@ -13,8 +13,10 @@ import org.mapstruct.*
 @Mapper(uses = [GroupMapper::class, UserMapper::class, SubjectMapper::class, SpecialtyMapper::class])
 abstract class CourseMapper {
 
-    @Mapping(qualifiedByName = ["courseGroupToGroupId"], source = "groups", target = "groupIds")
+    @Mapping(qualifiedByName = ["courseGroupToGroupId"], source = "groupHeaders", target = "groupIds")
     abstract fun domainToDoc(course: Course): CourseDoc
+
+    abstract fun docToDomain(doc: CourseDoc): Course
 
     abstract fun docToDomain(docs: List<CourseDoc>): List<CourseHeader>
 
@@ -22,12 +24,12 @@ abstract class CourseMapper {
 
     @Named("groupWithCuratorAndSpecialtyEntityToCourseGroup")
     @Mapping(source = "entities.groupEntity", target = ".")
-    abstract fun groupWithCuratorAndSpecialtyEntityToCourseGroup(entities: GroupWithCuratorAndSpecialtyEntity): CourseGroup
+    abstract fun groupWithCuratorAndSpecialtyEntityToCourseGroup(entities: GroupWithCuratorAndSpecialtyEntity): GroupHeader
 
     @IterableMapping(qualifiedByName = ["groupWithCuratorAndSpecialtyEntityToCourseGroup"])
-    abstract fun groupWithCuratorAndSpecialtyEntityToCourseGroup(entities: List<GroupWithCuratorAndSpecialtyEntity>): List<CourseGroup>
+    abstract fun groupWithCuratorAndSpecialtyEntityToCourseGroup(entities: List<GroupWithCuratorAndSpecialtyEntity>): List<GroupHeader>
 
-    @Mapping(source = "groupEntities", target = "groups")
+    @Mapping(source = "groupEntities", target = "groupHeaders")
     @Mapping(source = "courseEntity.name", target = "name")
     @Mapping(source = "courseEntity.id", target = "id")
     @Mapping(source = "subjectEntity", target = "subject")
@@ -62,8 +64,8 @@ abstract class CourseMapper {
     abstract fun entityToDoc(entities: CourseWithSubjectAndTeacherEntities): CourseDoc
 
     @Named("courseGroupToGroupId")
-    fun courseGroupToGroupId(group: CourseGroup): String {
-        return group.id
+    fun courseGroupToGroupId(groupHeader: GroupHeader): String {
+        return groupHeader.id
     }
 
 

@@ -56,13 +56,13 @@ class TimetableParser {
                 cellOfGroupPos = cellsInGroups.indexOf(
                     getCellByGroupName(
                         cellsInGroups,
-                        groupCourses.group.name
+                        groupCourses.groupHeader.name
                     )
                 )
                 if (cellOfGroupPos == -1) continue
                 cellOfGroupPos =
                     if (cellOfGroupPos > cellsCount) cellOfGroupPos - cellsCount else cellOfGroupPos
-                groupTimetableList.add(GroupTimetable(groupCourses.group, getLessonsOfGroup()))
+                groupTimetableList.add(GroupTimetable(groupCourses.groupHeader, getLessonsOfGroup()))
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -138,7 +138,7 @@ class TimetableParser {
     У урока нет порядкового номера! 
     Дата: $dateText
     Поле урока: $subjectAndRoomText
-    Группа: ${currentGroupCourse.group.name}
+    Группа: ${currentGroupCourse.groupHeader.name}
     """.trimIndent()
                 )
             }
@@ -159,7 +159,7 @@ class TimetableParser {
     private fun createEvent(order: Int, subjectAndRoom: String, date: LocalDate): Event {
         var subjectAndRoom = subjectAndRoom
         if (subjectAndRoom.isEmpty()) {
-            return createEmpty(group = currentGroupCourse.group, order = order)
+            return createEmpty(groupHeader = currentGroupCourse.groupHeader, order = order)
         }
         val separatorSubjectRoomPos = subjectAndRoom.indexOf('\\')
         val eventName: String
@@ -175,14 +175,14 @@ class TimetableParser {
         val subject = findSubjectByName(eventName)
         return if (subject != null) {
             Event(
-                group = currentGroupCourse.group,
+                groupHeader = currentGroupCourse.groupHeader,
 
                 room = room,
                 details = Lesson(subject, teachers = findTeachersBySubject(subject))
             )
         } else {
             Event(
-                group = currentGroupCourse.group,
+                groupHeader = currentGroupCourse.groupHeader,
                 room = room,
                 details = createEventDetails(eventName)
             )

@@ -266,7 +266,7 @@ class EventAdapter(
         private var color = 0
         private var task: Task? = null
         private var subject: Subject? = null
-        private var group: CourseGroup? = null
+        private var groupHeader: GroupHeader? = null
         private lateinit var event: Event
         private val lessonExpandableContentBinding = binding.llLessonExpandableContent
 
@@ -276,7 +276,7 @@ class EventAdapter(
             val lesson: Lesson = item.details as Lesson
             task = lesson.task
             subject = lesson.subject
-            group = item.group
+            groupHeader = item.groupHeader
             setLessonContentVisibility()
             collapseContent()
             val adapter = UserAdapter()
@@ -346,7 +346,7 @@ class EventAdapter(
         private fun setGroupVisibility() {
             binding.llLessonHeader.llGroup.visibility =
                 if (groupVisibility) View.VISIBLE else View.GONE
-            if (groupVisibility) binding.llLessonHeader.tvGroupName.text = group!!.name
+            if (groupVisibility) binding.llLessonHeader.tvGroupName.text = groupHeader!!.name
         }
 
         private fun setTextRoom() {

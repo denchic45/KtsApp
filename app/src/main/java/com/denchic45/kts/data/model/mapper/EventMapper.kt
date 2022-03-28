@@ -17,7 +17,7 @@ import java.time.LocalDate
 @Mapper(uses = [CourseContentMapper::class, UserMapper::class, GroupMapper::class, SubjectMapper::class])
 abstract class EventMapper {
     @Mapping(source = "entities.groupEntity", target = ".")
-    abstract fun groupWithCuratorAndSpecialtyEntityToCourseGroup(entities: GroupWithCuratorAndSpecialtyEntity): CourseGroup
+    abstract fun groupWithCuratorAndSpecialtyEntityToCourseGroup(entities: GroupWithCuratorAndSpecialtyEntity): GroupHeader
 
     @Named("mapDetails")
     fun mapDetails(entities: EventWithSubjectAndTeachersEntities): EventDetails {
@@ -51,7 +51,7 @@ abstract class EventMapper {
         return EventsOfDay(date, entityToDomain(eventWithSubjectAndTeachersEntities))
     }
 
-    @Mapping(source = "groupEntity", target = "group")
+    @Mapping(source = "groupEntity", target = "groupHeader")
     @Mapping(source = "eventEntity", target = ".")
     @Mapping(target = "details", qualifiedByName = ["mapDetails"], source = ".")
     abstract fun eventEntityToEvent(eventEntity: EventWithSubjectAndTeachersEntities): Event
@@ -73,7 +73,7 @@ abstract class EventMapper {
         return eventDoc
     }
 
-    @Mapping(source = "domain.group.id", target = "groupId")
+    @Mapping(source = "domain.groupHeader.id", target = "groupId")
     @Mapping(
         source = "domain.details",
         target = "eventDetailsDoc",

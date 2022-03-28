@@ -52,7 +52,7 @@ class SubjectRepository @Inject constructor(
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
-    private val groupsRef: CollectionReference = firestore.collection("Groups")
+    override val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
 
     suspend fun add(subject: Subject) {
@@ -104,7 +104,8 @@ class SubjectRepository @Inject constructor(
             .get()
             .await()
             .forEach {
-                removeCourse(it.id)
+                val courseDoc = it.toObject(CourseDoc::class.java)
+                removeCourse(courseDoc.id, courseDoc.groupIds)
             }
 
     }

@@ -1,6 +1,6 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Group.Companion.deleted
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -40,9 +40,9 @@ abstract class GroupMapper {
     }
 
     @Mapping(source = "specialty.id", target = "specialtyId")
-    abstract fun docToCourseGroupDomain(groupDoc: GroupDoc): CourseGroup
+    abstract fun docToCourseGroupDomain(groupDoc: GroupDoc): GroupHeader
 
-    abstract fun docToCourseGroupDomain(groupDocs: List<GroupDoc?>?): List<CourseGroup>
+    abstract fun docToCourseGroupDomain(groupDocs: List<GroupDoc?>?): List<GroupHeader>
 
     @Mapping(source = "curator.id", target = "curatorId")
     @Mapping(source = "specialty.id", target = "specialtyId")

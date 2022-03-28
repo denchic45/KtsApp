@@ -22,7 +22,7 @@ class FinderInteractor @Inject constructor(
         return userRepository.getByTypedName(name)
     }
 
-    fun findGroupByTypedName(name: String): Flow<List<CourseGroup>> {
+    fun findGroupByTypedName(name: String): Flow<List<GroupHeader>> {
         return groupRepository.findByTypedName(name)
     }
 

@@ -1,6 +1,6 @@
 package com.denchic45.kts.ui.login.groupChooser
 
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.repository.GroupRepository
 import kotlinx.coroutines.channels.Channel
@@ -12,9 +12,9 @@ import javax.inject.Singleton
 class GroupChooserInteractor @Inject constructor(
     private val groupRepository: GroupRepository
 ) {
-    private val selectedGroup = Channel<CourseGroup>()
+    private val selectedGroup = Channel<GroupHeader>()
 
-    suspend fun findGroupsBySpecialtyId(id: String): List<CourseGroup> {
+    suspend fun findGroupsBySpecialtyId(id: String): List<GroupHeader> {
         return groupRepository.findBySpecialtyId(id)
     }
 
@@ -24,11 +24,11 @@ class GroupChooserInteractor @Inject constructor(
         groupRepository.findGroupInfoById(groupId)
     }
 
-    suspend fun receiveSelectedGroup(): CourseGroup {
+    suspend fun receiveSelectedGroup(): GroupHeader {
         return selectedGroup.receive()
     }
 
-    suspend fun postSelectGroup(group: CourseGroup) {
-        selectedGroup.send(group)
+    suspend fun postSelectGroup(groupHeader: GroupHeader) {
+        selectedGroup.send(groupHeader)
     }
 }

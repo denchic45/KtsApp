@@ -8,7 +8,7 @@ import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
-import com.denchic45.kts.data.model.domain.CourseGroup
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.EventsOfDay
 import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.model.firestore.DayDoc
@@ -288,9 +288,9 @@ class EventRepository @Inject constructor(
         groupTimetable: GroupTimetable
     ) {
         val groupWeekEvents = groupTimetable.weekEvents
-        val dayRef = groupsRef.document(groupTimetable.group.id).collection("Days")
+        val dayRef = groupsRef.document(groupTimetable.groupHeader.id).collection("Days")
         eventDao.deleteByGroupAndDateRange(
-            groupTimetable.group.id,
+            groupTimetable.groupHeader.id,
             groupWeekEvents[0].date,
             groupWeekEvents[5].date
         )
@@ -307,7 +307,7 @@ class EventRepository @Inject constructor(
             val dayDoc: DayDoc = maybeDayDoc?.let {
                 it.events = addableEvents
                 it
-            } ?: dayMapper.domainToDoc(eventsOfTheDay, groupTimetable.group.id)
+            } ?: dayMapper.domainToDoc(eventsOfTheDay, groupTimetable.groupHeader.id)
 
             batch[dayRef.document(dayDoc.id), dayDoc] = SetOptions.merge()
 
@@ -316,7 +316,7 @@ class EventRepository @Inject constructor(
                     id = dayDoc.id,
                     date = dayDoc.date.toLocalDate(),
                     startsAtZero = eventsOfTheDay.startsAtZero,
-                    groupId = groupTimetable.group.id
+                    groupId = groupTimetable.groupHeader.id
                 )
             )
         }
@@ -339,10 +339,10 @@ class EventRepository @Inject constructor(
     }
 
 
-    suspend fun updateEventsOfDay(eventsOfDay: EventsOfDay, group: CourseGroup) {
-        val dayDocId = dayDao.getIdByDateAndGroupId(eventsOfDay.date, group.id)
+    suspend fun updateEventsOfDay(eventsOfDay: EventsOfDay, groupHeader: GroupHeader) {
+        val dayDocId = dayDao.getIdByDateAndGroupId(eventsOfDay.date, groupHeader.id)
         if (isNetworkNotAvailable) return
-        val daysRef = groupsRef.document(group.id)
+        val daysRef = groupsRef.document(groupHeader.id)
             .collection("Days")
         if (dayDocId != null) {
             val snapshot = daysRef.whereEqualTo("date", eventsOfDay.date.toDateUTC())
@@ -363,7 +363,7 @@ class EventRepository @Inject constructor(
                     ).await()
             }
         } else {
-            val dayDoc = dayMapper.domainToDoc(eventsOfDay, group.id)
+            val dayDoc = dayMapper.domainToDoc(eventsOfDay, groupHeader.id)
             daysRef.document(dayDoc.id).set(dayDoc, SetOptions.merge()).await()
             dayDao.upsert(dayMapper.docToEntity(dayDoc))
         }

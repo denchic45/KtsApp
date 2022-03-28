@@ -67,7 +67,7 @@ class CourseRepository @Inject constructor(
     override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
 ) : Repository(context), SaveGroupOperation, SaveCourseOperation, RemoveCourseOperation {
-    private val groupsRef: CollectionReference = firestore.collection("Groups")
+    override val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
 
@@ -235,6 +235,7 @@ class CourseRepository @Inject constructor(
         coursesByGroupIdQuery(groupId).get().await().let {
             if (!it.isEmpty)
                 dataBase.withTransaction {
+                    groupCourseDao.deleteByGroup(groupId)
                     saveCourses(it.toObjects(CourseDoc::class.java))
                 }
         }
@@ -274,6 +275,19 @@ class CourseRepository @Inject constructor(
         requireInternetConnection()
         val courseDoc = courseMapper.domainToDoc(course)
         val batch = firestore.batch()
+        (courseDoc.groupIds).forEach { groupId ->
+            batch.update(
+                groupsRef.document(groupId),
+                "timestamp",
+                FieldValue.serverTimestamp()
+            )
+
+            batch.update(
+                groupsRef.document(groupId),
+                "timestampCourses",
+                FieldValue.serverTimestamp()
+            )
+        }
         batch.set(coursesRef.document(courseDoc.id), courseDoc)
         batch.commit().await()
     }
@@ -729,13 +743,27 @@ interface RemoveCourseOperation : RequireUpdateData {
     val firestore: FirebaseFirestore
     val courseMapper: CourseMapper
     val coursesRef: CollectionReference
+    val groupsRef:CollectionReference
     val coroutineScope: CoroutineScope
     val dispatcher: CoroutineDispatcher
 
-    suspend fun removeCourse(courseId: String) {
+    suspend fun removeCourse(courseId: String, groupIds:List<String>) {
         requireInternetConnection()
         val batch = firestore.batch()
         batch.delete(coursesRef.document(courseId))
+        groupIds.forEach { groupId ->
+            batch.update(
+                groupsRef.document(groupId),
+                "timestamp",
+                FieldValue.serverTimestamp()
+            )
+
+            batch.update(
+                groupsRef.document(groupId),
+                "timestampCourses",
+                FieldValue.serverTimestamp()
+            )
+        }
         coursesRef.document(courseId).collection("Contents").deleteCollection(10)
         batch.commit().await()
     }
