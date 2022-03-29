@@ -60,6 +60,8 @@ class GroupRepository @Inject constructor(
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val coursesRef: CollectionReference = firestore.collection("Courses")
 
+    private fun groupDocReference(groupId: String) = groupsRef.document(groupId)
+
     private suspend fun saveYourGroup(groupDoc: GroupDoc) {
         saveGroup(groupDoc)
         groupPreference.saveGroupInfo(groupMapper.docToEntity(groupDoc))
@@ -179,7 +181,7 @@ class GroupRepository @Inject constructor(
     private fun hasTimestamp(groupDoc: GroupDoc): Boolean = groupDoc.timestamp != null
 
     fun findGroupInfoById(groupId: String) {
-        groupsRef.document(groupId)
+        groupDocReference(groupId)
             .get()
             .addOnSuccessListener { snapshot: DocumentSnapshot ->
                 val groupDoc = snapshot.toObject(GroupDoc::class.java)!!
@@ -190,10 +192,6 @@ class GroupRepository @Inject constructor(
                 }
             }
             .addOnFailureListener { e: Exception? -> Log.d("lol", "loadGroupInfo: ", e) }
-    }
-
-    fun hasGroup(): Boolean {
-        return groupPreference.groupId.isNotEmpty()
     }
 
     fun find(groupId: String): Flow<Group?> {
@@ -207,7 +205,7 @@ class GroupRepository @Inject constructor(
 
     private fun getGroupByIdRemotely(groupId: String) {
         addListenerRegistration(groupId) {
-            groupsRef.document(groupId)
+            groupDocReference(groupId)
                 .addSnapshotListener { snapshot: DocumentSnapshot?, error: FirebaseFirestoreException? ->
                     coroutineScope.launch(dispatcher) {
                         if (snapshot!!.exists()) {
@@ -252,14 +250,14 @@ class GroupRepository @Inject constructor(
     suspend fun add(group: Group) {
         requireInternetConnection()
         val groupDoc = groupMapper.domainToDoc(group)
-        groupsRef.document(groupDoc.id).set(groupDoc, SetOptions.merge())
+        groupDocReference(groupDoc.id).set(groupDoc, SetOptions.merge())
             .await()
     }
 
     suspend fun update(group: Group) {
         requireInternetConnection()
         val updatedGroupMap = groupMapper.domainToMap(group)
-        groupsRef.document(group.id).update(updatedGroupMap)
+        groupDocReference(group.id).update(updatedGroupMap)
             .await()
     }
 
@@ -267,10 +265,10 @@ class GroupRepository @Inject constructor(
         requireInternetConnection()
         val batch = firestore.batch()
 
-        groupsRef.document(groupId)
+        groupDocReference(groupId)
             .get()
             .await().apply {
-                batch.delete(groupsRef.document(groupId))
+                batch.delete(groupDocReference(groupId))
                 this.toObject(GroupDoc::class.java)!!
                     .students!!
                     .values
@@ -298,7 +296,7 @@ class GroupRepository @Inject constructor(
         val updatedGroupMap: MutableMap<String, Any> = HashMap()
         updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
         updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()
-        groupsRef.document(groupId).update(updatedGroupMap)
+        groupDocReference(groupId).update(updatedGroupMap)
             .await()
     }
 
@@ -384,7 +382,7 @@ class GroupRepository @Inject constructor(
 
     private fun findGroupById(groupId: String) {
         coroutineScope.launch(dispatcher) {
-            val groupDoc = groupsRef.document(groupId)
+            val groupDoc = groupDocReference(groupId)
                 .get()
                 .await().toObject(GroupDoc::class.java)!!
             saveGroup(groupDoc)

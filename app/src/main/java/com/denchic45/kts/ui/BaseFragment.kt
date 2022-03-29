@@ -22,6 +22,7 @@ import com.denchic45.kts.utils.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.flow.debounce
 import javax.inject.Inject
 
 
@@ -32,7 +33,7 @@ interface HasViewModel<VM : BaseViewModel> {
     val viewModel: VM
 }
 
-interface HasNavArgs<T: NavArgs> {
+interface HasNavArgs<T : NavArgs> {
     val navArgs: T
 }
 
@@ -64,16 +65,16 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
         collectOnShowToolbarTitle()
         collectOnOptionVisibility()
 
-                viewModel.navigate.collectWhenStarted(viewLifecycleOwner.lifecycleScope) { command ->
-                    when (command) {
-                        is NavigationCommand.To -> navController.navigate(command.directions)
-                        NavigationCommand.Back -> navController.popBackStack()
-                        is NavigationCommand.BackTo ->
-                            navController.popBackStack(command.destinationId, false)
-                        NavigationCommand.ToRoot ->
-                            navController.popBackStack(navController.graph.startDestinationId, false)
-                    }
-                }
+        viewModel.navigate.collectWhenStarted(viewLifecycleOwner.lifecycleScope) { command ->
+            when (command) {
+                is NavigationCommand.To -> navController.navigate(command.directions)
+                NavigationCommand.Back -> navController.popBackStack()
+                is NavigationCommand.BackTo ->
+                    navController.popBackStack(command.destinationId, false)
+                NavigationCommand.ToRoot ->
+                    navController.popBackStack(navController.graph.startDestinationId, false)
+            }
+        }
 
         viewModel.finish.collectWhenStarted(viewLifecycleOwner.lifecycleScope) {
             findNavController().navigateUp()
@@ -127,9 +128,11 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
     }
 
     open fun collectOnOptionVisibility() {
-        viewModel.optionVisibility.collectWhenStarted(lifecycleScope) { (itemId, visible) ->
-            menu.findItem(itemId).isVisible = visible
-        }
+        viewModel.optionVisibility
+            .debounce(500)
+            .collectWhenStarted(lifecycleScope) { (itemId, visible) ->
+                menu.findItem(itemId).isVisible = visible
+            }
     }
 
     open fun collectOnShowToolbarTitle() {

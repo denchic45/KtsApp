@@ -23,23 +23,19 @@ class TimetableFinderViewModel @Inject constructor(
     val openEventEditor = SingleLiveData<Void>()
 
     private val selectedGroup = MutableSharedFlow<GroupHeader>(replay = 1)
-    private val selectedDate = MutableSharedFlow<LocalDate>(replay = 1)
+    private val selectedDate = MutableStateFlow<LocalDate>(LocalDate.now())
 
     private val editEventsMode = MutableStateFlow(false)
 
-    private val _eventsOfDayFromDataSource: StateFlow<EventsOfDay> =
+    private val _eventsOfDayFromDataSource: SharedFlow<EventsOfDay> =
         combine(
             selectedDate,
             selectedGroup
         ) { date, courseGroup ->
             date to courseGroup
         }.flatMapLatest { (date, courseGroup) ->
-            interactor.findLessonsOfGroupByDate(date, courseGroup.id)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Lazily,
-            EventsOfDay.createEmpty(LocalDate.now())
-        )
+            interactor.findEventsOfDayByGroup(date, courseGroup.id)
+        }.shareIn(viewModelScope, SharingStarted.Lazily, replay = 1)
 
     private val _eventsOfDay: MutableStateFlow<EventsOfDay> =
         MutableStateFlow(EventsOfDay.createEmpty(LocalDate.now()))

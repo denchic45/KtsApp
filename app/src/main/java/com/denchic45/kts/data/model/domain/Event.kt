@@ -9,7 +9,6 @@ import java.util.*
 data class Event(
     override var id: String = UUIDS.createShort(),
     val groupHeader: GroupHeader,
-//    val date: LocalDate,
     private val _order: Int = 0,
     val timestamp: Date? = null,
     val room: String = "",

@@ -145,7 +145,7 @@ class EventsFragment : ListFragment<ConcatAdapter>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         adapter = concatAdapter
-        itemTouchHelper.attachToRecyclerView(recyclerView)
+        itemTouchHelper.attachToRecyclerView(binding.rv)
     }
 
     fun setEnableEditMode(editMode: Boolean) {

@@ -22,8 +22,9 @@ data class EventsOfDay(
 
     fun add(event: Event, order: Int): EventsOfDay {
         return copy(
-            _events = events.toMutableList()
-                .apply { add(indexOfOrder(order), event) })
+            _events = events.map(Event::copy).toMutableList()
+                .apply { add(indexOfOrder(order), event) }
+        )
     }
 
     fun update(editedEvent: Event, index: Int = orderOf(editedEvent)): EventsOfDay {
@@ -40,7 +41,7 @@ data class EventsOfDay(
         get() = if (startsAtZero) 0 else 1
 
     fun swap(oldIndex: Int, newIndex: Int): EventsOfDay {
-        return copy(_events = events.swap(oldIndex, newIndex).map { it.copy() })
+        return copy(_events = events.swap(oldIndex, newIndex).map(Event::copy))
     }
 
     private fun removeRedundantEmptyEvents(events: List<Event>): List<Event> {
@@ -57,12 +58,11 @@ data class EventsOfDay(
             }
         }
 
-        if (updatedEvents.isEmpty()) return updatedEvents
         return updatedEvents
     }
 
     fun remove(event: Event): EventsOfDay {
-        return copy(_events = events - event)
+        return copy(_events = events.map(Event::copy) - event)
     }
 
     fun isEmpty(): Boolean = _events.isEmpty()

@@ -326,8 +326,8 @@ class CourseEditorViewModel @Inject constructor(
 
     private suspend fun removeCourse() {
         try {
-            interactor.removeCourse(uiEditor.item)
             finish()
+            interactor.removeCourse(uiEditor.item)
         } catch (e: Exception) {
             if (e is NetworkException) {
                 showToast(R.string.error_check_network)

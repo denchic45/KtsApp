@@ -115,7 +115,6 @@ class TimetableParser {
         if (currentRow == table.rows.size) return EventsOfDay.createEmpty(date)
         var cells = table.getRow(currentRow).tableCells
 
-
         val startAtZero = cells[0].text == "0" && cells[cellOfGroupPos].text.isNotEmpty()
 
         while (hasRowsOfCurrentDate()) {
@@ -176,7 +175,6 @@ class TimetableParser {
         return if (subject != null) {
             Event(
                 groupHeader = currentGroupCourse.groupHeader,
-
                 room = room,
                 details = Lesson(subject, teachers = findTeachersBySubject(subject))
             )

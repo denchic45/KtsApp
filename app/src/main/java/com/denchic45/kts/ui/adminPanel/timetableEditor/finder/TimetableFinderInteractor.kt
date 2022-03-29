@@ -18,7 +18,7 @@ class TimetableFinderInteractor @Inject constructor(
         return groupRepository.findByTypedName(groupName)
     }
 
-    fun findLessonsOfGroupByDate(date: LocalDate, groupId: String): Flow<EventsOfDay> {
+    fun findEventsOfDayByGroup(date: LocalDate, groupId: String): Flow<EventsOfDay> {
         return eventRepository.findEventsOfDayByGroupIdAndDate(groupId, date)
     }
 

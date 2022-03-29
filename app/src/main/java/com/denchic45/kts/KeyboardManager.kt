@@ -22,21 +22,12 @@ class KeyboardManager {
                 val newHeight = mContentView!!.height
                 if (mPreviousHeight != 0) {
                     if (mPreviousHeight < newHeight) {
-                        // In this place keyboard is hidden but navigation bar is appeared
-                        // will hide it
-                        Log.d(TAG, "onLayoutChangedDown")
                         if (mIsKeyboardVisible) {
                             mIsKeyboardVisible = false
                             listener(false)
                         }
                     } else if (mPreviousHeight > newHeight) {
-                        // This block will be called when navigation bar is appeared
-                        // There are two cases:
-                        // 1. When something modal view (like dialog) is appeared
-                        // 2. When keyboard is appeared
-                        Log.d(TAG, "onLayoutChangedUp")
 
-                        // Will ask InputMethodManager.isAcceptingText() to detect if keyboard appeared or not.
                         val imm = mContentView!!.context
                             .getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                         val isAcceptingText = imm.isAcceptingText

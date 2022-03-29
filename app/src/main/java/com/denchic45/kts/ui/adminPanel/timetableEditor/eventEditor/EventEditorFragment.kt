@@ -143,7 +143,6 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
     override fun onStart() {
         super.onStart()
         controller = AppBarController.findController(requireActivity())
-        (activity as AppCompatActivity?)!!.supportActionBar?.title = null
         controller!!.toolbar.addView(toolbarEventEditor)
 
         navHostFragment = childFragmentManager.findFragmentById(R.id.nav_host_fragment)

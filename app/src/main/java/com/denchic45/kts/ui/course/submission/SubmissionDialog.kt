@@ -206,13 +206,6 @@ class SubmissionDialog : BottomSheetDialogFragment() {
 
     private fun animateHeight(windowHeight:Int) {
 
-//        inline val androidx.fragment.app.Fragment.windowHeight: Int
-//        get() {
-//            val view = requireActivity().window.decorView
-//            return resources.displayMetrics.heightPixels
-//        }
-
-
          fun preMeasureViewHeight(): Int {
             val currentView = binding.vf.currentView
             currentView.measure(windowWidth, windowHeight)

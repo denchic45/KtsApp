@@ -21,19 +21,7 @@ object DatabaseModule {
     fun provideDataBase(context: Context): DataBase = Room.databaseBuilder(
         context,
         DataBase::class.java, "database.db"
-    )
-//        .addCallback(object : RoomDatabase.Callback() {
-//        override fun onCreate(db: SupportSQLiteDatabase) {
-//            Executors.newSingleThreadExecutor().execute {
-//                val dataBase = provideDataBase(context)
-//                GlobalScope.launch {
-//
-//                    cancel()
-//                }
-//            }
-//        }
-//    })
-        .build()
+    ).build()
 
     @Provides
     fun provideFirebaseStorage(): FirebaseStorage = FirebaseStorage.getInstance()

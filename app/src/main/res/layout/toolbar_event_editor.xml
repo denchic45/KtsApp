@@ -13,7 +13,6 @@
         android:layout_height="56dp"
         android:fontFamily="@font/gilroy_medium"
         android:gravity="center_vertical"
-        android:text="Редактировать событие"
         android:textSize="20sp" />
 
     <ImageView

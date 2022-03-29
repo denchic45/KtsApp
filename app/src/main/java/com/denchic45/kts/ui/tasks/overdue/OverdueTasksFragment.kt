@@ -27,7 +27,7 @@ class OverdueTasksFragment :
             val adapter = adapter {
                 delegates(TaskAdapterDelegate())
             }
-            rvList.adapter = adapter
+            rv.adapter = adapter
             lifecycleScope.launchWhenStarted {
                 viewModel.tasks.collect {
                     adapter.submit(it)
