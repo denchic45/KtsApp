@@ -14,6 +14,7 @@ import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.DatePatterns
+import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.toString
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -104,13 +105,13 @@ class EventEditorViewModel @Inject constructor(
         when (itemId) {
             R.id.option_duplicate_event -> {
                 viewModelScope.launch {
-                    uiValidator.runValidates { saveChanges() }
+//                    uiValidator.runValidates { saveChanges() }
                     if (uiValidator.runValidates()) {
                         interactor.postEvent {
-                            it.add(uiEditor.item, interactor.oldEvent.value!!.order)
+                            it.add(uiEditor.item.copy(id = UUIDS.createShort()), interactor.oldEvent.value!!.order)
                         }
+                        finish()
                     }
-                    finish()
                 }
             }
             R.id.option_delete_event -> {

@@ -12,16 +12,15 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.function.Consumer
 import kotlin.reflect.full.memberProperties
 
-abstract class Repository protected constructor(override val context: Context) : RequireUpdateData {
-    private val subscriptions: MutableMap<String, Subscription> = HashMap()
 
+abstract class Repository protected constructor(override val context: Context) :
+    PreconditionsRepository {
+    private val subscriptions: MutableMap<String, Subscription> = HashMap()
 
     protected fun addListenerRegistration(
         key: String,
@@ -119,7 +118,7 @@ abstract class Repository protected constructor(override val context: Context) :
     }
 }
 
-interface RequireUpdateData {
+interface PreconditionsRepository {
 
     val networkService: NetworkService
     val appVersionService: AppVersionService
@@ -133,17 +132,72 @@ interface RequireUpdateData {
             .isGooglePlayServicesAvailable(context) == com.google.android.gms.common.ConnectionResult.SUCCESS
     }
 
-    suspend fun requireInternetConnection() {
-        Log.d("lol", "AA requireInternetConnection: ")
+    suspend fun requireAllowWriteData() {
         if (isNetworkNotAvailable) throw NetworkException()
-        Log.d("lol", "AA isGoogleServicesAvailable: ")
         if (!BuildConfig.DEBUG) {
-            Log.d("lol", "AA isOldCurrentVersion: ")
-
             if (appVersionService.isOldCurrentVersion()) throw OldVersionException()
-            Log.d("lol", "AA END requireInternetConnection: ")
         }
     }
+
+    fun requireNetworkAvailable() {
+        if (!isNetworkNotAvailable)
+            throw NetworkException()
+    }
+}
+
+@ExperimentalCoroutinesApi
+fun Query.getLocalDataAndObserveRemote(): Flow<QuerySnapshot?> {
+    return callbackFlow {
+        val listenerRegistration =
+            addSnapshotListener { querySnapshot, firestoreException ->
+                if (firestoreException != null) {
+                    cancel(
+                        message = "Error on fetching query",
+                        cause = firestoreException
+                    )
+                    return@addSnapshotListener
+                }
+                launch {
+                    send(querySnapshot)
+                }
+            }
+        awaitClose {
+            listenerRegistration.remove()
+        }
+    }
+}
+
+@ExperimentalCoroutinesApi
+fun <T> Flow<T>.withFirestoreQuery(
+    query: Query,
+    onExistSnapshot: (QuerySnapshot) -> Unit,
+    onErrorSnapshot: (Throwable) -> Unit = {}
+): Flow<T> {
+    val listenerRegistration = query.addSnapshotListener { value, error ->
+        if (error != null) {
+            onErrorSnapshot(error)
+        } else if (value != null) {
+            onExistSnapshot(value)
+        }
+    }
+    return onCompletion { listenerRegistration.remove() }
+}
+
+@ExperimentalCoroutinesApi
+fun <T> Flow<T>.withFirestoreQuery(
+    documentReference: DocumentReference,
+    onExistSnapshot: (DocumentSnapshot) -> Unit,
+    onErrorSnapshot: (Throwable) -> Unit = {}
+): Flow<T> {
+    val listenerRegistration = documentReference.addSnapshotListener { value, error ->
+        if (error != null) {
+            onErrorSnapshot(error)
+        } else if (value != null) {
+            onExistSnapshot(value)
+        }
+    }
+    return this.onCompletion {
+        listenerRegistration.remove() }
 }
 
 @ExperimentalCoroutinesApi

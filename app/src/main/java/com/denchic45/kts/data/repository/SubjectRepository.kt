@@ -11,13 +11,17 @@ import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.model.firestore.SubjectDoc
 import com.denchic45.kts.data.model.mapper.CourseMapper
 import com.denchic45.kts.data.model.mapper.SectionMapper
 import com.denchic45.kts.data.model.mapper.SubjectMapper
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.SubjectEntity
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -47,8 +51,8 @@ class SubjectRepository @Inject constructor(
     override val subjectDao: SubjectDao,
     override val userDao: UserDao,
     private val dataBase: DataBase,
-    @IoDispatcher override val dispatcher: CoroutineDispatcher
-) : Repository(context), SaveCourseOperation, RemoveCourseOperation {
+    @IoDispatcher override val dispatcher: CoroutineDispatcher,
+) : Repository(context), SaveCourseRepository, RemoveCourseOperation {
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
@@ -56,7 +60,7 @@ class SubjectRepository @Inject constructor(
     override val coursesRef: CollectionReference = firestore.collection("Courses")
 
     suspend fun add(subject: Subject) {
-        requireInternetConnection()
+        requireAllowWriteData()
         isExistWithSameIconAndColor(subject)
         subjectsRef.document(subject.id)
             .set(subjectMapper.domainToDoc(subject))
@@ -64,7 +68,7 @@ class SubjectRepository @Inject constructor(
     }
 
     suspend fun update(subject: Subject) {
-        requireInternetConnection()
+        requireAllowWriteData()
         isExistWithSameIconAndColor(subject)
         val subjectDoc = subjectMapper.domainToDoc(subject)
         val id = subject.id
@@ -98,7 +102,7 @@ class SubjectRepository @Inject constructor(
     }
 
     suspend fun remove(subject: Subject) {
-        requireInternetConnection()
+        requireAllowWriteData()
         subjectsRef.document(subject.id).delete().await()
         coursesRef.whereEqualTo("subject.id", subject.id)
             .get()
@@ -116,9 +120,7 @@ class SubjectRepository @Inject constructor(
                 coroutineScope.launch(dispatcher) {
                     value?.let {
                         if (value.exists())
-                            subjectDao.upsert(
-                                value.toObject(SubjectEntity::class.java)!!
-                            )
+                            saveSubject(subjectMapper.docToEntity(value.toObject(SubjectDoc::class.java)!!))
                     }
                 }
             }
@@ -127,18 +129,21 @@ class SubjectRepository @Inject constructor(
 
     }
 
+    private suspend fun saveSubject(subjectEntity: SubjectEntity) {
+        subjectDao.upsert(subjectEntity)
+    }
+
     fun findByTypedName(subjectName: String): Flow<List<Subject>> = callbackFlow {
-        subjectsRef.whereArrayContains("searchKeys", subjectName.lowercase(Locale.getDefault()))
-            .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
-                val subjects = value!!.toObjects(
-                    Subject::class.java
-                )
-                trySend(subjects)
-                launch(dispatcher) {
-                    subjectDao.upsert(subjectMapper.domainToEntity(subjects))
+        val addSnapshotListener =
+            subjectsRef.whereArrayContains("searchKeys", subjectName.lowercase(Locale.getDefault()))
+                .addSnapshotListener { value: QuerySnapshot?, _ ->
+                    val subjects = value!!.toObjects(Subject::class.java)
+                    trySend(subjects)
+                    launch(dispatcher) {
+                        subjectDao.upsert(subjectMapper.domainToEntity(subjects))
+                    }
                 }
-            }
-        awaitClose { }
+        awaitClose { addSnapshotListener.remove() }
     }
 
     suspend fun findAllRefsOfSubjectIcons(): List<Uri> {
@@ -152,7 +157,7 @@ class SubjectRepository @Inject constructor(
 
     fun findByGroup(groupId: String): Flow<List<Subject>> {
         coroutineScope.launch {
-            requireInternetConnection()
+            requireAllowWriteData()
             coursesRef.whereArrayContains("groupIds", groupId)
                 .get()
                 .await().apply {

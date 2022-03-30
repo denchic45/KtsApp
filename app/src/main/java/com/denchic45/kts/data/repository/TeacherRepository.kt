@@ -87,10 +87,7 @@ class TeacherRepository @Inject constructor(
     }
 
     fun findByTypedName(teacherName: String): Flow<List<User>> = callbackFlow {
-        if (!networkService.isNetworkAvailable) {
-            close(NetworkException())
-            return@callbackFlow
-        }
+        requireNetworkAvailable()
         usersRef.whereArrayContains(
             "searchKeys",
             SearchKeysGenerator.formatInput(teacherName)
@@ -108,7 +105,7 @@ class TeacherRepository @Inject constructor(
 
 
     suspend fun remove(teacher: User) {
-        requireInternetConnection()
+        requireAllowWriteData()
         batch = firestore.batch()
         batch!!.delete(usersRef.document(teacher.id))
         batch!!.commit()

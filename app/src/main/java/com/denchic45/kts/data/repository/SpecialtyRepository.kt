@@ -72,14 +72,14 @@ class SpecialtyRepository @Inject constructor(
 
 
     suspend fun add(specialty: Specialty) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val data = specialtyMapper.domainToDoc(specialty)
         specialtyRef.document(specialty.id).set(data)
             .await()
     }
 
     suspend fun update(specialty: Specialty) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val specialtyDoc = specialtyMapper.domainToDoc(specialty)
         val id = specialty.id
         groupsRef.whereEqualTo("specialty.id", id)
@@ -103,7 +103,7 @@ class SpecialtyRepository @Inject constructor(
     }
 
     suspend fun remove(specialty: Specialty) {
-        requireInternetConnection()
+        requireAllowWriteData()
         specialtyRef.document(specialty.id).delete()
             .await()
     }

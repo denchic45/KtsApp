@@ -66,42 +66,73 @@ class CourseRepository @Inject constructor(
     override val groupCourseDao: GroupCourseDao,
     override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
-) : Repository(context), SaveGroupOperation, SaveCourseOperation, RemoveCourseOperation {
+) : Repository(context), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation {
     override val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
 
-    fun find(courseId: String): Flow<Course?> {
-        addListenerRegistration("findCourseById $courseId") {
-            coursesRef.document(courseId).addSnapshotListener { value, error ->
-                coroutineScope.launch(dispatcher) {
-                    value?.let { documentSnapshot ->
-                        if (!value.exists()) {
-                            courseDao.deleteById(courseId)
-                            return@launch
+    fun find(courseId: String): Flow<Course?> = courseDao.observe(courseId)
+        .withFirestoreQuery(
+            documentReference = coursesRef.document(courseId),
+            onExistSnapshot = { documentSnapshot: DocumentSnapshot ->
+                if (!documentSnapshot.exists()) {
+                    courseDao.deleteById(courseId)
+                    return@withFirestoreQuery
+                }
+                if (timestampIsNull(documentSnapshot))
+                    return@withFirestoreQuery
+                val courseDoc = documentSnapshot.toObject(CourseDoc::class.java)!!
+                coroutineScope.launch {
+                    dataBase.withTransaction {
+                        if (courseDoc.groupIds.isNotEmpty()) {
+                            val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
+                                .get()
+                                .await()
+                            if (timestampsNotNull(querySnapshot))
+                                saveGroups(querySnapshot.toObjects(GroupDoc::class.java))
                         }
-                        if (timestampIsNull(value))
-                            return@launch
-                        val courseDoc = documentSnapshot.toObject(CourseDoc::class.java)!!
-
-                        dataBase.withTransaction {
-                            if (courseDoc.groupIds.isNotEmpty()) {
-                                val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
-                                    .get()
-                                    .await()
-                                if (timestampsNotNull(querySnapshot))
-                                    saveGroups(querySnapshot.toObjects(GroupDoc::class.java))
-                            }
-                            saveCourse(courseDoc)
-                        }
+                        saveCourse(courseDoc)
                     }
                 }
             }
+        )
+        .map {
+            dataBase.withTransaction { }
+            it?.let { courseMapper.entityToDomain2(it) }
         }
-        return courseDao.observe(courseId)
-            .map { it?.let { courseMapper.entityToDomain2(it) } }
-            .distinctUntilChanged()
-    }
+        .distinctUntilChanged()
+
+//    fun find(courseId: String): Flow<Course?> {
+//        addListenerRegistration("findCourseById $courseId") {
+//            coursesRef.document(courseId).addSnapshotListener { value, error ->
+//                coroutineScope.launch(dispatcher) {
+//                    value?.let { documentSnapshot ->
+//                        if (!value.exists()) {
+//                            courseDao.deleteById(courseId)
+//                            return@launch
+//                        }
+//                        if (timestampIsNull(value))
+//                            return@launch
+//                        val courseDoc = documentSnapshot.toObject(CourseDoc::class.java)!!
+//
+//                        dataBase.withTransaction {
+//                            if (courseDoc.groupIds.isNotEmpty()) {
+//                                val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
+//                                    .get()
+//                                    .await()
+//                                if (timestampsNotNull(querySnapshot))
+//                                    saveGroups(querySnapshot.toObjects(GroupDoc::class.java))
+//                            }
+//                            saveCourse(courseDoc)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        return courseDao.observe(courseId)
+//            .map { it?.let { courseMapper.entityToDomain2(it) } }
+//            .distinctUntilChanged()
+//    }
 
     private fun coursesByGroupIdQuery(groupId: String): Query {
         return coursesRef.whereArrayContains("groupIds", groupId)
@@ -272,7 +303,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun add(course: Course) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val courseDoc = courseMapper.domainToDoc(course)
         val batch = firestore.batch()
         (courseDoc.groupIds).forEach { groupId ->
@@ -293,7 +324,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun update(course: Course) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val batch = firestore.batch()
         val courseDoc = courseMapper.domainToDoc(course)
 
@@ -345,7 +376,7 @@ class CourseRepository @Inject constructor(
 
 
     suspend fun removeGroupFromCourses(groupId: String) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val courseDocs = coursesByGroupIdQuery(groupId)
             .get()
             .await()
@@ -381,7 +412,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun addTask(task: Task) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val attachments = contentAttachmentStorage.addContentAttachments(task.id, task.attachments)
         val order = getLastContentOrderByCourseIdAndSectionId(task.courseId, task.sectionId) + 1024
         coursesRef.document(task.courseId)
@@ -425,7 +456,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateTask(task: Task) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val attachments = contentAttachmentStorage.update(task.id, task.attachments)
         val cacheTask = courseContentMapper.entityToTaskDoc(courseContentDao.getSync(task.id))
         val updatedFields =
@@ -443,7 +474,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun removeCourseContent(taskId: String) {
-        requireInternetConnection()
+        requireAllowWriteData()
         contentAttachmentStorage.deleteFilesByContentId(taskId)
         submissionAttachmentStorage.deleteFilesByContentId(taskId)
         getContentDocument(taskId)
@@ -493,7 +524,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateSubmissionFromStudent(submission: Task.Submission) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val studentId = submission.student.id
         val contentId = submission.contentId
 
@@ -538,7 +569,7 @@ class CourseRepository @Inject constructor(
         grade: Int,
         teacherId: String = userPreference.id
     ) {
-        requireInternetConnection()
+        requireAllowWriteData()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
@@ -560,7 +591,7 @@ class CourseRepository @Inject constructor(
         cause: String,
         teacherId: String = userPreference.id
     ) {
-        requireInternetConnection()
+        requireAllowWriteData()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
@@ -612,21 +643,21 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateCourseSections(sections: List<Section>) {
-        requireInternetConnection()
+        requireAllowWriteData()
         coursesRef.document(sections[0].courseId)
             .update("sections", sections)
             .await()
     }
 
     suspend fun addSection(section: Section) {
-        requireInternetConnection()
+        requireAllowWriteData()
         coursesRef.document(section.courseId)
             .update("sections", FieldValue.arrayUnion(section))
             .await()
     }
 
     suspend fun removeSection(section: Section) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val courseRef = coursesRef.document(section.courseId)
 
         val contentsWithThisSection = courseRef.collection("Contents")
@@ -648,7 +679,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateContentOrder(contentId: String, order: Long) {
-        requireInternetConnection()
+        requireAllowWriteData()
         getContentDocument(contentId)
             .update(
                 mapOf(
@@ -738,17 +769,17 @@ class CourseRepository @Inject constructor(
 
 class SameCoursesException : Exception()
 
-interface RemoveCourseOperation : RequireUpdateData {
+interface RemoveCourseOperation : PreconditionsRepository {
 
     val firestore: FirebaseFirestore
     val courseMapper: CourseMapper
     val coursesRef: CollectionReference
-    val groupsRef:CollectionReference
+    val groupsRef: CollectionReference
     val coroutineScope: CoroutineScope
     val dispatcher: CoroutineDispatcher
 
-    suspend fun removeCourse(courseId: String, groupIds:List<String>) {
-        requireInternetConnection()
+    suspend fun removeCourse(courseId: String, groupIds: List<String>) {
+        requireAllowWriteData()
         val batch = firestore.batch()
         batch.delete(coursesRef.document(courseId))
         groupIds.forEach { groupId ->
@@ -769,7 +800,7 @@ interface RemoveCourseOperation : RequireUpdateData {
     }
 }
 
-interface SaveCourseOperation {
+interface SaveCourseRepository {
 
     val courseMapper: CourseMapper
     val userMapper: UserMapper

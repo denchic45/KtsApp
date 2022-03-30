@@ -1,32 +1,30 @@
 package com.denchic45.kts.utils
 
 import java.util.*
-import java.util.function.Predicate
-import java.util.stream.Collectors
 
 class SearchKeysGenerator {
     private val searchKeys: MutableList<String> = ArrayList()
     fun generateKeys(text: String): List<String> {
-        return createListOfKeys(text)
+        return createKeys(text)
     }
 
     fun generateKeys(text: String, filter: (String) -> Boolean): List<String> {
-        return createListOfKeys(text).stream().filter(filter).collect(Collectors.toList())
+        return createKeys(text).filter(filter)
     }
 
-    private fun createListOfKeys(text: String): List<String> {
+    private fun createKeys(text: String): List<String> {
         var text = text
         searchKeys.clear()
         text = text.lowercase(Locale.getDefault())
-        val wordKeysLists: MutableList<List<String>?> = ArrayList()
-        for (word in text.split("\\s+").toTypedArray()) {
+        val wordKeysLists: MutableList<List<String>> = ArrayList()
+        for (word in text.split("\\s+".toRegex()).toTypedArray()) {
             wordKeysLists.add(generateKeysByWord(word))
         }
         permutationWordKeyLists(wordKeysLists, 0)
         return searchKeys
     }
 
-    private fun permutationWordKeyLists(wordKeysLists: List<List<String>?>, pos: Int) {
+    private fun permutationWordKeyLists(wordKeysLists: MutableList<List<String>>, pos: Int) {
         if (pos == wordKeysLists.size - 1) {
             printKeys(wordKeysLists)
             return
@@ -38,12 +36,12 @@ class SearchKeysGenerator {
         }
     }
 
-    private fun printKeys(wordKeysLists: List<List<String>?>) {
+    private fun printKeys(wordKeysLists: List<List<String>>) {
         val appendedWords = StringBuilder()
         for (wordKeys in wordKeysLists) {
             searchKeys.addAll(
-                wordKeys!!.stream().map { key: String -> appendedWords.toString() + key }
-                    .collect(Collectors.toList()))
+                wordKeys.map { key: String -> appendedWords.toString() + key }
+            )
             appendedWords.append(wordKeys[wordKeys.size - 1])
         }
     }

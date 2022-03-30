@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
@@ -20,10 +21,12 @@ import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.ui.base.PrimaryActionModeCallback
 import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.closeKeyboard
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.model.WeekItem
 import com.example.searchbar.SearchBar
+import kotlinx.android.synthetic.main.fragment_task_editor.*
 import java.time.LocalDate
 
 class TimetableFinderFragment :
@@ -116,6 +119,7 @@ class TimetableFinderFragment :
                 popupWindow!!.setAdapter(popupAdapter)
                 popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                     popupWindow!!.dismiss()
+                    binding.searchBar.closeKeyboard()
                     searchBar.setIgnoreText(true)
                     searchBar.setText(popupAdapter!!.getItem(position).title)
                     searchBar.setIgnoreText(false)
@@ -141,7 +145,6 @@ class TimetableFinderFragment :
                         setAllowEdit(adapter, true)
                     }
                 }
-
                 adapter.submitList(eventsOfDayState.events)
             }
 

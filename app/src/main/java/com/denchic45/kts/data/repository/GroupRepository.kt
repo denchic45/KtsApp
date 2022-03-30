@@ -53,7 +53,7 @@ class GroupRepository @Inject constructor(
     override val subjectDao: SubjectDao,
     private val firestore: FirebaseFirestore,
     override val dataBase: DataBase
-) : Repository(context), SaveGroupOperation, SaveCourseOperation {
+) : Repository(context), SaveGroupOperation, SaveCourseRepository {
 
     private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -248,21 +248,21 @@ class GroupRepository @Inject constructor(
 
 
     suspend fun add(group: Group) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val groupDoc = groupMapper.domainToDoc(group)
         groupDocReference(groupDoc.id).set(groupDoc, SetOptions.merge())
             .await()
     }
 
     suspend fun update(group: Group) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val updatedGroupMap = groupMapper.domainToMap(group)
         groupDocReference(group.id).update(updatedGroupMap)
             .await()
     }
 
     suspend fun remove(groupId: String) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val batch = firestore.batch()
 
         groupDocReference(groupId)
@@ -292,7 +292,7 @@ class GroupRepository @Inject constructor(
     }
 
     suspend fun updateGroupCurator(groupId: String, teacher: User) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val updatedGroupMap: MutableMap<String, Any> = HashMap()
         updatedGroupMap["curator"] = userMapper.domainToDoc(teacher)
         updatedGroupMap["timestamp"] = FieldValue.serverTimestamp()

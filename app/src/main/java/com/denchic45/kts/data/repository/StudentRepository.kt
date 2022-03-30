@@ -31,7 +31,7 @@ class StudentRepository @Inject constructor(
     private val groupRef: CollectionReference = firestore.collection("Groups")
 
     suspend fun add(student: User) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         batch[userRef.document(student.id)] = studentDoc
@@ -40,7 +40,7 @@ class StudentRepository @Inject constructor(
     }
 
     suspend fun update(student: User) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         val cacheStudent = userMapper.entityToDomain(userDao.get(student.id))
@@ -68,7 +68,7 @@ class StudentRepository @Inject constructor(
     }
 
     suspend fun remove(student: User) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val batch = firestore.batch()
         val studentDoc = userMapper.domainToDoc(student)
         batch.delete(userRef.document(student.id))

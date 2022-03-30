@@ -1,5 +1,6 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
@@ -131,7 +132,11 @@ class TimetableFinderViewModel @Inject constructor(
         openEventEditor.call()
         viewModelScope.launch {
             eventEditorInteractor.receiveEvent().apply {
-                _eventsOfDay.update { this }
+                _eventsOfDay.update {
+                    for (event in this.events) {
+                        Log.d("lol", "_eventsOfDay: ${event.order}")
+                    }
+                    this }
             }
 
         }

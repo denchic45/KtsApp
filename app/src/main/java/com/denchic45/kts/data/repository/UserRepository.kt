@@ -90,14 +90,14 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun add(user: User) {
-        requireInternetConnection()
+        requireAllowWriteData()
         val userDoc = userMapper.domainToDoc(user)
         usersRef.document(user.id).set(userDoc)
             .await()
     }
 
     suspend fun update(user: UserEntity) {
-        requireInternetConnection()
+        requireAllowWriteData()
         userDao.update(user)
         val userDoc = userMapper.entityToDoc(user)
         usersRef.document(user.id).set(userDoc)
@@ -106,7 +106,7 @@ open class UserRepository @Inject constructor(
     }
 
     open suspend fun remove(user: User) {
-        requireInternetConnection()
+        requireAllowWriteData()
         deleteAvatar(user.id)
         usersRef.document(user.id)
             .delete()
@@ -142,7 +142,7 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun findAndSaveByPhoneNum(phoneNum: String) {
-        requireInternetConnection()
+        requireAllowWriteData()
         usersRef.whereEqualTo("phoneNum", phoneNum)
             .get()
             .await().apply {
@@ -158,7 +158,7 @@ open class UserRepository @Inject constructor(
 
     suspend fun findAndSaveByEmail(email: String) {
         Log.d("lol", "AA requireInternetConnection: ")
-        requireInternetConnection()
+        requireAllowWriteData()
         Log.d("lol", "AA usersRef.whereEqualTo: ")
         usersRef.whereEqualTo("email", email)
             .get()
