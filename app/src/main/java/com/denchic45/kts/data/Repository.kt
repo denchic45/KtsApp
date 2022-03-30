@@ -12,7 +12,10 @@ import com.google.firebase.firestore.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
 import java.util.function.Consumer
 import kotlin.reflect.full.memberProperties
@@ -168,40 +171,44 @@ fun Query.getLocalDataAndObserveRemote(): Flow<QuerySnapshot?> {
 }
 
 @ExperimentalCoroutinesApi
-fun <T> Flow<T>.withFirestoreQuery(
+fun <T> Flow<T>.withSnapshotListener(
     query: Query,
-    onExistSnapshot: (QuerySnapshot) -> Unit,
+    onQuerySnapshot: (QuerySnapshot) -> Unit,
     onErrorSnapshot: (Throwable) -> Unit = {}
 ): Flow<T> {
     val listenerRegistration = query.addSnapshotListener { value, error ->
         if (error != null) {
             onErrorSnapshot(error)
         } else if (value != null) {
-            onExistSnapshot(value)
+            onQuerySnapshot(value)
         }
     }
-    return onCompletion { listenerRegistration.remove() }
+    return onCompletion {
+        Log.d("lol", "withSnapshotListener: $query")
+        listenerRegistration.remove()
+    }
 }
 
 @ExperimentalCoroutinesApi
-fun <T> Flow<T>.withFirestoreQuery(
+fun <T> Flow<T>.withSnapshotListener(
     documentReference: DocumentReference,
-    onExistSnapshot: (DocumentSnapshot) -> Unit,
+    onDocumentSnapshot: (DocumentSnapshot) -> Unit,
     onErrorSnapshot: (Throwable) -> Unit = {}
 ): Flow<T> {
     val listenerRegistration = documentReference.addSnapshotListener { value, error ->
         if (error != null) {
             onErrorSnapshot(error)
         } else if (value != null) {
-            onExistSnapshot(value)
+            onDocumentSnapshot(value)
         }
     }
     return this.onCompletion {
-        listenerRegistration.remove() }
+        listenerRegistration.remove()
+    }
 }
 
 @ExperimentalCoroutinesApi
-fun Query.getQuerySnapshotFlow(): Flow<QuerySnapshot?> {
+fun Query.getQuerySnapshotFlow(): Flow<QuerySnapshot> {
     return callbackFlow {
         val listenerRegistration =
             addSnapshotListener { querySnapshot, firestoreException ->
@@ -212,18 +219,21 @@ fun Query.getQuerySnapshotFlow(): Flow<QuerySnapshot?> {
                     )
                     return@addSnapshotListener
                 }
-                launch {
-                    send(querySnapshot)
+                if (querySnapshot != null) {
+                    launch {
+                        send(querySnapshot)
+                    }
                 }
             }
         awaitClose {
+            Log.d("lol", "getQuerySnapshotFlow awaitClose: ")
             listenerRegistration.remove()
         }
     }
 }
 
 @ExperimentalCoroutinesApi
-fun <T> Query.getDataFlow(mapper: (QuerySnapshot?) -> T): Flow<T> {
+fun <T> Query.getDataFlow(mapper: (QuerySnapshot) -> T): Flow<T> {
     return getQuerySnapshotFlow()
         .map {
             return@map mapper(it)

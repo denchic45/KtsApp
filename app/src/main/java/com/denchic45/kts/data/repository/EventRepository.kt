@@ -8,8 +8,8 @@ import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
-import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.EventsOfDay
+import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.model.firestore.DayDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -20,6 +20,7 @@ import com.denchic45.kts.data.model.room.DayEntity
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.UserPreference
+import com.denchic45.kts.data.withSnapshotListener
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.toDateUTC
@@ -87,44 +88,32 @@ class EventRepository @Inject constructor(
     }
 
     fun findEventsOfDayByYourGroupAndDate(date: LocalDate): Flow<EventsOfDay> {
-        return callbackFlow {
-            groupPreference.observeGroupId
-                .filterNotNull()
-                .collect { groupId ->
-                    Log.d("lol", "ON events flatMap: ")
-                    launch {
-                        eventDao.observeEventsByDateAndGroupId(date, groupId)
-                            .map { dayMapper.entityToDomain(it) }
-                            .distinctUntilChanged()
-                            .collect {
-                                send(it)
-                            }
-                    }
-                    if (date.toDateUTC() > nextSaturday || date.toDateUTC() < previousMonday) {
-                        Log.d("lol", "ON available date ")
-                        Log.d("lol", "ON events coroutine launch: ")
-
-                        val registration = getQueryOfEventsOfGroupByDate(
-                            date,
-                            groupId
-                        ).addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                            Log.d("lol", "ON events snapshot: ")
-                            if (error != null) {
-                                Log.w("lol", "ON events error:", error)
-                                return@addSnapshotListener
-                            }
-                            if (!snapshots!!.isEmpty) {
-                                launch {
-                                    saveDay(snapshots.toObjects(DayDoc::class.java)[0])
+        return groupPreference.observeGroupId
+            .filterNotNull()
+            .flatMapLatest { groupId ->
+                eventDao.observeEventsByDateAndGroupId(date, groupId)
+                    .run {
+                        if (date.toDateUTC() > nextSaturday || date.toDateUTC() < previousMonday) {
+                            Log.d("lol", "ON available date ")
+                            Log.d("lol", "ON events coroutine launch: ")
+                            withSnapshotListener(
+                                query = getQueryOfEventsOfGroupByDate(
+                                    date,
+                                    groupId
+                                ),
+                                onQuerySnapshot = {
+                                    if (!it.isEmpty) {
+                                        coroutineScope.launch {
+                                            saveDay(it.toObjects(DayDoc::class.java)[0])
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                        awaitClose {
-                            registration.remove()
-                        }
+                            )
+                        } else this
                     }
-                }
-        }
+                    .map { dayMapper.entityToDomain(it) }
+                    .distinctUntilChanged()
+            }
     }
 
     fun findEventsForDayForTeacherByDate(date: LocalDate): Flow<EventsOfDay> {

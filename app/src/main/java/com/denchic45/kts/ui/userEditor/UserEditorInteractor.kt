@@ -46,6 +46,7 @@ class UserEditorInteractor @Inject constructor(
         return flow {
             if (!networkService.isNetworkAvailable) {
                 emit(Resource.Error(NetworkException()))
+                return@flow
             }
             val photoUrl = createAvatar(user)
             val updatedUser = user.copy(photoUrl = photoUrl)

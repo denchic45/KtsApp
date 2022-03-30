@@ -27,7 +27,7 @@ class FinderInteractor @Inject constructor(
     }
 
     fun findSubjectByTypedName(name: String): Flow<List<Subject>> {
-        return subjectRepository.findByTypedName(name)
+        return subjectRepository.findByContainsName(name)
     }
 
     fun findSpecialtyByTypedName(name: String): Flow<List<Specialty>> {

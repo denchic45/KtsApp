@@ -8,6 +8,7 @@ import com.denchic45.kts.data.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.getDataFlow
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -52,7 +53,8 @@ class SubjectRepository @Inject constructor(
     override val userDao: UserDao,
     private val dataBase: DataBase,
     @IoDispatcher override val dispatcher: CoroutineDispatcher,
-) : Repository(context), SaveCourseRepository, RemoveCourseOperation {
+) : Repository(context), SaveCourseRepository, RemoveCourseOperation,
+    FindByContainsNameRepository<Subject> {
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
@@ -133,17 +135,30 @@ class SubjectRepository @Inject constructor(
         subjectDao.upsert(subjectEntity)
     }
 
-    fun findByTypedName(subjectName: String): Flow<List<Subject>> = callbackFlow {
-        val addSnapshotListener =
-            subjectsRef.whereArrayContains("searchKeys", subjectName.lowercase(Locale.getDefault()))
-                .addSnapshotListener { value: QuerySnapshot?, _ ->
-                    val subjects = value!!.toObjects(Subject::class.java)
-                    trySend(subjects)
-                    launch(dispatcher) {
-                        subjectDao.upsert(subjectMapper.domainToEntity(subjects))
-                    }
+//    fun findByTypedName(subjectName: String): Flow<List<Subject>> = callbackFlow {
+//        val addSnapshotListener =
+//            subjectsRef.whereArrayContains("searchKeys", subjectName.lowercase(Locale.getDefault()))
+//                .addSnapshotListener { value: QuerySnapshot?, _ ->
+//                    val subjects = value!!.toObjects(Subject::class.java)
+//                    trySend(subjects)
+//                    launch(dispatcher) {
+//                        subjectDao.upsert(subjectMapper.domainToEntity(subjects))
+//                    }
+//                }
+//        awaitClose { addSnapshotListener.remove() }
+//    }
+
+    override fun findByContainsName(text: String): Flow<List<Subject>> {
+        return subjectsRef.whereArrayContains("searchKeys", text.lowercase(Locale.getDefault()))
+            .getDataFlow { it.toObjects(SubjectDoc::class.java) }
+            .map { subjectDocs ->
+                coroutineScope.launch {
+                    subjectDao.upsert(subjectMapper.docToEntity(subjectDocs))
                 }
-        awaitClose { addSnapshotListener.remove() }
+                subjectMapper.docToDomain(subjectDocs)
+            }
+
+
     }
 
     suspend fun findAllRefsOfSubjectIcons(): List<Uri> {

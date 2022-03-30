@@ -72,15 +72,15 @@ class CourseRepository @Inject constructor(
     private val contentsRef: Query = firestore.collectionGroup("Contents")
 
     fun find(courseId: String): Flow<Course?> = courseDao.observe(courseId)
-        .withFirestoreQuery(
+        .withSnapshotListener(
             documentReference = coursesRef.document(courseId),
-            onExistSnapshot = { documentSnapshot: DocumentSnapshot ->
+            onDocumentSnapshot = { documentSnapshot: DocumentSnapshot ->
                 if (!documentSnapshot.exists()) {
                     courseDao.deleteById(courseId)
-                    return@withFirestoreQuery
+                    return@withSnapshotListener
                 }
                 if (timestampIsNull(documentSnapshot))
-                    return@withFirestoreQuery
+                    return@withSnapshotListener
                 val courseDoc = documentSnapshot.toObject(CourseDoc::class.java)!!
                 coroutineScope.launch {
                     dataBase.withTransaction {

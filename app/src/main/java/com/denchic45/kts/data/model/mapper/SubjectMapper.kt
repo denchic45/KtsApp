@@ -19,4 +19,8 @@ abstract class SubjectMapper {
     abstract fun entityToDomain(entity: SubjectEntity): Subject
 
     abstract fun entityToDomain(entities: List<SubjectEntity>): List<Subject>
+
+    abstract fun docToDomain(subjectDoc: SubjectDoc): Subject
+
+    abstract fun docToDomain(list: List<SubjectDoc>):List<Subject>
 }

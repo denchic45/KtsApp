@@ -12,7 +12,7 @@ import javax.inject.Inject
 class FindSubjectByTypedNameUseCase @Inject constructor(private val subjectRepository: SubjectRepository) {
     operator fun invoke(name: String): Flow<Resource<List<Subject>>> {
         return try {
-            subjectRepository.findByTypedName(name)
+            subjectRepository.findByContainsName(name)
                 .map { Resource.Success(it) }
         } catch (e: NetworkException) {
             flowOf(Resource.Error(e))
