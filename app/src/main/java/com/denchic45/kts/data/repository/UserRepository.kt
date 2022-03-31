@@ -6,6 +6,7 @@ import com.denchic45.appVersion.AppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
+import com.denchic45.kts.data.getDataFlow
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
@@ -36,10 +37,20 @@ open class UserRepository @Inject constructor(
     private val userDao: UserDao,
     private val userMapper: UserMapper,
     firestore: FirebaseFirestore
-) : Repository(context) {
+) : Repository(context), FindByContainsNameRepository<User> {
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarStorage: StorageReference = storage.reference.child("avatars")
+
+    override fun findByContainsName(text: String): Flow<List<User>> {
+        return usersRef
+            .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(text))
+            .getDataFlow { it.toObjects(UserDoc::class.java) }
+            .map { users ->
+                userDao.upsert(userMapper.docToEntity(users))
+                userMapper.docToDomain(users)
+            }
+    }
 
     fun findByGroupId(groupId: String): Flow<List<User>> {
         return userDao.observeByGroupId(groupId).map { userMapper.entityToDomain(it) }
@@ -54,7 +65,7 @@ open class UserRepository @Inject constructor(
         userPreference.gender = user.gender
         userPreference.photoUrl = user.photoUrl
         userPreference.email = user.email ?: ""
-        userPreference.phoneNum = user.phoneNum
+//        userPreference.phoneNum = user.phoneNum
         userPreference.isAdmin = user.admin
         userPreference.timestamp = user.timestamp!!.time
         userPreference.isGeneratedAvatar = user.generatedAvatar
@@ -74,7 +85,7 @@ open class UserRepository @Inject constructor(
                     null
             },
             userPreference.role,
-            userPreference.phoneNum,
+//            userPreference.phoneNum,
             userPreference.email,
             userPreference.photoUrl,
             Date(userPreference.timestamp), userPreference.gender,
@@ -118,27 +129,6 @@ open class UserRepository @Inject constructor(
         val reference = avatarStorage.child(userId)
         reference.delete()
             .await()
-    }
-
-    fun getByTypedName(name: String): Flow<List<User>> = callbackFlow {
-        addListenerRegistration("getByTypedName") {
-            usersRef
-                .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
-                .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                    if (error != null) {
-                        close(error)
-                        return@addSnapshotListener
-                    }
-                    val users = snapshots!!.toObjects(
-                        UserDoc::class.java
-                    )
-                    launch(dispatcher) {
-                        userDao.upsert(userMapper.docToEntity(users))
-                    }
-                    trySend(userMapper.docToDomain(users))
-                }
-        }
-        awaitClose { }
     }
 
     suspend fun findAndSaveByPhoneNum(phoneNum: String) {

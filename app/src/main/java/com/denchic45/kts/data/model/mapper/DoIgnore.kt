@@ -1,14 +1,12 @@
-package com.denchic45.kts.data.model.mapper;
+package com.denchic45.kts.data.model.mapper
 
-import org.mapstruct.Qualifier;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.mapstruct.Qualifier
 
 @Qualifier
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
-public @interface DoIgnore {
-}
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER
+)
+@Retention(AnnotationRetention.BINARY)
+annotation class DoIgnore 

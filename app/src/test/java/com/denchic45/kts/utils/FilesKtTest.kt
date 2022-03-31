@@ -9,9 +9,10 @@ internal class FilesKtTest {
 
     @Test
     fun getMimeType() {
-        assertEquals("image/png", File("sample.png").getMimeType())
-        assertEquals("audio/mpeg", File("sample.mp3").getMimeType())
-        assertEquals("audio/ogg", File("sample.ogg").getMimeType())
-        assertEquals("application/msword", File("sample.docx").getMimeType())
+        assertEquals("image", File("sample.png").getMimeType())
+        assertEquals("audio", File("sample.mp3").getMimeType())
+        assertEquals("audio", File("sample.ogg").getMimeType())
+        val mimeType = File("sample.docx").getMimeType()
+        assertEquals("application", mimeType)
     }
 }

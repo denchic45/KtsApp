@@ -21,7 +21,7 @@ class FullAvatarViewModel @Inject constructor(
         thisUser = interactor.findThisUser()
         viewModelScope.launch {
             if (photoUrl != thisUser!!.photoUrl) {
-                optionVisibility.emit(Pair(R.id.menu_delete_avatar, false))
+                setMenuItemVisible(R.id.menu_delete_avatar to false)
             }
         }
     }

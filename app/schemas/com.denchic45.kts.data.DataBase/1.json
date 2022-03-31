@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "86fda0408b629b08da7735b07c75de2f",
+    "identityHash": "f709df286fb212ea35f5ca609d626624",
     "entities": [
       {
         "tableName": "subject",
@@ -234,7 +234,7 @@
       },
       {
         "tableName": "user",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`user_id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `surname` TEXT NOT NULL, `user_group_id` TEXT, `role` TEXT NOT NULL, `phoneNum` TEXT NOT NULL, `email` TEXT, `photoUrl` TEXT NOT NULL, `gender` INTEGER NOT NULL, `admin` INTEGER NOT NULL, `patronymic` TEXT, `generatedAvatar` INTEGER NOT NULL, `user_timestamp` INTEGER NOT NULL, PRIMARY KEY(`user_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`user_id` TEXT NOT NULL, `firstName` TEXT NOT NULL, `surname` TEXT NOT NULL, `user_group_id` TEXT, `role` TEXT NOT NULL, `phoneNum` TEXT, `email` TEXT, `photoUrl` TEXT NOT NULL, `gender` INTEGER NOT NULL, `admin` INTEGER NOT NULL, `patronymic` TEXT, `generatedAvatar` INTEGER NOT NULL, `user_timestamp` INTEGER NOT NULL, PRIMARY KEY(`user_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -270,7 +270,7 @@
             "fieldPath": "phoneNum",
             "columnName": "phoneNum",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "email",
@@ -938,7 +938,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '86fda0408b629b08da7735b07c75de2f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f709df286fb212ea35f5ca609d626624')"
     ]
   }
 }

@@ -1,6 +1,7 @@
 package com.denchic45.kts.ui.group.users
 
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
@@ -27,8 +28,6 @@ class GroupUsersViewModel @Inject constructor(
     @Named("options_user") private val userOptions: List<ListItem>
 ) : BaseViewModel() {
     val showUserOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
-
-    val openProfile = SingleLiveData<String>()
 
     val openUserEditor = SingleLiveData<Map<String, String>>()
 
@@ -74,7 +73,7 @@ class GroupUsersViewModel @Inject constructor(
     }
 
     fun onUserItemClick(position: Int) {
-        openProfile.value = users.value[position]!!.id
+        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(users.value[position]!!.id))
     }
 
     fun onOptionUserClick(optionId: String) {

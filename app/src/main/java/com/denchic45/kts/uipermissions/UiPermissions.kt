@@ -28,7 +28,7 @@ class UiPermissions(private val user: User) {
     }
 
     fun isNotAllowed(permissionName: String): Boolean {
-        return isAllowed(permissionName)
+        return !getPermission(permissionName).isAllowedRole(user)
     }
 
     private fun getPermission(permissionName: String): Permission {

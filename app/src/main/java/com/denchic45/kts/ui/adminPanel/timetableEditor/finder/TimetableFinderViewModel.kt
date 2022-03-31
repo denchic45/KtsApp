@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.domain.usecase.FindGroupByContainsNameUseCase
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorInteractor
 import com.denchic45.kts.ui.base.BaseViewModel
@@ -17,9 +19,10 @@ import javax.inject.Inject
 
 class TimetableFinderViewModel @Inject constructor(
     var eventEditorInteractor: EventEditorInteractor,
-    private val interactor: TimetableFinderInteractor
+    private val interactor: TimetableFinderInteractor,
+    private val findGroupByContainsNameUseCase: FindGroupByContainsNameUseCase
 ) : BaseViewModel() {
-    val showFoundGroups = SingleLiveData<List<ListItem>>()
+    val showFoundGroups = MutableSharedFlow<List<ListItem>>()
 
     val openEventEditor = SingleLiveData<Void>()
 
@@ -136,7 +139,8 @@ class TimetableFinderViewModel @Inject constructor(
                     for (event in this.events) {
                         Log.d("lol", "_eventsOfDay: ${event.order}")
                     }
-                    this }
+                    this
+                }
             }
 
         }
@@ -191,19 +195,22 @@ class TimetableFinderViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             typedGroupName.filter { s -> s.length > 1 }
-                .flatMapLatest { groupName -> interactor.findGroupByTypedName(groupName) }
-                .map { resource ->
-                    foundGroupHeaders = resource
-                    resource
-                        .map { (id, name) ->
-                            ListItem(
-                                id = id,
-                                title = name,
-                                icon = EitherMessage.Id(R.drawable.ic_group)
-                            )
+                .flatMapLatest { groupName -> findGroupByContainsNameUseCase(groupName) }
+                .collect { resource ->
+                    when (resource) {
+                        is Resource.Success -> {
+                            foundGroupHeaders = resource.data
+                            showFoundGroups.emit(resource.data
+                                .map { (id, name) ->
+                                    ListItem(
+                                        id = id,
+                                        title = name,
+                                        icon = EitherMessage.Id(R.drawable.ic_group)
+                                    )
+                                })
                         }
+                    }
                 }
-                .collect(showFoundGroups::postValue)
         }
     }
 

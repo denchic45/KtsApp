@@ -78,8 +78,10 @@ class ContentViewModel @Inject constructor(
             submissionVisibility.emit(uiPermissions.isAllowed(ALLOW_SEE_SUBMISSION))
 
             if (uiPermissions.isAllowed(TaskInfoViewModel.ALLOW_EDIT_TASK)) {
-                optionVisibility.emit(R.id.option_task_edit to true)
-                optionVisibility.emit(R.id.options_task_delete to true)
+                setMenuItemVisible(
+                    R.id.option_task_edit to true,
+                    R.id.options_task_delete to true
+                )
             }
         }
     }

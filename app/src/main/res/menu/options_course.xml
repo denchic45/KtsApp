@@ -3,9 +3,11 @@
 
     <item
         android:id="@+id/option_edit_course"
-        android:title="Редактировать курс" />
+        android:title="Редактировать курс"
+        android:visible="false" />
 
     <item
         android:id="@+id/option_edit_sections"
-        android:title="Редактировать разделы" />
+        android:title="Редактировать разделы"
+        android:visible="false" />
 </menu>

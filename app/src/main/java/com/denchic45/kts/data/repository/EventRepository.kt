@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.DataBase
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*

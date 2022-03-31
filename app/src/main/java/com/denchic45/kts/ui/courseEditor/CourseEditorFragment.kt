@@ -2,16 +2,15 @@ package com.denchic45.kts.ui.courseEditor
 
 import android.graphics.drawable.PictureDrawable
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
-import android.widget.TextView
 import android.widget.TextView.OnEditorActionListener
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
@@ -27,10 +26,7 @@ import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
-import com.denchic45.kts.utils.closeKeyboard
-import com.denchic45.kts.utils.setActivityTitle
-import com.denchic45.kts.utils.showKeyboard
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
@@ -88,7 +84,7 @@ class CourseEditorFragment :
                 .compose(EditTextTransformer())
                 .subscribe { viewModel.onCourseNameType(it) }
 
-            etSubjectName.setOnEditorActionListener(OnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
+            etSubjectName.setOnEditorActionListener(OnEditorActionListener { _, actionId: Int, _ ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     viewModel.onSubjectNameType(etSubjectName.text.toString())
                     etSubjectName.closeKeyboard()
@@ -96,7 +92,7 @@ class CourseEditorFragment :
                 }
                 false
             })
-            etTeacherName.setOnEditorActionListener(OnEditorActionListener { v: TextView?, actionId: Int, event: KeyEvent? ->
+            etTeacherName.setOnEditorActionListener(OnEditorActionListener { _, actionId: Int, _ ->
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     viewModel.onTeacherNameType(etTeacherName.text.toString())
                     etTeacherName.closeKeyboard()
@@ -164,7 +160,7 @@ class CourseEditorFragment :
                 tvTeacherName.text = teacher.fullName
                 etTeacherName.setText("")
             }
-            viewModel.showFoundTeachers.observe(viewLifecycleOwner) { items: List<ListItem> ->
+            viewModel.showFoundTeachers.collectWhenStarted(lifecycleScope) { items: List<ListItem> ->
                 popupWindow!!.anchorView = etTeacherName
                 popupWindow!!.setAdapter(ListPopupWindowAdapter(requireContext(), items))
                 popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
@@ -177,7 +173,7 @@ class CourseEditorFragment :
             viewModel.showFoundSubjects.observe(viewLifecycleOwner) { items: List<ListItem> ->
                 popupWindow!!.anchorView = etSubjectName
                 popupWindow!!.setAdapter(ListPopupWindowAdapter(requireContext(), items))
-                popupWindow!!.setOnItemClickListener { _: AdapterView<*>?, view1: View?, position: Int, _: Long ->
+                popupWindow!!.setOnItemClickListener { _, _, position: Int, _ ->
                     popupWindow!!.dismiss()
                     viewModel.onSubjectSelect(position)
                 }
@@ -191,9 +187,9 @@ class CourseEditorFragment :
             etSubjectName.textChanges()
                 .compose(EditTextTransformer())
                 .filter(NonThrowingPredicate { charSequence: CharSequence -> charSequence.length > 1 && etSubjectName.hasFocus() } as NonThrowingPredicate<CharSequence>)
-                .subscribe { subjectName: String? ->
+                .subscribe { subjectName ->
                     viewModel.onSubjectNameType(
-                        subjectName!!
+                        subjectName
                     )
                 }
             etTeacherName.textChanges()

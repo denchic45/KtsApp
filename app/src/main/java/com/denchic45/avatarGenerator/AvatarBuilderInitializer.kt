@@ -1,5 +1,5 @@
-package com.denchic45.avatarGenerator;
+package com.denchic45.avatarGenerator
 
-public interface AvatarBuilderInitializer {
-    AvatarGenerator.Builder initBuilder(AvatarGenerator.Builder builder);
+interface AvatarBuilderInitializer {
+    fun initBuilder(builder: AvatarGenerator.Builder): AvatarGenerator.Builder
 }

@@ -5,17 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.EitherMessage
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.domain.usecase.RemoveGroupUseCase
+import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -28,22 +30,22 @@ class FinderViewModel @Inject constructor(
     @Named("options_subject") subjectOptions: List<ListItem>,
     private val interactor: FinderInteractor,
     private val removeGroupUseCase: RemoveGroupUseCase,
-    private val confirmInteractor: ConfirmInteractor
+    private val confirmInteractor: ConfirmInteractor,
+
+    findUserByContainsNameUseCase: FindUserByContainsNameUseCase,
+    findGroupByContainsNameUseCase: FindGroupByContainsNameUseCase,
+    findSubjectByContainsNameUseCase: FindSubjectByContainsNameUseCase,
+    findSpecialtyByContainsNameUseCase: FindSpecialtyByContainsNameUseCase,
+    findCourseByContainsNameUseCase: FindCourseByContainsNameUseCase
 ) : BaseViewModel() {
 
     val finderEntities = MutableLiveData<List<ListItem>>()
 
-    val currentSelectedEntity = MutableLiveData(POSITION_FIND_USERS)
-
-    val showFoundItems = MutableLiveData<List<DomainModel>>()
-
-    val showListEmptyState = MutableLiveData<Boolean>()
+    val currentSelectedEntity = MutableStateFlow(POSITION_FIND_USERS)
 
     val openGroup = SingleLiveData<String>()
 
     private val openSubject = SingleLiveData<String>()
-
-    val openProfile = SingleLiveData<String>()
 
     val openUserEditor = SingleLiveData<Map<String, String>>()
 
@@ -58,7 +60,7 @@ class FinderViewModel @Inject constructor(
     val showOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
     private val queryByName = MutableSharedFlow<String>()
     private val onFinderItemClickActions: List<(String) -> Unit> = listOf(
-        { openProfile.setValue(it) },
+        { navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(it)) },
         { openGroup.setValue(it) },
         { openSubject.setValue(it) },
         { openSpecialtyEditor.setValue(it) },
@@ -73,38 +75,39 @@ class FinderViewModel @Inject constructor(
         startEmptyList
     )
 
+    val foundItems = MutableStateFlow<Resource<List<DomainModel>>>(Resource.Success(startEmptyList))
+
     private val onOptionItemClickActions: Map<String, () -> Unit>
 
-    private val findByTypedNameActions = listOf(
-        { name: String -> interactor.findUserByTypedName(name) },
-        { name: String -> interactor.findGroupByTypedName(name) },
-        { name: String -> interactor.findSubjectByTypedName(name) },
-        { name: String -> interactor.findSpecialtyByTypedName(name) },
-        { name: String -> interactor.findCourseByTypedName(name) })
+
+    private val findUseCases = listOf(
+        findUserByContainsNameUseCase,
+        findGroupByContainsNameUseCase,
+        findSubjectByContainsNameUseCase,
+        findSpecialtyByContainsNameUseCase,
+        findCourseByContainsNameUseCase
+    )
+
+
     private val optionsList: List<List<ListItem>>
     private var selectedEntity: DomainModel? = null
     fun onQueryTextSubmit(queryName: String) {
         viewModelScope.launch {
-            queryTexts[currentSelectedEntity.value!!] = queryName
+            queryTexts[currentSelectedEntity.value] = queryName
             queryByName.emit(queryName)
         }
     }
 
     fun onFinderEntitySelect(position: Int) {
         currentSelectedEntity.value = position
-        val items = foundEntities[currentSelectedEntity.value!!]
-        showFoundItems.value = items
-        if (items === startEmptyList || items.isNotEmpty()) {
-            showListEmptyState.setValue(false)
-        } else {
-            showListEmptyState.setValue(true)
-        }
+        val items = foundEntities[currentSelectedEntity.value]
+        foundItems.tryEmit(Resource.Success(items))
+
         queryTexts[position]?.let {
             viewModelScope.launch {
                 queryByName.emit(it)
             }
         }
-        interactor.removeListeners()
     }
 
     fun onOptionClick(optionId: String) {
@@ -112,18 +115,13 @@ class FinderViewModel @Inject constructor(
     }
 
     fun onFinderItemClick(position: Int) {
-        val item = foundEntities[currentSelectedEntity.value!!][position]
-        onFinderItemClickActions[currentSelectedEntity.value!!](item.id)
+        val item = foundEntities[currentSelectedEntity.value][position]
+        onFinderItemClickActions[currentSelectedEntity.value](item.id)
     }
 
     fun onFinderItemLongClick(position: Int) {
-        selectedEntity = showFoundItems.value!![position]
-        showOptions.value = Pair(position, optionsList[currentSelectedEntity.value!!])
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        interactor.removeListeners()
+        selectedEntity = (foundItems.value as Resource.Success).data[position]
+        showOptions.value = Pair(position, optionsList[currentSelectedEntity.value])
     }
 
     companion object {
@@ -162,18 +160,17 @@ class FinderViewModel @Inject constructor(
 
         viewModelScope.launch {
             queryByName.flatMapLatest { name: String ->
-                findByTypedNameActions[currentSelectedEntity.value!!].invoke(name)
-            }.collect { list ->
-                showFoundItems.value = list
-                foundEntities[currentSelectedEntity.value!!] = list
+                findUseCases[currentSelectedEntity.value].invoke(name)
+            }.collect { resource ->
+                foundItems.value = resource
+                if (resource is Resource.Success)
+                    foundEntities[currentSelectedEntity.value] = resource.data
             }
         }
 
         onOptionItemClickActions = mapOf(
             "OPTION_SHOW_PROFILE" to {
-                openProfile.setValue(
-                    selectedEntity!!.id
-                )
+                navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(selectedEntity!!.id))
             },
             "OPTION_EDIT_USER" to {
                 val selectedUser = selectedEntity as User

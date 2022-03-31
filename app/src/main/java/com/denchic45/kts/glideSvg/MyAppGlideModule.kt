@@ -1,32 +1,28 @@
-package com.denchic45.kts.glideSvg;
+package com.denchic45.kts.glideSvg
 
-import android.content.Context;
-import android.graphics.drawable.PictureDrawable;
-
-import androidx.annotation.NonNull;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Registry;
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.AppGlideModule;
-import com.caverock.androidsvg.SVG;
-
-import java.io.InputStream;
+import android.content.Context
+import com.bumptech.glide.module.AppGlideModule
+import com.bumptech.glide.Glide
+import com.caverock.androidsvg.SVG
+import android.graphics.drawable.PictureDrawable
+import com.bumptech.glide.Registry
+import com.bumptech.glide.annotation.GlideModule
+import com.denchic45.kts.glideSvg.SvgDrawableTranscoder
+import com.denchic45.kts.glideSvg.SvgDecoder
+import java.io.InputStream
 
 @GlideModule
-public final class MyAppGlideModule extends AppGlideModule {
-
-    @Override
-    public void registerComponents(@NonNull Context context, @NonNull Glide glide,
-                                   @NonNull Registry registry) {
-        registry.register(SVG.class, PictureDrawable.class, new SvgDrawableTranscoder())
-                .append(InputStream.class, SVG.class, new SvgDecoder());
+class MyAppGlideModule : AppGlideModule() {
+    override fun registerComponents(
+        context: Context, glide: Glide,
+        registry: Registry
+    ) {
+        registry.register(SVG::class.java, PictureDrawable::class.java, SvgDrawableTranscoder())
+            .append(InputStream::class.java, SVG::class.java, SvgDecoder())
     }
 
     // Disable manifest parsing to avoid adding similar modules twice.
-    @Override
-    public boolean isManifestParsingEnabled() {
-        return false;
+    override fun isManifestParsingEnabled(): Boolean {
+        return false
     }
-
 }

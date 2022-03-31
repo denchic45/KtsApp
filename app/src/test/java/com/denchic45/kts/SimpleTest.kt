@@ -16,5 +16,17 @@ class SimpleTest {
             .collect { println(it) } // prints Begin, a, b, c
     }
 
+    @Test
+    fun testPlusMap() {
+        val map:Map<String,Boolean> = emptyMap()
+
+        val map1 = map + Pair("lol", false)
+
+        val map2 = map1 + Pair("lol", true)
+
+        println("Map")
+        println(map2)
+    }
+
 
 }

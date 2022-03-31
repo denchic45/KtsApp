@@ -143,7 +143,7 @@ interface PreconditionsRepository {
     }
 
     fun requireNetworkAvailable() {
-        if (!isNetworkNotAvailable)
+        if (isNetworkNotAvailable)
             throw NetworkException()
     }
 }

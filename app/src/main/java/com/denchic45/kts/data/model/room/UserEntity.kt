@@ -14,7 +14,7 @@ data class UserEntity(
     @ColumnInfo(name = "user_group_id")
     var groupId: String? = null,
     var role: String,
-    var phoneNum: String,
+//    var phoneNum: String?,
     var email: String? = null,
     var photoUrl: String,
     var gender: Int = 0,

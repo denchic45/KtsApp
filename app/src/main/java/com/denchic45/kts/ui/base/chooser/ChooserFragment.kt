@@ -10,7 +10,9 @@ import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentChooserBinding
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.widget.ListStateLayout
 import com.denchic45.widget.extendedAdapter.AdapterDelegate
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.adapter
@@ -51,15 +53,27 @@ abstract class ChooserFragment<VM : ChooserViewModel<out DomainModel>> :
                     super.onQueryTextChange(newText)
                     viewModel.onNameType(newText)
                 }
+
+                override fun onQueryTextSubmit(query: String) {
+                    super.onQueryTextSubmit(query)
+                    viewModel.onNameType(query)
+                }
             })
 
             viewModel.items.collectWhenStarted(lifecycleScope) { resource ->
                 when (resource) {
                     is Resource.Loading -> {}
                     is Resource.Success -> {
+                        lsl.showList()
                         adapter.submit(resource.data)
                     }
-                    is Resource.Error -> {}
+                    is Resource.Error -> {
+                        when(resource.error) {
+                            is NetworkException -> {
+                                lsl.showView(ListStateLayout.NETWORK_VIEW)
+                            }
+                        }
+                    }
                     is Resource.Next -> {}
                 }
             }

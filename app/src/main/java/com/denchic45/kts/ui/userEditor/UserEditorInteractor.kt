@@ -30,13 +30,6 @@ class UserEditorInteractor @Inject constructor(
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 
-    fun getGroupsByTypedName(name: String): Flow<List<GroupHeader>> {
-        return groupRepository.findByTypedName(name)
-    }
-
-    fun getGroupNameById(groupId: String): LiveData<String> {
-        return groupRepository.getNameByGroupId(groupId).asLiveData()
-    }
 
     private suspend fun loadAvatar(avatarBytes: ByteArray, id: String): String {
         return userRepository.loadAvatar(avatarBytes, id)

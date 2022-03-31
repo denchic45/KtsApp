@@ -17,7 +17,8 @@ class TimestampPreference @Inject constructor(context: Context) :
         get() = getValue(TIMESTAMP_LAST_UPDATE_GROUPS, 0L)
     val lastUpdateEventsTimestamp: Long
         get() = getValue(TIMESTAMP_LAST_UPDATE_EVENTS, 0L)
-    val lastUpdateGroupCoursesTimestamp: Long
+    var lastUpdateGroupCoursesTimestamp: Long
+        set(value) = setValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, value)
         get() = getValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
     var lastUpdateTeacherCoursesTimestamp: Long
         get() = getValue(TIMESTAMP_LAST_UPDATE_TEACHER_COURSES, 0L)
@@ -26,7 +27,7 @@ class TimestampPreference @Inject constructor(context: Context) :
     companion object {
         const val TIMESTAMP_LAST_UPDATE_EVENTS = "TIMESTAMP_LAST_UPDATE_EVENTS"
         const val TIMESTAMP_LAST_UPDATE_GROUPS = "TIMESTAMP_LAST_UPDATE_GROUPS"
-        const val TIMESTAMP_LAST_UPDATE_GROUP_COURSES = "TIMESTAMP_LAST_UPDATE_COURSES_GROUP"
+        const val TIMESTAMP_LAST_UPDATE_GROUP_COURSES = "TIMESTAMP_LAST_UPDATE_GROUP_COURSES"
         const val TIMESTAMP_LAST_UPDATE_TEACHER_COURSES = "TIMESTAMP_LAST_UPDATE_TEACHER_COURSES"
         const val GROUP_HOURS_TIMEOUT = 3
     }

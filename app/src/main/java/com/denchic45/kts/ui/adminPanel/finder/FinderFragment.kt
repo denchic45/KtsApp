@@ -5,12 +5,14 @@ import android.view.View
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentFinderBinding
@@ -19,15 +21,14 @@ import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
-import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.ViewUtils
+import com.denchic45.kts.utils.*
 import com.denchic45.widget.ListStateLayout
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.example.searchbar.SearchBar
 import com.google.android.material.appbar.AppBarLayout
+import kotlinx.coroutines.flow.drop
 
 class FinderFragment :
     BaseFragment<FinderViewModel, FragmentFinderBinding>(R.layout.fragment_finder),
@@ -43,10 +44,8 @@ class FinderFragment :
 
     override val viewModel: FinderViewModel by viewModels { viewModelFactory }
 
-    //    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var currentAdapter: ListAdapter<DomainModel, *>
 
-    //    private lateinit var rv: RecyclerView
     private lateinit var appBarController: AppBarController
     private lateinit var rvFinderEntities: RecyclerView
     private lateinit var finderEntityAdapter: FinderEntityAdapter
@@ -84,7 +83,7 @@ class FinderFragment :
                 viewModel.onFinderEntitySelect(position)
             }
 
-            viewModel.currentSelectedEntity.observe(viewLifecycleOwner) { position: Int ->
+            viewModel.currentSelectedEntity.collectWhenStarted(lifecycleScope) { position: Int ->
                 currentAdapter = listAdapters[position] as ListAdapter<DomainModel, *>
                 rvFoundItems.adapter = currentAdapter
                 AppBarController.findController(requireActivity())
@@ -103,21 +102,29 @@ class FinderFragment :
             viewLifecycleOwner
         ) { list: List<ListItem> -> finderEntityAdapter.submitList(list) }
 
-        viewModel.showListEmptyState.observe(viewLifecycleOwner) { show: Boolean ->
-            if (show) {
-                listStateLayout.showView(ListStateLayout.EMPTY_VIEW)
-            } else {
-                listStateLayout.showList()
+        viewModel.foundItems
+            .drop(1)
+            .collectWhenStarted(lifecycleScope) { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        listStateLayout.showList()
+                        currentAdapter.submitList(
+                            resource.data,
+                            listStateLayout.getCommitCallback(currentAdapter)
+                        )
+                    }
+                    Resource.Loading -> {}
+                    is Resource.Error -> {
+                        when(resource.error) {
+                            is NetworkException -> {
+                                listStateLayout.showView(ListStateLayout.NETWORK_VIEW)
+                            }
+                            else -> toast("Ошибка: ${resource.error}")
+                        }
+                    }
+                    is Resource.Next -> throw IllegalStateException()
+                }
             }
-        }
-        viewModel.showFoundItems.observe(
-            viewLifecycleOwner
-        ) { foundEntities: List<DomainModel> ->
-            currentAdapter.submitList(
-                foundEntities,
-                listStateLayout.getCommitCallback(currentAdapter)
-            )
-        }
         viewModel.openGroup.observe(viewLifecycleOwner) { groupId: String? ->
             val bundle = Bundle()
             bundle.putString(GroupFragment.GROUP_ID, groupId)
@@ -126,19 +133,14 @@ class FinderFragment :
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
-        ) { args->
+        ) { args ->
             navController.navigate(R.id.action_global_userEditorFragment, Bundle(2).apply {
                 args!!.forEach { (key, value) ->
                     putString(key, value)
                 }
             })
         }
-        viewModel.openProfile.observe(viewLifecycleOwner) { userId: String ->
-            navController.navigate(
-                R.id.action_global_profileFragment,
-                bundleOf(ProfileFragment.USER_ID to userId)
-            )
-        }
+
         viewModel.openSubjectEditor.observe(viewLifecycleOwner) { subjectId: String ->
             navController.navigate(
                 R.id.action_global_subjectEditorDialog,

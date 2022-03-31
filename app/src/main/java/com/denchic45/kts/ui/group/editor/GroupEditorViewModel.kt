@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Specialty
@@ -34,7 +35,7 @@ class GroupEditorViewModel @Inject constructor(
     private val removeGroupUseCase: RemoveGroupUseCase,
     private val findGroupUseCase: FindGroupUseCase,
     private val confirmInteractor: ConfirmInteractor,
-    private val findSpecialtyByTypedNameUseCase: FindSpecialtyByTypedNameUseCase,
+    private val findSpecialtyByContainsNameUseCase: FindSpecialtyByContainsNameUseCase,
     @Named("courses") val courseList: List<ListItem>
 ) : BaseViewModel() {
     val enableSpecialtyField = MutableLiveData<Boolean>()
@@ -60,14 +61,18 @@ class GroupEditorViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             typedSpecialtyByName.flatMapLatest { specialtyName: String ->
-                findSpecialtyByTypedNameUseCase(specialtyName)
-            }.collect { list ->
-                foundSpecialties = list
-                showSpecialties.postValue(
-                    list.map { specialty ->
-                        ListItem(id = specialty.id, title = specialty.name)
+                findSpecialtyByContainsNameUseCase(specialtyName)
+            }.collect { resource ->
+                when (resource) {
+                    is Resource.Success-> {
+                        foundSpecialties = resource.data
+                        showSpecialties.postValue(
+                            resource.data.map { specialty ->
+                                ListItem(id = specialty.id, title = specialty.name)
+                            }
+                        )
                     }
-                )
+                }
             }
         }
         uiEditor = UIEditor(id == null) {
@@ -193,7 +198,7 @@ class GroupEditorViewModel @Inject constructor(
         super.onCreateOptions()
         if (uiEditor.isNew) {
             viewModelScope.launch {
-                optionVisibility.emit(R.id.option_course_delete to false)
+                setMenuItemVisible(R.id.option_course_delete to false)
             }
         }
     }

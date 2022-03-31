@@ -9,10 +9,7 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -26,17 +23,15 @@ class GroupViewModel @Inject constructor(
 
     val menuItemVisibility = SingleLiveData<Pair<Int, Boolean>>()
 
-//    val title = MutableStateFlow("")
-
     val openUserEditor = SingleLiveData<Pair<String, String>>()
 
     val openGroupEditor = SingleLiveData<String>()
 
     val groupId: String = groupId ?: interactor.yourGroupId
     private val uiPermissions: UiPermissions
-    private val groupNameByGroupId: StateFlow<String> =
+    private val groupNameByGroupId: SharedFlow<String> =
         interactor.getNameByGroupId(this.groupId)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+            .shareIn(viewModelScope, SharingStarted.Lazily)
 
     fun onPrepareOptions(currentItem: Int) {
         menuItemVisibility.value = Pair(
@@ -81,9 +76,7 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            groupNameByGroupId.collect {
-                it.length
-                Log.d("lol", "groupNameByGroupId: $it")
+            interactor.getNameByGroupId(this@GroupViewModel.groupId).collect {
                 toolbarTitle = it
             }
         }

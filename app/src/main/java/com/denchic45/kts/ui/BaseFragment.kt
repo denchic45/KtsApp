@@ -128,10 +128,12 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
     }
 
     open fun collectOnOptionVisibility() {
-        viewModel.optionVisibility
+        viewModel.optionsVisibility
             .debounce(500)
-            .collectWhenStarted(lifecycleScope) { (itemId, visible) ->
-                menu.findItem(itemId).isVisible = visible
+            .collectWhenStarted(lifecycleScope) { optionsVisibility ->
+                optionsVisibility.forEach { (itemId, visible) ->
+                    menu.findItem(itemId).isVisible = visible
+                }
             }
     }
 

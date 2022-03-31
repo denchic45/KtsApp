@@ -6,6 +6,7 @@ import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
 import com.denchic45.kts.data.*
 import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.firestore.CourseContentDoc
@@ -25,7 +26,6 @@ import com.denchic45.kts.utils.toDate
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -66,10 +66,41 @@ class CourseRepository @Inject constructor(
     override val groupCourseDao: GroupCourseDao,
     override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
-) : Repository(context), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation {
+) : Repository(context), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation,FindByContainsNameRepository<CourseHeader> {
     override val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
+
+//    fun findByTypedName(name: String): Flow<List<CourseHeader>> = callbackFlow {
+//        addListenerRegistration("name") {
+//            coursesRef
+//                .whereArrayContains("searchKeys", name.lowercase())
+//                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+//                    val courseDocs = value!!.toObjects(CourseDoc::class.java)
+//                    launch {
+//                        dataBase.withTransaction {
+//                            saveCourses(courseDocs)
+//                        }
+//                    }
+//                    trySend(
+//                        courseMapper.docToDomain(courseDocs)
+//                    )
+//                }
+//        }
+//        awaitClose { }
+//    }
+
+    override fun findByContainsName(text: String): Flow<List<CourseHeader>> {
+      return coursesRef
+            .whereArrayContains("searchKeys", text.lowercase())
+            .getDataFlow { it.toObjects(CourseDoc::class.java) }
+            .map { courseDocs ->
+                dataBase.withTransaction {
+                    saveCourses(courseDocs)
+                }
+                courseMapper.docToDomain(courseDocs)
+            }
+    }
 
     fun find(courseId: String): Flow<Course?> = courseDao.observe(courseId)
         .withSnapshotListener(
@@ -276,16 +307,13 @@ class CourseRepository @Inject constructor(
         coursesByTeacherIdQuery(teacherId).addSnapshotListener { value, error ->
             coroutineScope.launch {
                 value?.let { value ->
-
                     if (!value.isEmpty) {
-
                         value.toObjects(CourseDoc::class.java).apply {
-                            timestampPreference.lastUpdateTeacherCoursesTimestamp =
-                                this.maxOf { it.timestamp!!.time }
-                            Log.d("lol", "savingCourse: $this")
                             dataBase.withTransaction {
                                 saveCourses(this)
                             }
+                            timestampPreference.lastUpdateTeacherCoursesTimestamp =
+                                this.maxOf { it.timestamp!!.time }
                         }
                     }
                 } ?: error?.printStackTrace()
@@ -354,26 +382,6 @@ class CourseRepository @Inject constructor(
 
 
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
-
-    fun findByTypedName(name: String): Flow<List<CourseHeader>> = callbackFlow {
-        addListenerRegistration("name") {
-            coursesRef
-                .whereArrayContains("searchKeys", name.lowercase())
-                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                    val courseDocs = value!!.toObjects(CourseDoc::class.java)
-                    launch {
-                        dataBase.withTransaction {
-                            saveCourses(courseDocs)
-                        }
-                    }
-                    trySend(
-                        courseMapper.docToDomain(courseDocs)
-                    )
-                }
-        }
-        awaitClose { }
-    }
-
 
     suspend fun removeGroupFromCourses(groupId: String) {
         requireAllowWriteData()

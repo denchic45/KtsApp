@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
+import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.repository.SameCoursesException
+import com.denchic45.kts.domain.usecase.FindTeacherByContainsNameUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.ui.login.groupChooser.GroupChooserInteractor
@@ -31,12 +33,13 @@ class CourseEditorViewModel @Inject constructor(
     courseId: String?,
     private val interactor: CourseEditorInteractor,
     private val confirmInteractor: ConfirmInteractor,
-    private var groupChooserInteractor: GroupChooserInteractor
+    private var groupChooserInteractor: GroupChooserInteractor,
+    private val findTeacherByContainsNameUseCase: FindTeacherByContainsNameUseCase
 ) : BaseViewModel() {
     val selectSubject = MutableLiveData<Subject>()
     val selectTeacher = MutableLiveData<User>()
     val nameField = MutableLiveData<String>()
-    val showFoundTeachers = SingleLiveData<List<ListItem>>()
+    val showFoundTeachers = MutableSharedFlow<List<ListItem>>()
     val showFoundSubjects = SingleLiveData<List<ListItem>>()
 
     val subjectNameTypeEnable = MutableLiveData<Boolean>()
@@ -78,19 +81,24 @@ class CourseEditorViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 typedTeacherName
-                    .flatMapLatest { name -> interactor.findTeacherByTypedName(name) }
-                    .map { list ->
-                        foundTeachers = list
-                        list.map { user: User ->
-                            ListItem(
-                                id = user.id,
-                                title = user.fullName,
-                                icon = EitherMessage.String(user.photoUrl),
-                                type = ListPopupWindowAdapter.TYPE_AVATAR
-                            )
+                    .flatMapLatest { name -> findTeacherByContainsNameUseCase(name) }
+                    .collect { resource ->
+                        when (resource) {
+                            is Resource.Success -> {
+                                foundTeachers = resource.data
+                                showFoundTeachers.emit(
+                                    resource.data.map { user: User ->
+                                        ListItem(
+                                            id = user.id,
+                                            title = user.fullName,
+                                            icon = EitherMessage.String(user.photoUrl),
+                                            type = ListPopupWindowAdapter.TYPE_AVATAR
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
-                    .collect { t: List<ListItem> -> showFoundTeachers.setValue(t) }
             } catch (e: Exception) {
                 if (e is NetworkException) {
                     showToast(R.string.error_check_network)
@@ -206,7 +214,7 @@ class CourseEditorViewModel @Inject constructor(
 
     private fun setSaveOptionVisibility(visible: Boolean) {
         viewModelScope.launch {
-            optionVisibility.emit(R.id.option_course_save to visible)
+            setMenuItemVisible(R.id.option_course_save to visible)
         }
     }
 
@@ -337,6 +345,6 @@ class CourseEditorViewModel @Inject constructor(
 
     override fun onCreateOptions() {
         super.onCreateOptions()
-        viewModelScope.launch { optionVisibility.emit(R.id.option_course_delete to !uiEditor.isNew) }
+        viewModelScope.launch { setMenuItemVisible(R.id.option_course_delete to !uiEditor.isNew) }
     }
 }

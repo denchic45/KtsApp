@@ -1,6 +1,6 @@
 package com.denchic45.kts.data.repository
 
-import com.denchic45.kts.data.DataBase
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.dao.GroupDao
 import com.denchic45.kts.data.dao.SpecialtyDao
 import com.denchic45.kts.data.dao.UserDao

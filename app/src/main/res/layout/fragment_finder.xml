@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     app:emptyView="@layout/state_empty_search"
+    app:networkView="@layout/state_error_network"
     android:layout_height="match_parent"
     tools:context=".ui.adminPanel.finder.FinderFragment">
 

@@ -22,7 +22,7 @@ class ProfileViewModel @Inject constructor(
     val showFullName = MutableLiveData<String>()
     val showRole = MutableLiveData<Int>()
     val showGroupInfo = MutableLiveData<String>()
-    val showPhoneNum = MutableLiveData<String>()
+//    val showPhoneNum = MutableLiveData<String>()
     val showEmail = MutableLiveData<String?>()
     val infoVisibility = MutableLiveData<Boolean>()
     val groupInfoVisibility = MutableLiveData(false)
@@ -85,7 +85,7 @@ class ProfileViewModel @Inject constructor(
                     showAvatar.value = user.photoUrl
                     showFullName.value = user.fullName
                     showRole.value = mapRoleToNameRoleId(user.role)
-                    showPhoneNum.value = user.phoneNum
+//                    showPhoneNum.value = user.phoneNum
                     showEmail.value = user.email
                     if (user.isStudent) {
                         viewModelScope.launch {
@@ -106,7 +106,7 @@ class ProfileViewModel @Inject constructor(
                         }
                     }
                     if (interactor.findThisUser().id != userOfProfile!!.id) {
-                        optionVisibility.emit(Pair(R.id.menu_select_avatar, false))
+                        setMenuItemVisible(R.id.menu_select_avatar to false)
                     }
                 }
             }

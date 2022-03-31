@@ -1,7 +1,6 @@
 package com.denchic45.kts.ui.userEditor
 
 import android.os.Bundle
-import android.telephony.PhoneNumberFormattingTextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -37,15 +36,9 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
         keyboardManager = KeyboardManager()
         val groupAdapter: ListPopupWindowAdapter
         with(binding) {
-            etGender.inputEnable(false)
-            etRole.inputEnable(false)
-            etPhoneNum.addTextChangedListener(PhoneNumberFormattingTextWatcher())
+//            etPhoneNum.addTextChangedListener(PhoneNumberFormattingTextWatcher())
             groupAdapter = ListPopupWindowAdapter(requireContext(), emptyList())
             etGroup.setAdapter(groupAdapter)
-//            val toolbar = findViewById<CustomToolbar>(R.id.toolbar)
-//            setSupportActionBar(toolbar)
-//            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-//            fab.setOnClickListener { viewModel.onFabClick() }
 
             etFirstName.textChanges()
                 .skip(1)
@@ -65,11 +58,11 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
                 .map { obj: CharSequence -> obj.toString() }
                 .subscribe(viewModel::onPatronymicType)
 
-            etPhoneNum.textChanges()
-                .skip(1)
-                .compose(AsyncTransformer())
-                .map { obj: CharSequence -> obj.toString() }
-                .subscribe(viewModel::onPhoneNumType)
+//            etPhoneNum.textChanges()
+//                .skip(1)
+//                .compose(AsyncTransformer())
+//                .map { obj: CharSequence -> obj.toString() }
+//                .subscribe(viewModel::onPhoneNumType)
 
             etEmail.textChanges()
                 .skip(1)
@@ -109,11 +102,13 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
                         .toString()
                 ) etPatronymic.setText(patronymic)
             }
-            viewModel.fieldPhoneNum.collectWhenStarted(
-                lifecycleScope
-            ) { phoneNum ->
-                if (phoneNum != etPhoneNum.text.toString()) etPhoneNum.setText(phoneNum)
-            }
+
+//            viewModel.fieldPhoneNum.collectWhenStarted(
+//                lifecycleScope
+//            ) { phoneNum ->
+//                if (phoneNum != etPhoneNum.text.toString()) etPhoneNum.setText(phoneNum)
+//            }
+
             viewModel.fieldEmail.collectWhenStarted(
                 lifecycleScope
             ) { email -> if (email != etEmail.text.toString()) etEmail.setText(email) }

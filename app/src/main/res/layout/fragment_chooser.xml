@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/lsl"
     android:layout_width="match_parent"
+    app:networkView="@layout/state_error_network"
     android:layout_height="match_parent"
     tools:context=".ui.base.chooser.ChooserFragment">
 

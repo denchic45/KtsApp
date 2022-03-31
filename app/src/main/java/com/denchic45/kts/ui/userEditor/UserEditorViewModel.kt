@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.userEditor
 
-import android.telephony.PhoneNumberUtils
 import android.text.TextUtils
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
@@ -12,17 +10,21 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
+import com.denchic45.kts.domain.usecase.FindGroupByContainsNameUseCase
+import com.denchic45.kts.domain.usecase.FindGroupNameUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.Validations
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -34,7 +36,9 @@ open class UserEditorViewModel @Inject constructor(
     @Named(UserEditorFragment.USER_GROUP_ID) private var groupId: String?,
     @Named("genders") genderList: List<ListItem>,
     private val interactor: UserEditorInteractor,
-    private val confirmInteractor: ConfirmInteractor
+    private val confirmInteractor: ConfirmInteractor,
+    private val findGroupByContainsNameUseCase: FindGroupByContainsNameUseCase,
+    private val findGroupNameUseCase: FindGroupNameUseCase
 ) : BaseViewModel() {
 
     val fieldRoles = MutableStateFlow(0)
@@ -49,7 +53,7 @@ open class UserEditorViewModel @Inject constructor(
 
     val fieldPatronymic = MutableStateFlow("")
 
-    val fieldPhoneNum = MutableStateFlow("")
+//    val fieldPhoneNum = MutableStateFlow("")
 
     val fieldEmail = MutableStateFlow("")
 
@@ -74,7 +78,8 @@ open class UserEditorViewModel @Inject constructor(
     private val genderList: List<ListItem>
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<User>
-    var groupName: LiveData<String>? = null
+
+    //    var groupName: LiveData<String>? = null
     private var userId: String
     private var role: String?
     private var gender = 0
@@ -93,18 +98,18 @@ open class UserEditorViewModel @Inject constructor(
                 )
             }, "Фамилия обязательна"))
                 .sendMessageResult(R.id.til_surname, fieldErrorMessage),
-            Validation(
-                Rule({
-                    !TextUtils.isEmpty(
-                        fieldPhoneNum.value
-                    )
-                }, "Номер обязателен"),
-                Rule({
-                    Validations.validPhoneNumber(
-                        fieldPhoneNum.value
-                    )
-                }, "Номер некоректный")
-            ).sendMessageResult(R.id.til_phoneNum, fieldErrorMessage),
+//            Validation(
+//                Rule({
+//                    !TextUtils.isEmpty(
+//                        fieldPhoneNum.value
+//                    )
+//                }, "Номер обязателен"),
+//                Rule({
+//                    Validations.validPhoneNumber(
+//                        fieldPhoneNum.value
+//                    )
+//                }, "Номер некоректный")
+//            ).sendMessageResult(R.id.til_phoneNum, fieldErrorMessage),
             Validation(Rule({ gender != 0 }, "Пол обязателен"))
                 .sendMessageResult(R.id.til_gender, fieldErrorMessage),
             Validation(
@@ -151,7 +156,7 @@ open class UserEditorViewModel @Inject constructor(
                 fieldPatronymic.value,
                 groupId,
                 role,
-                PhoneNumberUtils.normalizeNumber(fieldPhoneNum.value),
+//                PhoneNumberUtils.normalizeNumber(fieldPhoneNum.value),
                 fieldEmail.value,
                 "",
                 Date(),
@@ -173,11 +178,17 @@ open class UserEditorViewModel @Inject constructor(
         fieldGroupVisibility.value = isStudent(role!!)
         fieldGenders.value = genderList
         viewModelScope.launch {
-            typedNameGroup.flatMapLatest { name: String -> interactor.getGroupsByTypedName(name) }
-                .map { list ->
-                    list.map { group -> ListItem(id = group.id, title = group.name) }
+            typedNameGroup.flatMapLatest { name: String -> findGroupByContainsNameUseCase(name) }
+                .collect { resource ->
+                    if (resource is Resource.Success) {
+                        groupList.value = resource.data.map { group ->
+                            ListItem(
+                                id = group.id,
+                                title = group.name
+                            )
+                        }
+                    }
                 }
-                .collect { value: List<ListItem> -> groupList.setValue(value) }
         }
         if (uiEditor.isNew) {
             setupForNewItem()
@@ -206,10 +217,11 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     private fun setGroupView() {
-        if (groupId != null) {
-            groupName = interactor.getGroupNameById(groupId!!)
-            LiveDataUtil.observeOnce(interactor.getGroupNameById(groupId!!)) { value: String ->
-                fieldGroup.value = value
+        groupId?.let {
+            viewModelScope.launch {
+                findGroupNameUseCase(it).collect {
+                    fieldGroup.value = it
+                }
             }
         }
     }
@@ -238,7 +250,7 @@ open class UserEditorViewModel @Inject constructor(
                     fieldSurname.value = user.surname
                     fieldPatronymic.value = user.patronymic ?: ""
                     fieldGender.value = fieldGenders.value!![gender - 1].title
-                    fieldPhoneNum.value = user.phoneNum
+//                    fieldPhoneNum.value = user.phoneNum
                     fieldEmail.value = user.email!!
                     avatarUser.value = user.photoUrl
                 } ?: run { finish() }
@@ -276,9 +288,9 @@ open class UserEditorViewModel @Inject constructor(
         fieldPatronymic.value = patronymic
     }
 
-    fun onPhoneNumType(phoneNum: String) {
-        fieldPhoneNum.value = phoneNum
-    }
+//    fun onPhoneNumType(phoneNum: String) {
+//        fieldPhoneNum.value = phoneNum
+//    }
 
     fun onEmailType(email: String) {
         fieldEmail.value = email
@@ -390,7 +402,7 @@ open class UserEditorViewModel @Inject constructor(
         super.onCreateOptions()
         if (uiEditor.isNew) {
             viewModelScope.launch {
-                optionVisibility.emit(R.id.option_user_delete to false)
+                setMenuItemVisible(R.id.option_user_delete to false)
             }
         }
     }

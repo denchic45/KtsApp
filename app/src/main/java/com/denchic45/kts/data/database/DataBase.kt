@@ -1,9 +1,7 @@
-package com.denchic45.kts.data
+package com.denchic45.kts.data.database
 
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.model.room.*
 
@@ -24,7 +22,11 @@ import com.denchic45.kts.data.model.room.*
         SubmissionCommentEntity::class,
         SubmissionEntity::class
     ],
-    version = 1
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2, spec = RemovePhoneNumMigration::class)
+    ],
+    version = 2,
+    exportSchema = true
 )
 abstract class DataBase : RoomDatabase() {
     abstract fun subjectDao(): SubjectDao
@@ -46,18 +48,17 @@ abstract class DataBase : RoomDatabase() {
         private var instance: DataBase? = null
 
         @Synchronized
-        fun getInstance(context: Context): DataBase? {
+        fun getInstance(context: Context): DataBase {
             if (instance == null) {
                 instance = Room.databaseBuilder(
                     context.applicationContext,
                     DataBase::class.java,
                     "database.db"
                 )
-                    .fallbackToDestructiveMigration()
-                    .allowMainThreadQueries()
+//                    .fallbackToDestructiveMigration()
                     .build()
             }
-            return instance
+            return instance!!
         }
     }
 }

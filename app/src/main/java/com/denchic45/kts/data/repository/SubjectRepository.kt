@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.DataBase
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
@@ -22,13 +22,10 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -157,8 +154,6 @@ class SubjectRepository @Inject constructor(
                 }
                 subjectMapper.docToDomain(subjectDocs)
             }
-
-
     }
 
     suspend fun findAllRefsOfSubjectIcons(): List<Uri> {

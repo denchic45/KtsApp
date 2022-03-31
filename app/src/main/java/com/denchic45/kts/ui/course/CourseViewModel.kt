@@ -41,6 +41,7 @@ class CourseViewModel @Inject constructor(
     private var oldPosition: Int = -1
     private var position: Int = -1
 
+
     init {
         viewModelScope.launch {
             findCourseContentUseCase(courseId).collect {
@@ -58,7 +59,10 @@ class CourseViewModel @Inject constructor(
                     showToast("${findSelfUserUseCase() == course.teacher}")
                     courseName.value = course.name
                     uiPermissions.putPermissions(
-                        Permission(ALLOW_COURSE_EDIT, { this == course.teacher }, { hasAdminPerms() }),
+                        Permission(
+                            ALLOW_COURSE_EDIT,
+                            { this == course.teacher },
+                            { hasAdminPerms() }),
                         Permission(
                             ALLOW_ADD_COURSE_CONTENT,
                             {
@@ -66,9 +70,12 @@ class CourseViewModel @Inject constructor(
                             },
                             { hasAdminPerms() })
                     )
-                    val allowCourseEdit = uiPermissions.isNotAllowed(ALLOW_COURSE_EDIT)
-                    optionVisibility.emit(R.id.option_edit_course to allowCourseEdit)
-                    optionVisibility.emit(R.id.option_edit_sections to allowCourseEdit)
+                    val allowCourseEdit = uiPermissions.isAllowed(ALLOW_COURSE_EDIT)
+
+                    setMenuItemVisible(
+                        R.id.option_edit_course to allowCourseEdit,
+                        R.id.option_edit_sections to allowCourseEdit
+                    )
 
                     fabVisibility.value = uiPermissions.isAllowed(ALLOW_ADD_COURSE_CONTENT)
                 } ?: run {

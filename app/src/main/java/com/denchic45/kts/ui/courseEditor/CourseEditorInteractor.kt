@@ -18,10 +18,6 @@ class CourseEditorInteractor @Inject constructor(
     private val groupPreference: GroupPreference
 ) : Interactor {
 
-    fun findTeacherByTypedName(name: String): Flow<List<User>> {
-        return teacherRepository.findByTypedName(name)
-    }
-
     fun findSubjectByTypedName(name: String): Flow<List<Subject>> {
         return subjectRepository.findByContainsName(name)
     }

@@ -57,7 +57,7 @@ class StudentRepository @Inject constructor(
     private fun changePersonalData(student: User, cacheStudent: User): Boolean {
         return student.fullName != cacheStudent.fullName || student.gender != cacheStudent.gender ||
                 student.firstName != cacheStudent.firstName ||
-                student.phoneNum != cacheStudent.phoneNum ||
+//                student.phoneNum != cacheStudent.phoneNum ||
                 student.email != cacheStudent.email ||
                 student.photoUrl != cacheStudent.photoUrl || student.admin != cacheStudent.admin ||
                 student.role != cacheStudent.role

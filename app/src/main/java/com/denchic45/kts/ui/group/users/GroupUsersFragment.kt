@@ -15,7 +15,6 @@ import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.databinding.FragmentGroupUsersBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.UserAdapter
-import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
 import com.denchic45.kts.utils.collectWhenStarted
@@ -83,11 +82,6 @@ class GroupUsersFragment :
                     }
                 })
 
-        }
-        viewModel.openProfile.observe(viewLifecycleOwner) { userId: String ->
-            val bundle = Bundle()
-            bundle.putString(ProfileFragment.USER_ID, userId)
-            navController.navigate(R.id.action_global_profileFragment, bundle)
         }
     }
 

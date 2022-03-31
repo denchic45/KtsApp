@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
@@ -26,7 +25,6 @@ import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.model.WeekItem
 import com.example.searchbar.SearchBar
-import kotlinx.android.synthetic.main.fragment_task_editor.*
 import java.time.LocalDate
 
 class TimetableFinderFragment :
@@ -110,10 +108,10 @@ class TimetableFinderFragment :
 
             rvTimetable.adapter = adapter
 
-            viewModel.showFoundGroups.observe(viewLifecycleOwner) { groups: List<ListItem> ->
+            viewModel.showFoundGroups.collectWhenStarted(lifecycleScope) { groups: List<ListItem> ->
                 if (groups.isEmpty()) {
                     popupWindow!!.dismiss()
-                    return@observe
+                    return@collectWhenStarted
                 }
                 popupAdapter = ListPopupWindowAdapter(requireContext(), groups)
                 popupWindow!!.setAdapter(popupAdapter)
@@ -125,7 +123,7 @@ class TimetableFinderFragment :
                     searchBar.setIgnoreText(false)
                     viewModel.onGroupClick(position)
                 }
-                if (popupWindow!!.isShowing) return@observe
+                if (popupWindow!!.isShowing) return@collectWhenStarted
                 popupWindow!!.anchorView = searchBar
                 popupWindow!!.show()
                 popupWindow!!.horizontalOffset = Dimensions.dpToPx(12, requireActivity())

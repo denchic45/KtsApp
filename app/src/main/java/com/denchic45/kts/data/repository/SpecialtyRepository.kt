@@ -5,11 +5,13 @@ import com.denchic45.appVersion.AppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.SpecialtyDao
+import com.denchic45.kts.data.getDataFlow
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SpecialtyDoc
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
 import com.denchic45.kts.di.modules.IoDispatcher
+import com.denchic45.kts.utils.SearchKeysGenerator
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +33,34 @@ class SpecialtyRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val specialtyMapper: SpecialtyMapper,
     override val networkService: NetworkService
-) : Repository(context) {
+) : Repository(context), FindByContainsNameRepository<Specialty> {
+
+    override fun findByContainsName(text: String): Flow<List<Specialty>> {
+        return specialtyRef
+            .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(text))
+            .getDataFlow { it.toObjects(SpecialtyDoc::class.java) }
+            .map { docs ->
+                specialtyDao.upsert(specialtyMapper.docToEntity(docs))
+                specialtyMapper.docToDomain(docs)
+            }
+    }
+
+//    fun findByTypedName(name: String): Flow<List<Specialty>> = callbackFlow {
+//        addListenerRegistration("name") {
+//            specialtyRef
+//                .whereArrayContains("searchKeys", name.lowercase(Locale.getDefault()))
+//                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+//                    val specialties = value!!.toObjects(
+//                        Specialty::class.java
+//                    )
+//                    launch {
+//                        specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
+//                        trySend(specialties)
+//                    }
+//                }
+//        }
+//        awaitClose { }
+//    }
 
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val specialtyRef: CollectionReference = firestore.collection("Specialties")
@@ -52,24 +81,6 @@ class SpecialtyRepository @Inject constructor(
             entity?.let { specialtyMapper.entityToDomain(entity) }
         }
     }
-
-    fun findByTypedName(name: String): Flow<List<Specialty>> = callbackFlow {
-        addListenerRegistration("name") {
-            specialtyRef
-                .whereArrayContains("searchKeys", name.lowercase(Locale.getDefault()))
-                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                    val specialties = value!!.toObjects(
-                        Specialty::class.java
-                    )
-                    launch {
-                        specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
-                        trySend(specialties)
-                    }
-                }
-        }
-        awaitClose { }
-    }
-
 
     suspend fun add(specialty: Specialty) {
         requireAllowWriteData()

@@ -96,7 +96,8 @@
                 android:hint="Пол"
                 app:errorEnabled="true">
 
-                <com.denchic45.kts.InstantAutoComplete
+                <AutoCompleteTextView
+                    android:inputType="none"
                     android:id="@+id/et_gender"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
@@ -117,10 +118,11 @@
                     android:hint="Роль"
                     app:errorEnabled="true">
 
-                    <com.denchic45.kts.InstantAutoComplete
+                    <AutoCompleteTextView
                         android:id="@+id/et_role"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -143,25 +145,25 @@
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_phoneNum"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Номер"
-                app:errorEnabled="true"
-                app:startIconDrawable="@drawable/ic_local_phone">
+<!--            <com.google.android.material.textfield.TextInputLayout-->
+<!--                android:id="@+id/til_phoneNum"-->
+<!--                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:hint="Номер"-->
+<!--                app:errorEnabled="true"-->
+<!--                app:startIconDrawable="@drawable/ic_local_phone">-->
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_phone_num"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:ellipsize="end"
-                    android:inputType="phone"
-                    android:maxLines="1"
-                    android:scrollHorizontally="true"
-                    android:text="+7" />
-            </com.google.android.material.textfield.TextInputLayout>
+<!--                <com.google.android.material.textfield.TextInputEditText-->
+<!--                    android:id="@+id/et_phone_num"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:inputType="phone"-->
+<!--                    android:maxLines="1"-->
+<!--                    android:scrollHorizontally="true"-->
+<!--                    android:text="+7" />-->
+<!--            </com.google.android.material.textfield.TextInputLayout>-->
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_email"
@@ -205,21 +207,21 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
-<!--        android:id="@+id/fab"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_gravity="bottom|end"-->
-<!--        android:layout_margin="@dimen/fab_margin"-->
-<!--        android:fontFamily="@font/gilroy_semi_bold"-->
-<!--        android:letterSpacing="0"-->
-<!--        android:text="Добавить"-->
-<!--        android:textAllCaps="false"-->
-<!--        android:textSize="16sp"-->
-<!--        app:backgroundTint="@android:color/white"-->
-<!--        app:icon="@drawable/ic_tick"-->
-<!--        app:iconPadding="8dp"-->
-<!--        app:iconSize="36dp"-->
-<!--        app:iconTint="@color/blue" />-->
+    <!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+    <!--        android:id="@+id/fab"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_gravity="bottom|end"-->
+    <!--        android:layout_margin="@dimen/fab_margin"-->
+    <!--        android:fontFamily="@font/gilroy_semi_bold"-->
+    <!--        android:letterSpacing="0"-->
+    <!--        android:text="Добавить"-->
+    <!--        android:textAllCaps="false"-->
+    <!--        android:textSize="16sp"-->
+    <!--        app:backgroundTint="@android:color/white"-->
+    <!--        app:icon="@drawable/ic_tick"-->
+    <!--        app:iconPadding="8dp"-->
+    <!--        app:iconSize="36dp"-->
+    <!--        app:iconTint="@color/blue" />-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

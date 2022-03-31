@@ -4,10 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.DataBase
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.getQuerySnapshotFlow
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.firestore.CourseDoc
@@ -53,7 +54,48 @@ class GroupRepository @Inject constructor(
     override val subjectDao: SubjectDao,
     private val firestore: FirebaseFirestore,
     override val dataBase: DataBase
-) : Repository(context), SaveGroupOperation, SaveCourseRepository {
+) : Repository(context), SaveGroupOperation, SaveCourseRepository,
+    FindByContainsNameRepository<GroupHeader> {
+
+    override fun findByContainsName(text: String): Flow<List<GroupHeader>> {
+        return groupsRef
+            .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(text))
+            .getQuerySnapshotFlow()
+            .filter { timestampsNotNull(it) }
+            .map {
+                it.toObjects(GroupDoc::class.java).let { groupDocs ->
+                    for (groupDoc in groupDocs) {
+                        saveGroup(groupDoc)
+                    }
+                    groupMapper.docToCourseGroupDomain(groupDocs)
+                }
+            }
+    }
+
+//    fun findByTypedName(name: String): Flow<List<GroupHeader>> = callbackFlow {
+//        val registration = groupsRef
+//            .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
+//            .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
+//                if (error != null) {
+//                    Log.d("lol", "onError: ", error)
+//                }
+//                launch(dispatcher) {
+//                    snapshots?.let {
+//                        if (timestampsNotNull(snapshots)) {
+//                            val groupDocs = snapshots.toObjects(GroupDoc::class.java)
+//                            for (groupDoc in groupDocs) {
+//                                saveGroup(groupDoc)
+//                            }
+//                            trySend(groupMapper.docToCourseGroupDomain(groupDocs))
+//                        }
+//                    }
+//                }
+//            }
+//
+//        awaitClose {
+//            registration.remove()
+//        }
+//    }
 
     private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -164,6 +206,7 @@ class GroupRepository @Inject constructor(
 
     val yourGroupId: String
         get() = groupPreference.groupId
+
     val yourGroupName: String
         get() = groupPreference.groupName
 
@@ -218,31 +261,6 @@ class GroupRepository @Inject constructor(
                         }
                     }
                 }
-        }
-    }
-
-    fun findByTypedName(name: String): Flow<List<GroupHeader>> = callbackFlow {
-        val registration = groupsRef
-            .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
-            .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                if (error != null) {
-                    Log.d("lol", "onError: ", error)
-                }
-                launch(dispatcher) {
-                    snapshots?.let {
-                        if (timestampsNotNull(snapshots)) {
-                            val groupDocs = snapshots.toObjects(GroupDoc::class.java)
-                            for (groupDoc in groupDocs) {
-                                saveGroup(groupDoc)
-                            }
-                            trySend(groupMapper.docToCourseGroupDomain(groupDocs))
-                        }
-                    }
-                }
-            }
-
-        awaitClose {
-            registration.remove()
         }
     }
 

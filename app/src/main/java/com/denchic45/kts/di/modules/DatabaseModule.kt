@@ -1,8 +1,7 @@
 package com.denchic45.kts.di.modules
 
 import android.content.Context
-import androidx.room.Room
-import com.denchic45.kts.data.DataBase
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.dao.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -18,10 +17,9 @@ object DatabaseModule {
 
     @Singleton
     @Provides
-    fun provideDataBase(context: Context): DataBase = Room.databaseBuilder(
-        context,
-        DataBase::class.java, "database.db"
-    ).build()
+    fun provideDataBase(context: Context): DataBase = DataBase.getInstance(
+        context
+    )
 
     @Provides
     fun provideFirebaseStorage(): FirebaseStorage = FirebaseStorage.getInstance()

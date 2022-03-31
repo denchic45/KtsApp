@@ -5,11 +5,12 @@ import android.util.Log
 import com.denchic45.appVersion.AppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
+import com.denchic45.kts.data.getDataFlow
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
-import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.SearchKeysGenerator
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
@@ -27,7 +28,7 @@ class TeacherRepository @Inject constructor(
     private val userMapper: UserMapper,
     override val appVersionService: AppVersionService,
     override val networkService: NetworkService
-) : Repository(context) {
+) : Repository(context), FindByContainsNameRepository<User> {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -36,6 +37,33 @@ class TeacherRepository @Inject constructor(
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarsRef: StorageReference = storage.reference.child("avatars")
     private var batch: WriteBatch? = null
+
+    override fun findByContainsName(text: String): Flow<List<User>> {
+        requireNetworkAvailable()
+        return usersRef.whereArrayContains(
+            "searchKeys",
+            SearchKeysGenerator.formatInput(text)
+        )
+            .whereEqualTo("teacher", true)
+            .getDataFlow { userMapper.docToDomain(it.toObjects(UserDoc::class.java)) }
+    }
+
+//    fun findByTypedName(teacherName: String): Flow<List<User>> = callbackFlow {
+//        requireNetworkAvailable()
+//        usersRef.whereArrayContains(
+//            "searchKeys",
+//            SearchKeysGenerator.formatInput(teacherName)
+//        )
+//            .whereEqualTo("teacher", true)
+//            .get()
+//            .addOnSuccessListener { snapshots: QuerySnapshot ->
+//                trySend(
+//                    snapshots.toObjects(User::class.java)
+//                )
+//            }
+//            .addOnFailureListener(this::close)
+//        awaitClose { }
+//    }
 
     suspend fun add(teacher: User): User {
         batch = firestore.batch()
@@ -84,23 +112,6 @@ class TeacherRepository @Inject constructor(
 
     private fun findGroupWithCuratorQuery(teacherId: String): Task<QuerySnapshot> {
         return groupsRef.whereEqualTo("curator.id", teacherId).get()
-    }
-
-    fun findByTypedName(teacherName: String): Flow<List<User>> = callbackFlow {
-        requireNetworkAvailable()
-        usersRef.whereArrayContains(
-            "searchKeys",
-            SearchKeysGenerator.formatInput(teacherName)
-        )
-            .whereEqualTo("teacher", true)
-            .get()
-            .addOnSuccessListener { snapshots: QuerySnapshot ->
-                trySend(
-                    snapshots.toObjects(User::class.java)
-                )
-            }
-            .addOnFailureListener(this::close)
-        awaitClose { }
     }
 
 

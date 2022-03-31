@@ -103,9 +103,11 @@ class ProfileFragment :
             viewModel.showGroupInfo.observe(
                 viewLifecycleOwner
             ) { s -> tvGroupInfo.text = s }
-            viewModel.showPhoneNum.observe(
-                viewLifecycleOwner
-            ) { s -> tvPhoneNum.text = s }
+
+//            viewModel.showPhoneNum.observe(
+//                viewLifecycleOwner
+//            ) { s -> tvPhoneNum.text = s }
+
             viewModel.showEmail.observe(viewLifecycleOwner) { s: String? -> tvEmail.text = s }
             viewModel.infoVisibility.observe(
                 viewLifecycleOwner

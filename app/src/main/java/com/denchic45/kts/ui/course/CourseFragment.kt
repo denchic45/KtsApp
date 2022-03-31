@@ -198,8 +198,10 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
     }
 
     override fun collectOnOptionVisibility() {
-        viewModel.optionVisibility.collectWhenStarted(lifecycleScope) { (itemId, visible) ->
-            toolbar.menu.findItem(itemId).isVisible = visible
+        viewModel.optionsVisibility.collectWhenStarted(lifecycleScope) { optionsVisibility ->
+            optionsVisibility.forEach { (itemId, visible) ->
+                toolbar.menu.findItem(itemId).isVisible = visible
+            }
         }
     }
 
