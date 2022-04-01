@@ -158,7 +158,6 @@ class CourseRepository @Inject constructor(
                 whereGreaterThan("timestamp", Date(timestampContentsOfCourse))
         }
 
-
         addListenerRegistrationIfNotExist("findContentByCourseId: $courseId") {
             query.addSnapshotListener { value, error ->
                 if (error != null) {
