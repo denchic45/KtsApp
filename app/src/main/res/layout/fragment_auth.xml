@@ -34,20 +34,20 @@
         android:text="Выберите способ авторизации"
         android:textAppearance="@style/TextAppearance.App.Body2"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_sms"
-        style="@style/CustomBtnOutline"
-        app:shapeAppearanceOverlay="@style/ShapeFullCornerSize"
-        android:layout_width="256dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="16dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:text="Смс подтверждение"
-        android:textSize="16sp"
-        app:icon="@drawable/ic_sms"
-        app:iconSize="28dp"
-        app:iconTint="@color/blue" />
+<!--    <com.google.android.material.button.MaterialButton-->
+<!--        android:id="@+id/btn_sms"-->
+<!--        style="@style/CustomBtnOutline"-->
+<!--        app:shapeAppearanceOverlay="@style/ShapeFullCornerSize"-->
+<!--        android:layout_width="256dp"-->
+<!--        android:layout_height="54dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:paddingStart="24dp"-->
+<!--        android:paddingEnd="24dp"-->
+<!--        android:text="Смс подтверждение"-->
+<!--        android:textSize="16sp"-->
+<!--        app:icon="@drawable/ic_sms"-->
+<!--        app:iconSize="28dp"-->
+<!--        app:iconTint="@color/blue" />-->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_mail"

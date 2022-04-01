@@ -11,7 +11,6 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.LiveDataUtil
 import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect

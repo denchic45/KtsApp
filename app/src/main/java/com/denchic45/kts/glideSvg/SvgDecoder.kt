@@ -1,40 +1,36 @@
-package com.denchic45.kts.glideSvg;
+package com.denchic45.kts.glideSvg
 
-import static com.bumptech.glide.request.target.Target.SIZE_ORIGINAL;
+import com.bumptech.glide.load.Options
+import com.bumptech.glide.load.ResourceDecoder
+import com.bumptech.glide.load.engine.Resource
+import com.caverock.androidsvg.SVG
+import kotlin.Throws
+import com.bumptech.glide.load.resource.SimpleResource
+import com.bumptech.glide.request.target.Target
+import com.caverock.androidsvg.SVGParseException
+import java.io.IOException
+import java.io.InputStream
 
-import androidx.annotation.NonNull;
-
-import com.bumptech.glide.load.Options;
-import com.bumptech.glide.load.ResourceDecoder;
-import com.bumptech.glide.load.engine.Resource;
-import com.bumptech.glide.load.resource.SimpleResource;
-import com.caverock.androidsvg.SVG;
-import com.caverock.androidsvg.SVGParseException;
-
-import java.io.IOException;
-import java.io.InputStream;
-
-public class SvgDecoder implements ResourceDecoder<InputStream, SVG> {
-
-    @Override
-    public boolean handles(@NonNull InputStream source, @NonNull Options options) {
-        return true;
+class SvgDecoder : ResourceDecoder<InputStream, SVG> {
+    override fun handles(source: InputStream, options: Options): Boolean {
+        return true
     }
 
-    public Resource<SVG> decode(
-            @NonNull InputStream source, int width, int height, @NonNull Options options)
-            throws IOException {
-        try {
-            SVG svg = SVG.getFromInputStream(source);
-            if (width != SIZE_ORIGINAL) {
-                svg.setDocumentWidth(width);
+    @Throws(IOException::class)
+    override fun decode(
+        source: InputStream, width: Int, height: Int, options: Options
+    ): Resource<SVG> {
+        return try {
+            val svg = SVG.getFromInputStream(source)
+            if (width != Target.SIZE_ORIGINAL) {
+                svg.documentWidth = width.toFloat()
             }
-            if (height != SIZE_ORIGINAL) {
-                svg.setDocumentHeight(height);
+            if (height != Target.SIZE_ORIGINAL) {
+                svg.documentHeight = height.toFloat()
             }
-            return new SimpleResource<>(svg);
-        } catch (SVGParseException ex) {
-            throw new IOException("Cannot load SVG from stream", ex);
+            SimpleResource(svg)
+        } catch (ex: SVGParseException) {
+            throw IOException("Cannot load SVG from stream", ex)
         }
     }
 }

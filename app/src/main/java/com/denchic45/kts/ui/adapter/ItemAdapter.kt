@@ -12,7 +12,7 @@ import com.denchic45.kts.utils.viewBinding
 
 class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALLBACK) {
     var itemClickListener: OnItemClickListener = OnItemClickListener { }
-    private var itemCheckListener: OnItemCheckListener = OnItemCheckListener { position, isChecked -> }
+    private var itemCheckListener: OnItemCheckListener = OnItemCheckListener { _, _ -> }
 
     override fun getItemViewType(position: Int): Int {
         return getItem(position)!!.type

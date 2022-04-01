@@ -47,20 +47,18 @@ abstract class SubmissionMapper {
             )
             Task.Submission.Status.GRADED -> {
                 Task.SubmissionStatus.Graded(
-                    userMapper.entityToDomain(entities.teacherEntity),
+                    userMapper.entityToDomain(entities.teacherEntity!!),
                     entities.submissionEntity.grade!!,
                     entities.submissionEntity.gradedDate!!.toLocalDateTime()
                 )
             }
             Task.Submission.Status.REJECTED -> Task.SubmissionStatus.Rejected(
-                userMapper.entityToDomain(entities.teacherEntity),
+                userMapper.entityToDomain(entities.teacherEntity!!),
                 entities.submissionEntity.cause,
                 entities.submissionEntity.rejectedDate!!.toLocalDateTime()
             )
         }
     }
-
-//    abstract fun domainToDoc(submission: Task.Submission): SubmissionDoc
 
     fun domainToStatus(submission: Task.Submission): Task.Submission.Status {
         return when (submission.status) {

@@ -46,7 +46,7 @@ data class GroupDoc(
 
 
     @get:Exclude
-    val allUsers: List<UserDoc?>
+    val allUsers: List<UserDoc>
         get() = students!!.values + (curator)
 
     companion object {

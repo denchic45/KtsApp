@@ -66,32 +66,14 @@ class CourseRepository @Inject constructor(
     override val groupCourseDao: GroupCourseDao,
     override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
-) : Repository(context), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation,FindByContainsNameRepository<CourseHeader> {
+) : Repository(context), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation,
+    FindByContainsNameRepository<CourseHeader> {
     override val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
 
-//    fun findByTypedName(name: String): Flow<List<CourseHeader>> = callbackFlow {
-//        addListenerRegistration("name") {
-//            coursesRef
-//                .whereArrayContains("searchKeys", name.lowercase())
-//                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-//                    val courseDocs = value!!.toObjects(CourseDoc::class.java)
-//                    launch {
-//                        dataBase.withTransaction {
-//                            saveCourses(courseDocs)
-//                        }
-//                    }
-//                    trySend(
-//                        courseMapper.docToDomain(courseDocs)
-//                    )
-//                }
-//        }
-//        awaitClose { }
-//    }
-
     override fun findByContainsName(text: String): Flow<List<CourseHeader>> {
-      return coursesRef
+        return coursesRef
             .whereArrayContains("searchKeys", text.lowercase())
             .getDataFlow { it.toObjects(CourseDoc::class.java) }
             .map { courseDocs ->
@@ -107,7 +89,9 @@ class CourseRepository @Inject constructor(
             documentReference = coursesRef.document(courseId),
             onDocumentSnapshot = { documentSnapshot: DocumentSnapshot ->
                 if (!documentSnapshot.exists()) {
-                    courseDao.deleteById(courseId)
+                    coroutineScope.launch {
+                        courseDao.deleteById(courseId)
+                    }
                     return@withSnapshotListener
                 }
                 if (timestampIsNull(documentSnapshot))
@@ -132,38 +116,6 @@ class CourseRepository @Inject constructor(
             it?.let { courseMapper.entityToDomain2(it) }
         }
         .distinctUntilChanged()
-
-//    fun find(courseId: String): Flow<Course?> {
-//        addListenerRegistration("findCourseById $courseId") {
-//            coursesRef.document(courseId).addSnapshotListener { value, error ->
-//                coroutineScope.launch(dispatcher) {
-//                    value?.let { documentSnapshot ->
-//                        if (!value.exists()) {
-//                            courseDao.deleteById(courseId)
-//                            return@launch
-//                        }
-//                        if (timestampIsNull(value))
-//                            return@launch
-//                        val courseDoc = documentSnapshot.toObject(CourseDoc::class.java)!!
-//
-//                        dataBase.withTransaction {
-//                            if (courseDoc.groupIds.isNotEmpty()) {
-//                                val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
-//                                    .get()
-//                                    .await()
-//                                if (timestampsNotNull(querySnapshot))
-//                                    saveGroups(querySnapshot.toObjects(GroupDoc::class.java))
-//                            }
-//                            saveCourse(courseDoc)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        return courseDao.observe(courseId)
-//            .map { it?.let { courseMapper.entityToDomain2(it) } }
-//            .distinctUntilChanged()
-//    }
 
     private fun coursesByGroupIdQuery(groupId: String): Query {
         return coursesRef.whereArrayContains("groupIds", groupId)
@@ -525,7 +477,7 @@ class CourseRepository @Inject constructor(
                     submissionMapper.entityToDomain(it, attachments)
                 } ?: Task.Submission.createEmpty(
                     contentId = taskId,
-                    student = userMapper.entityToDomain(userDao.get(studentId))
+                    student = userMapper.entityToDomain(userDao.get(studentId)!!)
                 )
             }
             .distinctUntilChanged()

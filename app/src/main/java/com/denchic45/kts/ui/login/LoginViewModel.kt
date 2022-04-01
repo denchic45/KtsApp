@@ -12,8 +12,6 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.stream.Collectors
-import java.util.stream.Stream
 import javax.inject.Inject
 
 class LoginViewModel @Inject constructor(
@@ -38,7 +36,7 @@ class LoginViewModel @Inject constructor(
 
     val showPasswordError = SingleLiveData<String?>()
 
-    val openLoginByPhoneNum = SingleLiveData<Void>()
+//    val openLoginByPhoneNum = SingleLiveData<Void>()
 
     val openLoginByMail = SingleLiveData<Void>()
 
@@ -47,18 +45,12 @@ class LoginViewModel @Inject constructor(
     val openResetPassword = SingleLiveData<Void>()
 
     private val addedProgress = Stack<Float>()
-    private val testNumbers = Stream.of(arrayOf("+16505553434", "+79510832144")).collect(
-        Collectors.toMap(
-            { data: Array<String> -> data[0] },
-            { data: Array<String> -> data[1] })
-    )
 
     fun onGetCodeClick(phoneNum: String) {
         val normalizeNumber = PhoneNumberUtils.normalizeNumber(phoneNum)
-        val realProneNum = testNumbers[normalizeNumber] ?: normalizeNumber
         viewModelScope.launch {
             try {
-                interactor.findUserByPhoneNum(realProneNum)
+                interactor.findUserByPhoneNum(normalizeNumber)
 
                 fabVisibility.value = false
                 incrementProgress(0.65f)
@@ -75,11 +67,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun onSmsClick() {
-        incrementProgress(0.35f)
-        fabVisibility.value = true
-        openLoginByPhoneNum.call()
-    }
+//    fun onSmsClick() {
+//        incrementProgress(0.35f)
+//        fabVisibility.value = true
+//        openLoginByPhoneNum.call()
+//    }
 
     private fun incrementProgress(progress: Float) {
         addedProgress.push(showProgress.value)

@@ -205,10 +205,9 @@ class TimetableParser {
     }
 
     private fun findTeachersBySubject(subject: Subject): List<User> {
-        return currentGroupCourse.courses.stream()
+        return currentGroupCourse.courses
             .filter { it.subject == subject }
             .map { it.teacher }
-            .collect(Collectors.toList())
     }
 
     private fun String.resetFormatting(): String {

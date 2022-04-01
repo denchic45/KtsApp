@@ -11,8 +11,8 @@ import androidx.navigation.NavController
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.main.MainActivity
-import com.denchic45.kts.utils.findFragmentContainerNavController
 import com.denchic45.kts.utils.closeKeyboard
+import com.denchic45.kts.utils.findFragmentContainerNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.richpath.RichPath
 import com.richpath.RichPathView
@@ -39,15 +39,14 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
                 navController.currentDestination!!.id
             )
         }
-        viewModel.openLoginByPhoneNum.observe(
-            this
-        ) { navController.navigate(R.id.action_authFragment_to_loginByPhoneNumFragment) }
-        viewModel.openLoginByMail.observe(
-            this
-        )
-        {
+//        viewModel.openLoginByPhoneNum.observe(
+//            this
+//        ) { navController.navigate(R.id.action_authFragment_to_loginByPhoneNumFragment) }
+
+        viewModel.openLoginByMail.observe(this) {
             navController.navigate(R.id.action_authFragment_to_loginByEmailFragment)
         }
+
         viewModel.openVerifyPhoneNum.observe(
             this
         ) { navController.navigate(R.id.action_loginByPhoneNumFragment_to_verifyPhoneNumFragment) }
@@ -58,10 +57,12 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
                 .interpolator(FastOutSlowInInterpolator())
                 .start()
         }
+
         viewModel.backToFragment.observe(this) {
             super.onBackPressed()
             currentFocus?.closeKeyboard()
         }
+
         viewModel.fabVisibility.observe(
             this
         ) { aBoolean: Boolean -> if (aBoolean) fabBack.show() else fabBack.hide() }

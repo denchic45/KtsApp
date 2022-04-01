@@ -2,14 +2,13 @@ package com.denchic45.kts.ui.main
 
 import android.content.Context
 import androidx.lifecycle.LiveData
-import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.Interactor
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.repository.*
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.utils.TimestampUtil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.io.File
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class MainInteractor @Inject constructor(
@@ -59,15 +57,6 @@ class MainInteractor @Inject constructor(
             editor.clear()
             editor.apply()
         }
-    }
-
-    private fun groupsWereUpdateLongAgo(): Boolean {
-        return TimestampUtil.isDateDiffsGreaterThanOrEqualTo(
-            timestampPreference.lastUpdateGroupsTimestamp,
-            System.currentTimeMillis(),
-            TimestampPreference.GROUP_HOURS_TIMEOUT,
-            TimeUnit.HOURS
-        )
     }
 
     override fun removeListeners() {

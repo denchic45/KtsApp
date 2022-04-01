@@ -17,14 +17,8 @@ class AuthFragment : BaseFragment<LoginViewModel, FragmentAuthBinding>(R.layout.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         with(binding) {
-            btnSms.setOnClickListener { viewModel.onSmsClick() }
+//            btnSms.setOnClickListener { viewModel.onSmsClick() }
             btnMail.setOnClickListener { viewModel.onEmailClick() }
-        }
-    }
-
-    companion object {
-        fun newInstance(): AuthFragment {
-            return AuthFragment()
         }
     }
 }
