@@ -3,11 +3,14 @@ package com.denchic45.appVersion
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import com.denchic45.kts.BuildConfig
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.Closeable
 import java.lang.ref.WeakReference
@@ -31,12 +34,7 @@ class GoogleAppVersionService @Inject constructor(
         Log.d("lol", "startUpdate state: ${state.installStatus()}")
         when (state.installStatus()) {
             InstallStatus.DOWNLOADING -> {
-                Log.d(
-                    "lol",
-                    "startUpdate DOWNLOADING: mega bytes downloaded ${state.bytesDownloaded()} and total ${state.totalBytesToDownload()}"
-                )
                 val megaBytesDownloaded = state.bytesDownloaded().toFloat() / 1024 / 1024
-
 
                 val totalMegaBytesToDownload =
                     NumberFormat.getInstance(Locale.getDefault()).parse(
@@ -47,10 +45,7 @@ class GoogleAppVersionService @Inject constructor(
                     )!!.toFloat()
 
                 val percentDownload = megaBytesDownloaded / totalMegaBytesToDownload * 100
-                Log.d(
-                    "lol",
-                    "startUpdate DOWNLOADING: $percentDownload $totalMegaBytesToDownload"
-                )
+
                 onUpdateLoading(percentDownload.toLong(), totalMegaBytesToDownload)
             }
             InstallStatus.DOWNLOADED -> {
@@ -60,25 +55,22 @@ class GoogleAppVersionService @Inject constructor(
             InstallStatus.FAILED -> {
                 Log.d("lol", "startUpdate: FAILED ${state.installErrorCode()}")
             }
-            InstallStatus.CANCELED -> { }
-            InstallStatus.INSTALLED -> { }
-            InstallStatus.INSTALLING -> { }
-            InstallStatus.PENDING -> { }
-            InstallStatus.REQUIRES_UI_INTENT -> { }
-            InstallStatus.UNKNOWN -> { }
+            InstallStatus.CANCELED -> {}
+            InstallStatus.INSTALLED -> {}
+            InstallStatus.INSTALLING -> {}
+            InstallStatus.PENDING -> {}
+            InstallStatus.REQUIRES_UI_INTENT -> {}
+            InstallStatus.UNKNOWN -> {}
         }
     }
 
     override suspend fun getLatestVersion(): Int {
         return suspendCancellableCoroutine { cont ->
             info.addOnCompleteListener {
-                Log.d("lol", "getLatestVersion addOnCompleteListener: ")
                 val e = it.exception
                 if (e == null) {
-                    Log.d("lol", "getLatestVersion resume: ")
-                    @Suppress("UNCHECKED_CAST") cont.resume(it.result.availableVersionCode())
+                    cont.resume(it.result.availableVersionCode())
                 } else {
-                    Log.d("lol", "getLatestVersion error: ")
                     cont.resumeWithException(e)
                 }
             }
@@ -90,7 +82,7 @@ class GoogleAppVersionService @Inject constructor(
     }
 
     override fun observeUpdates(onUpdateAvailable: () -> Unit, onError: (Throwable) -> Unit) {
-        Log.d("lol", "observeUpdates: ")
+        logVersions()
         info.addOnSuccessListener { appUpdateInfo ->
             Log.d("lol", "observeUpdates: updateAvailability ${appUpdateInfo.updateAvailability()}")
             Log.d("lol", "observeUpdates: installStatus ${appUpdateInfo.installStatus()}")
@@ -107,6 +99,14 @@ class GoogleAppVersionService @Inject constructor(
             it.printStackTrace()
             onError(it)
         }
+    }
+
+    private fun logVersions() {
+        if (!BuildConfig.DEBUG)
+            GlobalScope.launch {
+                Log.d("lol", "current version code: ${BuildConfig.VERSION_CODE}")
+                Log.d("lol", "latest version code: ${getLatestVersion()}")
+            }
     }
 
     override fun observeDownloadedUpdate() {

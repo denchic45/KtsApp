@@ -4,10 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.getQuerySnapshotFlow
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
@@ -318,8 +318,10 @@ class GroupRepository @Inject constructor(
             .await()
     }
 
-    fun findCurator(groupId: String): Flow<User> {
-        return userDao.observeCurator(groupId).map { userMapper.entityToDomain(it) }
+    fun findCurator(groupId: String): Flow<User?> {
+        return userDao.observeCurator(groupId).map {
+            it?.let { userMapper.entityToDomain(it) }
+        }
     }
 
     fun getNameByGroupId(groupId: String): Flow<String> {

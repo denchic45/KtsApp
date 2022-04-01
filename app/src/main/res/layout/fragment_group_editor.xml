@@ -65,16 +65,15 @@
                 app:errorEnabled="true"
                 app:hintEnabled="false">
 
-                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                <AutoCompleteTextView
                     android:id="@+id/et_course"
-
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:cursorVisible="false"
                     android:ellipsize="end"
                     android:focusable="false"
                     android:hint="Выберите курс"
-                    android:inputType="textCapSentences"
+                    android:inputType="none"
                     android:maxLines="1"
                     android:scrollHorizontally="true" />
             </com.google.android.material.textfield.TextInputLayout>

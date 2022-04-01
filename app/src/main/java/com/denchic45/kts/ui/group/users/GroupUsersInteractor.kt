@@ -35,7 +35,7 @@ class GroupUsersInteractor @Inject constructor(
         groupRepository.removeListeners()
     }
 
-    fun getCurator(groupId: String): Flow<User> {
+    fun getCurator(groupId: String): Flow<User?> {
         return groupRepository.findCurator(groupId)
     }
 

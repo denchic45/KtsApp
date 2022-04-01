@@ -64,7 +64,7 @@ class GroupEditorViewModel @Inject constructor(
                 findSpecialtyByContainsNameUseCase(specialtyName)
             }.collect { resource ->
                 when (resource) {
-                    is Resource.Success-> {
+                    is Resource.Success -> {
                         foundSpecialties = resource.data
                         showSpecialties.postValue(
                             resource.data.map { specialty ->
@@ -171,7 +171,7 @@ class GroupEditorViewModel @Inject constructor(
 
     override fun onOptionClick(itemId: Int) {
         when (itemId) {
-            R.id.option_delete_group -> confirmDelete()
+            R.id.option_group_delete -> confirmDelete()
         }
     }
 
@@ -183,8 +183,8 @@ class GroupEditorViewModel @Inject constructor(
             )
             if (confirmInteractor.receiveConfirm()) {
                 try {
-                    removeGroupUseCase(uiEditor.item.id)
                     finish()
+                    removeGroupUseCase(uiEditor.item.id)
                 } catch (e: Exception) {
                     if (e is NetworkException) {
                         showToast(R.string.error_check_network)
@@ -196,11 +196,7 @@ class GroupEditorViewModel @Inject constructor(
 
     override fun onCreateOptions() {
         super.onCreateOptions()
-        if (uiEditor.isNew) {
-            viewModelScope.launch {
-                setMenuItemVisible(R.id.option_course_delete to false)
-            }
-        }
+        setMenuItemVisible(R.id.option_group_delete to !uiEditor.isNew)
     }
 
     private fun confirmExit(titleWithSubtitlePair: Pair<String, String>) {

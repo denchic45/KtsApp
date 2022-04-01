@@ -28,7 +28,7 @@ class FullAvatarViewModel @Inject constructor(
 
     override fun onOptionClick(itemId: Int) {
         when (itemId) {
-            android.R.id.home -> finish()
+            android.R.id.home -> viewModelScope.launch { finish() }
             R.id.menu_delete_avatar -> {
                 viewModelScope.launch {
                     try {

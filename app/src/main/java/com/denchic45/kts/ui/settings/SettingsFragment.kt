@@ -9,6 +9,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.HasViewModel
+import com.denchic45.kts.utils.setActivityTitle
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -23,6 +24,7 @@ class SettingsFragment : PreferenceFragmentCompat(), HasViewModel<SettingsViewMo
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setActivityTitle(R.string.nav_settings)
         findPreference<Preference>(getString(R.string.key_signOut))!!.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {
                 viewModel.onSignOutCLick()

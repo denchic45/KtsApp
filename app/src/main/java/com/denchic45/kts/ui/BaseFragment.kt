@@ -2,6 +2,7 @@ package com.denchic45.kts.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -60,12 +61,15 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        lifecycle.addObserver(viewModel)
+
         viewModel.toast.collectWhenStarted(lifecycleScope, this@BaseFragment::toast)
 
         collectOnShowToolbarTitle()
+
         collectOnOptionVisibility()
 
-        viewModel.navigate.collectWhenStarted(viewLifecycleOwner.lifecycleScope) { command ->
+        viewModel.navigate.collectWhenResumed(viewLifecycleOwner.lifecycleScope) { command ->
             when (command) {
                 is NavigationCommand.To -> navController.navigate(command.directions)
                 NavigationCommand.Back -> navController.popBackStack()
@@ -76,7 +80,8 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
             }
         }
 
-        viewModel.finish.collectWhenStarted(viewLifecycleOwner.lifecycleScope) {
+        viewModel.finish.collectWhenResumed(lifecycleScope) {
+            Log.d("lol", "finish: ${this.javaClass.name}")
             findNavController().navigateUp()
         }
 
@@ -130,7 +135,7 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
     open fun collectOnOptionVisibility() {
         viewModel.optionsVisibility
             .debounce(500)
-            .collectWhenStarted(lifecycleScope) { optionsVisibility ->
+            .collectWhenResumed(lifecycleScope) { optionsVisibility ->
                 optionsVisibility.forEach { (itemId, visible) ->
                     menu.findItem(itemId).isVisible = visible
                 }

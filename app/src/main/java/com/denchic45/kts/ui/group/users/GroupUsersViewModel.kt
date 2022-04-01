@@ -9,15 +9,13 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.adapter.ItemAdapter
 import com.denchic45.kts.ui.base.BaseViewModel
+import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -25,43 +23,42 @@ import javax.inject.Named
 class GroupUsersViewModel @Inject constructor(
     private val interactor: GroupUsersInteractor,
     private val teacherChooserInteractor: TeacherChooserInteractor,
-    @Named("options_user") private val userOptions: List<ListItem>
+    @Named("options_user") private val userOptions: List<ListItem>,
+    @Named(GroupUsersFragment.GROUP_ID) groupId: String?
 ) : BaseViewModel() {
+
     val showUserOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
 
     val openUserEditor = SingleLiveData<Map<String, String>>()
 
-    val openTeacherChooser = SingleLiveData<Void>()
-
     private val uiPermissions: UiPermissions = UiPermissions(interactor.findThisUser())
 
-    lateinit var users: StateFlow<List<DomainModel?>>
+    private var groupId: String = groupId ?: interactor.yourGroupId
 
-    private var groupId: String = ""
+    val users: StateFlow<List<DomainModel>> = interactor.getUsersByGroupId(this.groupId)
+        .combine(interactor.getCurator(this.groupId).filterNotNull()) { students, curator ->
+            this.students = students
+            val userList: MutableList<DomainModel> = ArrayList(students)
+            userList.add(0, curator)
+            userList.add(
+                0,
+                ListItem(id = "", title = "Куратор", type = ItemAdapter.TYPE_HEADER)
+            )
+            userList.add(
+                2,
+                ListItem(id = "", title = "Студенты", type = ItemAdapter.TYPE_HEADER)
+            )
+            userList
+        }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+
     private lateinit var selectedUser: User
     private var students: List<User> = emptyList()
-    fun onGroupIdReceived(groupId: String?) {
-        var groupId = groupId
-        if (groupId == null) {
-            groupId = interactor.yourGroupId
-            this.groupId = groupId
-        }
 
-        users = interactor.getUsersByGroupId(groupId)
-            .combine(interactor.getCurator(groupId)) { students, curator ->
-                this.students = students
-                val userList: MutableList<DomainModel> = ArrayList(students)
-                userList.add(0, curator)
-                userList.add(
-                    0,
-                    ListItem(id = "", title = "Куратор", type = ItemAdapter.TYPE_HEADER)
-                )
-                userList.add(
-                    2,
-                    ListItem(id = "", title = "Студенты", type = ItemAdapter.TYPE_HEADER)
-                )
-                userList
-            }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+    init {
+        uiPermissions.putPermissions(
+            Permission(ALLOW_EDIT_USERS, { isTeacher }, { hasAdminPerms() })
+        )
+
     }
 
     fun onUserItemLongClick(position: Int) {
@@ -73,7 +70,7 @@ class GroupUsersViewModel @Inject constructor(
     }
 
     fun onUserItemClick(position: Int) {
-        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(users.value[position]!!.id))
+        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(users.value[position].id))
     }
 
     fun onOptionUserClick(optionId: String) {
@@ -92,13 +89,13 @@ class GroupUsersViewModel @Inject constructor(
                     interactor.removeStudent(selectedUser)
                 } catch (e: Exception) {
                     if (e is NetworkException) {
-                      showToast(R.string.error_check_network)
+                        showToast(R.string.error_check_network)
                     }
                 }
             }
             OPTION_CHANGE_CURATOR -> {
                 viewModelScope.launch {
-                    openTeacherChooser.call()
+                    navigateTo(MobileNavigationDirections.actionGlobalTeacherChooserFragment())
                     teacherChooserInteractor.receiveSelectTeacher().apply {
                         try {
                             interactor.updateGroupCurator(this@GroupUsersViewModel.groupId, this)
@@ -125,11 +122,5 @@ class GroupUsersViewModel @Inject constructor(
         const val OPTION_EDIT_USER = "OPTION_EDIT_USER"
         const val OPTION_DELETE_USER = "OPTION_DELETE_USER"
         const val OPTION_CHANGE_CURATOR = "OPTION_CHANGE_CURATOR"
-    }
-
-    init {
-        uiPermissions.putPermissions(
-            Permission(ALLOW_EDIT_USERS, { isTeacher }, { hasAdminPerms() })
-        )
     }
 }

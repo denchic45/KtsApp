@@ -1,15 +1,15 @@
 package com.denchic45.kts.ui.group
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -28,10 +28,14 @@ class GroupViewModel @Inject constructor(
     val openGroupEditor = SingleLiveData<String>()
 
     val groupId: String = groupId ?: interactor.yourGroupId
+
+    val isExist =  interactor.isExistGroup(this@GroupViewModel.groupId).onEach { exist ->
+        Log.d("lol", "exist isExistGroup: $exist")
+        if (!exist) {
+            finish()
+        }
+    }
     private val uiPermissions: UiPermissions
-    private val groupNameByGroupId: SharedFlow<String> =
-        interactor.getNameByGroupId(this.groupId)
-            .shareIn(viewModelScope, SharingStarted.Lazily)
 
     fun onPrepareOptions(currentItem: Int) {
         menuItemVisibility.value = Pair(
@@ -75,18 +79,18 @@ class GroupViewModel @Inject constructor(
     }
 
     init {
+        viewModelScope.launch{
+            Log.d("lol", "exist : ")
+
+        }
+
         viewModelScope.launch {
             interactor.getNameByGroupId(this@GroupViewModel.groupId).collect {
                 toolbarTitle = it
             }
         }
-        viewModelScope.launch {
-            interactor.isExistGroup(this@GroupViewModel.groupId).collect { exist ->
-                if (!exist) {
-                    finish()
-                }
-            }
-        }
+
+
         uiPermissions = UiPermissions(interactor.findThisUser())
         uiPermissions.putPermissions(
             Permission(

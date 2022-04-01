@@ -20,8 +20,6 @@ abstract class AppVersionService {
     abstract fun installUpdate()
 
     suspend fun isOldCurrentVersion(): Boolean {
-        Log.d("lol", "AA version code: ${BuildConfig.VERSION_CODE}")
-        Log.d("lol", "AA latest: ${getLatestVersion()}")
         return BuildConfig.VERSION_CODE < getLatestVersion()
     }
 }

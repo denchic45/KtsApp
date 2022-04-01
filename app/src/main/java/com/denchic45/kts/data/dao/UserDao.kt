@@ -42,7 +42,7 @@ abstract class UserDao : BaseDao<UserEntity>() {
     abstract suspend fun updateGroupId(userId: String, groupId: String?)
 
     @Query("SELECT * FROM user u INNER JOIN `group` g ON u.user_id = g.curator_id WHERE g.group_id=:groupId")
-    abstract fun observeCurator(groupId: String): Flow<UserEntity>
+    abstract fun observeCurator(groupId: String): Flow<UserEntity?>
 
     @Query("SELECT * FROM user u INNER JOIN `group` g ON u.user_id = g.curator_id WHERE g.group_id=:groupId")
     abstract suspend fun getCurator(groupId: String): UserEntity

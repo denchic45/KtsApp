@@ -96,7 +96,7 @@ class TimetableFragment :
 
 
     private fun startLiftOnScrollElevationOverlayAnimation(lifted: Boolean) {
-        val appBarElevation = 4F
+        val appBarElevation = 14F
         val fromElevation: Float = if (lifted) 0F else appBarElevation
         val toElevation: Float = if (lifted) appBarElevation else 0F
         if (lifted && this.binding.wcv.elevation == appBarElevation

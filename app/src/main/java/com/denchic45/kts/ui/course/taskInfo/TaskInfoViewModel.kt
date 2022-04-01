@@ -175,7 +175,7 @@ class TaskInfoViewModel @Inject constructor(
             showSubmissionToolbar.value = false
             expandBottomSheet.value = BottomSheetBehavior.STATE_COLLAPSED
         } else {
-            finish()
+            viewModelScope.launch { finish() }
         }
     }
 

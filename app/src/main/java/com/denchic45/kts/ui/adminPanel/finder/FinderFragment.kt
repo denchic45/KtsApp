@@ -19,7 +19,6 @@ import com.denchic45.kts.databinding.FragmentFinderBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.course.CourseFragment
-import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
@@ -115,7 +114,7 @@ class FinderFragment :
                     }
                     Resource.Loading -> {}
                     is Resource.Error -> {
-                        when(resource.error) {
+                        when (resource.error) {
                             is NetworkException -> {
                                 listStateLayout.showView(ListStateLayout.NETWORK_VIEW)
                             }
@@ -125,11 +124,6 @@ class FinderFragment :
                     is Resource.Next -> throw IllegalStateException()
                 }
             }
-        viewModel.openGroup.observe(viewLifecycleOwner) { groupId: String? ->
-            val bundle = Bundle()
-            bundle.putString(GroupFragment.GROUP_ID, groupId)
-            navController.navigate(R.id.action_finderFragment_to_group, bundle)
-        }
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner

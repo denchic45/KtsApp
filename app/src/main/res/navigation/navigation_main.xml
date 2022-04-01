@@ -21,13 +21,14 @@
         android:id="@+id/menu_group"
         android:name="com.denchic45.kts.ui.group.GroupFragment"
         android:label="@string/menu_title_group"
-        tools:layout="@layout/fragment_group" />
+        tools:layout="@layout/fragment_group">
+        <argument
+            android:name="groupId"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 
-    <fragment
-        android:id="@+id/group"
-        android:name="com.denchic45.kts.ui.group.GroupFragment"
-        android:label="@string/menu_title_group"
-        tools:layout="@layout/fragment_group" />
     <fragment
         android:id="@+id/menu_admin_panel"
         android:name="com.denchic45.kts.ui.adminPanel.AdminPanelFragment"
@@ -49,11 +50,7 @@
         android:id="@+id/finderFragment"
         android:name="com.denchic45.kts.ui.adminPanel.finder.FinderFragment"
         android:label="fragment_finder"
-        tools:layout="@layout/fragment_finder">
-        <action
-            android:id="@+id/action_finderFragment_to_group"
-            app:destination="@id/group" />
-    </fragment>
+        tools:layout="@layout/fragment_finder" />
     <fragment
         android:id="@+id/menu_settings"
         android:name="com.denchic45.kts.ui.settings.SettingsFragment"
@@ -67,9 +64,6 @@
         android:name="com.denchic45.kts.ui.profile.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile">
-        <action
-            android:id="@+id/action_profileFragment_to_group"
-            app:destination="@id/group" />
         <argument
             android:name="userId"
             app:argType="string" />
@@ -182,7 +176,13 @@
         android:id="@+id/userEditorFragment"
         android:name="com.denchic45.kts.ui.userEditor.UserEditorFragment"
         android:label="fragment_user_editor"
-        tools:layout="@layout/fragment_user_editor" /><action android:id="@+id/action_global_userEditorFragment" app:destination="@id/userEditorFragment"/>
+        tools:layout="@layout/fragment_user_editor" />
+    <action
+        android:id="@+id/action_global_userEditorFragment"
+        app:destination="@id/userEditorFragment" />
+    <action
+        android:id="@+id/action_global_menu_group"
+        app:destination="@id/menu_group" />
 
 
 </navigation>

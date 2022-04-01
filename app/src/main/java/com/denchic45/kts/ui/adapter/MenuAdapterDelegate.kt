@@ -57,11 +57,9 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
 
     override fun onBind(item: NavTextItem) {
         with(binding) {
-            item.name.fold({
-                tvName.setText(it)
-            }, {
-                tvName.setText(it)
-            })
+            item.name
+                .onString { tvName.text = it }
+                .onId { tvName.setText(it) }
 
             when (item.iconType) {
                 NavTextItem.IconType.NONE -> {
@@ -103,6 +101,11 @@ class NavItemHolder(itemNavBinding: ItemNavBinding) :
                         }.generateBitmapDrawable()
                     )
             }
+
+
+
+            root.isEnabled = item.enable
+            root.alpha = if (item.enable) 1F else 0.5F
         }
     }
 }
@@ -115,12 +118,9 @@ class NavDropdownItemHolder(itemNavDropdownBinding: ItemNavDropdownBinding) :
 
     private fun bind(item: NavDropdownItem) {
         with(binding) {
-            item.name.fold({
-                tvName.setText(it)
-            }, {
-                tvName.setText(it)
-            })
-
+            item.name
+                .onId { tvName.setText(it) }
+                .onString { tvName.text = it }
         }
     }
 
@@ -163,6 +163,7 @@ data class NavTextItem(
     var checked: Boolean = false,
     val visible: Boolean = true,
     val checkable: Boolean = true,
+    val enable: Boolean = true,
     override var id: String = "",
     val iconType: IconType = IconType.NONE,
     val color: EitherMessage = EitherMessage.Id(0),
@@ -193,11 +194,9 @@ class NavSubHeaderItemHolder(itemNavSubHeaderBinding: ItemNavSubHeaderBinding) :
 
     override fun onBind(item: NavSubHeaderItem) {
         with(binding) {
-            item.name.fold({
-                tvHeader.setText(it)
-            }, {
-                tvHeader.setText(it)
-            })
+            item.name
+                .onId { tvHeader.setText(it) }
+                .onString { tvHeader.text = it }
         }
     }
 }

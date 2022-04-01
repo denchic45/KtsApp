@@ -1,5 +1,6 @@
 package com.denchic45.kts.ui.creator
 
+import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.EitherMessage
@@ -7,6 +8,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -32,7 +34,7 @@ class CreatorViewModel @Inject constructor() : BaseViewModel() {
             4 -> openSpecialtyEditor.call()
             5 -> openCourseEditor.call()
         }
-         finish()
+        viewModelScope.launch { finish() }
     }
 
     fun createEntityList(): List<ListItem> {

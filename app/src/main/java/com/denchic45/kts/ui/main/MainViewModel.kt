@@ -45,14 +45,14 @@ class MainViewModel @Inject constructor(
         R.string.nav_tasks to {
             navigateTo(TasksFragmentDirections.actionGlobalTasksFragment())
         },
-        R.string.nav_duty_roster to { throw IllegalStateException() },
-        R.string.nav_schedule to { throw IllegalStateException() },
+        R.string.nav_duty_roster to { },
+        R.string.nav_schedule to { },
 
         R.string.nav_control_panel to {
             navigateTo(AdminPanelFragmentDirections.actionGlobalMenuAdminPanel())
         },
         R.string.nav_settings to { navigateTo(SettingsFragmentDirections.actionGlobalMenuSettings()) },
-        R.string.nav_help to { throw IllegalStateException() },
+        R.string.nav_help to { },
     )
 
     val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
@@ -232,12 +232,12 @@ class MainViewModel @Inject constructor(
 
             val items: List<NavItem>
 
-            private fun generate(): MutableList<NavItem> {
-                val list: MutableList<NavItem> = mainTextItems.toMutableList()
-                list.add(DividerItem())
+            private fun create(): MutableList<NavItem> {
+                val items: MutableList<NavItem> = mainTextItems.toMutableList()
+                items.add(DividerItem())
                 if (courses.isNotEmpty()) {
                     val nameOfDropdownCoursesNavItem: Int
-                    list.add(NavSubHeaderItem(EitherMessage.Id(R.string.nav_courses_my)))
+                    items.add(NavSubHeaderItem(EitherMessage.Id(R.string.nav_courses_my)))
                     val visibleCourses = if (expandAllCourse) {
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_hide
                         courses
@@ -245,7 +245,7 @@ class MainViewModel @Inject constructor(
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_show_all
                         courses.take(5)
                     }
-                    list.addAll(visibleCourses.map {
+                    items.addAll(visibleCourses.map {
                         NavTextItem(
                             EitherMessage.String(it.name),
                             id = it.id,
@@ -254,22 +254,23 @@ class MainViewModel @Inject constructor(
                         )
                     })
                     if (courses.size > 5)
-                        list.add(
+                        items.add(
                             NavDropdownItem(
                                 EitherMessage.Id(nameOfDropdownCoursesNavItem),
                                 expandAllCourse
                             )
                         )
-                    list.add(
+                    items.add(
                         NavTextItem(
                             EitherMessage.Id(R.string.nav_courses_archive),
-                            EitherMessage.Id(R.drawable.ic_archive)
+                            EitherMessage.Id(R.drawable.ic_archive),
+                            enable = false
                         )
                     )
-                    list.add(DividerItem())
+                    items.add(DividerItem())
                 }
-                list.addAll(footerTextItems)
-                return list
+                items.addAll(footerTextItems)
+                return items
             }
 
             init {
@@ -285,14 +286,16 @@ class MainViewModel @Inject constructor(
                         mainTextItems.add(
                             NavTextItem(
                                 EitherMessage.Id(R.string.nav_duty_roster),
-                                EitherMessage.Id(R.drawable.ic_clean)
+                                EitherMessage.Id(R.drawable.ic_clean),
+                                enable = false
                             )
                         )
                     }
                     add(
                         NavTextItem(
                             EitherMessage.Id(R.string.nav_schedule),
-                            EitherMessage.Id(R.drawable.ic_time)
+                            EitherMessage.Id(R.drawable.ic_time),
+                            enable = false
                         )
                     )
                 }
@@ -312,12 +315,13 @@ class MainViewModel @Inject constructor(
                                 EitherMessage.Id(R.drawable.ic_settings)
                             ), NavTextItem(
                                 EitherMessage.Id(R.string.nav_help),
-                                EitherMessage.Id(R.drawable.ic_help)
+                                EitherMessage.Id(R.drawable.ic_help),
+                                enable = false
                             )
                         )
                     )
                 }
-                items = generate()
+                items = create()
             }
         }
 

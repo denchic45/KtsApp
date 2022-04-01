@@ -117,13 +117,6 @@ class ProfileFragment :
             ) { visible: Boolean ->
                 llGroup.visibility = if (visible) View.VISIBLE else View.GONE
             }
-            viewModel.openGroup.observe(viewLifecycleOwner) { id ->
-
-                findNavController(view).navigate(
-                    R.id.action_profileFragment_to_group,
-                    Bundle().apply { putString(GroupFragment.GROUP_ID, id) }
-                )
-            }
 
             viewModel.openFullImage.observe(viewLifecycleOwner) { url: String ->
                 val options = ActivityOptionsCompat.makeSceneTransitionAnimation(

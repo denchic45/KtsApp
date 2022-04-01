@@ -64,13 +64,9 @@ class GroupUsersFragment :
             }
         }
 
-        viewModel.onGroupIdReceived(requireArguments().getString(GROUP_ID))
-
-        viewModel.users.collectWhenStarted(lifecycleScope, userAdapter::submitList)
-
-        viewModel.openTeacherChooser.observe(
-            viewLifecycleOwner
-        ) { navController.navigate(R.id.action_global_teacherChooserFragment) }
+        viewModel.users.collectWhenStarted(lifecycleScope) {
+            userAdapter.submitList(it)
+        }
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
@@ -87,7 +83,7 @@ class GroupUsersFragment :
 
 
     companion object {
-        private const val GROUP_ID = "GROUP_ID"
+        const val GROUP_ID = "GroupUsers GROUP_ID"
         fun newInstance(groupId: String): GroupUsersFragment {
             return GroupUsersFragment().apply {
                 arguments = bundleOf(GROUP_ID to groupId)

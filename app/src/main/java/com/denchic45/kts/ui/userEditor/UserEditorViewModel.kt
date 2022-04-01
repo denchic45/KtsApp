@@ -348,7 +348,7 @@ open class UserEditorViewModel @Inject constructor(
                 Pair("Отменить редактирование?", "Внесенные изменения не будут сохранены")
             )
         } else {
-            finish()
+            viewModelScope.launch { finish() }
         }
     }
 

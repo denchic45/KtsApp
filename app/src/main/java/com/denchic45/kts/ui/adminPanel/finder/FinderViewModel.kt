@@ -43,8 +43,6 @@ class FinderViewModel @Inject constructor(
 
     val currentSelectedEntity = MutableStateFlow(POSITION_FIND_USERS)
 
-    val openGroup = SingleLiveData<String>()
-
     private val openSubject = SingleLiveData<String>()
 
     val openUserEditor = SingleLiveData<Map<String, String>>()
@@ -61,7 +59,7 @@ class FinderViewModel @Inject constructor(
     private val queryByName = MutableSharedFlow<String>()
     private val onFinderItemClickActions: List<(String) -> Unit> = listOf(
         { navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(it)) },
-        { openGroup.setValue(it) },
+        { navigateTo(MobileNavigationDirections.actionGlobalMenuGroup(it)) },
         { openSubject.setValue(it) },
         { openSpecialtyEditor.setValue(it) },
         { navigateTo(MobileNavigationDirections.actionGlobalCourseFragment(it)) })
@@ -201,7 +199,7 @@ class FinderViewModel @Inject constructor(
                     }
                 }
             },
-            "OPTION_SHOW_GROUP" to { openGroup.setValue(selectedEntity!!.id) },
+            "OPTION_SHOW_GROUP" to { navigateTo(MobileNavigationDirections.actionGlobalMenuGroup(selectedEntity!!.id)) },
             "OPTION_EDIT_GROUP" to {
                 openGroupEditor.setValue(
                     selectedEntity!!.id

@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.profile
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.Group
@@ -22,11 +23,9 @@ class ProfileViewModel @Inject constructor(
     val showFullName = MutableLiveData<String>()
     val showRole = MutableLiveData<Int>()
     val showGroupInfo = MutableLiveData<String>()
-//    val showPhoneNum = MutableLiveData<String>()
     val showEmail = MutableLiveData<String?>()
     val infoVisibility = MutableLiveData<Boolean>()
     val groupInfoVisibility = MutableLiveData(false)
-    val openGroup = SingleLiveData<String>()
     val openFullImage = SingleLiveData<String>()
     val openGallery = SingleLiveData<Void>()
     private val uiPermissions: UiPermissions
@@ -45,7 +44,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onGroupInfoClick() {
-        openGroup.value = group!!.id
+        navigateTo(MobileNavigationDirections.actionGlobalMenuGroup(group!!.id))
     }
 
     init {

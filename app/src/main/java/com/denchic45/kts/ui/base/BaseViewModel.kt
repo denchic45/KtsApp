@@ -1,5 +1,7 @@
 package com.denchic45.kts.ui.base
 
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavDirections
@@ -12,7 +14,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel : ViewModel() {
+abstract class BaseViewModel : ViewModel(),DefaultLifecycleObserver {
 
     val finish = MutableSharedFlow<Nothing?>()
 
@@ -63,9 +65,7 @@ abstract class BaseViewModel : ViewModel() {
             showToolbarTitle.tryEmit(value)
         }
 
-    protected fun finish() {
-        viewModelScope.launch { finish.emit(null) }
-    }
+    protected suspend fun finish() { finish.emit(null) }
 
     protected fun openConfirmation(titleWithText: Pair<String, String>) {
         viewModelScope.launch {
