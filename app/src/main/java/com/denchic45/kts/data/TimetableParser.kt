@@ -14,7 +14,6 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell
 import java.io.File
 import java.time.LocalDate
 import java.util.*
-import java.util.stream.Collectors
 
 class TimetableParser {
     private val days = listOf(
@@ -62,7 +61,12 @@ class TimetableParser {
                 if (cellOfGroupPos == -1) continue
                 cellOfGroupPos =
                     if (cellOfGroupPos > cellsCount) cellOfGroupPos - cellsCount else cellOfGroupPos
-                groupTimetableList.add(GroupTimetable(groupCourses.groupHeader, getLessonsOfGroup()))
+                groupTimetableList.add(
+                    GroupTimetable(
+                        groupCourses.groupHeader,
+                        getLessonsOfGroup()
+                    )
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()

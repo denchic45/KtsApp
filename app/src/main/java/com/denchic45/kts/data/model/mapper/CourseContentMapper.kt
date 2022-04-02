@@ -10,7 +10,6 @@ import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Named
 import java.io.File
-import java.util.stream.Collectors
 
 @Mapper
 abstract class CourseContentMapper {
@@ -72,9 +71,11 @@ abstract class CourseContentMapper {
     }
 
     fun domainToTaskDoc(task: Task): CourseContentDoc {
-        return taskWithDetailsToTaskDoc(task,
+        return taskWithDetailsToTaskDoc(
+            task,
             taskToTaskDetails(task),
-            ContentType.TASK)
+            ContentType.TASK
+        )
     }
 
 
@@ -93,15 +94,11 @@ abstract class CourseContentMapper {
     }
 
     fun mapAttachmentsToFilePaths(attachments: List<Attachment>): List<String> {
-        return attachments.stream()
-            .map { (file) -> file.path }
-            .collect(Collectors.toList())
+        return attachments.map { (file) -> file.path }
     }
 
-    fun mapFilePathsToAttachments(filePaths: List<String>): List<Attachment> {
-        return if (filePaths == null) emptyList() else filePaths.stream()
-            .map { path: String -> Attachment(File(path)) }
-            .collect(Collectors.toList())
+    fun mapFilePathsToAttachments(filePaths: List<String>?): List<Attachment> {
+        return filePaths?.map { path: String -> Attachment(File(path)) } ?: emptyList()
     }
 
     @Named("entityToDomain")

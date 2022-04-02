@@ -75,7 +75,7 @@ class SubjectEditorViewModel @Inject constructor(
                     showToast(R.string.error_check_network)
                 }
                 is SameSubjectIconException -> {
-                   showToast("Такая иконка уже используется!")
+                    showToast("Такая иконка уже используется!")
                 }
                 else -> e.printStackTrace()
             }
@@ -103,10 +103,10 @@ class SubjectEditorViewModel @Inject constructor(
                         .findFirst()
                         .orElse(-1)
                     icon.value = subject.iconUrl
-                    colors.stream()
-                        .filter { voidListItem -> voidListItem.title == subject.colorName }
-                        .findFirst()
-                        .ifPresent { colorItem ->
+
+                    colors
+                        .firstOrNull { item -> item.title == subject.colorName }
+                        ?.let { colorItem ->
                             colorItem.color.onId {
                                 colorIcon.value = it
                                 showColors.setValue(Pair(colors, colors.indexOf(colorItem)))
@@ -122,11 +122,9 @@ class SubjectEditorViewModel @Inject constructor(
     }
 
     private fun findColorId(colorName: String): Int {
-        return colors.stream()
-            .filter { listItem -> listItem.title == colorName }
-            .map { (it.color as EitherMessage.Id).value }
-            .findFirst()
-            .orElse(R.color.blue)
+        return colors.firstOrNull { listItem -> listItem.title == colorName }
+            ?.let { (it.color as EitherMessage.Id).value }
+            ?: R.color.blue
     }
 
     fun onNameType(name: String) {

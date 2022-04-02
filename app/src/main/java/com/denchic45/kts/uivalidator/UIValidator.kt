@@ -20,7 +20,7 @@ class UIValidator {
 
     fun runValidates(): Boolean {
         validations.forEach(Consumer { obj: Validation -> obj.validate() })
-        return validations.stream().allMatch { obj: Validation -> obj.validate() }
+        return validations.all { obj: Validation -> obj.validate() }
     }
 
     fun runValidates(runnable: Runnable) {
@@ -28,7 +28,6 @@ class UIValidator {
     }
 
     companion object {
-        @Contract("_ -> new")
         fun of(vararg validations: Validation): UIValidator {
             return UIValidator(validations.toMutableList())
         }
