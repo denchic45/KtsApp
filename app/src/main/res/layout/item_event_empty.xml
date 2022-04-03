@@ -12,14 +12,14 @@
 
     <TextView
         android:id="@+id/textView_lesson_order"
-        android:layout_width="26dp"
+        android:layout_width="22dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
         android:fontFamily="@font/gilroy_semi_bold"
         android:gravity="center_vertical|end"
-        android:text="0"
+        tools:text="0"
         android:textSize="22sp" />
 
     <LinearLayout
@@ -41,7 +41,7 @@
             android:gravity="center_vertical"
             android:maxLines="1"
             android:text="Пусто"
-            android:textColor="@color/dark"
+            android:textColor="@color/gray"
             android:textSize="16sp" />
 
         <TextView

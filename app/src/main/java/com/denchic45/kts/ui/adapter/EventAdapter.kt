@@ -1,6 +1,8 @@
 package com.denchic45.kts.ui.adapter
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.drawable.PictureDrawable
 import android.os.Handler
 import android.os.Looper
@@ -19,7 +21,13 @@ import androidx.transition.Transition
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import androidx.viewbinding.ViewBinding
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.denchic45.kts.LessonTimeCalculator
 import com.denchic45.kts.R
 import com.denchic45.kts.SvgColorListener
@@ -28,11 +36,10 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.databinding.*
 import com.denchic45.kts.glideSvg.GlideApp
+import com.denchic45.kts.glideSvg.SvgSoftwareLayerSetter
 import com.denchic45.kts.ui.adapter.EventAdapter.OnCreateLessonClickListener
 import com.denchic45.kts.ui.adapter.EventAdapter.OnEditEventItemClickListener
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.colors
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.utils.*
 import com.denchic45.widget.transition.Elevation
 import com.denchic45.widget.transition.Rotation
 import java.time.LocalDate
@@ -221,19 +228,50 @@ class EventAdapter(
             ivIcon?.let {
                 val color1 = itemView.resources
                     .getIdentifier(color, "color", itemView.context.packageName)
-                GlideApp.with(itemView.context)
+                GlideApp.with(itemView)
                     .`as`(PictureDrawable::class.java)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .listener(
                         SvgColorListener(
                             ivIcon,
-                            itemView.context.colors(color1),
+                            itemView.context.colors(R.color.dark_blue),
                             itemView.context
                         )
                     )
+//                    .listener(object : SvgSoftwareLayerSetter() {
+//                        override fun onLoadFailed(
+//                            e: GlideException?,
+//                            model: Any,
+//                            target: Target<PictureDrawable>,
+//                            isFirstResource: Boolean
+//                        ): Boolean {
+//                            super.onLoadFailed(e, model, target, isFirstResource)
+////                            ivIcon.paintColorRes(color1)
+//                            ivIcon.paintColorName(color)
+//                            return false
+//                        }
+//
+//                        override fun onResourceReady(
+//                            resource: PictureDrawable,
+//                            model: Any,
+//                            target: Target<PictureDrawable>,
+//                            dataSource: DataSource,
+//                            isFirstResource: Boolean
+//                        ): Boolean {
+//                            super.onResourceReady(
+//                                resource,
+//                                model,
+//                                target,
+//                                dataSource,
+//                                isFirstResource
+//                            )
+////                            ivIcon.paintColorRes(color1)
+//                            ivIcon.paintColorName(color)
+//                            return false
+//                        }
+//                    })
                     .load(url)
                     .into(it)
-                tvTitle.setTextColor(itemView.context.colors(color1))
             }
 
         }
