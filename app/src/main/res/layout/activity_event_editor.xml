@@ -23,13 +23,36 @@
         app:elevation="0dp"
         android:background="?android:windowBackground">
 
-      <com.denchic45.kts.CustomToolbar
+      <androidx.appcompat.widget.Toolbar
           android:id="@+id/toolbar"
           app:contentInsetStart="0dp"
           app:contentInsetLeft="0dp"
           app:contentInsetStartWithNavigation="0dp"
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"/>
+          android:layout_height="wrap_content">
+          <LinearLayout
+              android:paddingHorizontal="16dp"
+              android:id="@+id/toolbar_event_editor"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:foreground="?attr/selectableItemBackground">
+
+              <TextView
+                  android:id="@+id/tv_toolbar"
+                  android:layout_width="wrap_content"
+                  android:layout_height="56dp"
+                  android:fontFamily="@font/gilroy_medium"
+                  android:gravity="center_vertical"
+                  android:textSize="20sp" />
+
+              <ImageView
+                  android:id="@+id/iv_dropdown_toolbar"
+                  android:layout_width="wrap_content"
+                  android:layout_height="match_parent"
+                  app:srcCompat="@drawable/ic_arrow_drop_down"
+                  tools:ignore="ContentDescription" />
+          </LinearLayout>
+      </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

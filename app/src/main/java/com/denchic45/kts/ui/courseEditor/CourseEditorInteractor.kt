@@ -4,7 +4,6 @@ import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Course
 import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Subject
-import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.repository.*
 import kotlinx.coroutines.flow.Flow
@@ -30,16 +29,13 @@ class CourseEditorInteractor @Inject constructor(
         return courseRepository.add(course)
     }
 
-    suspend fun updateCourse(newCourse: Course) {
-        return courseRepository.update(newCourse)
+    suspend fun updateCourse(course: Course) {
+        return courseRepository.updateCourse(course)
     }
 
     suspend fun removeCourse(course: Course) {
         return courseRepository.removeCourse(course.id, course.groupHeaders.map(GroupHeader::id))
     }
-
-    val yourGroupId: String
-        get() = groupPreference.groupId
 
     override fun removeListeners() {
         courseRepository.removeListeners()

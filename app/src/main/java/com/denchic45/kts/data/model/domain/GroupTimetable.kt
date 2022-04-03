@@ -7,9 +7,17 @@ data class GroupTimetable(
     val weekEvents: List<EventsOfDay>
 ) {
 
+    fun updateEventsOfDay(eventsOfDay: EventsOfDay): GroupTimetable {
+        return copy(weekEvents = weekEvents.toMutableList()
+            .apply { set(eventsOfDay.dayOfWeek - 1, eventsOfDay) })
+    }
+
+    fun getByDayOfWeek(dayOfWeek: Int): EventsOfDay {
+        return weekEvents[dayOfWeek - 1]
+    }
+
     companion object {
         fun createEmpty(groupHeader: GroupHeader, mondayDate: LocalDate): GroupTimetable {
-
             return GroupTimetable(
                 groupHeader,
                 List(6) { EventsOfDay(mondayDate.plusDays(it.toLong())) }

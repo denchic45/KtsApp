@@ -4,14 +4,13 @@ import android.content.Context
 import android.net.Uri
 import androidx.room.withTransaction
 import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.getDataFlow
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.CourseDoc
-import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SubjectDoc
 import com.denchic45.kts.data.model.mapper.CourseMapper
 import com.denchic45.kts.data.model.mapper.SectionMapper
@@ -51,7 +50,7 @@ class SubjectRepository @Inject constructor(
     private val dataBase: DataBase,
     @IoDispatcher override val dispatcher: CoroutineDispatcher,
 ) : Repository(context), SaveCourseRepository, RemoveCourseOperation,
-    FindByContainsNameRepository<Subject> {
+    FindByContainsNameRepository<Subject>, UpdateCourseOperation {
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
@@ -70,21 +69,20 @@ class SubjectRepository @Inject constructor(
         requireAllowWriteData()
         isExistWithSameIconAndColor(subject)
         val subjectDoc = subjectMapper.domainToDoc(subject)
-        val id = subject.id
-        val queryDocumentSnapshots = groupsRef.whereEqualTo("subjects.$id.id", id)
-            .get()
-            .await()
         val batch = firestore.batch()
-        if (!queryDocumentSnapshots.isEmpty)
-            for (groupDoc in queryDocumentSnapshots.toObjects(GroupDoc::class.java)) {
-                batch.update(
-                    groupsRef.document(groupDoc.id), mapOf(
-                        "subjects.${groupDoc.id}" to subjectDoc,
-                        "timestamp" to FieldValue.serverTimestamp()
-                    )
-                )
-            }
-        batch[subjectsRef.document(id)] = subjectDoc
+
+        batch[subjectsRef.document(subject.id)] = subjectDoc
+        coursesRef.whereEqualTo("subject.id", subject.id).get().await().forEach { docSnapshot ->
+            @Suppress("UNCHECKED_CAST")
+            updateGroupsOfCourse(batch, (docSnapshot.get("groupIds") as List<String>))
+            batch.update(
+                coursesRef.document(docSnapshot.id),
+                "subject",
+                subjectDoc,
+                "timestamp",
+                FieldValue.serverTimestamp()
+            )
+        }
         batch.commit().await()
     }
 

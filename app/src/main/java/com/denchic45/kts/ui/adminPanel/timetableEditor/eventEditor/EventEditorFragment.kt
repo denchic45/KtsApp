@@ -2,17 +2,17 @@ package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor
 
 import android.content.DialogInterface
 import android.os.Bundle
-import android.os.Parcel
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
@@ -21,35 +21,26 @@ import com.denchic45.kts.databinding.FragmentEventEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.collectWhenResumed
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import com.google.android.material.datepicker.CalendarConstraints
-import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding4.widget.textChanges
-import java.util.*
 
 
 class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEditorBinding>(
     R.layout.fragment_event_editor,
     R.menu.options_lesson_editor
 ) {
-    private lateinit var toolbarEventEditor: View
-    private lateinit var tvTitleBar: TextView
     private var childNavController: NavController? = null
     private var controller: AppBarController? = null
     override val binding: FragmentEventEditorBinding by viewBinding(FragmentEventEditorBinding::bind)
     override val viewModel: EventEditorViewModel by activityViewModels { viewModelFactory }
     private var navHostFragment: Fragment? = null
 
+    private val toolbar by lazy { requireActivity().findViewById<Toolbar>(R.id.toolbar) }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        toolbarEventEditor = LayoutInflater.from(context)
-            .inflate(
-                R.layout.toolbar_event_editor,
-                requireActivity().findViewById(R.id.toolbar),
-                false
-            )
-        tvTitleBar = toolbarEventEditor.findViewById(R.id.tv_toolbar)
 
         with(binding) {
             viewModel.dateField.observe(
@@ -79,9 +70,9 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
             }
 
             fab.setOnClickListener { viewModel.onFabClick() }
-            toolbarEventEditor.setOnClickListener { viewModel.onToolbarClick() }
 
-            rlDate.setOnClickListener { viewModel.onDateClick() }
+            toolbar.findViewById<LinearLayout>(R.id.toolbar_event_editor)
+                .setOnClickListener { viewModel.onToolbarClick() }
 
             etRoom.textChanges()
                 .compose(EditTextTransformer())
@@ -92,34 +83,6 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
                 .filter(String::isNotEmpty)
                 .map(String::toInt)
                 .subscribe(viewModel::onOrderType)
-        }
-
-        viewModel.openDatePicker.observe(viewLifecycleOwner) {
-            val datePicker = MaterialDatePicker.Builder.datePicker()
-                .setCalendarConstraints(
-                    CalendarConstraints.Builder()
-                        .setValidator(object : CalendarConstraints.DateValidator {
-                            override fun isValid(date: Long): Boolean {
-                                val cal = Calendar.getInstance()
-                                cal.timeInMillis = date
-                                val dayOfWeek = cal[Calendar.DAY_OF_WEEK]
-                                return dayOfWeek != Calendar.SUNDAY
-                            }
-
-                            override fun describeContents(): Int {
-                                return 0
-                            }
-
-                            override fun writeToParcel(dest: Parcel, flags: Int) {}
-                        }).build()
-                )
-                .build()
-            datePicker.addOnPositiveButtonClickListener { selection: Long? ->
-                viewModel.onDateSelected(
-                    selection!!
-                )
-            }
-            datePicker.show(childFragmentManager, null)
         }
 
         viewModel.showListOfEventTypes.observe(
@@ -140,10 +103,15 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
         ) { fragmentId: Int -> setStartFragment(fragmentId) }
     }
 
+    override fun collectOnShowToolbarTitle() {
+        viewModel.showToolbarTitle.collectWhenResumed(lifecycleScope) {
+            toolbar.findViewById<TextView>(R.id.tv_toolbar).text = it
+        }
+    }
+
     override fun onStart() {
         super.onStart()
         controller = AppBarController.findController(requireActivity())
-        controller!!.toolbar.addView(toolbarEventEditor)
 
         navHostFragment = childFragmentManager.findFragmentById(R.id.nav_host_fragment)
         childNavController = findNavController(navHostFragment!!.requireView())
@@ -159,11 +127,6 @@ class EventEditorFragment : BaseFragment<EventEditorViewModel, FragmentEventEdit
         val graph = navInflater.inflate(R.navigation.navigation_event_detail_editor)
         graph.setStartDestination(fragmentId)
         childNavController!!.graph = graph
-    }
-
-    override fun onStop() {
-        super.onStop()
-        controller!!.toolbar.removeView(toolbarEventEditor)
     }
 
     private fun createErrorImageView(viewId: Int): ImageView {

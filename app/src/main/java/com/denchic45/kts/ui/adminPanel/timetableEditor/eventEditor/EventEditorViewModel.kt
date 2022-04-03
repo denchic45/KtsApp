@@ -18,8 +18,6 @@ import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.toString
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
 import javax.inject.Inject
 
 class EventEditorViewModel @Inject constructor(
@@ -38,7 +36,6 @@ class EventEditorViewModel @Inject constructor(
 
     val showListOfEventTypes = SingleLiveData<Pair<Array<CharSequence>, Int>>()
 
-    val openDatePicker = SingleLiveData<Void>()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Event> = UIEditor(!interactor.oldEvent.value!!.isAttached) {
         interactor.oldEvent.value!!.copy(
@@ -57,19 +54,16 @@ class EventEditorViewModel @Inject constructor(
             interactor.observeOldEvent().collect { event ->
                 event?.let {
                     roomField.value = event.room
-                    dateField.value = interactor.oldEventsOfDay.value!!.date.toString(DatePatterns.dd_MMMM)
-                    orderField.value = if (interactor.isNew) (interactor.oldEventsOfDay.value!!.size + 1).toString() else event.order.toString()
+                    dateField.value =
+                        interactor.oldEventsOfDay.value!!.date.toString(DatePatterns.dd_MMMM)
+                    orderField.value =
+                        if (interactor.isNew) (interactor.oldEventsOfDay.value!!.size + 1).toString() else event.order.toString()
                 }
             }
         }
     }
 
-    fun onDateClick() {
-//        openDatePicker.call()
-    }
-
     private fun saveChanges() {
-//        if (uiEditor.isNew) uiEditor.item.id = UUID.randomUUID().toString()
         viewModelScope.launch {
             interactor.postEvent {
                 if (uiEditor.isNew) {
@@ -80,13 +74,6 @@ class EventEditorViewModel @Inject constructor(
             }
             finish()
         }
-    }
-
-    fun onDateSelected(selection: Long) {
-        dateField.value = Instant.ofEpochMilli(selection)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-            .toString(DatePatterns.dd_MMMM)
     }
 
     fun onFabClick() {
@@ -103,12 +90,17 @@ class EventEditorViewModel @Inject constructor(
 
     override fun onOptionClick(itemId: Int) {
         when (itemId) {
+            android.R.id.home -> {
+                viewModelScope.launch { finish() }
+            }
             R.id.option_duplicate_event -> {
                 viewModelScope.launch {
-//                    uiValidator.runValidates { saveChanges() }
                     if (uiValidator.runValidates()) {
                         interactor.postEvent {
-                            it.add(uiEditor.item.copy(id = UUIDS.createShort()), interactor.oldEvent.value!!.order)
+                            it.add(
+                                uiEditor.item.copy(id = UUIDS.createShort()),
+                                interactor.oldEvent.value!!.order
+                            )
                         }
                         finish()
                     }
@@ -124,9 +116,9 @@ class EventEditorViewModel @Inject constructor(
             }
             R.id.option_clear_event -> {
                 viewModelScope.launch {
-                    interactor.postEvent {
+                    interactor.postEvent { eventsOfDay ->
                         uiEditor.item.run {
-                            it.update(
+                            eventsOfDay.update(
                                 createEmpty(
                                     id, groupHeader, order, details
                                 )
@@ -147,21 +139,12 @@ class EventEditorViewModel @Inject constructor(
     }
 
     fun onEventTypeSelect(position: Int) {
-        if (position == uiEditor.item.type.ordinal) return
-//        interactor.setEditedEvent(
-//            interactor.event.copy(details = EmptyEventDetails()),
-//            interactor.isNew
-//        )
-
+        if (position == uiEditor.item.type.ordinal)
+            return
         showDetailEditor(position)
     }
 
     private fun showDetailEditor(position: Int) {
-//        if (uiEditor.isNew && position == 2) {
-//            title.value = "Редактировать урок"
-//            showDetailEditor.value = R.id.lessonEditorFragment
-//            return
-//        }
         toolbarTitle = when (position) {
             0 -> {
                 showDetailEditor.value = R.id.eventEditorFragment

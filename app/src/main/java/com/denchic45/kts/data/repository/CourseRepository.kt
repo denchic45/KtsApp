@@ -67,7 +67,7 @@ class CourseRepository @Inject constructor(
     override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
 ) : Repository(context), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation,
-    FindByContainsNameRepository<CourseHeader> {
+    FindByContainsNameRepository<CourseHeader>, UpdateCourseOperation {
     override val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
     private val contentsRef: Query = firestore.collectionGroup("Contents")
@@ -302,34 +302,34 @@ class CourseRepository @Inject constructor(
         batch.commit().await()
     }
 
-    suspend fun update(course: Course) {
-        requireAllowWriteData()
-        val batch = firestore.batch()
-        val courseDoc = courseMapper.domainToDoc(course)
-
-        val oldCourse = courseMapper.entityToDomain2(courseDao.get(course.id))
-        val oldCourseDoc = courseMapper.domainToDoc(oldCourse)
-
-        (oldCourseDoc.groupIds + courseDoc.groupIds).forEach { groupId ->
-            batch.update(
-                groupsRef.document(groupId),
-                "timestamp",
-                FieldValue.serverTimestamp()
-            )
-
-            batch.update(
-                groupsRef.document(groupId),
-                "timestampCourses",
-                FieldValue.serverTimestamp()
-            )
-        }
-
-        batch.update(
-            coursesRef.document(courseDoc.id),
-            FieldsComparator.mapOfDifference(oldCourseDoc, courseDoc)
-        )
-        batch.commit().await()
-    }
+//    suspend fun update(course: Course) {
+//        requireAllowWriteData()
+//        val batch = firestore.batch()
+//        val courseDoc = courseMapper.domainToDoc(course)
+//
+//        val oldCourse = courseMapper.entityToDomain2(courseDao.get(course.id))
+//        val oldCourseDoc = courseMapper.domainToDoc(oldCourse)
+//
+//        (oldCourseDoc.groupIds + courseDoc.groupIds).forEach { groupId ->
+//            batch.update(
+//                groupsRef.document(groupId),
+//                "timestamp",
+//                FieldValue.serverTimestamp()
+//            )
+//
+//            batch.update(
+//                groupsRef.document(groupId),
+//                "timestampCourses",
+//                FieldValue.serverTimestamp()
+//            )
+//        }
+//
+//        batch.update(
+//            coursesRef.document(courseDoc.id),
+//            FieldsComparator.mapOfDifference(oldCourseDoc, courseDoc)
+//        )
+//        batch.commit().await()
+//    }
 
 
     private fun timestampFiledPair() = "timestamp" to FieldValue.serverTimestamp()
@@ -756,6 +756,48 @@ interface RemoveCourseOperation : PreconditionsRepository {
         }
         coursesRef.document(courseId).collection("Contents").deleteCollection(10)
         batch.commit().await()
+    }
+}
+
+interface UpdateCourseOperation : PreconditionsRepository {
+
+    val firestore: FirebaseFirestore
+    val courseMapper: CourseMapper
+    val courseDao: CourseDao
+    val groupsRef: CollectionReference
+    val coursesRef: CollectionReference
+
+    suspend fun updateCourse(course: Course) {
+        requireAllowWriteData()
+        val batch = firestore.batch()
+        val courseDoc = courseMapper.domainToDoc(course)
+
+        val oldCourse = courseMapper.entityToDomain2(courseDao.get(course.id))
+        val oldCourseDoc = courseMapper.domainToDoc(oldCourse)
+
+        updateGroupsOfCourse(batch, (oldCourseDoc.groupIds + courseDoc.groupIds))
+
+        batch.update(
+            coursesRef.document(courseDoc.id),
+            FieldsComparator.mapOfDifference(oldCourseDoc, courseDoc)
+        )
+        batch.commit().await()
+    }
+
+    fun updateGroupsOfCourse(batch: WriteBatch, groupIds: List<String>) {
+        groupIds.forEach { groupId ->
+            batch.update(
+                groupsRef.document(groupId),
+                "timestamp",
+                FieldValue.serverTimestamp()
+            )
+
+            batch.update(
+                groupsRef.document(groupId),
+                "timestampCourses",
+                FieldValue.serverTimestamp()
+            )
+        }
     }
 }
 

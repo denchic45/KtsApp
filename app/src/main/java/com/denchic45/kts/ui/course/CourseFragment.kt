@@ -1,10 +1,12 @@
 package com.denchic45.kts.ui.course
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
+import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
@@ -23,11 +25,14 @@ import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.utils.dpToPx
+import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.delay
 
 class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
     R.layout.fragment_course
@@ -37,7 +42,7 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
 
     override val binding: FragmentCourseBinding by viewBinding(FragmentCourseBinding::bind)
     override val viewModel: CourseViewModel by viewModels { viewModelFactory }
-    private var collapsingToolbarLayout: CollapsingToolbarLayout? = null
+    private lateinit var collapsingToolbarLayout: CollapsingToolbarLayout
 
     private lateinit var mainToolbar: Toolbar
     private lateinit var toolbar: Toolbar
@@ -48,30 +53,11 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
 
     private lateinit var appBarController: AppBarController
 
+    @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         appBarController = AppBarController.findController(requireActivity())
-        appBarController.apply {
-            mainToolbar = toolbar
-            removeView(toolbar)
-            collapsingToolbarLayout =
-                addView(R.layout.toolbar_course) as CollapsingToolbarLayout
-            this@CourseFragment.toolbar = collapsingToolbarLayout!!.findViewById(R.id.toolbar)
-            this@CourseFragment.toolbar.apply {
-                setNavigationIcon(R.drawable.ic_arrow_back)
-                inflateMenu(R.menu.options_course)
-                setNavigationOnClickListener {
-                    requireActivity().onBackPressed()
-                }
-                setOnMenuItemClickListener {
-                    viewModel.onOptionClick(it.itemId)
-                    false
-                }
-                viewModel.onCreateOptions()
-            }
-            setLiftOnScroll(true)
-        }
 
         requireActivity().findViewById<FloatingActionButton>(R.id.fab_main).setOnClickListener {
             viewModel.onFabClick()
@@ -150,9 +136,18 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
             viewModel.showContents.observe(viewLifecycleOwner) {
                 adapter.submit(it.toList())
             }
-            viewModel.courseName.observe(viewLifecycleOwner) {
-                collapsingToolbarLayout!!.title = it
+            viewModel.courseName.collectWhenStarted(lifecycleScope) {
+                collapsingToolbarLayout.title = it
+                delay(1)
+                collapsingToolbarLayout.updatePadding(
+                    bottom = requireContext().dpToPx(32)
+                            + (requireContext().dpToPx(16) * collapsingToolbarLayout.lineCount - 1)
+                )
+
+                toast("${collapsingToolbarLayout.lineCount}")
             }
+
+
             viewModel.fabVisibility.observe(viewLifecycleOwner) {
                 requireActivity().findViewById<FloatingActionButton>(R.id.fab_main)
                     .apply {
@@ -205,10 +200,34 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        appBarController.removeView(collapsingToolbarLayout!!)
+    override fun onStart() {
+        super.onStart()
+        appBarController.apply {
+            mainToolbar = toolbar
+            removeView(toolbar)
+            collapsingToolbarLayout =
+                addView(R.layout.toolbar_course) as CollapsingToolbarLayout
+            this@CourseFragment.toolbar = collapsingToolbarLayout.findViewById(R.id.toolbar)
+            this@CourseFragment.toolbar.apply {
+                setNavigationIcon(R.drawable.ic_arrow_back)
+                inflateMenu(R.menu.options_course)
+                setNavigationOnClickListener {
+                    requireActivity().onBackPressed()
+                }
+                setOnMenuItemClickListener {
+                    viewModel.onOptionClick(it.itemId)
+                    false
+                }
+                viewModel.onCreateOptions()
+            }
+            setLiftOnScroll(true)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        appBarController.removeView(collapsingToolbarLayout)
         appBarController.addView(mainToolbar)
-        appBarController.setExpanded(true, false)
+        appBarController.setExpanded(expand = true, animate = false)
     }
 }

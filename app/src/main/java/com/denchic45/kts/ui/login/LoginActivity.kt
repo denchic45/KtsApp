@@ -39,10 +39,6 @@ class LoginActivity : AppCompatActivity(R.layout.activity_login) {
                 navController.currentDestination!!.id
             )
         }
-//        viewModel.openLoginByPhoneNum.observe(
-//            this
-//        ) { navController.navigate(R.id.action_authFragment_to_loginByPhoneNumFragment) }
-
         viewModel.openLoginByMail.observe(this) {
             navController.navigate(R.id.action_authFragment_to_loginByEmailFragment)
         }

@@ -169,7 +169,7 @@ class FinderFragment :
                 popupWindow.dismiss()
                 viewModel.onOptionClick(second[position].id)
             }
-            popupWindow.width = ViewUtils.measureAdapter(popupAdapter, activity)
+            popupWindow.width = ViewUtils.measureAdapter(popupAdapter, requireContext())
             popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
             popupWindow.setAdapter(popupAdapter)
             popupWindow.show()

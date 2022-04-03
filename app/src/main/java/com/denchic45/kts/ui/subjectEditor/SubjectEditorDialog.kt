@@ -101,7 +101,7 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
                     .into(ivSubjectIc)
             }
             viewModel.colorIcon.observe(viewLifecycleOwner) { color: Int ->
-                ivSubjectIc.post { ViewUtils.paintImageView(ivSubjectIc, color, context) }
+                ivSubjectIc.post { ViewUtils.paintImageView(ivSubjectIc, color, requireContext()) }
             }
 
             etSubjectName.textChanges()

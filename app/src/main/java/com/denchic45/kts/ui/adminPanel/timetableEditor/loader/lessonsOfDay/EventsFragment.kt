@@ -19,42 +19,42 @@ class EventsFragment : ListFragment<ConcatAdapter>() {
     private val mondayEventAdapter: EventAdapter = EventAdapter(40, false,
         onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
             itemTouchHelper.startDrag(viewHolder)
-            dayOfWeekOfMovedEvents = 0
+            dayOfWeekOfMovedEvents = 1
         }
     )
 
     private val tuesdayEventAdapter: EventAdapter = EventAdapter(40, false,
         onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
             itemTouchHelper.startDrag(viewHolder)
-            dayOfWeekOfMovedEvents = 1
+            dayOfWeekOfMovedEvents = 2
         }
     )
 
     private val wednesdayEventAdapter: EventAdapter = EventAdapter(40, false,
         onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
             itemTouchHelper.startDrag(viewHolder)
-            dayOfWeekOfMovedEvents = 2
+            dayOfWeekOfMovedEvents = 3
         }
     )
 
     private val thursdayEventAdapter: EventAdapter = EventAdapter(40, false,
         onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
             itemTouchHelper.startDrag(viewHolder)
-            dayOfWeekOfMovedEvents = 3
+            dayOfWeekOfMovedEvents = 4
         }
     )
 
     private val fridayEventAdapter: EventAdapter = EventAdapter(40, false,
         onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
             itemTouchHelper.startDrag(viewHolder)
-            dayOfWeekOfMovedEvents = 4
+            dayOfWeekOfMovedEvents = 5
         }
     )
 
     private val saturdayEventAdapter: EventAdapter = EventAdapter(40, false,
         onItemMoveListener = { viewHolder: RecyclerView.ViewHolder ->
             itemTouchHelper.startDrag(viewHolder)
-            dayOfWeekOfMovedEvents = 5
+            dayOfWeekOfMovedEvents = 6
         }
     )
 

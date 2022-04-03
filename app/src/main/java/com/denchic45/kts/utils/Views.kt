@@ -4,10 +4,15 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.app.Activity
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
 import android.widget.ViewFlipper
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
@@ -87,4 +92,12 @@ fun ViewFlipper.animateHeight(
             changeBottomSheetHeight(ViewGroup.LayoutParams.WRAP_CONTENT)
         }
     })
+}
+
+fun ImageView.paintColor(color: Int) {
+    setLayerPaint(Paint().apply { colorFilter = PorterDuffColorFilter(Color.BLACK,PorterDuff.Mode.CLEAR) })
+    val paint = Paint()
+    val colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    paint.colorFilter = colorFilter
+    setLayerPaint(paint)
 }

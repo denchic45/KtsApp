@@ -20,9 +20,9 @@ import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.LessonTimeCalculator
 import com.denchic45.kts.R
+import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.room.EventEntity
@@ -31,6 +31,7 @@ import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.ui.adapter.EventAdapter.OnCreateLessonClickListener
 import com.denchic45.kts.ui.adapter.EventAdapter.OnEditEventItemClickListener
 import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.colors
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.transition.Elevation
 import com.denchic45.widget.transition.Rotation
@@ -216,21 +217,23 @@ class EventAdapter(
             tvTitle.text = title
         }
 
-        fun setIcon(url: String?, color: String?) {
+        fun setIcon(url: String, color: String) {
             ivIcon?.let {
+                val color1 = itemView.resources
+                    .getIdentifier(color, "color", itemView.context.packageName)
                 GlideApp.with(itemView.context)
                     .`as`(PictureDrawable::class.java)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .listener(
                         SvgColorListener(
                             ivIcon,
-                            itemView.resources
-                                .getIdentifier(color, "color", itemView.context.packageName),
+                            itemView.context.colors(color1),
                             itemView.context
                         )
                     )
                     .load(url)
                     .into(it)
+                tvTitle.setTextColor(itemView.context.colors(color1))
             }
 
         }

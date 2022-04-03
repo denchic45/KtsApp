@@ -42,7 +42,6 @@ class TaskEditorViewModel @Inject constructor(
     private val updateTaskUseCase: UpdateTaskUseCase
 ) : BaseViewModel() {
 
-
     val nameField = MutableLiveData<String>()
     val descriptionField = MutableLiveData<String>()
     val showCompletionDate = MutableLiveData<String?>()
@@ -153,14 +152,12 @@ class TaskEditorViewModel @Inject constructor(
     )
 
     init {
+
         if (uiEditor.isNew) {
             setupForNew()
         } else setupForExist()
 
         availabilityDateRemoveVisibility.postValue(completionDate != null)
-        sectionId?.let {
-
-        }
     }
 
 

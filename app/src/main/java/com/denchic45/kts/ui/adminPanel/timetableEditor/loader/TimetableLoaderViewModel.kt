@@ -40,7 +40,7 @@ class TimetableLoaderViewModel @Inject constructor(
     val openChoiceOfGroup = SingleLiveData<Void>()
 
     val addGroup = SingleLiveData<Unit>()
-    val updateEventsOfGroup = SingleLiveData<Pair<Int, List<List<DomainModel>>>>()
+    val updateEventsOfGroup = MutableSharedFlow<Pair<Int, List<List<DomainModel>>>>(replay = 1)
 
     val enableEditMode = MutableLiveData(false)
     val showPage = MutableLiveData<Int>()
@@ -197,7 +197,7 @@ class TimetableLoaderViewModel @Inject constructor(
 
                         if (enableEditMode.value!!) {
                             enableEditMode.value = false
-                            postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+                            postUpdatedEventsOfGroup(positionOfCurrentTimetable)
                         }
                     } catch (e: Exception) {
                         if (e is NetworkException) {
@@ -221,74 +221,61 @@ class TimetableLoaderViewModel @Inject constructor(
         }
     }
 
-    fun onLessonItemEditClick(eventPosition: Int, dayOfWeek: Int) {
-        val event =
-            groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek].events[eventPosition]
+    fun onEventItemEditClick(eventPosition: Int, dayOfWeek: Int) {
+        val event = groupsTimetables[positionOfCurrentTimetable]
+            .weekEvents[dayOfWeek]
+            .events[eventPosition]
+
         eventEditorInteractor.setEditedEvent(
-            groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek],
+            groupsTimetables[positionOfCurrentTimetable]
+                .weekEvents[dayOfWeek],
             event
         )
+
+        receiveUpdatedEventsOfDay()
+    }
+
+    private fun receiveUpdatedEventsOfDay() {
         openEventEditor.call()
         viewModelScope.launch {
             eventEditorInteractor.receiveEvent()
                 .let { eventsOfDay ->
                     groupsTimetables[positionOfCurrentTimetable] =
-                        groupsTimetables[positionOfCurrentTimetable]
-                            .run {
-                                copy(
-                                    weekEvents = weekEvents.toMutableList()
-                                        .apply { set(eventsOfDay.dayOfWeek, eventsOfDay) }
-                                )
-                            }
+                        groupsTimetables[positionOfCurrentTimetable].updateEventsOfDay(eventsOfDay)
 
-                    postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-
+                    postUpdatedEventsOfGroup(positionOfCurrentTimetable)
                 }
         }
     }
 
-    fun onCreateLessonItemClick(dayOfWeek: Int) {
+    fun onCreateEventItemClick(dayOfWeek: Int) {
         val eventsOfTheDay = groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek]
 
-        val order = if (eventsOfTheDay.isEmpty()) 1 else eventsOfTheDay.last().order + 1
-        val createdLesson =
-            Event.createEmpty(
-                groupHeader = groupHeaders[positionOfCurrentTimetable],
-                order = order
-            )
         eventEditorInteractor.setEditedEvent(
-            groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek],
-            createdLesson
+            eventsOfDay = groupsTimetables[positionOfCurrentTimetable].weekEvents[dayOfWeek],
+            event = Event.createEmpty(
+                groupHeader = groupHeaders[positionOfCurrentTimetable],
+                order = if (eventsOfTheDay.isEmpty()) 1 else eventsOfTheDay.last().order + 1
+            )
         )
-        openEventEditor.call()
-        viewModelScope.launch {
-            eventEditorInteractor.receiveEvent()
-                .let { eventsOfDay ->
-                    groupsTimetables[positionOfCurrentTimetable] =
-                        groupsTimetables[positionOfCurrentTimetable]
-                            .run {
-                                copy(
-                                    weekEvents = weekEvents.toMutableList()
-                                        .apply { set(eventsOfDay.dayOfWeek, eventsOfDay) }
-                                )
-                            }
+        receiveUpdatedEventsOfDay()
+    }
 
-                    postUpdateLessonsOfGroup(positionOfCurrentTimetable)
+    fun onEventItemMove(oldPosition: Int, targetPosition: Int, dayOfWeek: Int) {
+        viewModelScope.launch {
+            groupsTimetables[positionOfCurrentTimetable] =
+                groupsTimetables[positionOfCurrentTimetable].run {
+                    updateEventsOfDay(
+                        getByDayOfWeek(dayOfWeek).swap(oldPosition, targetPosition)
+                    )
                 }
+            postUpdatedEventsOfGroup(positionOfCurrentTimetable)
         }
     }
 
-    fun onLessonItemMove(oldPosition: Int, targetPosition: Int, dayOfWeek: Int) {
-        val eventsOfDay = groupsTimetables[positionOfCurrentTimetable]
-            .weekEvents[dayOfWeek]
-
-        eventsOfDay.swap(oldPosition, targetPosition)
-        postUpdateLessonsOfGroup(positionOfCurrentTimetable)
-    }
-
-    private fun postUpdateLessonsOfGroup(positionGroup: Int) {
+    private suspend fun postUpdatedEventsOfGroup(positionGroup: Int) {
         val timetable = groupsTimetables[positionGroup].toTimetableItems()
-        updateEventsOfGroup.value = Pair(positionGroup, timetable)
+        updateEventsOfGroup.emit(Pair(positionGroup, timetable))
     }
 
     private suspend fun preferences(): List<PreferenceItem> {

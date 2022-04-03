@@ -12,6 +12,8 @@ import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.Orders
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
@@ -32,7 +34,7 @@ class CourseViewModel @Inject constructor(
 
     val openCourseEditor = SingleLiveData<String>()
     val openCourseSectionEditor = SingleLiveData<String>()
-    val courseName: MutableLiveData<String> = MutableLiveData()
+    val courseName= MutableStateFlow("")
     val showContents: MutableLiveData<MutableList<DomainModel>> = MutableLiveData()
     private val findCourseFlow = findCourseUseCase(courseId)
 
@@ -56,7 +58,6 @@ class CourseViewModel @Inject constructor(
         viewModelScope.launch {
             findCourseFlow.collect { course ->
                 course?.let {
-                    showToast("${findSelfUserUseCase() == course.teacher}")
                     courseName.value = course.name
                     uiPermissions.putPermissions(
                         Permission(

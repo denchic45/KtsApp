@@ -54,7 +54,7 @@ class GroupUsersFragment :
                 popupWindow.anchorView = rvUsers.layoutManager!!.findViewByPosition(it.first)
                 val adapter = ListPopupWindowAdapter(requireContext(), it.second)
                 popupWindow.setAdapter(adapter)
-                popupWindow.width = ViewUtils.measureAdapter(adapter, activity)
+                popupWindow.width = ViewUtils.measureAdapter(adapter, requireContext())
                 popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
                 popupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
                     popupWindow.dismiss()

@@ -5,20 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toolbar_layout"
     android:layout_width="match_parent"
-    android:layout_height="136dp"
-    app:expandedTitleMarginTop="56dp"
-    app:expandedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar.Expanded"
+    android:layout_height="wrap_content"
+    app:expandedTitleMarginTop="?actionBarSize"
     app:collapsedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar"
-    app:maxLines="2"
     app:expandedTitleGravity="top"
     app:expandedTitleMarginStart="16sp"
-    tools:title="Элементы высшей математики"
+    android:paddingBottom="36dp"
+    android:clipToPadding="false"
+    app:expandedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar.Expanded"
     app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-    app:toolbarId="@+id/toolbar">
+    app:maxLines="3"
+    app:toolbarId="@+id/toolbar"
+    app:forceApplySystemWindowInsetTop="true"
+    tools:title="Элементы высшей математики">
 
-<androidx.appcompat.widget.Toolbar
-    android:id="@+id/toolbar"
-    app:layout_collapseMode="pin"
-    android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize" />
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_collapseMode="pin"/>
 </com.google.android.material.appbar.CollapsingToolbarLayout>

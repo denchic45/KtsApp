@@ -4,7 +4,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -26,6 +25,7 @@ import com.denchic45.kts.ui.adapter.preferenceAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.lessonsOfDay.EventsFragment
 import com.denchic45.kts.utils.FilePicker
+import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.extension.check
@@ -209,21 +209,12 @@ class TimetableLoaderFragment :
         }
 
 
-        viewModel.updateEventsOfGroup.observe(
-            viewLifecycleOwner
-        ) { integerListPair: Pair<Int, List<List<DomainModel>>> ->
-            groupTimetablesAdapter.updateTimetable(
-                integerListPair.first,
-                integerListPair.second
-            )
+        viewModel.updateEventsOfGroup.collectWhenStarted(lifecycleScope) { (position, events) ->
+            groupTimetablesAdapter.updateTimetable(position, events)
         }
 
-
-        lifecycleScope.launchWhenStarted {
-            viewModel.preferences.collect {
-                Log.d("lol", "onViewCreated submit: $it")
-                preferenceAdapter.submit(it)
-            }
+        viewModel.preferences.collectWhenStarted(lifecycleScope) {
+            preferenceAdapter.submit(it)
         }
 
 
@@ -324,15 +315,15 @@ class TimetableLoaderFragment :
     }
 
     override fun onLessonEditClick(position: Int, dayOfWeek: Int) {
-        viewModel.onLessonItemEditClick(position - 1, dayOfWeek)
+        viewModel.onEventItemEditClick(position - 1, dayOfWeek)
     }
 
     override fun onLessonCreateClick(dayOfWeek: Int) {
-        viewModel.onCreateLessonItemClick(dayOfWeek)
+        viewModel.onCreateEventItemClick(dayOfWeek)
     }
 
     override fun onMove(oldPosition: Int, targetPosition: Int, dayOfWeek: Int) {
-        viewModel.onLessonItemMove(
+        viewModel.onEventItemMove(
             oldPosition - 1, targetPosition - 1, dayOfWeek
         )
     }
