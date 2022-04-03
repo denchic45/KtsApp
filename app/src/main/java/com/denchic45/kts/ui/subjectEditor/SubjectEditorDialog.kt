@@ -36,29 +36,6 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
             .setNeutralButton("Удалить", null)
     }
 
-//    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-//        val dialog =
-//            MaterialAlertDialogBuilder(requireContext(), R.style.MaterialAlertDialog_Rounded)
-//                .setView(view)
-//                .setTitle("Редактор предметов")
-//                .setPositiveButton("Ок", null)
-//                .setNegativeButton("Отмена", null)
-//                .setNeutralButton("Удалить", null)
-//        alertDialog = dialog.create()
-//        alertDialog.window!!.setLayout(
-//            ViewGroup.LayoutParams.MATCH_PARENT,
-//            ViewGroup.LayoutParams.WRAP_CONTENT
-//        )
-//        alertDialog.setOnShowListener {
-//            val btnDelete = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-//            val btnPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-//            btnDelete.setTextColor(Color.RED)
-//            btnDelete.setOnClickListener { viewModel.onDeleteClick() }
-//            btnPositive.setOnClickListener { viewModel.onPositiveClick() }
-//        }
-//        return alertDialog
-//    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         alertDialog.setOnShowListener {
@@ -66,7 +43,7 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
             val btnPositive = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
             btnDelete.setTextColor(Color.RED)
             btnDelete.setOnClickListener { viewModel.onDeleteClick() }
-            btnPositive.setOnClickListener { viewModel.onPositiveClick() }
+           btnPositive.setOnClickListener { viewModel.onPositiveClick() }
         }
 
         with(binding) {

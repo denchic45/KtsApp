@@ -70,7 +70,7 @@ class TimetableParser {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            throw Exception("Произошла проблема при извлечении документа")
+            throw e
         }
 
 
