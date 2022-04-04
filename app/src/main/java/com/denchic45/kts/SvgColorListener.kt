@@ -10,6 +10,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.denchic45.kts.glideSvg.SvgSoftwareLayerSetter
 import com.denchic45.kts.utils.ViewUtils
+import com.denchic45.kts.utils.colors
 import com.denchic45.kts.utils.paintColor
 
 class SvgColorListener(
@@ -26,8 +27,8 @@ class SvgColorListener(
     ): Boolean {
         super.onLoadFailed(e, model, target, isFirstResource)
 //        view.setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP)
-//        ViewUtils.paintImageView(view, color, context)
-        view.paintColor(color)
+        ViewUtils.paintImageView(view, color, context)
+//        view.paintColor(color)
         return false
     }
 
@@ -39,7 +40,7 @@ class SvgColorListener(
         isFirstResource: Boolean
     ): Boolean {
         super.onResourceReady(resource, model, target, dataSource, isFirstResource)
-//        ViewUtils.paintImageView(view, color, context)
+        ViewUtils.paintImageView(view, color, context)
         view.paintColor(color)
 //        view.setColorFilter(Color.BLUE, PorterDuff.Mode.SRC_ATOP)
         return false

@@ -13,28 +13,4 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="1"
         tools:listitem="@layout/item_popup_avatar_content" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center_vertical"
-        android:paddingHorizontal="18sp">
-
-        <ImageView
-            android:id="@+id/iv_room"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:padding="4dp"
-            app:srcCompat="@drawable/ic_room" />
-
-        <TextView
-            android:id="@+id/et_room"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="14sp"
-            android:fontFamily="@font/gilroy_semi_bold"
-            android:singleLine="true"
-            android:text="23 room"
-            android:textSize="16sp" />
-    </LinearLayout>
 </LinearLayout>

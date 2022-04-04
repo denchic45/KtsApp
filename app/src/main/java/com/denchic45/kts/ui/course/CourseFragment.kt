@@ -136,13 +136,14 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
             viewModel.showContents.observe(viewLifecycleOwner) {
                 adapter.submit(it.toList())
             }
+
             viewModel.courseName.collectWhenStarted(lifecycleScope) {
                 collapsingToolbarLayout.title = it
-                delay(1)
-                collapsingToolbarLayout.updatePadding(
-                    bottom = requireContext().dpToPx(32)
-                            + (requireContext().dpToPx(16) * collapsingToolbarLayout.lineCount - 1)
-                )
+//                delay(1)
+//                collapsingToolbarLayout.updatePadding(
+//                    bottom = requireContext().dpToPx(32)
+//                            + (requireContext().dpToPx(16) * collapsingToolbarLayout.lineCount - 1)
+//                )
 
                 toast("${collapsingToolbarLayout.lineCount}")
             }

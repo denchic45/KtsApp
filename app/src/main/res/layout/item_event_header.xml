@@ -5,9 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:gravity="center_vertical"
-    android:paddingStart="12dp"
+    android:paddingHorizontal="12dp"
     android:paddingTop="8dp"
-    android:paddingEnd="12sp"
     android:paddingBottom="8dp">
 
     <TextView
@@ -26,6 +25,8 @@
         android:id="@+id/imageView_lesson_icon"
         android:layout_width="34dp"
         android:layout_height="34dp"
+        android:alpha="0.8"
+        tools:srcCompat="@drawable/ic_subject"
         android:layout_marginStart="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView_lesson_order"
@@ -101,11 +102,16 @@
                 tools:text="Group"
                 android:textSize="14sp" />
         </LinearLayout>
-        <ImageView
-            android:id="@+id/iv_lesson_expand"
-            android:layout_width="26dp"
+
+        <TextView
+            android:id="@+id/tv_room"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="8dp"
+            android:fontFamily="@font/gilroy_semi_bold"
+            tools:text="11"
+            android:layout_marginStart="16dp"
+            android:gravity="center_vertical|end"
+            android:textSize="18sp"
             app:srcCompat="@drawable/ic_baseline_keyboard_arrow_down"
             tools:ignore="ContentDescription" />
 

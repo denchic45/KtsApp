@@ -4,7 +4,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -14,9 +13,9 @@ import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.ViewFlipper
+import androidx.annotation.ColorRes
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
-import com.denchic45.kts.R
 import com.denchic45.kts.ui.course.submission.windowHeight
 import com.denchic45.kts.ui.updateView.getActivity
 
@@ -95,10 +94,9 @@ fun ViewFlipper.animateHeight(
     })
 }
 
-fun ImageView.paintColor(color: Int) {
+fun ImageView.paintColor(@ColorRes colorRes: Int) {
     val paint = Paint()
-    paint.alpha = 216
-    val colorFilter = PorterDuffColorFilter(color, PorterDuff.Mode.SRC_ATOP)
+    val colorFilter = PorterDuffColorFilter(context.colors(colorRes), PorterDuff.Mode.SRC_ATOP)
     paint.colorFilter = colorFilter
     setLayerPaint(paint)
 

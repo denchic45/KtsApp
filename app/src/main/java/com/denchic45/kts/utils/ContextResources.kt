@@ -4,13 +4,14 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Movie
 import android.graphics.drawable.Drawable
+import androidx.annotation.ColorRes
 import androidx.core.content.res.ResourcesCompat.*
 
 fun Context.animations(id: Int) = resources.getAnimation(id)
 
 fun Context.booleans(id: Int) = resources.getBoolean(id)
 
-fun Context.colors(id: Int) = getColor(resources, id, theme)
+fun Context.colors(@ColorRes id: Int) = getColor(resources, id, theme)
 
 fun Context.colorStateLists(id: Int) = getColorStateList(resources, id, theme)!!
 

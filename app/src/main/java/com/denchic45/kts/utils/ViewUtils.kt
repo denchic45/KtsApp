@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ListAdapter
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 
 object ViewUtils {
@@ -26,7 +27,7 @@ object ViewUtils {
         return longestWidth
     }
 
-    fun paintImageView(iv: ImageView, color: Int, context: Context) {
+    fun paintImageView(iv: ImageView, @ColorRes color: Int, context: Context) {
         val paint = Paint()
         paint.colorFilter = PorterDuffColorFilter(
             ContextCompat.getColor(context, color),

@@ -5,18 +5,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/toolbar_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:expandedTitleMarginTop="?actionBarSize"
+    android:layout_height="128dp"
+    app:expandedTitleMarginBottom="16dp"
     app:collapsedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar"
-    app:expandedTitleGravity="top"
     app:expandedTitleMarginStart="16sp"
-    android:paddingBottom="36dp"
-    android:clipToPadding="false"
     app:expandedTitleTextAppearance="@style/TextAppearance.Kts.CollapsingToolbar.Expanded"
     app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
-    app:maxLines="3"
+    app:maxLines="2"
     app:toolbarId="@+id/toolbar"
-    app:forceApplySystemWindowInsetTop="true"
     tools:title="Элементы высшей математики">
 
     <androidx.appcompat.widget.Toolbar

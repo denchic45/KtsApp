@@ -234,7 +234,7 @@ class EventAdapter(
                     .listener(
                         SvgColorListener(
                             ivIcon,
-                            itemView.context.colors(R.color.dark_blue),
+                           R.color.dark_blue,
                             itemView.context
                         )
                     )
@@ -303,7 +303,7 @@ class EventAdapter(
         itemTouchListener,
         lessonTime
     ) {
-        private val ivArrow: ImageView = binding.llLessonHeader.ivLessonExpand
+//        private val ivArrow: ImageView = binding.llLessonHeader.ivLessonExpand
         private var color = 0
         private var task: Task? = null
         private var subject: Subject? = null
@@ -331,7 +331,7 @@ class EventAdapter(
         private fun setLessonContentVisibility() {
             val contentVisibility = if (event.isEmpty) View.GONE else View.VISIBLE
             ivIcon?.visibility = contentVisibility
-            binding.llLessonHeader.ivLessonExpand.visibility = contentVisibility
+//            binding.llLessonHeader.ivLessonExpand.visibility = contentVisibility
             tvTitle.visibility = contentVisibility
             tvTime.visibility = contentVisibility
             binding.llLessonHeader.llGroup.visibility = contentVisibility
@@ -344,9 +344,9 @@ class EventAdapter(
                 setTitle(subject!!.name)
                 itemView.setOnClickListener { view: View? ->
                     val transitionSet = TransitionSet()
-                    val rotation = Rotation()
-                    rotation.addTarget(binding.llLessonHeader.ivLessonExpand)
-                    transitionSet.addTransition(rotation)
+//                    val rotation = Rotation()
+//                    rotation.addTarget(binding.llLessonHeader.ivLessonExpand)
+//                    transitionSet.addTransition(rotation)
                     val elevation = Elevation()
                     elevation.addTarget(itemView)
                     transitionSet.addTransition(elevation)
@@ -391,20 +391,20 @@ class EventAdapter(
         }
 
         private fun setTextRoom() {
-            lessonExpandableContentBinding.etRoom.text =
+            binding.llLessonHeader.tvRoom.text =
                 if (event.room == null) "Аудитория не указана" else event.room
         }
 
         fun expandContent() {
             (itemView as CardView).cardElevation =
                 Dimensions.dpToPx(4, itemView.getContext()).toFloat()
-            ivArrow.rotation = 180f
+//            ivArrow.rotation = 180f
             lessonExpandableContentBinding.root.visibility = View.VISIBLE
         }
 
         private fun collapseContent() {
             (itemView as CardView).cardElevation = 0f
-            binding.llLessonHeader.ivLessonExpand.rotation = 0f
+//            binding.llLessonHeader.ivLessonExpand.rotation = 0f
             lessonExpandableContentBinding.root.visibility = View.GONE
         }
     }
@@ -451,7 +451,7 @@ class EventAdapter(
 
         init {
             itemView.findViewById<View>(R.id.ll_group).visibility = View.GONE
-            itemView.findViewById<View>(R.id.iv_lesson_expand).visibility = View.GONE
+//            itemView.findViewById<View>(R.id.iv_lesson_expand).visibility = View.GONE
         }
     }
 
