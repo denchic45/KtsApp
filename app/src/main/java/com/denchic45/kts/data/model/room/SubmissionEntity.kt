@@ -27,8 +27,8 @@ import java.util.*
 )
 data class SubmissionEntity(
     @ColumnInfo(name = "submission_id")
-    @PrimaryKey
-    val id: String,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int,
     @ColumnInfo(name = "student_id")
     val studentId: String,
     @ColumnInfo(name = "content_id")

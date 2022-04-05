@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.denchic45.kts.BuildConfig
+import com.denchic45.kts.data.prefs.AppPreference
+import com.denchic45.kts.data.prefs.TimestampPreference
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
@@ -21,7 +23,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class GoogleAppVersionService @Inject constructor(
-    context: Context
+    context: Context,
+    private val timestampPreference: TimestampPreference,
+    private val appPreference: AppPreference
 ) : AppVersionService(), Closeable {
 
     private val appUpdateManager = AppUpdateManagerFactory.create(context)
@@ -102,11 +106,19 @@ class GoogleAppVersionService @Inject constructor(
     }
 
     private fun logVersions() {
+        val currentVersion = BuildConfig.VERSION_CODE
         if (!BuildConfig.DEBUG)
             GlobalScope.launch {
-                Log.d("lol", "current version code: ${BuildConfig.VERSION_CODE}")
+                Log.d("lol", "current version code: $currentVersion")
                 Log.d("lol", "latest version code: ${getLatestVersion()}")
+                appPreference.latestVersion = currentVersion.toLong()
             }
+
+        if (currentVersion > appPreference.latestVersion) {
+            appPreference.coursesLoadedFirstTime = false
+            timestampPreference.updateGroupCoursesTimestamp = 0
+            timestampPreference.updateTeacherCoursesTimestamp = 0
+        }
     }
 
     override fun observeDownloadedUpdate() {

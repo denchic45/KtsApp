@@ -5,10 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.Attachment
-import com.denchic45.kts.data.model.domain.SubmissionSettings
-import com.denchic45.kts.data.model.domain.Task
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.course.taskEditor.AddAttachmentItem
@@ -17,10 +14,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
-import java.time.Duration
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.*
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Named
@@ -45,8 +39,8 @@ class TaskInfoViewModel @Inject constructor(
         started = SharingStarted.WhileSubscribed()
     )
     val taskAttachments = findTaskAttachmentsUseCase(taskId)
-    val taskViewState = taskFlow.onEach {
-        if (it == null) {
+    val taskViewState = taskFlow.onEach { task ->
+        if (task == null) {
             finish()
         }
     }
@@ -58,23 +52,16 @@ class TaskInfoViewModel @Inject constructor(
                 dateWithTimeLeft = task.completionDate?.let {
                     val pattern = DateTimeFormatter.ofPattern("dd MMM HH:mm")
                     task.completionDate.format(pattern) to
-                            "Осталось ${
-                                DateTimeFormatter.ofPattern("d дней H час. m мин.").format(
-                                    Instant.ofEpochMilli(
-                                        Duration.between(
-                                            task.completionDate,
-                                            LocalDateTime.now()
-                                        ).toMillis()
-                                    ).atZone(
-                                        ZoneId.systemDefault()
-                                    ).toLocalDateTime()
-                                )
-                            }"
+                            EitherMessage.FormattedQuantityString(
+                                value = R.plurals.day,
+                                quantity = Period.between(LocalDate.now(), task.completionDate.toLocalDate()).days,
+                                formatArgs = null
+                            )
+
                 },
                 submissionSettings = task.submissionSettings
             )
         }
-
 
     val showSubmissionToolbar = MutableLiveData<Boolean>()
     val expandBottomSheet = MutableLiveData(BottomSheetBehavior.STATE_COLLAPSED)
@@ -235,7 +222,7 @@ class TaskInfoViewModel @Inject constructor(
     data class TaskViewState(
         val name: String,
         val description: String,
-        val dateWithTimeLeft: Pair<String, String>?,
+        val dateWithTimeLeft: Pair<String, EitherMessage.FormattedQuantityString>?,
         val submissionSettings: SubmissionSettings
     )
 

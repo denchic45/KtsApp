@@ -125,7 +125,7 @@ class CourseRepository @Inject constructor(
         return coursesRef.whereEqualTo("teacher.id", teacherId)
             .whereGreaterThan(
                 "timestamp",
-                Date(timestampPreference.lastUpdateTeacherCoursesTimestamp)
+                Date(timestampPreference.updateTeacherCoursesTimestamp)
             )
     }
 
@@ -205,8 +205,8 @@ class CourseRepository @Inject constructor(
         }
 
         dataBase.withTransaction {
-            courseContentDao.upsert(remainingCourseContent)
             courseContentDao.delete(removedCourseContents)
+            courseContentDao.upsert(remainingCourseContent)
 
             val submissionEntities = mutableListOf<SubmissionEntity>()
             val contentCommentEntities = mutableListOf<ContentCommentEntity>()
@@ -227,7 +227,7 @@ class CourseRepository @Inject constructor(
                 }
             }
 
-            submissionDao.upsert(submissionEntities)
+            submissionDao.insert(submissionEntities)
             contentCommentDao.upsert(contentCommentEntities)
             submissionCommentDao.upsert(submissionCommentEntities)
         }
@@ -263,7 +263,7 @@ class CourseRepository @Inject constructor(
                             dataBase.withTransaction {
                                 saveCourses(this)
                             }
-                            timestampPreference.lastUpdateTeacherCoursesTimestamp =
+                            timestampPreference.updateTeacherCoursesTimestamp =
                                 this.maxOf { it.timestamp!!.time }
                         }
                     }

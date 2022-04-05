@@ -1,6 +1,5 @@
 package com.denchic45.appVersion
 
-import android.util.Log
 import com.denchic45.kts.BuildConfig
 
 abstract class AppVersionService {

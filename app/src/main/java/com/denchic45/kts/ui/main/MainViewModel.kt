@@ -247,10 +247,10 @@ class MainViewModel @Inject constructor(
                     }
                     items.addAll(visibleCourses.map {
                         NavTextItem(
-                            EitherMessage.String(it.name),
+                            EitherMessage.Stroke(it.name),
                             id = it.id,
                             iconType = NavTextItem.IconType.CIRCLE,
-                            color = EitherMessage.String(it.subject.colorName)
+                            color = EitherMessage.Stroke(it.subject.colorName)
                         )
                     })
                     if (courses.size > 5)

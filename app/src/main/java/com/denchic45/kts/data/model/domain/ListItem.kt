@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.model.domain
 
+import android.content.Context
 import com.denchic45.kts.data.model.DomainModel
 import com.google.gson.annotations.SerializedName
 
@@ -26,23 +27,32 @@ data class ListItem(
 
 sealed class EitherMessage {
 
+    data class Stroke(val value: String) : EitherMessage()
+
     data class Id(val value: Int) : EitherMessage()
 
-    data class String(val value: kotlin.String) : EitherMessage()
+    data class FormattedString(val value: Int, val formatArgs:Any?): EitherMessage() {
+        fun get(context: Context): String {
+            return context.resources.getString(value, formatArgs)
+        }
+    }
 
-    val isString get() = this is String
+    data class FormattedQuantityString(val value: Int, val quantity: Int, val formatArgs:Any?): EitherMessage()
+
+    val isString get() = this is Stroke
 
     val isId get() = this is Id
 
-    fun fold(fnL: (Int) -> Any, fnR: (kotlin.String) -> Any): Any =
+    fun fold(fnL: (Int) -> Any, fnR: (String) -> Any): Any =
         when (this) {
             is Id -> fnL(value)
-            is String -> fnR(value)
+            is Stroke -> fnR(value)
+            else -> throw IllegalStateException()
         }
 }
 
 fun EitherMessage.onString(fn: (success: String) -> Unit): EitherMessage =
-    this.apply { if (this is EitherMessage.String) fn(value) }
+    this.apply { if (this is EitherMessage.Stroke) fn(value) }
 
 fun EitherMessage.onId(fn: (failure: Int) -> Unit): EitherMessage =
     this.apply { if (this is EitherMessage.Id) fn(value) }

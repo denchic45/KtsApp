@@ -8,12 +8,15 @@ import com.denchic45.kts.data.model.room.SubmissionEntity
 import com.denchic45.kts.data.model.room.SubmissionWithStudentUserAndCommentsEntities
 import com.denchic45.kts.utils.toLocalDateTime
 import org.mapstruct.Mapper
+import org.mapstruct.Mapping
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 @Mapper(uses = [UserMapper::class])
 abstract class SubmissionMapper {
     val userMapper = UserMapperImpl()
+
+    @Mapping(target = "id", ignore = true)
     abstract fun docToEntity(submissionDoc: SubmissionDoc): SubmissionEntity
 
     fun entityToDomain(

@@ -23,9 +23,10 @@ import com.denchic45.kts.data.model.room.*
         SubmissionEntity::class
     ],
     autoMigrations = [
-        AutoMigration(from = 1, to = 2, spec = RemovePhoneNumMigration::class)
+        AutoMigration(from = 1, to = 2, spec = RemovePhoneNumMigration::class),
+//        AutoMigration(from = 2, to = 3)
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class DataBase : RoomDatabase() {
@@ -55,7 +56,7 @@ abstract class DataBase : RoomDatabase() {
                     DataBase::class.java,
                     "database.db"
                 )
-//                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration()
                     .build()
             }
             return instance!!

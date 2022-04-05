@@ -5,6 +5,7 @@ import javax.inject.Inject
 
 class TimestampPreference @Inject constructor(context: Context) :
     BaseSharedPreference(context, "Timestamp") {
+
     fun setTimestampGroups(timestamp: Long) {
         setValue(TIMESTAMP_LAST_UPDATE_GROUPS, timestamp)
     }
@@ -13,14 +14,17 @@ class TimestampPreference @Inject constructor(context: Context) :
         setValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, timestamp)
     }
 
-    val lastUpdateGroupsTimestamp: Long
+    val updateGroupsTimestamp: Long
         get() = getValue(TIMESTAMP_LAST_UPDATE_GROUPS, 0L)
-    val lastUpdateEventsTimestamp: Long
+
+    val updateEventsTimestamp: Long
         get() = getValue(TIMESTAMP_LAST_UPDATE_EVENTS, 0L)
-    var lastUpdateGroupCoursesTimestamp: Long
+
+    var updateGroupCoursesTimestamp: Long
         set(value) = setValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, value)
         get() = getValue(TIMESTAMP_LAST_UPDATE_GROUP_COURSES, 0L)
-    var lastUpdateTeacherCoursesTimestamp: Long
+
+    var updateTeacherCoursesTimestamp: Long
         get() = getValue(TIMESTAMP_LAST_UPDATE_TEACHER_COURSES, 0L)
         set(value) = setValue(TIMESTAMP_LAST_UPDATE_TEACHER_COURSES, value)
 

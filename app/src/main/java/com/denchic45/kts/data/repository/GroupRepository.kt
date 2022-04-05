@@ -123,7 +123,7 @@ class GroupRepository @Inject constructor(
     }
 
     private fun getUpdatedGroupsByTeacherListener(teacher: User): ListenerRegistration {
-        val timestampGroups = timestampPreference.lastUpdateGroupsTimestamp
+        val timestampGroups = timestampPreference.updateGroupsTimestamp
         val teacherId = teacher.id
         return groupsRef.whereArrayContains("teacherIds", teacherId)
             .whereGreaterThan("timestamp", Date(timestampGroups))

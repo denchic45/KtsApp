@@ -196,7 +196,7 @@ class TaskInfoFragment :
                         chpDate.visibility = View.VISIBLE
                         tvTimeLeft.visibility = View.VISIBLE
                         chpDate.text = it.first
-                        tvTimeLeft.text = it.second
+                        tvTimeLeft.text = "Осталось " + resources.getQuantityString(R.plurals.day, it.second.quantity, it.second.quantity)
                     } ?: run {
                         chpDate.visibility = View.GONE
                         tvTimeLeft.visibility = View.GONE

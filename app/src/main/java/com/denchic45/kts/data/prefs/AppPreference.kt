@@ -12,12 +12,15 @@ class AppPreference @Inject constructor(context: Context) : BaseSharedPreference
 
     var coursesLoadedFirstTime: Boolean
         get() = getValue(COURSES_LOADED_FIRST_TIME, false)
-        set(value) {
-            setValue(COURSES_LOADED_FIRST_TIME, value)
-        }
+        set(value) =setValue(COURSES_LOADED_FIRST_TIME, value)
+
+    var latestVersion: Long
+        get() = getValue(LATEST_VERSION, 0L)
+        set(value) = setValue(LATEST_VERSION, value)
 
     companion object {
         const val LESSON_TIME = "LESSON_TIME"
         const val COURSES_LOADED_FIRST_TIME = "COURSES_LOADED_FIRST_TIME"
+        const val LATEST_VERSION = "LATEST_VERSION"
     }
 }

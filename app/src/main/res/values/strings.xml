@@ -43,4 +43,16 @@
     <string name="nav_courses_archive">Course archive</string>
     <string name="nav_courses_my">My courses</string>
     <string name="nav_courses_hide">Hide</string>
+    <string name="task_deadline_left">%1\\$s! left</string>
+
+    <plurals name="day">
+        <item quantity="zero">%1$d days</item>
+        <item quantity="one">%1$d day</item>
+        <item quantity="two">%1$d days</item>
+        <item quantity="few">%1$d days</item>
+        <item quantity="many">%1$d days</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+
+
 </resources>

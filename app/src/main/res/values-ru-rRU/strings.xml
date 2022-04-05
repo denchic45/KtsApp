@@ -31,4 +31,16 @@
     <string name="nav_courses_archive">Архив курсов</string>
     <string name="nav_courses_my">Мои курсы</string>
     <string name="nav_courses_hide">Скрыть</string>
+
+
+
+    <plurals name="day">
+        <item quantity="one">%1$d день</item>
+        <item quantity="few">%1$d дня</item>
+        <item quantity="many">%1$d дней</item>
+        <item quantity="other">%1$d дней</item>
+    </plurals>
+
+
+    <string name="task_deadline_left">Осталось %1$s!</string>
 </resources>

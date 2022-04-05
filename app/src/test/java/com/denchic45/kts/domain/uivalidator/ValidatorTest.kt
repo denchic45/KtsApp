@@ -22,7 +22,7 @@ internal class ValidatorTest {
                         errorMessage = { ErrorMessage.Stroke("Эта строка не lol!: $it") }
                     )
                 ),
-                onError = { print((it as EitherMessage.String).value) }
+                onError = { print((it as EitherMessage.Stroke).value) }
             )
         )
 

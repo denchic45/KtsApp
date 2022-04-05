@@ -37,8 +37,8 @@ class SimpleEventEditorViewModel @Inject constructor(
         return events
             .map { eventDetails: SimpleEventDetails ->
                 ListItem(
-                    title = eventDetails.name, color = EitherMessage.String(eventDetails.color),
-                    icon = EitherMessage.String(eventDetails.iconUrl),
+                    title = eventDetails.name, color = EitherMessage.Stroke(eventDetails.color),
+                    icon = EitherMessage.Stroke(eventDetails.iconUrl),
                 )
             } + ListItem(title = "Создать", icon = EitherMessage.Id(R.drawable.ic_add))
     }

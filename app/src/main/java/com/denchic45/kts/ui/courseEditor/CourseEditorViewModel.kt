@@ -91,7 +91,7 @@ class CourseEditorViewModel @Inject constructor(
                                         ListItem(
                                             id = user.id,
                                             title = user.fullName,
-                                            icon = EitherMessage.String(user.photoUrl),
+                                            icon = EitherMessage.Stroke(user.photoUrl),
                                             type = ListPopupWindowAdapter.TYPE_AVATAR
                                         )
                                     }
@@ -116,7 +116,7 @@ class CourseEditorViewModel @Inject constructor(
                             ListItem(
                                 id = id,
                                 title = name,
-                                icon = EitherMessage.String(iconUrl)
+                                icon = EitherMessage.Stroke(iconUrl)
                             )
                         }
                     }
