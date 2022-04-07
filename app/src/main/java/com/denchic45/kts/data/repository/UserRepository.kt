@@ -147,8 +147,6 @@ open class UserRepository @Inject constructor(
     }
 
     suspend fun findAndSaveByEmail(email: String) {
-        Log.d("lol", "AA requireInternetConnection: ")
-        requireAllowWriteData()
         Log.d("lol", "AA usersRef.whereEqualTo: ")
         usersRef.whereEqualTo("email", email)
             .get()

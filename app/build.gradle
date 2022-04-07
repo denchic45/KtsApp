@@ -32,8 +32,8 @@ android {
         applicationId "com.denchic45.kts"
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 79
-        versionName "1.0.4"
+        versionCode 80
+        versionName "1.0.5"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 

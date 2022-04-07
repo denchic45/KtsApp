@@ -21,6 +21,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.math.max
 
 class GoogleAppVersionService @Inject constructor(
     context: Context,
@@ -106,18 +107,21 @@ class GoogleAppVersionService @Inject constructor(
     }
 
     private fun logVersions() {
-        val currentVersion = BuildConfig.VERSION_CODE
-        if (!BuildConfig.DEBUG)
-            GlobalScope.launch {
-                Log.d("lol", "current version code: $currentVersion")
-                Log.d("lol", "latest version code: ${getLatestVersion()}")
-                appPreference.latestVersion = currentVersion.toLong()
-            }
+        val currentBuildVersion = BuildConfig.VERSION_CODE
 
-        if (currentVersion > appPreference.latestVersion) {
-            appPreference.coursesLoadedFirstTime = false
-            timestampPreference.updateGroupCoursesTimestamp = 0
-            timestampPreference.updateTeacherCoursesTimestamp = 0
+        GlobalScope.launch {
+            Log.d("lol", "current version code: $currentBuildVersion")
+            if (!BuildConfig.DEBUG)
+                Log.d("lol", "latest version code: ${getLatestVersion()}")
+
+            val latestVersion = getLatestVersion()
+            val maxLatestVersion = max(latestVersion, currentBuildVersion).toLong()
+            if (maxLatestVersion > appPreference.latestVersion) {
+                appPreference.coursesLoadedFirstTime = false
+                timestampPreference.updateGroupCoursesTimestamp = 1
+                timestampPreference.updateTeacherCoursesTimestamp = 1
+                appPreference.latestVersion = maxLatestVersion
+            }
         }
     }
 

@@ -23,7 +23,7 @@ import com.denchic45.kts.data.model.room.*
         SubmissionEntity::class
     ],
     autoMigrations = [
-        AutoMigration(from = 1, to = 2, spec = RemovePhoneNumMigration::class),
+//        AutoMigration(from = 1, to = 2, spec = RemovePhoneNumMigration::class),
 //        AutoMigration(from = 2, to = 3)
     ],
     version = 3,
