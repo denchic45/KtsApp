@@ -9,6 +9,8 @@ import android.view.MenuItem
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavArgs
 import androidx.navigation.NavController
@@ -25,7 +27,6 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.coroutines.flow.debounce
 import javax.inject.Inject
-
 
 interface HasViewModel<VM : BaseViewModel> {
 
@@ -80,10 +81,11 @@ abstract class BaseFragment<VM : BaseViewModel, VB : ViewBinding>(
             }
         }
 
-        viewModel.finish.collectWhenResumed(lifecycleScope) {
-            Log.d("lol", "finish: ${this.javaClass.name}")
-            findNavController().navigateUp()
-        }
+        viewModel.finish.flowWithLifecycle(lifecycle, Lifecycle.State.RESUMED)
+            .collectWhenStarted(lifecycleScope) {
+                Log.d("lol", "finish: ${this.javaClass.name}")
+                findNavController().navigateUp()
+            }
 
         viewModel.toast.collectWhenStarted(viewLifecycleOwner.lifecycleScope, this::toast)
 

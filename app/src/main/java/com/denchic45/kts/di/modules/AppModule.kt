@@ -21,10 +21,11 @@ class AppModule(private val application: Application) {
     @Provides
     fun provideAppVersionService(
         context: Context,
+        coroutineScope: CoroutineScope,
         timestampPreference: TimestampPreference,
         appPreference: AppPreference
     ): AppVersionService =
-        GoogleAppVersionService(context, timestampPreference, appPreference)
+        GoogleAppVersionService(context, coroutineScope, appPreference, timestampPreference)
 
     @Provides
     @Singleton

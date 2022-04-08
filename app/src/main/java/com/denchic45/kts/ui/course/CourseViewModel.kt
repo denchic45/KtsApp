@@ -12,7 +12,6 @@ import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.Orders
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -34,7 +33,7 @@ class CourseViewModel @Inject constructor(
 
     val openCourseEditor = SingleLiveData<String>()
     val openCourseSectionEditor = SingleLiveData<String>()
-    val courseName= MutableStateFlow("")
+    val courseName = MutableStateFlow("Empty")
     val showContents: MutableLiveData<MutableList<DomainModel>> = MutableLiveData()
     private val findCourseFlow = findCourseUseCase(courseId)
 
@@ -47,10 +46,6 @@ class CourseViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             findCourseContentUseCase(courseId).collect {
-//                it.filterIsInstance<CourseContent>()
-//                    .forEach {
-//                        Log.d("lol", "get contents: ${it.name} ${it.order}")
-//                    }
                 showContents.value = it.toMutableList()
             }
         }

@@ -11,7 +11,7 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.Closeable
@@ -25,8 +25,9 @@ import kotlin.math.max
 
 class GoogleAppVersionService @Inject constructor(
     context: Context,
+    private val coroutineScope: CoroutineScope,
+    private val appPreference: AppPreference,
     private val timestampPreference: TimestampPreference,
-    private val appPreference: AppPreference
 ) : AppVersionService(), Closeable {
 
     private val appUpdateManager = AppUpdateManagerFactory.create(context)
@@ -109,13 +110,16 @@ class GoogleAppVersionService @Inject constructor(
     private fun logVersions() {
         val currentBuildVersion = BuildConfig.VERSION_CODE
 
-        GlobalScope.launch {
+        coroutineScope.launch {
             Log.d("lol", "current version code: $currentBuildVersion")
-            if (!BuildConfig.DEBUG)
-                Log.d("lol", "latest version code: ${getLatestVersion()}")
+            val maxLatestVersion: Long = if (!BuildConfig.DEBUG) {
+                val latestVersion = getLatestVersion()
+                Log.d("lol", "latest version code: $latestVersion")
+                max(latestVersion, currentBuildVersion).toLong()
+            } else {
+                currentBuildVersion.toLong()
+            }
 
-            val latestVersion = getLatestVersion()
-            val maxLatestVersion = max(latestVersion, currentBuildVersion).toLong()
             if (maxLatestVersion > appPreference.latestVersion) {
                 appPreference.coursesLoadedFirstTime = false
                 timestampPreference.updateGroupCoursesTimestamp = 1

@@ -8,6 +8,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
 import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -24,6 +26,7 @@ import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
+import com.denchic45.kts.utils.collectWhenResumed
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.dpToPx
 import com.denchic45.kts.utils.toast
@@ -33,6 +36,9 @@ import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
     R.layout.fragment_course
@@ -137,15 +143,8 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
                 adapter.submit(it.toList())
             }
 
-            viewModel.courseName.collectWhenStarted(lifecycleScope) {
+            viewModel.courseName.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collectWhenStarted(lifecycleScope) {
                 collapsingToolbarLayout.title = it
-//                delay(1)
-//                collapsingToolbarLayout.updatePadding(
-//                    bottom = requireContext().dpToPx(32)
-//                            + (requireContext().dpToPx(16) * collapsingToolbarLayout.lineCount - 1)
-//                )
-
-                toast("${collapsingToolbarLayout.lineCount}")
             }
 
 
