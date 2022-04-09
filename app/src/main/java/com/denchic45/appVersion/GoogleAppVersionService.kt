@@ -65,8 +65,8 @@ class GoogleAppVersionService @Inject constructor(
             InstallStatus.INSTALLED -> {}
             InstallStatus.INSTALLING -> {}
             InstallStatus.PENDING -> {}
-            InstallStatus.REQUIRES_UI_INTENT -> {}
             InstallStatus.UNKNOWN -> {}
+            else -> throw IllegalStateException()
         }
     }
 
