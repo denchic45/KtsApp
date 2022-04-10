@@ -52,7 +52,7 @@ abstract class BaseActivity<VM : BaseViewModel, VB : ViewBinding>(
         }
 
         viewModel.toast.collectWhenStarted(lifecycleScope) {
-            this.toast(it)
+            toast(it)
             Log.d("lol", "showToast: $it")
         }
 
