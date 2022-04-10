@@ -17,10 +17,12 @@ import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorIn
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.login.groupChooser.GroupChooserInteractor
 import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.utils.updated
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -215,6 +217,12 @@ class TimetableLoaderViewModel @Inject constructor(
 
     fun onPreferenceItemCheck(position: Int, isChecked: Boolean) {
         viewModelScope.launch {
+            preferences.update {
+                it.updated(
+                    position,
+                    (it[position] as PreferenceSwitchItem).copy(checked = isChecked)
+                )
+            }
             enableEditMode.value = isChecked
             if (groupsTimetables.isNotEmpty())
                 postUpdatedTimetables()
