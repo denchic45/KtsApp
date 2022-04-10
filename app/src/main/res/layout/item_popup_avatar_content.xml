@@ -10,7 +10,8 @@
     android:paddingStart="16dp"
     android:paddingTop="8dp"
     android:paddingEnd="8dp"
-    android:paddingBottom="8dp">
+    android:paddingBottom="8dp"
+    tools:ignore="Overdraw">
 
     <androidx.constraintlayout.utils.widget.ImageFilterView
         android:id="@+id/iv_icon"
