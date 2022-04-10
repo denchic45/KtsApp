@@ -72,6 +72,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/cp_add_teacher"
+                android:layout_height="wrap_content"
                 style="@style/Widget.App.Chip"
                 android:layout_width="wrap_content"
                 android:text="Добавить"

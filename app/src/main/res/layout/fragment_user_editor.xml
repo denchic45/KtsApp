@@ -100,7 +100,8 @@
                     android:inputType="none"
                     android:id="@+id/et_gender"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    tools:ignore="LabelFor" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
@@ -122,7 +123,8 @@
                         android:id="@+id/et_role"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:inputType="none" />
+                        android:inputType="none"
+                        tools:ignore="LabelFor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
