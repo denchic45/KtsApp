@@ -1,6 +1,5 @@
 package com.denchic45.kts.uivalidator
 
-import org.jetbrains.annotations.Contract
 import java.util.function.Consumer
 
 class UIValidator {
