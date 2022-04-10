@@ -6,7 +6,7 @@
     android:layout_marginVertical="8dp"
     android:layout_height="96dp"
     android:gravity="center"
-    android:background="?attr/selectableItemBackgroundBorderless"
+    android:foreground="?attr/selectableItemBackgroundBorderless"
     android:orientation="vertical">
 
     <ImageView
