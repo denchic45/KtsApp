@@ -25,4 +25,4 @@ https://user-images.githubusercontent.com/80104523/162588357-fce7beec-d52b-486e-
  - [ ] Журнал посещаемости
  - [ ] Интеграции с Moodle
 ##  📎 Дополнительная информация
-Скачать [презентацию](https://drive.google.com/uc?export=download&id=1XZ6MTSAxnlvBsxXPOkS-sQ8RLjv0A4_A)
+Скачать [презентацию](https://drive.google.com/uc?export=download&id=16kr_hRoYAuFDfL-ZwHoQSUkxX2AaSTOy)
