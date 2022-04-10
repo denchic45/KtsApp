@@ -1,8 +1,6 @@
 package com.denchic45.kts.ui.adapter
 
 import android.annotation.SuppressLint
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.drawable.PictureDrawable
 import android.os.Handler
 import android.os.Looper
@@ -21,13 +19,7 @@ import androidx.transition.Transition
 import androidx.transition.TransitionManager
 import androidx.transition.TransitionSet
 import androidx.viewbinding.ViewBinding
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.target.Target
 import com.denchic45.kts.LessonTimeCalculator
 import com.denchic45.kts.R
 import com.denchic45.kts.SvgColorListener
@@ -36,12 +28,11 @@ import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.databinding.*
 import com.denchic45.kts.glideSvg.GlideApp
-import com.denchic45.kts.glideSvg.SvgSoftwareLayerSetter
 import com.denchic45.kts.ui.adapter.EventAdapter.OnCreateLessonClickListener
 import com.denchic45.kts.ui.adapter.EventAdapter.OnEditEventItemClickListener
-import com.denchic45.kts.utils.*
+import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.transition.Elevation
-import com.denchic45.widget.transition.Rotation
 import java.time.LocalDate
 
 class EventAdapter(
@@ -415,7 +406,7 @@ class EventAdapter(
     ) :
         BaseViewHolder<ListItem, ItemIconContentBinding>(itemLessonCreateBinding) {
         override fun onBind(item: ListItem) {
-            itemView.setOnClickListener { v: View? ->
+            itemView.setOnClickListener {
                 listener.onLessonCreateClick(
                     (item.content as LocalDate).dayOfWeek.value - 1
                 )

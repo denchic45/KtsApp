@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.core.os.bundleOf
-import androidx.core.view.updatePadding
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -26,19 +25,12 @@ import com.denchic45.kts.ui.course.content.ContentFragment
 import com.denchic45.kts.ui.course.sections.CourseSectionEditorFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
-import com.denchic45.kts.utils.collectWhenResumed
 import com.denchic45.kts.utils.collectWhenStarted
-import com.denchic45.kts.utils.dpToPx
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
     R.layout.fragment_course
@@ -143,9 +135,10 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
                 adapter.submit(it.toList())
             }
 
-            viewModel.courseName.flowWithLifecycle(lifecycle,Lifecycle.State.STARTED).collectWhenStarted(lifecycleScope) {
-                collapsingToolbarLayout.title = it
-            }
+            viewModel.courseName.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collectWhenStarted(lifecycleScope) {
+                    collapsingToolbarLayout.title = it
+                }
 
 
             viewModel.fabVisibility.observe(viewLifecycleOwner) {

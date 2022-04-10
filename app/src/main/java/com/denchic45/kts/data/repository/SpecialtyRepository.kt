@@ -12,16 +12,15 @@ import com.denchic45.kts.data.model.firestore.SpecialtyDoc
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.utils.SearchKeysGenerator
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.util.*
 import javax.inject.Inject
 
 class SpecialtyRepository @Inject constructor(
@@ -44,23 +43,6 @@ class SpecialtyRepository @Inject constructor(
                 specialtyMapper.docToDomain(docs)
             }
     }
-
-//    fun findByTypedName(name: String): Flow<List<Specialty>> = callbackFlow {
-//        addListenerRegistration("name") {
-//            specialtyRef
-//                .whereArrayContains("searchKeys", name.lowercase(Locale.getDefault()))
-//                .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-//                    val specialties = value!!.toObjects(
-//                        Specialty::class.java
-//                    )
-//                    launch {
-//                        specialtyDao.upsert(specialtyMapper.domainToEntity(specialties))
-//                        trySend(specialties)
-//                    }
-//                }
-//        }
-//        awaitClose { }
-//    }
 
     private val groupsRef: CollectionReference = firestore.collection("Groups")
     private val specialtyRef: CollectionReference = firestore.collection("Specialties")

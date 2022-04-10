@@ -10,7 +10,6 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
@@ -84,7 +83,6 @@ class ProfileViewModel @Inject constructor(
                     showAvatar.value = user.photoUrl
                     showFullName.value = user.fullName
                     showRole.value = mapRoleToNameRoleId(user.role)
-//                    showPhoneNum.value = user.phoneNum
                     showEmail.value = user.email
                     if (user.isStudent) {
                         viewModelScope.launch {

@@ -24,7 +24,6 @@ import com.denchic45.kts.ui.timetable.TimetableFragment
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.utils.collectWhenResumed
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import kotlinx.coroutines.flow.collect
 
 class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(
     R.layout.fragment_group,

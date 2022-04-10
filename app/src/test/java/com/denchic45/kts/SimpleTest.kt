@@ -1,8 +1,7 @@
 package com.denchic45.kts
 
-import com.google.firebase.FirebaseException
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 

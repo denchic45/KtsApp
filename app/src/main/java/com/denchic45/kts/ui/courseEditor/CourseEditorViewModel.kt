@@ -20,7 +20,6 @@ import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

@@ -1,6 +1,5 @@
 package com.denchic45.kts.data.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import com.denchic45.kts.data.model.room.SpecialtyEntity

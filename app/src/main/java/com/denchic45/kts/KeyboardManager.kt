@@ -1,7 +1,6 @@
 package com.denchic45.kts
 
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.view.inputmethod.InputMethodManager
@@ -49,9 +48,5 @@ class KeyboardManager {
         if (mOnGlobalLayoutListener != null) {
             mContentView!!.viewTreeObserver.removeOnGlobalLayoutListener(mOnGlobalLayoutListener)
         }
-    }
-
-    companion object {
-        private val TAG = KeyboardManager::class.java.simpleName
     }
 }

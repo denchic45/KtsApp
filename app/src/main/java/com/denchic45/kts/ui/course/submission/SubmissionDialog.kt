@@ -34,7 +34,6 @@ import com.jakewharton.rxbinding4.widget.textChanges
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
-import kotlinx.coroutines.flow.collect
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 

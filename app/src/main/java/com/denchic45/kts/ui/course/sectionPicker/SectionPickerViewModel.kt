@@ -7,7 +7,6 @@ import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.domain.usecase.FindCourseSectionsUseCase
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject

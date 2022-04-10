@@ -1,11 +1,11 @@
 package com.denchic45.kts.ui.adminPanel.finder
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
 import com.denchic45.kts.data.repository.*
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class FinderInteractor @Inject constructor(

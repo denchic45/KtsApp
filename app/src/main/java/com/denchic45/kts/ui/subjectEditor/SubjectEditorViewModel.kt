@@ -19,7 +19,6 @@ import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.colors
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.stream.IntStream
 import javax.inject.Inject

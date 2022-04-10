@@ -12,7 +12,6 @@ import com.denchic45.kts.di.modules.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -103,5 +102,4 @@ class MainInteractor @Inject constructor(
             else -> emptyFlow()
         }
     }
-
 }

@@ -16,7 +16,6 @@ import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.DatePatterns
 import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.toString
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -96,11 +95,21 @@ class EventEditorViewModel @Inject constructor(
             R.id.option_duplicate_event -> {
                 viewModelScope.launch {
                     if (uiValidator.runValidates()) {
-                        interactor.postEvent {
-                            it.add(
-                                uiEditor.item.copy(id = UUIDS.createShort()),
-                                interactor.oldEvent.value!!.order
-                            )
+                        interactor.postEvent { eventsOfDay ->
+                            if (interactor.isNew) {
+                                eventsOfDay
+                                    .add(uiEditor.item)
+                                    .add(uiEditor.item)
+                            } else {
+                                eventsOfDay.update(
+                                    uiEditor.item.copy(),
+                                    interactor.oldEvent.value!!.order
+                                )
+                                    .add(
+                                        uiEditor.item.copy(id = UUIDS.createShort()),
+                                        interactor.oldEvent.value!!.order + 1
+                                    )
+                            }
                         }
                         finish()
                     }

@@ -1,14 +1,12 @@
 package com.denchic45.kts.glideSvg
 
 import android.content.Context
-import com.bumptech.glide.module.AppGlideModule
-import com.bumptech.glide.Glide
-import com.caverock.androidsvg.SVG
 import android.graphics.drawable.PictureDrawable
+import com.bumptech.glide.Glide
 import com.bumptech.glide.Registry
 import com.bumptech.glide.annotation.GlideModule
-import com.denchic45.kts.glideSvg.SvgDrawableTranscoder
-import com.denchic45.kts.glideSvg.SvgDecoder
+import com.bumptech.glide.module.AppGlideModule
+import com.caverock.androidsvg.SVG
 import java.io.InputStream
 
 @GlideModule

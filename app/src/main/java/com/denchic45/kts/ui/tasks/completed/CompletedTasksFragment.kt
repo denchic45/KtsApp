@@ -10,7 +10,6 @@ import com.denchic45.kts.databinding.FragmentListBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.TaskAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
-import kotlinx.coroutines.flow.collect
 
 class CompletedTasksFragment :
     BaseFragment<CompletedTasksViewModel, FragmentListBinding>(

@@ -26,7 +26,6 @@ import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorAc
 import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.lessonsOfDay.EventsFragment
 import com.denchic45.kts.utils.FilePicker
 import com.denchic45.kts.utils.collectWhenStarted
-import com.denchic45.kts.utils.toast
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.extension.check
 import com.google.android.material.datepicker.CalendarConstraints
@@ -34,7 +33,6 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.flow.collect
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
@@ -93,7 +91,6 @@ class TimetableLoaderFragment :
             })
             preferenceAdapter = preferenceAdapter {
                 onClick(viewModel::onPreferenceItemClick)
-
                 extensions {
                     check<PreferenceSwitchAdapterDelegate.PreferenceSwitchItemHolder>(
                         view = { it.binding.sw },
@@ -154,7 +151,6 @@ class TimetableLoaderFragment :
 
             lifecycleScope.launchWhenStarted {
                 viewModel.tabs.collect { groupNames ->
-                    toast("tabs ${groupNames.size}")
                     TabLayoutMediator(
                         tlTimetableGroup,
                         vpTimetablePreview

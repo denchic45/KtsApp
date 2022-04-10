@@ -7,6 +7,7 @@ import android.text.TextPaint
 import org.jetbrains.annotations.Contract
 import java.io.ByteArrayOutputStream
 import java.util.*
+import kotlin.math.sqrt
 
 class AvatarGenerator(private val context: Context) {
     private var rect: Rect? = null
@@ -47,7 +48,7 @@ class AvatarGenerator(private val context: Context) {
     private fun createTextPainter(font: Typeface?, canvas: Canvas): TextPaint {
         val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
         textPaint.isAntiAlias = true
-        val relation = Math.sqrt((canvas.width * canvas.height).toDouble()) / 250
+        val relation = sqrt((canvas.width * canvas.height).toDouble()) / 250
         textPaint.textSize = (126 * relation).toFloat()
         textPaint.textAlign = Paint.Align.CENTER
         textPaint.color = Color.WHITE

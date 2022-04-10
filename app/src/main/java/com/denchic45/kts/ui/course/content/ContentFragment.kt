@@ -18,7 +18,6 @@ import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
 import com.denchic45.kts.utils.setActivityTitle
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 class ContentFragment :

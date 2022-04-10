@@ -1,6 +1,5 @@
 package com.denchic45.kts.uivalidator.validatorlistener
 
-import androidx.lifecycle.MutableLiveData
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.uivalidator.Rule
 

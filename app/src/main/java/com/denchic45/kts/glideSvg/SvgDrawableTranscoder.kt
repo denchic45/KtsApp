@@ -7,9 +7,6 @@ import com.bumptech.glide.load.resource.SimpleResource
 import com.bumptech.glide.load.resource.transcode.ResourceTranscoder
 import com.caverock.androidsvg.SVG
 
-/**
- * Convert the [SVG]'s internal representation to an Android-compatible one ([Picture]).
- */
 class SvgDrawableTranscoder : ResourceTranscoder<SVG, PictureDrawable> {
     override fun transcode(
         toTranscode: Resource<SVG>, options: Options

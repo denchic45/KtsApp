@@ -17,9 +17,7 @@ import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -47,23 +45,6 @@ class TeacherRepository @Inject constructor(
             .whereEqualTo("teacher", true)
             .getDataFlow { userMapper.docToDomain(it.toObjects(UserDoc::class.java)) }
     }
-
-//    fun findByTypedName(teacherName: String): Flow<List<User>> = callbackFlow {
-//        requireNetworkAvailable()
-//        usersRef.whereArrayContains(
-//            "searchKeys",
-//            SearchKeysGenerator.formatInput(teacherName)
-//        )
-//            .whereEqualTo("teacher", true)
-//            .get()
-//            .addOnSuccessListener { snapshots: QuerySnapshot ->
-//                trySend(
-//                    snapshots.toObjects(User::class.java)
-//                )
-//            }
-//            .addOnFailureListener(this::close)
-//        awaitClose { }
-//    }
 
     suspend fun add(teacher: User): User {
         batch = firestore.batch()

@@ -66,7 +66,6 @@ class LessonEditorViewModel @Inject constructor(
     }
 
     fun onAddTeacherItemClick() {
-
         viewModelScope.launch {
             openChoiceOfTeacher.call()
             teacherChooserInteractor.receiveSelectTeacher().apply {
@@ -74,7 +73,6 @@ class LessonEditorViewModel @Inject constructor(
                     teachersField.value?.let { it.add(this); it } ?: mutableListOf(this)
             }
         }
-
     }
 
     fun onRemoveTeacherItemClick(position: Int) {

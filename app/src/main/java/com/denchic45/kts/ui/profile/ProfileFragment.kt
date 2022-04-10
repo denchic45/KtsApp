@@ -8,7 +8,6 @@ import android.view.View
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.viewModels
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.navArgs
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
@@ -22,7 +21,6 @@ import com.denchic45.kts.databinding.FragmentProfileBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.HasNavArgs
 import com.denchic45.kts.ui.avatar.FullImageActivity
-import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import java.io.ByteArrayOutputStream
@@ -103,10 +101,6 @@ class ProfileFragment :
             viewModel.showGroupInfo.observe(
                 viewLifecycleOwner
             ) { s -> tvGroupInfo.text = s }
-
-//            viewModel.showPhoneNum.observe(
-//                viewLifecycleOwner
-//            ) { s -> tvPhoneNum.text = s }
 
             viewModel.showEmail.observe(viewLifecycleOwner) { s: String? -> tvEmail.text = s }
             viewModel.infoVisibility.observe(

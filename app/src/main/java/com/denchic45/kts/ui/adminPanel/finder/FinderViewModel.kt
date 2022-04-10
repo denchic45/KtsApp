@@ -18,7 +18,6 @@ import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject

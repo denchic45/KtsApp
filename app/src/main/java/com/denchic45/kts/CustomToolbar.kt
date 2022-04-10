@@ -4,12 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
-import com.denchic45.kts.R
-import android.widget.TextView
-import android.graphics.Typeface
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 
@@ -80,7 +78,7 @@ class CustomToolbar : Toolbar {
     }
 
     private val screenSize: Point
-        private get() {
+        get() {
             val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
             val display = wm.defaultDisplay
             val screenSize = Point()

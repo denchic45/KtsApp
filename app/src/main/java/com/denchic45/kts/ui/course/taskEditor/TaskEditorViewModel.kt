@@ -17,7 +17,6 @@ import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
 import com.denchic45.kts.utils.UUIDS
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -152,7 +151,7 @@ class TaskEditorViewModel @Inject constructor(
     )
 
     init {
-
+        setTitle("")
         if (uiEditor.isNew) {
             setupForNew()
         } else setupForExist()

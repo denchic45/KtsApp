@@ -27,6 +27,7 @@ import com.denchic45.kts.databinding.FragmentLessonEditorBinding
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.utils.dpToPx
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 
@@ -116,8 +117,7 @@ class LessonEditorFragment :
         chip.chipStrokeColor =
             ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.white_gray))
         chip.chipStrokeWidth = Dimensions.dpToPx(1, requireContext()).toFloat()
-        //        chip.setHeight(dpToPx(44, requireContext()));
-//        chip.setChipIconSize(dpToPx(44, requireContext()));
+        chip.height = requireContext().dpToPx(32)
         chip.ellipsize = TextUtils.TruncateAt.END
         Glide.with(requireActivity())
             .load(teacher.photoUrl)

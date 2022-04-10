@@ -9,7 +9,6 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.ui.adapter.ItemAdapter
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.uipermissions.Permission

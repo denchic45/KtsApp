@@ -32,7 +32,6 @@ import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.jakewharton.rxbinding4.widget.textChanges
-import kotlinx.coroutines.flow.collect
 
 class TaskInfoFragment :
     BaseFragment<TaskInfoViewModel, FragmentTaskInfoBinding>(R.layout.fragment_task_info) {

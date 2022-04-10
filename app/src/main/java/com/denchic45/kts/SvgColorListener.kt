@@ -1,8 +1,6 @@
 package com.denchic45.kts
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.graphics.drawable.PictureDrawable
 import android.widget.ImageView
 import com.bumptech.glide.load.DataSource
@@ -10,7 +8,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.denchic45.kts.glideSvg.SvgSoftwareLayerSetter
 import com.denchic45.kts.utils.ViewUtils
-import com.denchic45.kts.utils.colors
 import com.denchic45.kts.utils.paintColor
 
 class SvgColorListener(

@@ -20,7 +20,6 @@ import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.click
-import kotlinx.coroutines.flow.collect
 
 class SubmissionsFragment :
     BaseFragment<SubmissionsViewModel, FragmentSubmissionsBinding>(R.layout.fragment_submissions) {
