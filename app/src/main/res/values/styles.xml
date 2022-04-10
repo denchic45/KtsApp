@@ -139,7 +139,6 @@
 
     <style name="Widget.App.Chip" parent="Widget.MaterialComponents.Chip.Action">
         <item name="chipBackgroundColor">@android:color/transparent</item>
-        <item name="android:layout_height">44dp</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="chipIconSize">20dp</item>
         <item name="chipStrokeWidth">1dp</item>
