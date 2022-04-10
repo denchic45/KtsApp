@@ -3,7 +3,6 @@ package com.denchic45.kts.data.model.mapper
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.room.UserEntity
-import com.denchic45.kts.utils.SearchKeysGenerator
 import org.mapstruct.Mapper
 
 @Mapper
@@ -17,10 +16,6 @@ abstract class UserMapper {
     abstract fun domainToDoc(domain: User): UserDoc
 
     abstract fun entityToDoc(entity: UserEntity): UserDoc
-    fun addSearchKeys(fullName: String): List<String> {
-        val generator = SearchKeysGenerator()
-        return generator.generateKeys(fullName) { predicate: String -> predicate.length > 2 }
-    }
 
     abstract fun docToEntity(user: UserDoc): UserEntity
     abstract fun docToEntity(users: List<UserDoc>): List<UserEntity>

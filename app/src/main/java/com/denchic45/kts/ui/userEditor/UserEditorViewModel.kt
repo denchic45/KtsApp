@@ -23,7 +23,6 @@ import com.denchic45.kts.utils.UUIDS
 import com.denchic45.kts.utils.Validations
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.util.*
@@ -156,7 +155,6 @@ open class UserEditorViewModel @Inject constructor(
                 fieldPatronymic.value,
                 groupId,
                 role,
-//                PhoneNumberUtils.normalizeNumber(fieldPhoneNum.value),
                 fieldEmail.value,
                 "",
                 Date(),
@@ -233,7 +231,7 @@ open class UserEditorViewModel @Inject constructor(
             User.CLASS_MONITOR -> R.string.role_classMonitor
             User.TEACHER -> R.string.role_teacher
             User.HEAD_TEACHER -> R.string.role_headTeacher
-            else -> throw IllegalStateException("Unknow role: $role")
+            else -> throw IllegalStateException("Unknown role: $role")
         }
     }
 
