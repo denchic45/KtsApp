@@ -58,7 +58,7 @@ class TimetableFinderViewModel @Inject constructor(
         combine(_eventsOfDay, editEventsMode)
         { eventsOfDay, enableEditMode ->
             if (enableEditMode)
-                EventsOfDayState.Edit(eventsOfDay.events)
+                EventsOfDayState.Edit(eventsOfDay.events, eventsOfDay.date)
             else {
                 EventsOfDayState.Current(eventsOfDay.events)
             }
@@ -221,13 +221,14 @@ class TimetableFinderViewModel @Inject constructor(
         data class Current(override val events: List<Event>) :
             EventsOfDayState()
 
-        data class Edit(private var editingEvents: List<Event>) :
+        data class Edit(private var editingEvents: List<Event>,val date: LocalDate) :
             EventsOfDayState() {
 
             override val events: List<DomainModel> = editingEvents + ListItem(
                 id = "",
                 title = "",
-                type = EventAdapter.TYPE_CREATE
+                type = EventAdapter.TYPE_CREATE,
+                content = date
             )
         }
     }
