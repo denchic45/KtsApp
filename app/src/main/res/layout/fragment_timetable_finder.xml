@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.adminPanel.timetableEditor.finder.TimetableFinderFragment">
 
-    <com.example.searchbar.SearchBar
+    <com.denchic45.sample.SearchBar
         android:id="@+id/search_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

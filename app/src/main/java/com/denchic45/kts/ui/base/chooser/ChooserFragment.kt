@@ -12,12 +12,12 @@ import com.denchic45.kts.databinding.FragmentChooserBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.sample.SearchBar
 import com.denchic45.widget.ListStateLayout
 import com.denchic45.widget.extendedAdapter.AdapterDelegate
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.adapter
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import com.example.searchbar.SearchBar
 
 abstract class ChooserFragment<VM : ChooserViewModel<out DomainModel>> :
     BaseFragment<VM, FragmentChooserBinding>(R.layout.fragment_chooser) {
@@ -68,7 +68,7 @@ abstract class ChooserFragment<VM : ChooserViewModel<out DomainModel>> :
                         adapter.submit(resource.data)
                     }
                     is Resource.Error -> {
-                        when(resource.error) {
+                        when (resource.error) {
                             is NetworkException -> {
                                 lsl.showView(ListStateLayout.NETWORK_VIEW)
                             }

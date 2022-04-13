@@ -23,9 +23,9 @@ import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
 import com.denchic45.kts.utils.*
+import com.denchic45.sample.SearchBar
 import com.denchic45.widget.ListStateLayout
 import com.example.appbarcontroller.appbarcontroller.AppBarController
-import com.example.searchbar.SearchBar
 import com.google.android.material.appbar.AppBarLayout
 import kotlinx.coroutines.flow.drop
 

@@ -22,9 +22,9 @@ import com.denchic45.kts.ui.base.PrimaryActionModeCallback
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.closeKeyboard
 import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.sample.SearchBar
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.model.WeekItem
-import com.example.searchbar.SearchBar
 import java.time.LocalDate
 
 class TimetableFinderFragment :
@@ -97,12 +97,12 @@ class TimetableFinderFragment :
             }
 
             searchBar.setOnQueryTextListener(object : SearchBar.OnQueryTextListener() {
-                override fun onQueryTextChange(groupName: String) {
-                    viewModel.onGroupNameType(groupName)
+                override fun onQueryTextChange(newText: String) {
+                    viewModel.onGroupNameType(newText)
                 }
 
-                override fun onQueryTextSubmit(groupName: String) {
-                    viewModel.onGroupNameType(groupName)
+                override fun onQueryTextSubmit(query: String) {
+                    viewModel.onGroupNameType(query)
                 }
             })
 
