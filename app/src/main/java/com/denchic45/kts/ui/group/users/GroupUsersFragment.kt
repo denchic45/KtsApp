@@ -14,10 +14,13 @@ import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.databinding.FragmentGroupUsersBinding
 import com.denchic45.kts.ui.BaseFragment
-import com.denchic45.kts.ui.adapter.UserAdapter
+import com.denchic45.kts.ui.adapter.HeaderAdapterDelegate
+import com.denchic45.kts.ui.adapter.UserAdapterDelegate
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.ViewUtils
 import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.widget.extendedAdapter.adapter
+import com.denchic45.widget.extendedAdapter.extension.click
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class GroupUsersFragment :
@@ -42,8 +45,18 @@ class GroupUsersFragment :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val userAdapter = UserAdapter({ position -> viewModel.onUserItemClick(position) },
-            { position -> viewModel.onUserItemLongClick(position) })
+        val userAdapter = adapter {
+            delegates(HeaderAdapterDelegate(), UserAdapterDelegate())
+            extensions {
+                click<UserAdapterDelegate.UserHolder>(
+                    onClick = {position -> viewModel.onUserItemClick(position) },
+                    onLongClick = { position ->
+                        viewModel.onUserItemLongClick(position)
+                        true
+                    }
+                )
+            }
+        }
 
         with(binding) {
             rvUsers.adapter = userAdapter
@@ -64,9 +77,7 @@ class GroupUsersFragment :
             }
         }
 
-        viewModel.users.collectWhenStarted(lifecycleScope) {
-            userAdapter.submitList(it)
-        }
+        viewModel.members.collectWhenStarted(lifecycleScope, userAdapter::submit)
 
         viewModel.openUserEditor.observe(
             viewLifecycleOwner
