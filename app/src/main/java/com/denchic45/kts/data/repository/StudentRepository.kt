@@ -48,7 +48,7 @@ class StudentRepository @Inject constructor(
             batch[userRef.document(student.id)] = studentDoc
         }
         if (changeGroup(student, cacheStudent)) {
-            deleteStudentFromGroup(studentDoc, cacheStudent.groupId!!, batch)
+            deleteStudentFromGroup(studentDoc.id, cacheStudent.groupId!!, batch)
         }
         updateStudentFromGroup(studentDoc, student.groupId!!, batch)
         batch.commit().await()
@@ -57,7 +57,6 @@ class StudentRepository @Inject constructor(
     private fun changePersonalData(student: User, cacheStudent: User): Boolean {
         return student.fullName != cacheStudent.fullName || student.gender != cacheStudent.gender ||
                 student.firstName != cacheStudent.firstName ||
-//                student.phoneNum != cacheStudent.phoneNum ||
                 student.email != cacheStudent.email ||
                 student.photoUrl != cacheStudent.photoUrl || student.admin != cacheStudent.admin ||
                 student.role != cacheStudent.role
@@ -67,14 +66,17 @@ class StudentRepository @Inject constructor(
         return student.groupId != cacheStudent.groupId
     }
 
-    suspend fun remove(student: User) {
+    suspend fun remove(studentId: String) {
         requireAllowWriteData()
         val batch = firestore.batch()
-        val studentDoc = userMapper.domainToDoc(student)
-        batch.delete(userRef.document(student.id))
-        deleteStudentFromGroup(studentDoc, student.groupId!!, batch)
+        batch.delete(userRef.document(studentId))
+        deleteStudentFromGroup(studentId, getGroupIdByStudentId(studentId), batch)
         batch.commit().await()
-        deleteAvatar(student.id)
+        deleteAvatar(studentId)
+    }
+
+    private suspend fun getGroupIdByStudentId(studentId: String): String {
+        return userDao.getGroupId(studentId)
     }
 
     private suspend fun deleteAvatar(userId: String) {
@@ -89,9 +91,9 @@ class StudentRepository @Inject constructor(
         batch.update(groupRef.document(groupId), updateGroupMap)
     }
 
-    private fun deleteStudentFromGroup(studentDoc: UserDoc, groupId: String, batch: WriteBatch) {
+    private fun deleteStudentFromGroup(studentId: String, groupId: String, batch: WriteBatch) {
         val updateGroupMap: MutableMap<String, Any> = HashMap()
-        updateGroupMap["students." + studentDoc.id] = FieldValue.delete()
+        updateGroupMap["students.$studentId"] = FieldValue.delete()
         updateGroupMap["timestamp"] = FieldValue.serverTimestamp()
         batch.update(groupRef.document(groupId), updateGroupMap)
     }
