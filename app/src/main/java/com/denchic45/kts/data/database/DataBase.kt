@@ -22,11 +22,8 @@ import com.denchic45.kts.data.model.room.*
         SubmissionCommentEntity::class,
         SubmissionEntity::class
     ],
-    autoMigrations = [
-//        AutoMigration(from = 1, to = 2, spec = RemovePhoneNumMigration::class),
-//        AutoMigration(from = 2, to = 3)
-    ],
-    version = 3,
+    autoMigrations = [],
+    version = 4,
     exportSchema = true
 )
 abstract class DataBase : RoomDatabase() {
