@@ -4,11 +4,11 @@ import com.denchic45.kts.data.model.DomainModel
 
 data class Course(
     override var id: String,
-    var name: String,
-    var subject: Subject,
-    var teacher: User,
-    var groupHeaders: List<GroupHeader>,
-) : DomainModel() {
+    val name: String,
+    val subject: Subject,
+    val teacher: User,
+    val groupHeaders: List<GroupHeader>,
+) : DomainModel {
 
     companion object {
         fun createEmpty() = Course()
@@ -19,7 +19,7 @@ data class Course(
 
 data class CourseHeader(
     override var id: String,
-    var name: String,
-    var subject: Subject,
-    var teacher: User
-): DomainModel()
+    val name: String,
+    val subject: Subject,
+    val teacher: User
+): DomainModel

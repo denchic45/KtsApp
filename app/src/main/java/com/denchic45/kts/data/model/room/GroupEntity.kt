@@ -11,15 +11,17 @@ import java.util.*
 class GroupEntity(
     @PrimaryKey
     @ColumnInfo(name = "group_id")
-    var id: String,
+    val id: String,
     @ColumnInfo(name = "group_name")
-    var name: String,
+    val name: String,
     @ColumnInfo(name = "curator_id")
-    var curatorId: String,
-    var course: Int = 0,
+    val curatorId: String,
+    val course: Int = 0,
     @ColumnInfo(name = "specialty_id")
-    var specialtyId: String,
+    val specialtyId: String,
+    @ColumnInfo(name = "headman_id")
+    val headmanId: String?,
     @ColumnInfo(name = "group_timestamp")
     @field:TypeConverters(TimestampConverter::class)
-    var timestamp: Date
+    val timestamp: Date
 ) : EntityModel

@@ -8,21 +8,20 @@ import java.util.*
 data class UserEntity(
     @PrimaryKey
     @ColumnInfo(name = "user_id")
-    var id: String,
-    var firstName: String,
-    var surname: String,
+    val id: String,
+    val firstName: String,
+    val surname: String,
     @ColumnInfo(name = "user_group_id")
-    var groupId: String? = null,
-    var role: String,
-//    var phoneNum: String?,
-    var email: String? = null,
-    var photoUrl: String,
-    var gender: Int = 0,
-    var admin: Boolean = false,
-    var patronymic: String? = null,
-    var generatedAvatar: Boolean = false,
+    val groupId: String? = null,
+    val role: String,
+    val email: String? = null,
+    val photoUrl: String,
+    val gender: Int = 0,
+    val admin: Boolean = false,
+    val patronymic: String? = null,
+    val generatedAvatar: Boolean = false,
     @ColumnInfo(name = "user_timestamp")
-    @field:TypeConverters(TimestampConverter::class) var timestamp: Date
+    @field:TypeConverters(TimestampConverter::class) val timestamp: Date
 ) : EntityModel {
 
     @get:Ignore
