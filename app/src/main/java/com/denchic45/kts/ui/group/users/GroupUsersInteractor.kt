@@ -17,14 +17,6 @@ class GroupUsersInteractor @Inject constructor(
     val yourGroupId: String
         get() = groupRepository.yourGroupId
 
-    fun getUsersByGroupId(groupId: String): Flow<List<User>> {
-        return userRepository.findByGroupId(groupId)
-    }
-
-    suspend fun removeStudent(student: User) {
-        studentRepository.remove(student)
-    }
-
     suspend fun updateGroupCurator(groupId: String, teacherId: User) {
         groupRepository.updateGroupCurator(groupId, teacherId)
     }
@@ -33,10 +25,6 @@ class GroupUsersInteractor @Inject constructor(
         studentRepository.removeListeners()
         userRepository.removeListeners()
         groupRepository.removeListeners()
-    }
-
-    fun getCurator(groupId: String): Flow<User?> {
-        return groupRepository.findCurator(groupId)
     }
 
     fun findThisUser(): User {

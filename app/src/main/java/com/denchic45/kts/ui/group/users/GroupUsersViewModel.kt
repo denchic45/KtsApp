@@ -5,22 +5,33 @@ import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.model.domain.GroupMember
+import com.denchic45.kts.data.model.domain.GroupMembers
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.ui.adapter.ItemAdapter
+import com.denchic45.kts.data.model.ui.Header
+import com.denchic45.kts.data.model.ui.UserItem
+import com.denchic45.kts.domain.usecase.FindGroupMembersUseCase
+import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
+import com.denchic45.kts.domain.usecase.RemoveStudentUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
 class GroupUsersViewModel @Inject constructor(
     private val interactor: GroupUsersInteractor,
+    findSelfUserUseCase: FindSelfUserUseCase,
+    findGroupMembersUseCase: FindGroupMembersUseCase,
+    private val removeStudentUseCase: RemoveStudentUseCase,
     private val teacherChooserInteractor: TeacherChooserInteractor,
     @Named("options_user") private val userOptions: List<ListItem>,
     @Named(GroupUsersFragment.GROUP_ID) groupId: String?
@@ -30,28 +41,25 @@ class GroupUsersViewModel @Inject constructor(
 
     val openUserEditor = SingleLiveData<Map<String, String>>()
 
-    private val uiPermissions: UiPermissions = UiPermissions(interactor.findThisUser())
+    private val uiPermissions: UiPermissions = UiPermissions(findSelfUserUseCase())
 
     private var groupId: String = groupId ?: interactor.yourGroupId
 
-    val users: StateFlow<List<DomainModel>> = interactor.getUsersByGroupId(this.groupId)
-        .combine(interactor.getCurator(this.groupId).filterNotNull()) { students, curator ->
-            this.students = students
-            val userList: MutableList<DomainModel> = ArrayList(students)
-            userList.add(0, curator)
-            userList.add(
-                0,
-                ListItem(id = "", title = "Куратор", type = ItemAdapter.TYPE_HEADER)
-            )
-            userList.add(
-                2,
-                ListItem(id = "", title = "Студенты", type = ItemAdapter.TYPE_HEADER)
-            )
-            userList
+    val members: StateFlow<List<DomainModel>> =
+        findGroupMembersUseCase(this.groupId).map { groupMembers ->
+            mutableListOf<DomainModel>().apply {
+                add(Header("Куратор"))
+                add(groupMembers.curator.toUserItem(groupMembers))
+                add(Header("Студенты"))
+                addAll(
+                    groupMembers.students.map { student ->
+                        student.toUserItem(groupMembers)
+                    }
+                )
+            }
         }.stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
-    private lateinit var selectedUser: User
-    private var students: List<User> = emptyList()
+    private lateinit var selectedUserId: String
 
     init {
         uiPermissions.putPermissions(
@@ -62,14 +70,15 @@ class GroupUsersViewModel @Inject constructor(
 
     fun onUserItemLongClick(position: Int) {
         if (uiPermissions.isAllowed(ALLOW_EDIT_USERS)) {
-            val user = users.value[position] as User
             showUserOptions.value = position to userOptions
-            selectedUser = user
+            viewModelScope.launch {
+                selectedUserId = members.value[position].id
+            }
         }
     }
 
     fun onUserItemClick(position: Int) {
-        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(users.value[position].id))
+        navigateTo(MobileNavigationDirections.actionGlobalProfileFragment(members.value[position].id))
     }
 
     fun onOptionUserClick(optionId: String) {
@@ -78,14 +87,15 @@ class GroupUsersViewModel @Inject constructor(
             }
             OPTION_EDIT_USER -> {
                 val args: MutableMap<String, String> = HashMap()
-                args[UserEditorFragment.USER_ROLE] = selectedUser.role
-                args[UserEditorFragment.USER_ID] = selectedUser.id
-                args[UserEditorFragment.USER_GROUP_ID] = selectedUser.groupId!!
+//                args[UserEditorFragment.USER_ROLE] = selectedUser.role
+                args[UserEditorFragment.USER_ID] = selectedUserId
+//                args[UserEditorFragment.USER_GROUP_ID] = selectedUser.groupId!!
                 openUserEditor.setValue(args)
             }
             OPTION_DELETE_USER -> viewModelScope.launch {
                 try {
-                    interactor.removeStudent(selectedUser)
+                    removeStudentUseCase(selectedUserId)
+//                    interactor.removeStudent(selectedUser)
                 } catch (e: Exception) {
                     if (e is NetworkException) {
                         showToast(R.string.error_check_network)
@@ -122,4 +132,13 @@ class GroupUsersViewModel @Inject constructor(
         const val OPTION_DELETE_USER = "OPTION_DELETE_USER"
         const val OPTION_CHANGE_CURATOR = "OPTION_CHANGE_CURATOR"
     }
+}
+
+private fun GroupMember.toUserItem(groupMembers: GroupMembers): UserItem {
+    return UserItem(
+        id = id,
+        title = fullName,
+        photoUrl = photoUrl,
+        subtitle = if (groupMembers.isHeadman(this)) "Староста" else null
+    )
 }
