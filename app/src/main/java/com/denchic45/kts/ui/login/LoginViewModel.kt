@@ -1,6 +1,5 @@
 package com.denchic45.kts.ui.login
 
-import android.telephony.PhoneNumberUtils
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -30,13 +29,9 @@ class LoginViewModel @Inject constructor(
 
     val fabVisibility = MutableLiveData<Boolean>()
 
-    val verifyUser = MutableLiveData<String>()
-
     val showMailError = SingleLiveData<String?>()
 
     val showPasswordError = SingleLiveData<String?>()
-
-//    val openLoginByPhoneNum = SingleLiveData<Void>()
 
     val openLoginByMail = SingleLiveData<Void>()
 
@@ -45,33 +40,6 @@ class LoginViewModel @Inject constructor(
     val openResetPassword = SingleLiveData<Void>()
 
     private val addedProgress = Stack<Float>()
-
-    fun onGetCodeClick(phoneNum: String) {
-        val normalizeNumber = PhoneNumberUtils.normalizeNumber(phoneNum)
-        viewModelScope.launch {
-            try {
-                interactor.findUserByPhoneNum(normalizeNumber)
-
-                fabVisibility.value = false
-                incrementProgress(0.65f)
-                toolbarTitle = "Проверка"
-                openVerifyPhoneNum.call()
-                verifyUser.setValue(normalizeNumber)
-            } catch (t: Throwable) {
-                if (t is FirebaseNetworkException) {
-                    showToast(t.message!!)
-                } else {
-                    errorNum.setValue(t.message)
-                }
-            }
-        }
-    }
-
-//    fun onSmsClick() {
-//        incrementProgress(0.35f)
-//        fabVisibility.value = true
-//        openLoginByPhoneNum.call()
-//    }
 
     private fun incrementProgress(progress: Float) {
         addedProgress.push(showProgress.value)

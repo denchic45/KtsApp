@@ -27,7 +27,6 @@ class UserEditorInteractor @Inject constructor(
 
     private val avatarGenerator: AvatarGenerator.Builder = AvatarGenerator.Builder(context)
 
-
     private suspend fun loadAvatar(avatarBytes: ByteArray, id: String): String {
         return userRepository.loadAvatar(avatarBytes, id)
     }
@@ -79,10 +78,6 @@ class UserEditorInteractor @Inject constructor(
         return photoUrl
     }
 
-    suspend fun removeStudent(student: User) {
-        return studentRepository.remove(student)
-    }
-
     suspend fun removeTeacher(teacher: User) {
         return teacherRepository.remove(teacher)
     }
@@ -97,7 +92,7 @@ class UserEditorInteractor @Inject constructor(
     }
 
     fun signUpUser(email: String, password: String) {
-        authRepository.signUpNewUser(email, password)
+        authRepository.createNewUser(email, password)
     }
 
 }

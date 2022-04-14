@@ -4,7 +4,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import com.denchic45.avatarGenerator.AvatarGenerator
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.UiModel
 import com.denchic45.kts.data.model.domain.EitherMessage
 import com.denchic45.kts.data.model.domain.onId
 import com.denchic45.kts.data.model.domain.onString
@@ -225,4 +225,4 @@ class DividerItemHolder(itemNavDividerBinding: ItemNavDividerBinding) :
 
 data class DividerItem(override var id: String = "") : NavItem()
 
-abstract class NavItem : DomainModel()
+abstract class NavItem : UiModel

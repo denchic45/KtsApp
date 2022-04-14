@@ -12,6 +12,7 @@ import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
 import com.denchic45.kts.domain.usecase.FindGroupByContainsNameUseCase
 import com.denchic45.kts.domain.usecase.FindGroupNameUseCase
+import com.denchic45.kts.domain.usecase.RemoveStudentUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
 import com.denchic45.kts.uieditor.UIEditor
@@ -31,10 +32,11 @@ import javax.inject.Named
 
 open class UserEditorViewModel @Inject constructor(
     @Named("UserEditor ${UserEditorFragment.USER_ID}") userId: String?,
-    @Named(UserEditorFragment.USER_ROLE) role: String,
+    @Named(UserEditorFragment.USER_ROLE) role: String?,
     @Named(UserEditorFragment.USER_GROUP_ID) private var groupId: String?,
     @Named("genders") genderList: List<ListItem>,
     private val interactor: UserEditorInteractor,
+    private val removeStudentUseCase: RemoveStudentUseCase,
     private val confirmInteractor: ConfirmInteractor,
     private val findGroupByContainsNameUseCase: FindGroupByContainsNameUseCase,
     private val findGroupNameUseCase: FindGroupNameUseCase
@@ -51,8 +53,6 @@ open class UserEditorViewModel @Inject constructor(
     val fieldSurname = MutableStateFlow("")
 
     val fieldPatronymic = MutableStateFlow("")
-
-//    val fieldPhoneNum = MutableStateFlow("")
 
     val fieldEmail = MutableStateFlow("")
 
@@ -80,7 +80,7 @@ open class UserEditorViewModel @Inject constructor(
 
     //    var groupName: LiveData<String>? = null
     private var userId: String
-    private var role: String?
+    private var role: String
     private var gender = 0
     private var admin = false
     private var generatedAvatar = true
@@ -116,8 +116,8 @@ open class UserEditorViewModel @Inject constructor(
             ).sendMessageResult(R.id.til_role, fieldErrorMessage),
             Validation(Rule({
                 isTeacher(
-                    role!!
-                ) || isStudent(role!!) && !groupId.isNullOrEmpty()
+                    role
+                ) || isStudent(role) && !groupId.isNullOrEmpty()
             }, "Группа отсутствует"))
                 .sendMessageResult(R.id.til_group, fieldErrorMessage),
             Validation(
@@ -144,7 +144,7 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     init {
-        this.role = role
+        this.role = role ?: User.TEACHER
         this.userId = userId ?: UUIDS.createShort()
         this.genderList = genderList
         uiEditor = UIEditor(userId == null) {
@@ -154,7 +154,7 @@ open class UserEditorViewModel @Inject constructor(
                 fieldSurname.value,
                 fieldPatronymic.value,
                 groupId,
-                role,
+                this.role,
                 fieldEmail.value,
                 "",
                 Date(),
@@ -168,12 +168,12 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     private fun setup() {
-        if (isStudent(role!!)) {
+        if (isStudent(role)) {
             setGroupView()
         }
         setRoleView()
         setAvailableRoles()
-        fieldGroupVisibility.value = isStudent(role!!)
+        fieldGroupVisibility.value = isStudent(role)
         fieldGenders.value = genderList
         viewModelScope.launch {
             typedNameGroup.flatMapLatest { name: String -> findGroupByContainsNameUseCase(name) }
@@ -197,8 +197,8 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun setupForNewItem() {
         toolbarTitle = when {
-            isStudent(role!!) -> "Новый студент"
-            isTeacher(role!!) -> "Новый преподаватель"
+            isStudent(role) -> "Новый студент"
+            isTeacher(role) -> "Новый преподаватель"
             else -> throw IllegalStateException()
         }
     }
@@ -208,8 +208,8 @@ open class UserEditorViewModel @Inject constructor(
         fieldEmailEnable.value = false
         fieldPasswordVisibility.value = false
         toolbarTitle = when {
-            isStudent(role!!) -> "Редактировать студента"
-            isTeacher(role!!) -> "Редактировать преподавателя"
+            isStudent(role) -> "Редактировать студента"
+            isTeacher(role) -> "Редактировать преподавателя"
             else -> throw IllegalStateException()
         }
     }
@@ -361,9 +361,9 @@ open class UserEditorViewModel @Inject constructor(
         viewModelScope.launch {
             if (confirmInteractor.receiveConfirm()) {
                 try {
-                    if (isStudent(role!!))
-                        interactor.removeStudent(uiEditor.item)
-                    else if (isTeacher(role!!))
+                    if (isStudent(role))
+                        removeStudentUseCase(uiEditor.item.id)
+                    else if (isTeacher(role))
                         interactor.removeTeacher(uiEditor.item)
                     finish()
                 } catch (e: Exception) {
@@ -383,9 +383,9 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun setAvailableRoles() {
         if (role != null) {
-            if (isStudent(role!!)) {
+            if (isStudent(role)) {
                 fieldRoles.value = R.raw.roles_student
-            } else if (isTeacher(role!!)) {
+            } else if (isTeacher(role)) {
                 fieldRoles.value = R.raw.roles_teacher
             }
         }

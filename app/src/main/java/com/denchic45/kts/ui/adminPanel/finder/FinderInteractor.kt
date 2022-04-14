@@ -26,7 +26,7 @@ class FinderInteractor @Inject constructor(
 
    suspend fun removeUser(user: User) {
         if (isStudent(user.role)) {
-            return studentRepository.remove(user)
+            return studentRepository.remove(user.id)
         } else if (isTeacher(user.role)) {
             return teacherRepository.remove(user)
         }

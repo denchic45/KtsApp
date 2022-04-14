@@ -1,9 +1,9 @@
 package com.denchic45.kts.data.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
+import com.denchic45.kts.data.model.room.GroupWithCuratorAndStudentsEntity
 import com.denchic45.kts.data.model.room.UserEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -19,8 +19,8 @@ abstract class UserDao : BaseDao<UserEntity>() {
     @Query("DELETE FROM user WHERE role = 'TEACHER'")
     abstract suspend fun clearTeachers()
 
-    @Query("SELECT * FROM user WHERE role IN('STUDENT','DEPUTY_HEADMAN','HEADMAN') AND user_group_id=:groupId")
-    abstract fun getStudentsOfGroupByGroupId(groupId: String): LiveData<List<UserEntity>>
+//    @Query("SELECT * FROM user WHERE role IN('STUDENT','DEPUTY_HEADMAN','HEADMAN') AND user_group_id=:groupId")
+//    abstract fun getStudentsOfGroupByGroupId(groupId: String): LiveData<GroupWithCuratorAndStudentsEntity>
 
     @Query("SELECT * FROM user where user_id =:id")
     abstract suspend fun get(id: String): UserEntity?
@@ -47,8 +47,8 @@ abstract class UserDao : BaseDao<UserEntity>() {
     @Query("SELECT * FROM user u INNER JOIN `group` g ON u.user_id = g.curator_id WHERE g.group_id=:groupId")
     abstract suspend fun getCurator(groupId: String): UserEntity
 
-    @Query("SELECT user_group_id FROM user where user_group_id =:groupId")
-    abstract suspend fun getUserGroupId(groupId: String): String
+    @Query("SELECT user_group_id FROM user where user_id =:userId")
+    abstract suspend fun getGroupId(userId: String): String
 
     @Query("SELECT * FROM user where user_id =:id")
     abstract fun observe(id: String): Flow<UserEntity?>
@@ -57,7 +57,10 @@ abstract class UserDao : BaseDao<UserEntity>() {
     abstract suspend fun isExistByIdAndGroupId(id: String, groupId: String?): Boolean
 
     @Query("DELETE FROM user WHERE user_group_id =:groupId AND user_id NOT IN(:availableStudents) ")
-    abstract suspend fun deleteMissingStudentsByGroup(availableStudents: List<String>, groupId: String)
+    abstract suspend fun deleteMissingStudentsByGroup(
+        availableStudents: List<String>,
+        groupId: String
+    )
 
     @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u LEFT JOIN course c LEFT JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
     abstract suspend fun deleteUnrelatedTeachersByCourseOrGroupAsCurator()
@@ -67,4 +70,7 @@ abstract class UserDao : BaseDao<UserEntity>() {
 
     @Query("SELECT u.user_id FROM user u JOIN group_course gc ON u.user_group_id = gc.group_id WHERE gc.course_id=:courseId")
     abstract suspend fun getStudentIdsOfCourseByCourseId(courseId: String): List<String>
+
+    @Query("SELECT * FROM `group` WHERE group_id=:groupId")
+    abstract fun observeStudentsWithCuratorByGroupId(groupId: String): Flow<GroupWithCuratorAndStudentsEntity>
 }

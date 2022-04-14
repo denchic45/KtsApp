@@ -23,6 +23,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.denchic45.kts.R
+import com.denchic45.kts.data.UiModel
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.Attachment
 import com.denchic45.kts.databinding.FragmentTaskEditorBinding
@@ -382,7 +383,7 @@ class AddAttachmentAdapterDelegate :
 
 }
 
-object AddAttachmentItem : DomainModel() {
+object AddAttachmentItem : UiModel {
     override fun equals(other: Any?): Boolean = other is AddAttachmentItem
 }
 

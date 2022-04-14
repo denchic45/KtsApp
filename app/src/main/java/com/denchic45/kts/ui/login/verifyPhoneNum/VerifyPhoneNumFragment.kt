@@ -37,9 +37,7 @@ class VerifyPhoneNumFragment :
         with(binding) {
             val btnResendCode = view.findViewById<Button>(R.id.btn_resend_code)
             val loginViewModel = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
-            loginViewModel.verifyUser.observe(viewLifecycleOwner) { phoneNum: String ->
-                viewModel.onVerifyClick(phoneNum)
-            }
+
             viewModel.authSuccessful.collectWhenStarted(lifecycleScope) { code: String ->
                 fillFieldsWithCode(code)
                 loginViewModel.onSuccessfulLogin()
@@ -97,18 +95,15 @@ class VerifyPhoneNumFragment :
                         etCode6.closeKeyboard()
                     }
                 }
-            btnAuth.setOnClickListener {
-                viewModel.tryAuthWithPhoneNumByCode(
-                    typedCode
-                )
-            }
-            btnResendCode.setOnClickListener { viewModel.onResendCodeClick() }
+
             viewModel.errorToManyRequest.observe(
                 viewLifecycleOwner
             ) { showErrorManyRequest() }
+
             viewModel.errorInvalidRequest.observe(
                 viewLifecycleOwner
             ) { showErrorInvalidCode() }
+
             viewModel.btnAuthVisibility.observe(viewLifecycleOwner) { visible: Boolean ->
                 Log.d("lol", "onCreateView: $visible")
                 if (visible) {

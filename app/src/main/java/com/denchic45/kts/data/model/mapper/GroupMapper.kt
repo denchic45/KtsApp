@@ -3,9 +3,11 @@ package com.denchic45.kts.data.model.mapper
 import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.Group.Companion.deleted
+import com.denchic45.kts.data.model.domain.GroupMembers
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.room.GroupEntity
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
+import com.denchic45.kts.data.model.room.GroupWithCuratorAndStudentsEntity
 import com.google.firebase.firestore.FieldValue
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
@@ -22,6 +24,7 @@ abstract class GroupMapper {
     @Mapping(target = ".", source = "groupEntity")
     @Mapping(target = "curator", source = "curatorEntity")
     abstract fun groupWithCuratorAndSpecialtyEntityToGroup(entity: GroupWithCuratorAndSpecialtyEntity?): Group
+
     fun entityToDomain(entity: GroupWithCuratorAndSpecialtyEntity?): Group {
         return entity?.let { groupWithCuratorAndSpecialtyEntityToGroup(it) }
             ?: deleted()

@@ -35,8 +35,6 @@ class LoginByPhoneNumFragment : Fragment() {
         val loginViewModel = ViewModelProvider(requireActivity())[LoginViewModel::class.java]
         loginViewModel.errorNum.observe(viewLifecycleOwner) { s: String? -> tnlNum.error = s }
         btnGetCode.setOnClickListener {
-            val phoneNum = etNum.text.toString()
-            loginViewModel.onGetCodeClick(phoneNum)
             etNum.closeKeyboard()
         }
     }

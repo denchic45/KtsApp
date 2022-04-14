@@ -139,7 +139,7 @@ class PreferenceSwitchAdapterDelegate :
     }
 }
 
-abstract class PreferenceItem : DomainModel()
+abstract class PreferenceItem : DomainModel
 
 data class PreferenceContentItem(
     override var id: String,

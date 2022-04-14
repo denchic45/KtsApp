@@ -15,6 +15,7 @@ import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
+import com.denchic45.kts.data.model.room.GroupWithCuratorAndStudentsEntity
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.UserPreference
@@ -45,6 +46,7 @@ class GroupRepository @Inject constructor(
     private val userPreference: UserPreference,
     override val userMapper: UserMapper,
     override val groupMapper: GroupMapper,
+    private val groupMemberMapper: GroupMemberMapper,
     override val courseMapper: CourseMapper,
     override val specialtyMapper: SpecialtyMapper,
     override val sectionMapper: SectionMapper,
@@ -71,31 +73,6 @@ class GroupRepository @Inject constructor(
                 }
             }
     }
-
-//    fun findByTypedName(name: String): Flow<List<GroupHeader>> = callbackFlow {
-//        val registration = groupsRef
-//            .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(name))
-//            .addSnapshotListener { snapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
-//                if (error != null) {
-//                    Log.d("lol", "onError: ", error)
-//                }
-//                launch(dispatcher) {
-//                    snapshots?.let {
-//                        if (timestampsNotNull(snapshots)) {
-//                            val groupDocs = snapshots.toObjects(GroupDoc::class.java)
-//                            for (groupDoc in groupDocs) {
-//                                saveGroup(groupDoc)
-//                            }
-//                            trySend(groupMapper.docToCourseGroupDomain(groupDocs))
-//                        }
-//                    }
-//                }
-//            }
-//
-//        awaitClose {
-//            registration.remove()
-//        }
-//    }
 
     private val specialtiesRef: CollectionReference = firestore.collection("Specialties")
     private val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -407,5 +384,10 @@ class GroupRepository @Inject constructor(
                 .await().toObject(GroupDoc::class.java)!!
             saveGroup(groupDoc)
         }
+    }
+
+    fun findGroupMembersByGroupId(groupId: String): Flow<GroupMembers> {
+        return userDao.observeStudentsWithCuratorByGroupId(groupId)
+            .map { groupMemberMapper.entityToDomainGroupMembers(it) }
     }
 }

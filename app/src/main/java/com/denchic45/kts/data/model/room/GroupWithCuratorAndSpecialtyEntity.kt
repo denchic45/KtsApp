@@ -6,9 +6,18 @@ import com.denchic45.kts.data.model.EntityModel
 
 data class GroupWithCuratorAndSpecialtyEntity(
     @Embedded
-    var groupEntity: GroupEntity,
+    val groupEntity: GroupEntity,
     @Relation(parentColumn = "curator_id", entityColumn = "user_id")
-    var curatorEntity: UserEntity,
+    val curatorEntity: UserEntity,
     @Relation(parentColumn = "specialty_id", entityColumn = "specialty_id")
-    var specialtyEntity: SpecialtyEntity
+    val specialtyEntity: SpecialtyEntity
+) : EntityModel
+
+data class GroupWithCuratorAndStudentsEntity(
+    @Embedded
+    val groupEntity: GroupEntity,
+    @Relation(parentColumn = "curator_id", entityColumn = "user_id")
+    val curatorEntity: UserEntity,
+    @Relation(parentColumn = "group_id", entityColumn = "user_group_id")
+    val studentEntities: List<UserEntity>
 ) : EntityModel

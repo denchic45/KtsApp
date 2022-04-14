@@ -13,13 +13,13 @@ class VerifyPhoneNumInteractor @Inject constructor(
     private val groupRepository: GroupRepository
 ) : Interactor {
 
-    fun sendUserPhoneNumber(phoneNum: String): Channel<String> {
-        return  authRepository.sendUserPhoneNumber(phoneNum)
-    }
+//    fun sendUserPhoneNumber(phoneNum: String): Channel<String> {
+//        return  authRepository.sendUserPhoneNumber(phoneNum)
+//    }
 
-   suspend fun tryAuthWithPhoneNumByCode(code: String) {
-        authRepository.authByPhoneNum(code)
-    }
+//   suspend fun tryAuthWithPhoneNumByCode(code: String) {
+//        authRepository.authByPhoneNum(code)
+//    }
 
     override fun removeListeners() {
         groupRepository.removeListeners()
@@ -29,7 +29,7 @@ class VerifyPhoneNumInteractor @Inject constructor(
         userRepository.removeListeners()
     }
 
-    fun resendCode() {
-        authRepository.resendCodeSms()
-    }
+//    fun resendCode() {
+//        authRepository.resendCodeSms()
+//    }
 }
