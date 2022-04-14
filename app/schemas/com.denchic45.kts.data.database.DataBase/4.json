@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "c55fbd0e3dc919f2ef6e631b32ca2b3b",
+    "identityHash": "be8226fccfcf1ee6b3c313576511d9c6",
     "entities": [
       {
         "tableName": "subject",
@@ -136,7 +136,7 @@
       },
       {
         "tableName": "course_content",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `section_id` TEXT NOT NULL, `name` TEXT NOT NULL, `attachments` TEXT NOT NULL, `description` TEXT NOT NULL, `content_details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `type` TEXT NOT NULL, `created_date` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `completion_date` INTEGER, `weekDate` TEXT, `order` INTEGER NOT NULL, PRIMARY KEY(`content_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`content_id` TEXT NOT NULL, `course_id` TEXT NOT NULL, `section_id` TEXT NOT NULL, `name` TEXT NOT NULL, `attachments` TEXT NOT NULL, `description` TEXT NOT NULL, `content_details` TEXT NOT NULL, `commentsEnabled` INTEGER NOT NULL, `contentType` TEXT NOT NULL, `created_date` TEXT NOT NULL, `timestamp` INTEGER NOT NULL, `completion_date` INTEGER, `weekDate` TEXT, `order` INTEGER NOT NULL, PRIMARY KEY(`content_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -187,8 +187,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "type",
-            "columnName": "type",
+            "fieldPath": "contentType",
+            "columnName": "contentType",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -358,7 +358,7 @@
       },
       {
         "tableName": "group",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `group_name` TEXT NOT NULL, `curator_id` TEXT NOT NULL, `course` INTEGER NOT NULL, `specialty_id` TEXT NOT NULL, `group_timestamp` INTEGER NOT NULL, PRIMARY KEY(`group_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `group_name` TEXT NOT NULL, `curator_id` TEXT NOT NULL, `course` INTEGER NOT NULL, `specialty_id` TEXT NOT NULL, `headman_id` TEXT, `group_timestamp` INTEGER NOT NULL, PRIMARY KEY(`group_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -389,6 +389,12 @@
             "columnName": "specialty_id",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "headmanId",
+            "columnName": "headman_id",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "timestamp",
@@ -932,7 +938,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c55fbd0e3dc919f2ef6e631b32ca2b3b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'be8226fccfcf1ee6b3c313576511d9c6')"
     ]
   }
 }
