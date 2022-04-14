@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.UiModel
 import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.databinding.FragmentCourseSectionEditorBinding
 import com.denchic45.kts.databinding.ItemAddSectionBinding
@@ -130,7 +130,7 @@ class EditSectionAdapterDelegate(
 ) :
     ListItemAdapterDelegate<Section, EditSectionAdapterDelegate.EditSectionHolder>() {
 
-    object AddSectionItem : DomainModel() {
+    object AddSectionItem : UiModel {
         override fun equals(other: Any?): Boolean = other is AddSectionItem
     }
 
