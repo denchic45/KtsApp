@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "6bc1a4a98ec9f54c4035f69254f6c9a4",
+    "identityHash": "be8226fccfcf1ee6b3c313576511d9c6",
     "entities": [
       {
         "tableName": "subject",
@@ -358,7 +358,7 @@
       },
       {
         "tableName": "group",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `group_name` TEXT NOT NULL, `curator_id` TEXT NOT NULL, `course` INTEGER NOT NULL, `specialty_id` TEXT NOT NULL, `group_timestamp` INTEGER NOT NULL, PRIMARY KEY(`group_id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `group_name` TEXT NOT NULL, `curator_id` TEXT NOT NULL, `course` INTEGER NOT NULL, `specialty_id` TEXT NOT NULL, `headman_id` TEXT, `group_timestamp` INTEGER NOT NULL, PRIMARY KEY(`group_id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -389,6 +389,12 @@
             "columnName": "specialty_id",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "headmanId",
+            "columnName": "headman_id",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "timestamp",
@@ -932,7 +938,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6bc1a4a98ec9f54c4035f69254f6c9a4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'be8226fccfcf1ee6b3c313576511d9c6')"
     ]
   }
 }
