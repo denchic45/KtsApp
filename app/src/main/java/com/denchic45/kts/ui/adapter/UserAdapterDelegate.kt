@@ -4,16 +4,16 @@ import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.data.model.ui.UserItem
 import com.denchic45.kts.databinding.ItemUserBinding
 import com.denchic45.kts.utils.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 
-class UserAdapterDelegate : ListItemAdapterDelegate<User, UserAdapterDelegate.UserHolder>() {
+class UserAdapterDelegate : ListItemAdapterDelegate<UserItem, UserAdapterDelegate.UserHolder>() {
 
-    override fun isForViewType(item: Any): Boolean = item is User
+    override fun isForViewType(item: Any): Boolean = item is UserItem
 
-    override fun onBindViewHolder(item: User, holder: UserHolder) {
+    override fun onBindViewHolder(item: UserItem, holder: UserHolder) {
         holder.onBind(item)
     }
 
@@ -22,20 +22,22 @@ class UserAdapterDelegate : ListItemAdapterDelegate<User, UserAdapterDelegate.Us
     }
 
     class UserHolder(itemUserBinding: ItemUserBinding) :
-        BaseViewHolder<User, ItemUserBinding>(itemUserBinding) {
+        BaseViewHolder<UserItem, ItemUserBinding>(itemUserBinding) {
 
-        override fun onBind(item: User) {
+        override fun onBind(item: UserItem) {
             with(binding) {
                 Glide.with(itemView)
                     .load(item.photoUrl)
                     .transition(DrawableTransitionOptions.withCrossFade(100))
                     .into(ivAvatar)
-                tvName.text = String.format("%s %s", item.firstName, item.surname)
-                tvUserRole.visibility = View.VISIBLE
-                when (item.role) {
-                    User.DEPUTY_MONITOR -> tvUserRole.text = "Зам. старосты"
-                    User.CLASS_MONITOR -> tvUserRole.text = "Староста"
-                    else -> tvUserRole.visibility = View.GONE
+
+                tvName.text = item.title
+
+                item.subtitle?.let {
+                    tvUserRole.visibility = View.VISIBLE
+                    tvUserRole.text = it
+                } ?: run {
+                    tvUserRole.visibility = View.GONE
                 }
             }
         }
