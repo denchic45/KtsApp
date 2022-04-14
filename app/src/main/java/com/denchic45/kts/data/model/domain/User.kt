@@ -19,7 +19,7 @@ data class User(
     val gender: Int,
     val generatedAvatar: Boolean,
     val admin: Boolean
-) : DomainModel() {
+) : DomainModel {
 
     private constructor() : this(
         "",

@@ -5,7 +5,7 @@ import com.denchic45.kts.data.model.DomainModel
 data class Specialty(
     override var id: String,
     val name: String
-) : DomainModel() {
+) : DomainModel {
 
     private constructor() : this("", "")
 

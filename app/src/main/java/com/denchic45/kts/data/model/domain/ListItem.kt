@@ -14,7 +14,7 @@ data class ListItem(
     var content: Any? = null,
     val enable: Boolean = true,
     var type: Int = 0
-) : DomainModel() {
+) : DomainModel {
 
     companion object {
         val emptyIcon = EitherMessage.Id(0)

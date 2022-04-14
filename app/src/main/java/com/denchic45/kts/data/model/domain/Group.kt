@@ -11,7 +11,7 @@ data class Group @Default constructor(
     var course: Int,
     var specialty: Specialty,
     var curator: User
-) : DomainModel() {
+) : DomainModel {
     @ServerTimestamp
     var timestamp: Date? = null
 
@@ -46,7 +46,7 @@ data class GroupHeader(
     override var id: String,
     val name: String,
     val specialtyId: String
-) : DomainModel() {
+) : DomainModel {
     private constructor() : this("", "", "")
 
     companion object {

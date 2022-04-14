@@ -3,7 +3,7 @@ package com.denchic45.kts.data.model.domain
 import com.denchic45.kts.data.model.DomainModel
 import java.util.*
 
-abstract class CourseContent : DomainModel() {
+abstract class CourseContent : DomainModel {
     abstract val courseId: String
     abstract val sectionId: String
     abstract val name: String

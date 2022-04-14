@@ -13,7 +13,7 @@ data class Event(
     val timestamp: Date? = null,
     val room: String = "",
     val details: EventDetails = EmptyEventDetails()
-) : DomainModel() {
+) : DomainModel {
 
     var eventsOfDay: EventsOfDay? = null
 

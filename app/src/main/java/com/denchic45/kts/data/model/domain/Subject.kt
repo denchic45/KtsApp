@@ -7,7 +7,7 @@ data class Subject(
     val name: String,
     val iconUrl: String,
     val colorName: String
-) : DomainModel() {
+) : DomainModel {
 
     val isEmpty: Boolean
     get() = id.isEmpty()

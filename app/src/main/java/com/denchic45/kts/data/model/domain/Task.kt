@@ -62,7 +62,7 @@ data class Task(
         val comments: List<Comment>,
         val status: SubmissionStatus,
         val contentUpdateDate: LocalDateTime
-    ) : DomainModel() {
+    ) : DomainModel {
 
         override var id: String = ""
 
@@ -126,15 +126,16 @@ data class Task(
     }
 
     data class Comment(
+        override val id: String,
         val content: String,
         val author: User,
         val createdDate: LocalDateTime
-    ) : DomainModel()
+    ) : DomainModel
 }
 
 data class Attachment(
     val file: File
-) : DomainModel() {
+) : DomainModel {
 
     val name: String = Files.nameWithoutTimestamp(file.name)
 

@@ -8,7 +8,7 @@ data class Section(
     val name: String,
     val order: Long,
     override var id: String = UUIDS.createShort()
-) : DomainModel() {
+) : DomainModel {
     companion object {
         fun createEmpty() = Section("", "", -1, "")
     }
