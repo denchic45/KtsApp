@@ -6,6 +6,7 @@ import com.denchic45.appVersion.AppVersionService
 import com.denchic45.kts.data.NetworkService
 import com.denchic45.kts.data.Repository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -17,7 +18,11 @@ class AuthRepository @Inject constructor(
     override val networkService: NetworkService,
     override val appVersionService: AppVersionService
 ) : Repository(context) {
+
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    val currentUser: FirebaseUser?
+        get() = firebaseAuth.currentUser
 
     fun signOut() {
         firebaseAuth.signOut()

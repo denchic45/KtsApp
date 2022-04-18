@@ -7,6 +7,7 @@ import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.ui.UiImage
 import com.denchic45.kts.domain.usecase.FindGroupByContainsNameUseCase
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorInteractor
@@ -205,7 +206,7 @@ class TimetableFinderViewModel @Inject constructor(
                                     ListItem(
                                         id = id,
                                         title = name,
-                                        icon = EitherMessage.Id(R.drawable.ic_group)
+                                        icon = UiImage.IdImage(R.drawable.ic_group)
                                     )
                                 })
                         }
@@ -221,7 +222,7 @@ class TimetableFinderViewModel @Inject constructor(
         data class Current(override val events: List<Event>) :
             EventsOfDayState()
 
-        data class Edit(private var editingEvents: List<Event>,val date: LocalDate) :
+        data class Edit(private var editingEvents: List<Event>, val date: LocalDate) :
             EventsOfDayState() {
 
             override val events: List<DomainModel> = editingEvents + ListItem(

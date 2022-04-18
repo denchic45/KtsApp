@@ -19,7 +19,7 @@ import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.HasNavArgs
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
-import com.denchic45.kts.ui.group.users.GroupUsersFragment
+import com.denchic45.kts.ui.group.users.GroupMembersFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
 import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.utils.collectWhenResumed
@@ -114,7 +114,7 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(
 
         override fun getItem(position: Int): Fragment {
             return when (position) {
-                0 -> GroupUsersFragment.newInstance(groupId)
+                0 -> GroupMembersFragment.newInstance(groupId)
                 1 -> GroupCoursesFragment.newInstance(groupId)
                 2 -> TimetableFragment.newInstance(groupId)
                 else -> throw IllegalStateException()

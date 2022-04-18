@@ -1,6 +1,0 @@
-<resources>
-    <string name="navigation_drawer_open" translatable="false">open drawer</string>
-    <string name="navigation_drawer_close" translatable="false">close drawer</string>
-    <string name="hint_search_def">Search</string>
-    <string name="hint_search_there_is_everything">There is everything!</string>
-</resources>

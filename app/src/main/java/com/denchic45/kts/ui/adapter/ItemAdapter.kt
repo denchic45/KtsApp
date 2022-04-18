@@ -7,6 +7,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.denchic45.kts.data.model.domain.ListItem
+import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.databinding.*
 import com.denchic45.kts.utils.viewBinding
 
@@ -85,20 +86,17 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALL
             with(binding) {
                 tvName.text = item.title
                 val context = itemView.context
-                item.icon.fold({
+
+                item.icon?.onId {
                     ivIcon.setImageResource(it)
-                }, {
+                }
 
-                })
-
-                item.color.fold({
-                    if (it != 0) {
-                        DrawableCompat.setTint(
-                            DrawableCompat.wrap(ivIcon.drawable),
-                            ContextCompat.getColor(context, it)
-                        )
-                    }
-                }, {})
+                item.color?.onId {
+                    DrawableCompat.setTint(
+                        DrawableCompat.wrap(ivIcon.drawable),
+                        ContextCompat.getColor(context, it)
+                    )
+                }
             }
         }
     }
@@ -115,20 +113,16 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALL
 
             with(binding) {
                 val context = itemView.context
-                item.icon.fold({
+                item.icon?.onId {
                     ivIcon.setImageResource(it)
-                }, {
+                }
 
-                })
-
-                item.color.fold({
-                    if (it != 0) {
-                        DrawableCompat.setTint(
-                            DrawableCompat.wrap(ivIcon.drawable),
-                            ContextCompat.getColor(context, it)
-                        )
-                    }
-                }, {})
+                item.color?.onId {
+                    DrawableCompat.setTint(
+                        DrawableCompat.wrap(ivIcon.drawable),
+                        ContextCompat.getColor(context, it)
+                    )
+                }
             }
         }
     }
@@ -142,20 +136,16 @@ class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALL
 
             with(binding) {
                 val context = itemView.context
-                item.icon.fold({
+                item.icon?.onId {
                     ivIcon.setImageResource(it)
-                }, {
+                }
 
-                })
-
-                item.color.fold({
-                    if (it != 0) {
-                        DrawableCompat.setTint(
-                            DrawableCompat.wrap(ivIcon.drawable),
-                            ContextCompat.getColor(context, it)
-                        )
-                    }
-                }, {})
+                item.color?.onId {
+                    DrawableCompat.setTint(
+                        DrawableCompat.wrap(ivIcon.drawable),
+                        ContextCompat.getColor(context, it)
+                    )
+                }
             }
 
             if (item.content == PAYLOAD.SHOW_LOADING) {

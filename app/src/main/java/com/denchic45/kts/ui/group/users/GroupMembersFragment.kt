@@ -12,7 +12,7 @@ import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
-import com.denchic45.kts.databinding.FragmentGroupUsersBinding
+import com.denchic45.kts.databinding.FragmentGroupMembersBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.HeaderAdapterDelegate
 import com.denchic45.kts.ui.adapter.UserAdapterDelegate
@@ -23,11 +23,11 @@ import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.click
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
-class GroupUsersFragment :
-    BaseFragment<GroupUsersViewModel, FragmentGroupUsersBinding>(R.layout.fragment_group_users) {
+class GroupMembersFragment :
+    BaseFragment<GroupMembersViewModel, FragmentGroupMembersBinding>(R.layout.fragment_group_members) {
 
-    override val binding by viewBinding(FragmentGroupUsersBinding::bind)
-    override val viewModel: GroupUsersViewModel by viewModels { viewModelFactory }
+    override val binding by viewBinding(FragmentGroupMembersBinding::bind)
+    override val viewModel: GroupMembersViewModel by viewModels { viewModelFactory }
 
     override fun onResume() {
         super.onResume()
@@ -95,8 +95,8 @@ class GroupUsersFragment :
 
     companion object {
         const val GROUP_ID = "GroupUsers GROUP_ID"
-        fun newInstance(groupId: String): GroupUsersFragment {
-            return GroupUsersFragment().apply {
+        fun newInstance(groupId: String): GroupMembersFragment {
+            return GroupMembersFragment().apply {
                 arguments = bundleOf(GROUP_ID to groupId)
             }
         }

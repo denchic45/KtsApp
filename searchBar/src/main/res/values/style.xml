@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-   <style name="Theme.SearchBarLib" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorControlNormal">@color/teal_200</item>
-    </style>
-</resources>

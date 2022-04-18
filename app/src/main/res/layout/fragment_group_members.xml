@@ -9,5 +9,5 @@
     android:overScrollMode="never"
     android:paddingBottom="56dp"
     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-    tools:context=".ui.group.users.GroupUsersFragment"
+    tools:context=".ui.group.users.GroupMembersFragment"
     tools:listitem="@layout/item_user" />

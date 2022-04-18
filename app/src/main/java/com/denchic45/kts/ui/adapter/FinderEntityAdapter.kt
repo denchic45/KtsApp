@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.onId
+import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.databinding.ItemFinderEntityBinding
 import com.denchic45.kts.ui.adapter.FinderEntityAdapter.FinderEntityHolder
 import com.denchic45.kts.utils.viewBinding
@@ -38,7 +38,7 @@ class FinderEntityAdapter :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FinderEntityHolder {
         return FinderEntityHolder(
-          parent.viewBinding(ItemFinderEntityBinding::inflate),
+            parent.viewBinding(ItemFinderEntityBinding::inflate),
             itemClickListener
         )
     }
@@ -87,13 +87,8 @@ class FinderEntityAdapter :
         private val ivIcon: ImageView = itemView.findViewById(R.id.iv_icon)
         private val context: Context = itemView.context
         override fun onBind(item: ListItem) {
-            item.color.onId {
-//                itemView.background = AppCompatResources.getDrawable(context,R.color.bg_blue)
-//                ImageViewCompat.setImageTintList(ivIcon, ContextCompat.getColorStateList(context,R.color.blu))
-//                tvTitle.setTextColor(ContextCompat.getColorStateList(context,R.color.content_blue_highlight))
-            }
-            item.icon.onId {
-                ivIcon.setImageDrawable(ContextCompat.getDrawable(context,it))
+            item.icon?.onId {
+                ivIcon.setImageDrawable(ContextCompat.getDrawable(context, it))
             }
 
             tvTitle.text = item.title

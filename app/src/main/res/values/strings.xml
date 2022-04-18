@@ -5,12 +5,12 @@
     <string name="menu_title_home">Home</string>
     <string name="menu_title_timetable">Timetable</string>
     <string name="menu_title_group">Group</string>
-    <string name="menu_title_control_panel">Управление</string>
+    <string name="menu_title_control_panel">Control</string>
 
     <string name="nav_schedule">Call Schedule</string>
 
-    <string name="gender_male">Мужской</string>
-    <string name="gender_female">Женский</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
 
     <string name="group_users">Members</string>
     <string name="group_courses">Courses</string>
@@ -44,6 +44,13 @@
     <string name="nav_courses_my">My courses</string>
     <string name="nav_courses_hide">Hide</string>
     <string name="task_deadline_left">%1\\$s! left</string>
+
+    <string name="option_view_profile">View profile</string>
+    <string name="option_edit_user">Edit</string>
+    <string name="option_remove_user">Remove</string>
+    <string name="option_set_headman">Set headman</string>
+    <string name="option_remove_headman">Remove headman</string>
+
 
     <plurals name="day">
         <item quantity="zero">%1$d days</item>

@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.onId
+import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.databinding.ItemEntityBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.HasViewModel
@@ -123,7 +123,7 @@ class CreatorDialog : BottomSheetDialogFragment(), HasViewModel<CreatorViewModel
         private val ivIcon: ImageView = itemView.findViewById(R.id.iv_icon)
         override fun onBind(item: ListItem) {
             tvTitle.text = item.title
-            item.icon.onId {
+            item.icon?.onId {
                 val icon = ContextCompat.getDrawable(itemView.context, it)!!
                 DrawableCompat.setTint(
                     icon,

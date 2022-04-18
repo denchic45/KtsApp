@@ -2,8 +2,10 @@ package com.denchic45.kts.ui.adminPanel
 
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.EitherMessage
 import com.denchic45.kts.data.model.domain.ListItem
+import com.denchic45.kts.data.model.ui.UiColor
+import com.denchic45.kts.data.model.ui.UiImage
+import com.denchic45.kts.data.model.ui.UiText
 import com.denchic45.kts.ui.base.BaseViewModel
 import javax.inject.Inject
 
@@ -18,18 +20,18 @@ class AdminPanelViewModel @Inject constructor() : BaseViewModel() {
         get() = listOf(
             ListItem(
                 title = "Найти что угодно",
-                color = EitherMessage.Id(R.color.blue),
-                icon = EitherMessage.Id(R.drawable.ic_search_)
+                color = UiColor.ColorId(R.color.blue),
+                icon= UiImage.IdImage(R.drawable.ic_search_)
             ),
             ListItem(
                 title = "Добавить",
-                color = EitherMessage.Id(R.color.blue),
-                icon = EitherMessage.Id(R.drawable.ic_add)
+                color = UiColor.ColorId(R.color.blue),
+                icon = UiImage.IdImage(R.drawable.ic_add)
             ),
             ListItem(
                 title = "Уроки",
-                color = EitherMessage.Id(R.color.blue),
-                icon = EitherMessage.Id(R.drawable.ic_book)
+                color = UiColor.ColorId(R.color.blue),
+                icon= UiImage.IdImage(R.drawable.ic_book)
             )
         )
 

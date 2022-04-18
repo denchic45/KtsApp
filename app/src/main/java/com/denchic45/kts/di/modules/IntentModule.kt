@@ -12,7 +12,7 @@ import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
-import com.denchic45.kts.ui.group.users.GroupUsersFragment
+import com.denchic45.kts.ui.group.users.GroupMembersFragment
 import com.denchic45.kts.ui.profile.ProfileFragment
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
@@ -74,10 +74,10 @@ object IntentModule {
         return groupFragment.navArgs.groupId
     }
 
-    @Named(GroupUsersFragment.GROUP_ID)
+    @Named(GroupMembersFragment.GROUP_ID)
     @Provides
-    fun provideGroupIdFromGroupUsers(groupUsersFragment: GroupUsersFragment): String? {
-        return (groupUsersFragment.requireParentFragment() as GroupFragment).navArgs.groupId
+    fun provideGroupIdFromGroupUsers(groupMembersFragment: GroupMembersFragment): String? {
+        return (groupMembersFragment.requireParentFragment() as GroupFragment).navArgs.groupId
     }
 
     @Named("UserEditor ${UserEditorFragment.USER_ID}")

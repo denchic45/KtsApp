@@ -7,10 +7,10 @@ import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.data.model.domain.EitherMessage
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.data.model.ui.UiImage
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
@@ -130,27 +130,27 @@ class FinderViewModel @Inject constructor(
             ListItem(
                 id = "ITEM_FIND_USER",
                 title = "Пользователи",
-                icon = EitherMessage.Id(R.drawable.ic_user)
+                icon = UiImage.IdImage(R.drawable.ic_user)
             ),
             ListItem(
                 id = "ITEM_FIND_GROUP",
                 title = "Группы",
-                icon = EitherMessage.Id(R.drawable.ic_group)
+                icon = UiImage.IdImage(R.drawable.ic_group)
             ),
             ListItem(
                 id = "ITEM_FIND_SUBJECT",
                 title = "Предметы",
-                icon = EitherMessage.Id(R.drawable.ic_subject)
+                icon = UiImage.IdImage(R.drawable.ic_subject)
             ),
             ListItem(
                 id = "ITEM_FIND_SPECIALTY",
                 title = "Специальности",
-                icon = EitherMessage.Id(R.drawable.ic_specialty)
+                icon = UiImage.IdImage(R.drawable.ic_specialty)
             ),
             ListItem(
                 id = "ITEM_FIND_COURSE",
                 title = "Курсы",
-                icon = EitherMessage.Id(R.drawable.ic_course)
+                icon = UiImage.IdImage(R.drawable.ic_course)
             ),
         )
         optionsList = listOf(userOptions, groupOptions, subjectOptions)
@@ -198,7 +198,13 @@ class FinderViewModel @Inject constructor(
                     }
                 }
             },
-            "OPTION_SHOW_GROUP" to { navigateTo(MobileNavigationDirections.actionGlobalMenuGroup(selectedEntity!!.id)) },
+            "OPTION_SHOW_GROUP" to {
+                navigateTo(
+                    MobileNavigationDirections.actionGlobalMenuGroup(
+                        selectedEntity!!.id
+                    )
+                )
+            },
             "OPTION_EDIT_GROUP" to {
                 openGroupEditor.setValue(
                     selectedEntity!!.id

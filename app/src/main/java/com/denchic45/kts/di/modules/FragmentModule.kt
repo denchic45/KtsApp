@@ -23,7 +23,7 @@ import com.denchic45.kts.ui.creator.CreatorDialog
 import com.denchic45.kts.ui.group.GroupFragment
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
-import com.denchic45.kts.ui.group.users.GroupUsersFragment
+import com.denchic45.kts.ui.group.users.GroupMembersFragment
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.ui.login.auth.AuthFragment
 import com.denchic45.kts.ui.login.groupChooser.GroupChooserFragment
@@ -58,7 +58,7 @@ interface FragmentModule {
     fun contributeGroupFragment(): GroupFragment
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
-    fun contributeGroupUsersFragment(): GroupUsersFragment
+    fun contributeGroupUsersFragment(): GroupMembersFragment
 
     @ContributesAndroidInjector(modules = [IntentModule::class])
     fun contributeGroupCoursesFragment(): GroupCoursesFragment

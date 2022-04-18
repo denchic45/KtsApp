@@ -4,6 +4,8 @@ import android.content.res.ColorStateList
 import android.view.ViewGroup
 import androidx.core.widget.ImageViewCompat
 import com.denchic45.kts.data.model.domain.ListItem
+import com.denchic45.kts.data.model.ui.onId
+import com.denchic45.kts.data.model.ui.onUrl
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.utils.viewBinding
@@ -17,30 +19,33 @@ class ItemAdapterDelegate : ListItemAdapterDelegate<ListItem, ItemAdapterDelegat
     ) {
         override fun onBind(item: ListItem) {
             with(binding) {
-                item.icon.fold({
+
+                item.icon?.onId {
                     ivIcon.setImageResource(it)
-                }, {
+                }?.onUrl {
                     val iconResId = itemView.context.resources.getIdentifier(
                         it,
                         "drawable",
                         itemView.context.packageName
                     )
                     ivIcon.setImageResource(iconResId)
-                })
+                }
+
+
                 tvName.text = item.title
 
-                item.color.fold({
-                    if (it != 0) ImageViewCompat.setImageTintList(
+                item.color?.onId {
+                    ImageViewCompat.setImageTintList(
                         ivIcon,
                         ColorStateList.valueOf(it)
                     )
-                }, {
+                }?.onUrl {
                     val identifier = itemView.resources
                         .getIdentifier(it, "color", itemView.context.packageName)
                     ColorStateList.valueOf(
                         identifier
                     )
-                })
+                }
             }
         }
     }

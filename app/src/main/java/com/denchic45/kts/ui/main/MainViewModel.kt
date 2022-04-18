@@ -9,6 +9,9 @@ import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.ui.UiText
+import com.denchic45.kts.data.model.ui.onId
+import com.denchic45.kts.data.model.ui.onString
 import com.denchic45.kts.ui.NavigationCommand
 import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.adminPanel.AdminPanelFragmentDirections
@@ -237,7 +240,7 @@ class MainViewModel @Inject constructor(
                 items.add(DividerItem())
                 if (courses.isNotEmpty()) {
                     val nameOfDropdownCoursesNavItem: Int
-                    items.add(NavSubHeaderItem(EitherMessage.Id(R.string.nav_courses_my)))
+                    items.add(NavSubHeaderItem(UiText.IdText(R.string.nav_courses_my)))
                     val visibleCourses = if (expandAllCourse) {
                         nameOfDropdownCoursesNavItem = R.string.nav_courses_hide
                         courses
@@ -247,23 +250,23 @@ class MainViewModel @Inject constructor(
                     }
                     items.addAll(visibleCourses.map {
                         NavTextItem(
-                            EitherMessage.Stroke(it.name),
+                            UiText.StringText(it.name),
                             id = it.id,
                             iconType = NavTextItem.IconType.CIRCLE,
-                            color = EitherMessage.Stroke(it.subject.colorName)
+                            color = UiText.StringText(it.subject.colorName)
                         )
                     })
                     if (courses.size > 5)
                         items.add(
                             NavDropdownItem(
-                                EitherMessage.Id(nameOfDropdownCoursesNavItem),
+                                UiText.IdText(nameOfDropdownCoursesNavItem),
                                 expandAllCourse
                             )
                         )
                     items.add(
                         NavTextItem(
-                            EitherMessage.Id(R.string.nav_courses_archive),
-                            EitherMessage.Id(R.drawable.ic_archive),
+                            UiText.IdText(R.string.nav_courses_archive),
+                            UiText.IdText(R.drawable.ic_archive),
                             enable = false
                         )
                     )
@@ -278,23 +281,23 @@ class MainViewModel @Inject constructor(
                     if (user.isStudent)
                         mainTextItems.add(
                             NavTextItem(
-                                EitherMessage.Id(R.string.nav_tasks),
-                                EitherMessage.Id(R.drawable.ic_tasks)
+                                UiText.IdText(R.string.nav_tasks),
+                                UiText.IdText(R.drawable.ic_tasks)
                             )
                         )
                     if (hasGroup) {
                         mainTextItems.add(
                             NavTextItem(
-                                EitherMessage.Id(R.string.nav_duty_roster),
-                                EitherMessage.Id(R.drawable.ic_clean),
+                                UiText.IdText(R.string.nav_duty_roster),
+                                UiText.IdText(R.drawable.ic_clean),
                                 enable = false
                             )
                         )
                     }
                     add(
                         NavTextItem(
-                            EitherMessage.Id(R.string.nav_schedule),
-                            EitherMessage.Id(R.drawable.ic_time),
+                            UiText.IdText(R.string.nav_schedule),
+                            UiText.IdText(R.drawable.ic_time),
                             enable = false
                         )
                     )
@@ -303,19 +306,19 @@ class MainViewModel @Inject constructor(
                     if (user.admin) {
                         add(
                             NavTextItem(
-                                EitherMessage.Id(R.string.nav_control_panel),
-                                EitherMessage.Id(R.drawable.ic_control_panel)
+                                UiText.IdText(R.string.nav_control_panel),
+                                UiText.IdText(R.drawable.ic_control_panel)
                             )
                         )
                     }
                     addAll(
                         listOf(
                             NavTextItem(
-                                EitherMessage.Id(R.string.nav_settings),
-                                EitherMessage.Id(R.drawable.ic_settings)
+                                UiText.IdText(R.string.nav_settings),
+                                UiText.IdText(R.drawable.ic_settings)
                             ), NavTextItem(
-                                EitherMessage.Id(R.string.nav_help),
-                                EitherMessage.Id(R.drawable.ic_help),
+                                UiText.IdText(R.string.nav_help),
+                                UiText.IdText(R.drawable.ic_help),
                                 enable = false
                             )
                         )

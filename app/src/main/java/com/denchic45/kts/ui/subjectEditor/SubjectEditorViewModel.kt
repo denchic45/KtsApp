@@ -4,10 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.EitherMessage
-import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Subject
-import com.denchic45.kts.data.model.domain.onId
 import com.denchic45.kts.data.repository.SameSubjectIconException
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
@@ -16,9 +13,9 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
+import com.denchic45.kts.utils.Colors
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.UUIDS
-import com.denchic45.kts.utils.colors
 import kotlinx.coroutines.launch
 import java.util.stream.IntStream
 import javax.inject.Inject
@@ -43,20 +40,20 @@ class SubjectEditorViewModel @Inject constructor(
 
     val enablePositiveBtn = MutableLiveData(false)
 
-    val currentSelectedColor = MutableLiveData(0)
+    val currentSelectedColorPosition = MutableLiveData(0)
 
     val openIconPicker = SingleLiveData<Void>()
 
-    val showColors = MutableLiveData<Pair<List<ListItem>, Int>>()
+    val showColors = MutableLiveData<Pair<List<Int>, Int>>()
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<Subject>
     private val id: String = subjectId ?: UUIDS.createShort()
     private var colorName = ""
 
     fun onColorSelect(position: Int) {
-        val item: ListItem = colors[position]
-        colorName = item.title
-        item.color.onId { colorIcon.setValue(it) }
+        val colorId = Colors.ids[position]
+        colorName = Colors.colorNameOfId[colorId]!!
+        colorIcon.value = colorId
         enablePositiveBtn.postValue(uiValidator.runValidates())
     }
 
@@ -86,7 +83,7 @@ class SubjectEditorViewModel @Inject constructor(
         title.value = "Создать предмет"
         colorName = "blue"
         deleteBtnVisibility.value = false
-        showColors.value = Pair(colors, 0)
+        showColors.value = Pair(Colors.ids, 0)
     }
 
     private fun setupForExistItem() {
@@ -96,20 +93,19 @@ class SubjectEditorViewModel @Inject constructor(
                 subject?.let {
                     uiEditor.oldItem = subject
                     nameField.value = subject.name
-                    colorIcon.value = findColorId(subject.colorName)
-                    currentSelectedColor.value = IntStream.range(0, colors.size)
-                        .filter { value: Int -> colors[value].title == subject.colorName }
+                    colorIcon.value = Colors.colorIdOfName[subject.colorName]
+
+                    currentSelectedColorPosition.value = IntStream.range(0, Colors.names.size)
+                        .filter { value: Int -> Colors.names[value] == subject.colorName }
                         .findFirst()
                         .orElse(-1)
                     icon.value = subject.iconUrl
 
-                    colors
-                        .firstOrNull { item -> item.title == subject.colorName }
-                        ?.let { colorItem ->
-                            colorItem.color.onId {
-                                colorIcon.value = it
-                                showColors.setValue(Pair(colors, colors.indexOf(colorItem)))
-                            }
+                    Colors.names
+                        .firstOrNull { name -> name == subject.colorName }
+                        ?.let { name ->
+                            colorIcon.value = Colors.colorIdOfName[name]
+                            showColors.setValue(Pair(Colors.ids, Colors.names.indexOf(name)))
                         }
 
                     colorName = subject.colorName
@@ -120,11 +116,11 @@ class SubjectEditorViewModel @Inject constructor(
         }
     }
 
-    private fun findColorId(colorName: String): Int {
-        return colors.firstOrNull { listItem -> listItem.title == colorName }
-            ?.let { (it.color as EitherMessage.Id).value }
-            ?: R.color.blue
-    }
+//    private fun findColorId(colorName: String): Int {
+//        return colorsNames.firstOrNull { name -> name == colorName }
+//            ?.let { it.value }
+//            ?: R.color.blue
+//    }
 
     fun onNameType(name: String) {
         nameField.postValue(name)

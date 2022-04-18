@@ -5,9 +5,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import com.denchic45.avatarGenerator.AvatarGenerator
 import com.denchic45.kts.data.UiModel
-import com.denchic45.kts.data.model.domain.EitherMessage
-import com.denchic45.kts.data.model.domain.onId
-import com.denchic45.kts.data.model.domain.onString
+import com.denchic45.kts.data.model.ui.UiText
+import com.denchic45.kts.data.model.ui.onId
+import com.denchic45.kts.data.model.ui.onString
 import com.denchic45.kts.databinding.ItemNavBinding
 import com.denchic45.kts.databinding.ItemNavDividerBinding
 import com.denchic45.kts.databinding.ItemNavDropdownBinding
@@ -158,21 +158,21 @@ class NavDropdownItemDelegate :
 }
 
 data class NavTextItem(
-    val name: EitherMessage,
-    val icon: EitherMessage = EitherMessage.Id(0),
+    val name: UiText,
+    val icon: UiText = UiText.IdText(0),
     var checked: Boolean = false,
     val visible: Boolean = true,
     val checkable: Boolean = true,
     val enable: Boolean = true,
     override var id: String = "",
     val iconType: IconType = IconType.NONE,
-    val color: EitherMessage = EitherMessage.Id(0),
+    val color: UiText = UiText.IdText(0),
 ) : NavItem() {
     enum class IconType { NONE, CIRCLE }
 }
 
 data class NavDropdownItem(
-    val name: EitherMessage,
+    val name: UiText,
     val expanded: Boolean = false
 ) : NavItem()
 
@@ -202,7 +202,7 @@ class NavSubHeaderItemHolder(itemNavSubHeaderBinding: ItemNavSubHeaderBinding) :
 }
 
 data class NavSubHeaderItem(
-    val name: EitherMessage
+    val name: UiText
 ) : NavItem()
 
 class DividerItemAdapterDelegate : ListItemAdapterDelegate<DividerItem, DividerItemHolder>() {

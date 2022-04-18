@@ -8,6 +8,7 @@ import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.ui.UiImage
 import com.denchic45.kts.data.repository.SameCoursesException
 import com.denchic45.kts.domain.usecase.FindTeacherByContainsNameUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
@@ -90,7 +91,7 @@ class CourseEditorViewModel @Inject constructor(
                                         ListItem(
                                             id = user.id,
                                             title = user.fullName,
-                                            icon = EitherMessage.Stroke(user.photoUrl),
+                                            icon = UiImage.Url(user.photoUrl),
                                             type = ListPopupWindowAdapter.TYPE_AVATAR
                                         )
                                     }
@@ -115,7 +116,7 @@ class CourseEditorViewModel @Inject constructor(
                             ListItem(
                                 id = id,
                                 title = name,
-                                icon = EitherMessage.Stroke(iconUrl)
+                                icon = UiImage.Url(iconUrl)
                             )
                         }
                     }
@@ -159,7 +160,7 @@ class CourseEditorViewModel @Inject constructor(
         groupHeaders.map { ListItem(id = it.id, title = it.name, type = 1) } + ListItem(
             id = "ADD_GROUP",
             title = "Добавить",
-            icon = EitherMessage.Id(R.drawable.ic_add)
+            icon = UiImage.IdImage(R.drawable.ic_add)
         )
 
     private fun onSaveClick() {

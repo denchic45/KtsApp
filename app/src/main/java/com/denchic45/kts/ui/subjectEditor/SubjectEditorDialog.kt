@@ -49,7 +49,7 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
         with(binding) {
             viewModel.showColors.observe(
                 viewLifecycleOwner
-            ) { listWithCurrentPair: Pair<List<ListItem>, Int> ->
+            ) { listWithCurrentPair ->
                 adapter = ColorPickerAdapter()
                 binding.rvColorPicker.adapter = adapter
                 adapter.list = listWithCurrentPair.first
@@ -57,7 +57,7 @@ class SubjectEditorDialog : BaseDialogFragment<SubjectEditorViewModel, DialogSub
                     viewModel.onColorSelect(position)
                     adapter.notifyItemRangeChanged(0, adapter.itemCount)
                 }
-                viewModel.currentSelectedColor.observe(viewLifecycleOwner) { current: Int ->
+                viewModel.currentSelectedColorPosition.observe(viewLifecycleOwner) { current: Int ->
                     adapter.setCurrent(current)
                 }
             }

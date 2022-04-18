@@ -78,7 +78,7 @@ dependencies {
 
     // firebase
     implementation 'com.google.firebase:firebase-storage:20.0.1'
-    implementation('com.google.firebase:firebase-firestore:24.1.0') {
+    implementation('com.google.firebase:firebase-firestore:24.1.1') {
         exclude group: "com.squareup.okhttp"
     }
     implementation('io.grpc:grpc-okhttp:1.44.1') {

@@ -2,21 +2,18 @@ package com.denchic45.kts.ui.adapter
 
 import android.content.res.ColorStateList
 import android.view.ViewGroup
-import android.widget.CompoundButton
 import android.widget.RadioButton
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.onId
 import com.denchic45.kts.databinding.ItemColorBinding
 import com.denchic45.kts.ui.adapter.ColorPickerAdapter.ColorHolder
 import com.denchic45.kts.utils.viewBinding
 
 class ColorPickerAdapter : RecyclerView.Adapter<ColorHolder>() {
     private var current = 0
-    var list: List<ListItem> = ArrayList()
-    private var itemClickListener: OnItemClickListener = OnItemClickListener {  }
+    var list: List<Int> = listOf()
+    private var itemClickListener: OnItemClickListener = OnItemClickListener { }
     fun setItemClickListener(itemClickListener: OnItemClickListener) {
         this.itemClickListener = itemClickListener
     }
@@ -37,21 +34,22 @@ class ColorPickerAdapter : RecyclerView.Adapter<ColorHolder>() {
         return list.size
     }
 
-    inner class ColorHolder(itemColorBinding: ItemColorBinding, itemClickListener: OnItemClickListener) :
-        BaseViewHolder<ListItem,ItemColorBinding>(itemColorBinding) {
+    inner class ColorHolder(
+        itemColorBinding: ItemColorBinding,
+        itemClickListener: OnItemClickListener
+    ) :
+        BaseViewHolder<Int, ItemColorBinding>(itemColorBinding) {
         private val rb: RadioButton = itemView.findViewById(R.id.rb_color)
-        override fun onBind(item: ListItem) {
-            rb.isChecked = current == adapterPosition
-            item.color.onId {
-                rb.backgroundTintList =
-                    ColorStateList.valueOf(ContextCompat.getColor(itemView.context, it))
-            }
+        override fun onBind(item: Int) {
+            rb.isChecked = current == absoluteAdapterPosition
+            rb.backgroundTintList =
+                ColorStateList.valueOf(ContextCompat.getColor(itemView.context, item))
         }
 
         init {
-            rb.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
+            rb.setOnCheckedChangeListener { _, _ ->
                 if (rb.isShown) {
-                    current = adapterPosition
+                    current = absoluteAdapterPosition
                     itemClickListener.onItemClick(current)
                 }
             }

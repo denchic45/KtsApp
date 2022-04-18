@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer-array name="options_student">
+        <item>@string/option_view_profile</item>
+        <item>@string/option_edit_user</item>
+        <item>@string/option_remove_user</item>
+    </integer-array>
+</resources>

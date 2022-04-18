@@ -6,6 +6,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.ui.UiText
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.course.taskEditor.AddAttachmentItem
@@ -52,7 +53,7 @@ class TaskInfoViewModel @Inject constructor(
                 dateWithTimeLeft = task.completionDate?.let {
                     val pattern = DateTimeFormatter.ofPattern("dd MMM HH:mm")
                     task.completionDate.format(pattern) to
-                            EitherMessage.FormattedQuantityString(
+                            UiText.FormattedQuantityText(
                                 value = R.plurals.day,
                                 quantity = Period.between(LocalDate.now(), task.completionDate.toLocalDate()).days,
                                 formatArgs = null
@@ -222,7 +223,7 @@ class TaskInfoViewModel @Inject constructor(
     data class TaskViewState(
         val name: String,
         val description: String,
-        val dateWithTimeLeft: Pair<String, EitherMessage.FormattedQuantityString>?,
+        val dateWithTimeLeft: Pair<String, UiText.FormattedQuantityText>?,
         val submissionSettings: SubmissionSettings
     )
 

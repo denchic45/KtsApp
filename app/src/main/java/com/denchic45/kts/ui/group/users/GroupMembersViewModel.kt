@@ -19,22 +19,19 @@ import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named
 
-class GroupUsersViewModel @Inject constructor(
+class GroupMembersViewModel @Inject constructor(
     private val interactor: GroupUsersInteractor,
     findSelfUserUseCase: FindSelfUserUseCase,
     findGroupMembersUseCase: FindGroupMembersUseCase,
     private val removeStudentUseCase: RemoveStudentUseCase,
     private val teacherChooserInteractor: TeacherChooserInteractor,
     @Named("options_user") private val userOptions: List<ListItem>,
-    @Named(GroupUsersFragment.GROUP_ID) groupId: String?
+    @Named(GroupMembersFragment.GROUP_ID) groupId: String?
 ) : BaseViewModel() {
 
     val showUserOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
@@ -45,8 +42,11 @@ class GroupUsersViewModel @Inject constructor(
 
     private var groupId: String = groupId ?: interactor.yourGroupId
 
+    private val _members: SharedFlow<GroupMembers> =
+        findGroupMembersUseCase(this.groupId).shareIn(viewModelScope, SharingStarted.Lazily)
+
     val members: StateFlow<List<DomainModel>> =
-        findGroupMembersUseCase(this.groupId).map { groupMembers ->
+        _members.map { groupMembers ->
             mutableListOf<DomainModel>().apply {
                 add(Header("Куратор"))
                 add(groupMembers.curator.toUserItem(groupMembers))
@@ -70,9 +70,9 @@ class GroupUsersViewModel @Inject constructor(
 
     fun onUserItemLongClick(position: Int) {
         if (uiPermissions.isAllowed(ALLOW_EDIT_USERS)) {
-            showUserOptions.value = position to userOptions
             viewModelScope.launch {
                 selectedUserId = members.value[position].id
+                showUserOptions.value = position to userOptions
             }
         }
     }
@@ -107,7 +107,7 @@ class GroupUsersViewModel @Inject constructor(
                     navigateTo(MobileNavigationDirections.actionGlobalTeacherChooserFragment())
                     teacherChooserInteractor.receiveSelectTeacher().apply {
                         try {
-                            interactor.updateGroupCurator(this@GroupUsersViewModel.groupId, this)
+                            interactor.updateGroupCurator(this@GroupMembersViewModel.groupId, this)
                         } catch (e: Exception) {
                             if (e is NetworkException) {
                                 showToast(R.string.error_check_network)

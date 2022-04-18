@@ -16,6 +16,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
+import com.denchic45.kts.data.model.ui.onId
+import com.denchic45.kts.data.model.ui.onUrl
 import com.denchic45.kts.databinding.ItemPopupContentBinding
 import com.denchic45.kts.utils.viewBinding
 
@@ -88,14 +90,15 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
             } catch (e: NotFoundException) {
                 tvTitle.text = item.title
             }
-            item.icon.fold({
+
+            item.icon?.onId {
                 ivIcon.setImageDrawable(
                     ContextCompat.getDrawable(
                         convertView.context,
                         it
                     )
                 )
-            }, {
+            }?.onUrl {
                 val iconResId = context.resources.getIdentifier(it, "drawable", context.packageName)
 
                 if (iconResId != 0) {
@@ -108,20 +111,20 @@ class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAda
                         .transition(DrawableTransitionOptions.withCrossFade(100))
                         .into(ivIcon)
                 }
-            })
+            }
 
-
-            item.color.fold({
-                if (it != 0) ImageViewCompat.setImageTintList(
-                    ivIcon,
-                    ColorStateList.valueOf(it)
-                )
-            }, {
+            item.color?.onUrl {
                 ColorStateList.valueOf(
                     convertView.resources
                         .getIdentifier(it, "color", convertView.context.packageName)
                 )
-            })
+            }?.onId {
+                ImageViewCompat.setImageTintList(
+                    ivIcon,
+                    ColorStateList.valueOf(it)
+                )
+            }
+
             if (!item.enable) {
                 convertView.isEnabled = false
                 convertView.alpha = 0.5f

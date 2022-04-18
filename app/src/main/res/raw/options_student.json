@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "OPTION_SHOW_PROFILE",
+    "title": "Посмотреть профиль",
+    "iconUrl": "ic_user"
+  },
+  {
+    "_id": "OPTION_SET_HEADMAN",
+    "title": "Назначить старостой",
+    "iconUrl": "ic_edit"
+  },
+  {
+    "_id": "OPTION_EDIT_USER",
+    "title": "Редактировать",
+    "iconUrl": "ic_edit"
+  },
+  {
+    "_id": "OPTION_DELETE_USER",
+    "title": "Удалить",
+    "iconUrl": "ic_delete"
+  }
+]

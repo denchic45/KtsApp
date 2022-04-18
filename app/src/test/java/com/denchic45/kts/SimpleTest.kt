@@ -17,7 +17,7 @@ class SimpleTest {
 
     @Test
     fun testPlusMap() {
-        val map:Map<String,Boolean> = emptyMap()
+        val map: Map<String, Boolean> = emptyMap()
 
         val map1 = map + Pair("lol", false)
 
@@ -29,3 +29,4 @@ class SimpleTest {
 
 
 }
+
