@@ -15,7 +15,6 @@ import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
-import com.denchic45.kts.data.model.room.GroupWithCuratorAndStudentsEntity
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.UserPreference
@@ -388,6 +387,7 @@ class GroupRepository @Inject constructor(
 
     fun findGroupMembersByGroupId(groupId: String): Flow<GroupMembers> {
         return userDao.observeStudentsWithCuratorByGroupId(groupId)
+            .filterNotNull()
             .map { groupMemberMapper.entityToDomainGroupMembers(it) }
     }
 }
