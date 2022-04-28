@@ -32,7 +32,7 @@ class CourseViewModel @Inject constructor(
 
     val openCourseEditor = SingleLiveData<String>()
     val openCourseSectionEditor = SingleLiveData<String>()
-    val courseName = MutableStateFlow("Empty")
+    val courseName = MutableStateFlow("")
     val showContents: MutableLiveData<MutableList<DomainModel>> = MutableLiveData()
     private val findCourseFlow = findCourseUseCase(courseId)
 
