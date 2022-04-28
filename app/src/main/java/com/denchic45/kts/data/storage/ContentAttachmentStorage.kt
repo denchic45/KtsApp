@@ -31,7 +31,7 @@ class ContentAttachmentStorage @Inject constructor(
     ): List<String> {
         return attachments.map {
             val timestamp =
-                DateTimeFormatter.ofPattern("DD-MM-yyyy-HH-mm-ss").format(LocalDateTime.now())
+                DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss").format(LocalDateTime.now())
             val filePath = contentAttachmentsRef.child("$parentId/${timestamp}_${it.name}")
             filePath.putFile(Uri.fromFile(it.file)).await()
             filePath.downloadUrl.await().toString()

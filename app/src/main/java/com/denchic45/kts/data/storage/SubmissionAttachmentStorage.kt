@@ -44,7 +44,7 @@ class SubmissionAttachmentStorage @Inject constructor(
                     exception.errorCode == StorageException.ERROR_OBJECT_NOT_FOUND
                 ) {
                     val timestamp =
-                        DateTimeFormatter.ofPattern("DD-MM-yyyy-HH-mm-ss")
+                        DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss")
                             .format(LocalDateTime.now())
                     val filePath =
                         submissionAttachmentsRef.child("$contentId/$studentId/${timestamp}_${attachment.name}")
