@@ -72,5 +72,5 @@ abstract class UserDao : BaseDao<UserEntity>() {
     abstract suspend fun getStudentIdsOfCourseByCourseId(courseId: String): List<String>
 
     @Query("SELECT * FROM `group` WHERE group_id=:groupId")
-    abstract fun observeStudentsWithCuratorByGroupId(groupId: String): Flow<GroupWithCuratorAndStudentsEntity>
+    abstract fun observeStudentsWithCuratorByGroupId(groupId: String): Flow<GroupWithCuratorAndStudentsEntity?>
 }
