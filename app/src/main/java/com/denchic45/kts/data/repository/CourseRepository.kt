@@ -483,7 +483,7 @@ class CourseRepository @Inject constructor(
     }
 
     suspend fun updateSubmissionFromStudent(submission: Task.Submission) {
-        requireAllowWriteData()
+        requireNetworkAvailable()
         val studentId = submission.student.id
         val contentId = submission.contentId
 
@@ -528,7 +528,7 @@ class CourseRepository @Inject constructor(
         grade: Int,
         teacherId: String = userPreference.id
     ) {
-        requireAllowWriteData()
+        requireNetworkAvailable()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
@@ -550,7 +550,7 @@ class CourseRepository @Inject constructor(
         cause: String,
         teacherId: String = userPreference.id
     ) {
-        requireAllowWriteData()
+        requireNetworkAvailable()
         getContentDocument(taskId).update(
             mapOfSubmissionFields(taskId, studentId)
                     +
