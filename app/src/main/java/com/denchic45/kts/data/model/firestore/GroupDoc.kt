@@ -16,6 +16,7 @@ data class GroupDoc(
     @ServerTimestamp
     var timestampCourses: Date? = null,
     var specialty: SpecialtyDoc,
+    val headmanId: String?
 ) : DocModel {
 
     private constructor() : this(
@@ -25,7 +26,8 @@ data class GroupDoc(
         UserDoc.createEmpty(),
         null,
        null,
-        SpecialtyDoc.createEmpty()
+        SpecialtyDoc.createEmpty(),
+        null
     )
 
     val searchKeys: List<String>
@@ -33,17 +35,6 @@ data class GroupDoc(
 
     var students: Map<String, UserDoc>? = null
         get() = field ?: emptyMap()
-
-//    var subjects: Map<String, SubjectDoc>? = null
-//        get() = field ?: emptyMap()
-//    var teachers: Map<String, UserDoc>? = null
-//        get() = field ?: emptyMap()
-//    var courses: List<SubjectTeacherPair>? = null
-//        get() = field ?: emptyList()
-//
-//    var teacherIds: List<String>? = null
-//        get() = field ?: emptyList()
-
 
     @get:Exclude
     val allUsers: List<UserDoc>
