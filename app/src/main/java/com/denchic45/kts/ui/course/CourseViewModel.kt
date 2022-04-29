@@ -28,7 +28,7 @@ class CourseViewModel @Inject constructor(
 ) : BaseViewModel() {
     val openTaskEditor = SingleLiveData<Triple<String?, String, String>>()
     val openTask = SingleLiveData<Pair<String, String>>()
-    val fabVisibility = SingleLiveData<Boolean>()
+    val fabVisibility = MutableStateFlow(false)
 
     val openCourseEditor = SingleLiveData<String>()
     val openCourseSectionEditor = SingleLiveData<String>()
@@ -40,7 +40,6 @@ class CourseViewModel @Inject constructor(
 
     private var oldPosition: Int = -1
     private var position: Int = -1
-
 
     init {
         viewModelScope.launch {

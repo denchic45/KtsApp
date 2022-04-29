@@ -141,7 +141,7 @@ class CourseFragment : BaseFragment<CourseViewModel, FragmentCourseBinding>(
                 }
 
 
-            viewModel.fabVisibility.observe(viewLifecycleOwner) {
+            viewModel.fabVisibility.collectWhenStarted(lifecycleScope) {
                 requireActivity().findViewById<FloatingActionButton>(R.id.fab_main)
                     .apply {
                         if (it)
