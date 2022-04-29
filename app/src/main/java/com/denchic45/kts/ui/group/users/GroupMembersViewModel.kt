@@ -7,7 +7,7 @@ import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.GroupMember
 import com.denchic45.kts.data.model.domain.GroupMembers
-import com.denchic45.kts.data.model.domain.ListItem
+import com.denchic45.kts.data.model.domain.OptionItem
 import com.denchic45.kts.data.model.ui.Header
 import com.denchic45.kts.data.model.ui.UserItem
 import com.denchic45.kts.domain.usecase.FindGroupMembersUseCase
@@ -19,6 +19,7 @@ import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.utils.Options
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,11 +31,12 @@ class GroupMembersViewModel @Inject constructor(
     findGroupMembersUseCase: FindGroupMembersUseCase,
     private val removeStudentUseCase: RemoveStudentUseCase,
     private val teacherChooserInteractor: TeacherChooserInteractor,
-    @Named("options_user") private val userOptions: List<ListItem>,
     @Named(GroupMembersFragment.GROUP_ID) groupId: String?
 ) : BaseViewModel() {
 
-    val showUserOptions = SingleLiveData<Pair<Int, List<ListItem>>>()
+    private val userOptions: List<OptionItem> = Options.student()
+
+    val showUserOptions = SingleLiveData<Pair<Int, List<OptionItem>>>()
 
     val openUserEditor = SingleLiveData<Map<String, String>>()
 

@@ -2,7 +2,6 @@ package com.denchic45.kts.ui.group.users
 
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
@@ -11,7 +10,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.customPopup.ListPopupWindowAdapter
+import com.denchic45.kts.customPopup.OptionsPopupAdapter
 import com.denchic45.kts.databinding.FragmentGroupMembersBinding
 import com.denchic45.kts.ui.BaseFragment
 import com.denchic45.kts.ui.adapter.HeaderAdapterDelegate
@@ -49,7 +48,7 @@ class GroupMembersFragment :
             delegates(HeaderAdapterDelegate(), UserAdapterDelegate())
             extensions {
                 click<UserAdapterDelegate.UserHolder>(
-                    onClick = {position -> viewModel.onUserItemClick(position) },
+                    onClick = { position -> viewModel.onUserItemClick(position) },
                     onLongClick = { position ->
                         viewModel.onUserItemLongClick(position)
                         true
@@ -65,11 +64,11 @@ class GroupMembersFragment :
             ) {
                 val popupWindow = ListPopupWindow(requireActivity())
                 popupWindow.anchorView = rvUsers.layoutManager!!.findViewByPosition(it.first)
-                val adapter = ListPopupWindowAdapter(requireContext(), it.second)
+                val adapter = OptionsPopupAdapter(requireContext(), it.second)
                 popupWindow.setAdapter(adapter)
                 popupWindow.width = ViewUtils.measureAdapter(adapter, requireContext())
                 popupWindow.horizontalOffset = Dimensions.dpToPx(12, requireActivity())
-                popupWindow.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long ->
+                popupWindow.setOnItemClickListener { _, _, position, _ ->
                     popupWindow.dismiss()
                     viewModel.onOptionUserClick(it.second[position].id)
                 }
