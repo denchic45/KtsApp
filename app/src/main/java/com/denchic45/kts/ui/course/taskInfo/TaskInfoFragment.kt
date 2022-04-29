@@ -195,7 +195,11 @@ class TaskInfoFragment :
                         chpDate.visibility = View.VISIBLE
                         tvTimeLeft.visibility = View.VISIBLE
                         chpDate.text = it.first
-                        tvTimeLeft.text = "Осталось " + resources.getQuantityString(R.plurals.day, it.second.quantity, it.second.quantity)
+                        tvTimeLeft.text = "Осталось " + resources.getQuantityString(
+                            R.plurals.day,
+                            it.second.quantity,
+                            it.second.quantity
+                        )
                     } ?: run {
                         chpDate.visibility = View.GONE
                         tvTimeLeft.visibility = View.GONE
@@ -214,7 +218,6 @@ class TaskInfoFragment :
         }
 
         binding.apply {
-
             btnActionSubmission.setOnClickListener { viewModel.onActionClick() }
             submissionCollapsed.btnAction.setOnClickListener { viewModel.onActionClick() }
 
