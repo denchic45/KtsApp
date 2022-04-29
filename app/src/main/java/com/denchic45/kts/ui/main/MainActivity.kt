@@ -138,7 +138,7 @@ class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>(R.layout.a
             viewModel.bottomMenuVisibility.observe(this@MainActivity) {
                 bnv.visibility = if (it) View.VISIBLE else View.GONE
             }
-            viewModel.fabVisibility.observe(this@MainActivity) {
+            viewModel.fabVisibility.collectWhenStarted(lifecycleScope) {
                 if (it) fabMain.show() else fabMain.hide()
             }
 

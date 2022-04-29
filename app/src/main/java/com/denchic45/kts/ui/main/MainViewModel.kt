@@ -8,7 +8,8 @@ import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.*
+import com.denchic45.kts.data.model.domain.CourseHeader
+import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.ui.UiText
 import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.data.model.ui.onString
@@ -58,7 +59,7 @@ class MainViewModel @Inject constructor(
         R.string.nav_help to { },
     )
 
-    val fabVisibility: MutableLiveData<Boolean> = MutableLiveData()
+    val fabVisibility: MutableSharedFlow<Boolean> = MutableSharedFlow(replay = 1)
 
     private var courseIds = emptyMap<String, String>()
 
@@ -138,7 +139,8 @@ class MainViewModel @Inject constructor(
             bottomMenuVisibility.value = false
         }
 
-        fabVisibility.postValue(screenIdsWithFab.contains(id))
+        if (!screenIdsWithFab.contains(id))
+            fabVisibility.tryEmit(false)
     }
 
     companion object {
