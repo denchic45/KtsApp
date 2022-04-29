@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/option_set_headman"
+        android:title="@string/option_set_headman" />
+
+    <item
+        android:id="@+id/option_edit_user"
+        android:title="@string/option_edit_user" />
+
+    <item
+        android:id="@+id/option_remove_user"
+        android:title="@string/option_remove_user" />
+</menu>

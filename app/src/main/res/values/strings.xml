@@ -45,10 +45,9 @@
     <string name="nav_courses_hide">Hide</string>
     <string name="task_deadline_left">%1\\$s! left</string>
 
-    <string name="option_view_profile">View profile</string>
+    <string name="option_set_headman">Set headman</string>
     <string name="option_edit_user">Edit</string>
     <string name="option_remove_user">Remove</string>
-    <string name="option_set_headman">Set headman</string>
     <string name="option_remove_headman">Remove headman</string>
 
 
