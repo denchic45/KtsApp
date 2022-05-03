@@ -18,7 +18,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-
 class SubmissionAttachmentStorage @Inject constructor(
     context: Context,
     private val firebaseStorage: FirebaseStorage,

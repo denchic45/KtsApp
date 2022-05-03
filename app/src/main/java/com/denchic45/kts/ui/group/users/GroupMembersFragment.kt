@@ -77,18 +77,6 @@ class GroupMembersFragment :
         }
 
         viewModel.members.collectWhenStarted(lifecycleScope, userAdapter::submit)
-
-        viewModel.openUserEditor.observe(
-            viewLifecycleOwner
-        ) { args: Map<String, String> ->
-            navController.navigate(R.id.action_global_userEditorFragment,
-                Bundle(2).apply {
-                    args.forEach { (name: String, value: String) ->
-                        putString(name, value)
-                    }
-                })
-
-        }
     }
 
 

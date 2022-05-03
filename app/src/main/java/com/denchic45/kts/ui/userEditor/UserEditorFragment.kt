@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.AdapterView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -16,6 +17,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentUserEditorBinding
 import com.denchic45.kts.rx.AsyncTransformer
 import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.HasNavArgs
 import com.denchic45.kts.utils.JsonUtil
 import com.denchic45.kts.utils.collectWhenStarted
 import com.google.android.material.textfield.TextInputLayout
@@ -25,8 +27,9 @@ import kotlinx.coroutines.flow.filter
 class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorBinding>(
     R.layout.fragment_user_editor,
     R.menu.options_user_editor
-) {
+), HasNavArgs<UserEditorFragmentArgs> {
 
+    override val navArgs: UserEditorFragmentArgs by navArgs()
     override val binding: FragmentUserEditorBinding by viewBinding(FragmentUserEditorBinding::bind)
     override val viewModel: UserEditorViewModel by viewModels { viewModelFactory }
     private lateinit var keyboardManager: KeyboardManager
@@ -36,7 +39,6 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
         keyboardManager = KeyboardManager()
         val groupAdapter: ListPopupWindowAdapter
         with(binding) {
-//            etPhoneNum.addTextChangedListener(PhoneNumberFormattingTextWatcher())
             groupAdapter = ListPopupWindowAdapter(requireContext(), emptyList())
             etGroup.setAdapter(groupAdapter)
 
@@ -57,12 +59,6 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
                 .compose(AsyncTransformer())
                 .map { obj: CharSequence -> obj.toString() }
                 .subscribe(viewModel::onPatronymicType)
-
-//            etPhoneNum.textChanges()
-//                .skip(1)
-//                .compose(AsyncTransformer())
-//                .map { obj: CharSequence -> obj.toString() }
-//                .subscribe(viewModel::onPhoneNumType)
 
             etEmail.textChanges()
                 .skip(1)
@@ -102,12 +98,6 @@ class UserEditorFragment : BaseFragment<UserEditorViewModel, FragmentUserEditorB
                         .toString()
                 ) etPatronymic.setText(patronymic)
             }
-
-//            viewModel.fieldPhoneNum.collectWhenStarted(
-//                lifecycleScope
-//            ) { phoneNum ->
-//                if (phoneNum != etPhoneNum.text.toString()) etPhoneNum.setText(phoneNum)
-//            }
 
             viewModel.fieldEmail.collectWhenStarted(
                 lifecycleScope

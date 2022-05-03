@@ -6,6 +6,7 @@ import com.denchic45.kts.data.model.ui.UiImage
 import com.denchic45.kts.data.model.ui.UiText
 
 data class OptionItem(
+    override val id: String,
     val title: UiText,
     val icon: UiImage? = null,
     val color: UiColor? = null,

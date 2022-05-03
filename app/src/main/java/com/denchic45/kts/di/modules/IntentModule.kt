@@ -83,19 +83,19 @@ object IntentModule {
     @Named("UserEditor ${UserEditorFragment.USER_ID}")
     @Provides
     fun provideUserIdFromUserEditor(userEditorFragment: UserEditorFragment): String? {
-        return userEditorFragment.requireArguments().getString(UserEditorFragment.USER_ID)
+        return userEditorFragment.navArgs.userId
     }
 
     @Named(UserEditorFragment.USER_ROLE)
     @Provides
     fun provideUserRole(userEditorFragment: UserEditorFragment): String {
-        return userEditorFragment.requireArguments().getString(UserEditorFragment.USER_ROLE)!!
+        return userEditorFragment.navArgs.role
     }
 
     @Named(UserEditorFragment.USER_GROUP_ID)
     @Provides
     fun provideUserGroupId(userEditorFragment: UserEditorFragment): String? {
-        return userEditorFragment.requireArguments().getString(UserEditorFragment.USER_GROUP_ID)
+        return userEditorFragment.navArgs.groupId
     }
 
     @Named(SpecialtyEditorDialog.SPECIALTY_ID)

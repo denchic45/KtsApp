@@ -8,6 +8,7 @@ import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.data.model.domain.GroupMember
 import com.denchic45.kts.data.model.domain.GroupMembers
 import com.denchic45.kts.data.model.domain.OptionItem
+import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.ui.Header
 import com.denchic45.kts.data.model.ui.UserItem
 import com.denchic45.kts.domain.usecase.FindGroupMembersUseCase
@@ -15,7 +16,6 @@ import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
 import com.denchic45.kts.domain.usecase.RemoveStudentUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
-import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
@@ -38,14 +38,16 @@ class GroupMembersViewModel @Inject constructor(
 
     val showUserOptions = SingleLiveData<Pair<Int, List<OptionItem>>>()
 
-    val openUserEditor = SingleLiveData<Map<String, String>>()
-
     private val uiPermissions: UiPermissions = UiPermissions(findSelfUserUseCase())
 
     private var groupId: String = groupId ?: interactor.yourGroupId
 
     private val _members: SharedFlow<GroupMembers> =
-        findGroupMembersUseCase(this.groupId).shareIn(viewModelScope, SharingStarted.Lazily)
+        findGroupMembersUseCase(this.groupId).shareIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            replay = 1
+        )
 
     val members: StateFlow<List<DomainModel>> =
         _members.map { groupMembers ->
@@ -88,16 +90,20 @@ class GroupMembersViewModel @Inject constructor(
             OPTION_SHOW_PROFILE -> {
             }
             OPTION_EDIT_USER -> {
-                val args: MutableMap<String, String> = HashMap()
-//                args[UserEditorFragment.USER_ROLE] = selectedUser.role
-                args[UserEditorFragment.USER_ID] = selectedUserId
-//                args[UserEditorFragment.USER_GROUP_ID] = selectedUser.groupId!!
-                openUserEditor.setValue(args)
+                viewModelScope.launch {
+                    navigateTo(
+                        MobileNavigationDirections.actionGlobalUserEditorFragment(
+                            userId = selectedUserId,
+                            role = if (_members.first().students.any { it.id == selectedUserId })
+                                User.STUDENT else User.TEACHER,
+                            groupId = null
+                        )
+                    )
+                }
             }
             OPTION_DELETE_USER -> viewModelScope.launch {
                 try {
                     removeStudentUseCase(selectedUserId)
-//                    interactor.removeStudent(selectedUser)
                 } catch (e: Exception) {
                     if (e is NetworkException) {
                         showToast(R.string.error_check_network)
