@@ -10,16 +10,14 @@ import com.denchic45.kts.data.model.domain.GroupMembers
 import com.denchic45.kts.data.model.domain.OptionItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.ui.Header
+import com.denchic45.kts.data.model.ui.UiText
 import com.denchic45.kts.data.model.ui.UserItem
-import com.denchic45.kts.domain.usecase.FindGroupMembersUseCase
-import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
-import com.denchic45.kts.domain.usecase.RemoveStudentUseCase
+import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
 import com.denchic45.kts.utils.NetworkException
-import com.denchic45.kts.utils.Options
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,11 +28,11 @@ class GroupMembersViewModel @Inject constructor(
     findSelfUserUseCase: FindSelfUserUseCase,
     findGroupMembersUseCase: FindGroupMembersUseCase,
     private val removeStudentUseCase: RemoveStudentUseCase,
+    private val setHeadmanUseCase: SetHeadmanUseCase,
+    private val removeHeadmanUseCase: RemoveHeadmanUseCase,
     private val teacherChooserInteractor: TeacherChooserInteractor,
     @Named(GroupMembersFragment.GROUP_ID) groupId: String?
 ) : BaseViewModel() {
-
-    private val userOptions: List<OptionItem> = Options.student()
 
     val showUserOptions = SingleLiveData<Pair<Int, List<OptionItem>>>()
 
@@ -69,14 +67,47 @@ class GroupMembersViewModel @Inject constructor(
         uiPermissions.putPermissions(
             Permission(ALLOW_EDIT_USERS, { isTeacher }, { hasAdminPerms() })
         )
-
     }
 
     fun onUserItemLongClick(position: Int) {
-        if (uiPermissions.isAllowed(ALLOW_EDIT_USERS)) {
-            viewModelScope.launch {
-                selectedUserId = members.value[position].id
-                showUserOptions.value = position to userOptions
+        viewModelScope.launch {
+            selectedUserId = members.value[position].id
+            if (uiPermissions.isAllowed(ALLOW_EDIT_USERS)
+                && _members.first().students.any { it.id == selectedUserId }
+            ) {
+                showUserOptions.value = position to buildUserOptions()
+            }
+        }
+    }
+
+    private suspend fun buildUserOptions(): List<OptionItem> {
+        return buildList {
+            with(_members.first()) {
+                add(
+                    if (headmanId == selectedUserId) {
+                        OptionItem(
+                            id = "OPTION_REMOVE_HEADMAN",
+                            title = UiText.IdText(R.string.option_remove_headman)
+                        )
+                    } else {
+                        OptionItem(
+                            id = "OPTION_SET_HEADMAN",
+                            title = UiText.IdText(R.string.option_set_headman)
+                        )
+                    }
+                )
+                add(
+                    OptionItem(
+                        id = "OPTION_EDIT_USER",
+                        title = UiText.IdText(R.string.option_edit_user)
+                    )
+                )
+                add(
+                    OptionItem(
+                        id = "OPTION_REMOVE_USER",
+                        title = UiText.IdText(R.string.option_remove_user)
+                    )
+                )
             }
         }
     }
@@ -86,43 +117,51 @@ class GroupMembersViewModel @Inject constructor(
     }
 
     fun onOptionUserClick(optionId: String) {
-        when (optionId) {
-            OPTION_SHOW_PROFILE -> {
-            }
-            OPTION_EDIT_USER -> {
-                viewModelScope.launch {
+        viewModelScope.launch {
+            when (optionId) {
+                OPTION_SHOW_PROFILE -> {
+                }
+                OPTION_EDIT_USER -> {
                     navigateTo(
                         MobileNavigationDirections.actionGlobalUserEditorFragment(
                             userId = selectedUserId,
-                            role = if (_members.first().students.any { it.id == selectedUserId })
-                                User.STUDENT else User.TEACHER,
+                            role = (
+                                    if (_members.first().students.any { it.id == selectedUserId })
+                                        User.Role.STUDENT else User.Role.TEACHER
+                                    ).toString(),
                             groupId = null
                         )
                     )
                 }
-            }
-            OPTION_DELETE_USER -> viewModelScope.launch {
-                try {
-                    removeStudentUseCase(selectedUserId)
-                } catch (e: Exception) {
-                    if (e is NetworkException) {
-                        showToast(R.string.error_check_network)
+                OPTION_REMOVE_USER -> {
+                    try {
+                        removeStudentUseCase(selectedUserId)
+                    } catch (e: Exception) {
+                        if (e is NetworkException) {
+                            showToast(R.string.error_check_network)
+                        }
                     }
                 }
-            }
-            OPTION_CHANGE_CURATOR -> {
-                viewModelScope.launch {
+                OPTION_SET_HEADMAN -> {
+                    setHeadmanUseCase(selectedUserId, groupId)
+                }
+                OPTION_REMOVE_HEADMAN -> {
+                    removeHeadmanUseCase(groupId)
+                }
+                OPTION_CHANGE_CURATOR -> {
                     navigateTo(MobileNavigationDirections.actionGlobalTeacherChooserFragment())
                     teacherChooserInteractor.receiveSelectTeacher().apply {
                         try {
-                            interactor.updateGroupCurator(this@GroupMembersViewModel.groupId, this)
+                            interactor.updateGroupCurator(
+                                this@GroupMembersViewModel.groupId,
+                                this
+                            )
                         } catch (e: Exception) {
                             if (e is NetworkException) {
                                 showToast(R.string.error_check_network)
                             }
                         }
                     }
-
                 }
             }
         }
@@ -137,8 +176,10 @@ class GroupMembersViewModel @Inject constructor(
         const val ALLOW_EDIT_USERS = "EDIT_USERS"
         const val OPTION_SHOW_PROFILE = "OPTION_SHOW_PROFILE"
         const val OPTION_EDIT_USER = "OPTION_EDIT_USER"
-        const val OPTION_DELETE_USER = "OPTION_DELETE_USER"
+        const val OPTION_REMOVE_USER = "OPTION_REMOVE_USER"
         const val OPTION_CHANGE_CURATOR = "OPTION_CHANGE_CURATOR"
+        const val OPTION_SET_HEADMAN = "OPTION_SET_HEADMAN"
+        const val OPTION_REMOVE_HEADMAN = "OPTION_REMOVE_HEADMAN"
     }
 }
 

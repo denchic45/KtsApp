@@ -138,7 +138,7 @@ class GroupRepository @Inject constructor(
             }
 
     private fun getYourGroupByIdListener(): ListenerRegistration {
-        val queryGroup: Query = if (isStudent(userPreference.role)) {
+        val queryGroup: Query = if (isStudent(User.Role.valueOf(userPreference.role))) {
             getQueryOfGroupById(userPreference.groupId)
         } else {
             queryOfYourGroupByCurator
@@ -389,5 +389,13 @@ class GroupRepository @Inject constructor(
         return userDao.observeStudentsWithCuratorByGroupId(groupId)
             .filterNotNull()
             .map { groupMemberMapper.entityToDomainGroupMembers(it) }
+    }
+
+    suspend fun setHeadman(studentId: String, groupId: String) {
+        groupsRef.document(groupId).update("headmanId", studentId).await()
+    }
+
+    suspend fun removeHeadman(groupId: String) {
+        groupsRef.document(groupId).update("headmanId", null).await()
     }
 }
