@@ -30,8 +30,8 @@ android {
         applicationId "com.denchic45.kts"
         minSdkVersion 24
         targetSdkVersion 31
-        versionCode 80
-        versionName "1.0.5"
+        versionCode 82
+        versionName "1.0.6"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
 
@@ -70,7 +70,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
-    implementation 'com.google.android.material:material:1.6.0-beta01'
+    implementation 'com.google.android.material:material:1.7.0-alpha01'
     implementation 'androidx.preference:preference-ktx:1.2.0'
 
     implementation 'com.google.android.play:core:1.10.3'
@@ -123,8 +123,8 @@ dependencies {
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.8.1'
 
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha04'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha04'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-beta01'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-beta01'
     implementation 'com.github.tarek360.RichPath:animator:0.1.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'com.airbnb.android:lottie:4.0.0'
