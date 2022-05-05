@@ -53,18 +53,7 @@ class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(
             )
             if (menuItem != null) menuItem.isVisible = idAndVisiblePair.second
         }
-        viewModel.openUserEditor.observe(
-            viewLifecycleOwner
-        ) { (userType, groupId) ->
-            navController.navigate(
-                R.id.action_global_userEditorFragment,
-                bundleOf(
-                    UserEditorFragment.USER_ROLE to userType,
-                    UserEditorFragment.USER_GROUP_ID to groupId
-                )
-            )
 
-        }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) { groupId ->
             navController.navigate(
                 R.id.action_global_groupEditorFragment,

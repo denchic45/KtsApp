@@ -31,14 +31,11 @@ class ProfileViewModel @Inject constructor(
     private var userOfProfile: User? = null
     private var group: Group? = null
 
-    private fun mapRoleToNameRoleId(@User.Role role: String): Int {
+    private fun mapRoleToNameRoleId(role: User.Role): Int {
         return when (role) {
-            User.STUDENT -> R.string.role_student
-            User.CLASS_MONITOR -> R.string.role_classMonitor
-            User.DEPUTY_MONITOR -> R.string.role_deputyMonitor
-            User.TEACHER -> R.string.role_teacher
-            User.HEAD_TEACHER -> R.string.role_headTeacher
-            else -> throw IllegalArgumentException(role)
+            User.Role.STUDENT -> R.string.role_student
+            User.Role.TEACHER -> R.string.role_teacher
+            User.Role.HEAD_TEACHER -> R.string.role_headTeacher
         }
     }
 

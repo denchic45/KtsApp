@@ -1,6 +1,7 @@
 package com.denchic45.kts.ui.creator
 
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.ListItem
@@ -12,21 +13,29 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CreatorViewModel @Inject constructor() : BaseViewModel() {
-    var openUserEditor = SingleLiveData<Map<String, String>>()
     var openGroupEditor = SingleLiveData<Void>()
     var openSubjectEditor = SingleLiveData<Void>()
     var openSpecialtyEditor = SingleLiveData<Void>()
     var openCourseEditor = SingleLiveData<Void>()
     fun onEntityClick(position: Int) {
-        val argsMap: MutableMap<String, String> = HashMap()
         when (position) {
             0 -> {
-                argsMap[UserEditorFragment.USER_ROLE] = User.STUDENT
-                openUserEditor.setValue(argsMap)
+                navigateTo(
+                    MobileNavigationDirections.actionGlobalUserEditorFragment(
+                        userId = null,
+                        role = User.Role.STUDENT.toString(),
+                        groupId = null
+                    )
+                )
             }
             1 -> {
-                argsMap[UserEditorFragment.USER_ROLE] = User.TEACHER
-                openUserEditor.setValue(argsMap)
+                navigateTo(
+                    MobileNavigationDirections.actionGlobalUserEditorFragment(
+                        userId = null,
+                        role = User.Role.TEACHER.toString(),
+                        groupId = null
+                    )
+                )
             }
             2 -> openGroupEditor.call()
             3 -> openSubjectEditor.call()

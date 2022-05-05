@@ -125,16 +125,6 @@ class FinderFragment :
                 }
             }
 
-        viewModel.openUserEditor.observe(
-            viewLifecycleOwner
-        ) { args ->
-            navController.navigate(R.id.action_global_userEditorFragment, Bundle(2).apply {
-                args!!.forEach { (key, value) ->
-                    putString(key, value)
-                }
-            })
-        }
-
         viewModel.openSubjectEditor.observe(viewLifecycleOwner) { subjectId: String ->
             navController.navigate(
                 R.id.action_global_subjectEditorDialog,

@@ -14,7 +14,6 @@ import com.denchic45.kts.data.model.ui.UiImage
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
-import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.utils.NetworkException
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,8 +42,6 @@ class FinderViewModel @Inject constructor(
     val currentSelectedEntity = MutableStateFlow(POSITION_FIND_USERS)
 
     private val openSubject = SingleLiveData<String>()
-
-    val openUserEditor = SingleLiveData<Map<String, String>>()
 
     val openSubjectEditor = SingleLiveData<String>()
 
@@ -171,11 +168,13 @@ class FinderViewModel @Inject constructor(
             },
             "OPTION_EDIT_USER" to {
                 val selectedUser = selectedEntity as User
-                val args: MutableMap<String, String> = HashMap()
-                args[UserEditorFragment.USER_ROLE] = selectedUser.role
-                args[UserEditorFragment.USER_ID] = selectedUser.id
-                args[UserEditorFragment.USER_GROUP_ID] = selectedUser.groupId ?: ""
-                openUserEditor.setValue(args)
+                navigateTo(
+                    MobileNavigationDirections.actionGlobalUserEditorFragment(
+                        userId = selectedUser.id,
+                        role = selectedUser.role.toString(),
+                        groupId = selectedUser.groupId
+                    )
+                )
             },
             "OPTION_DELETE_USER" to {
                 viewModelScope.launch {
