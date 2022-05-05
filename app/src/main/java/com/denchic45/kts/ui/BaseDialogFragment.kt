@@ -16,6 +16,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmDialog
+import com.denchic45.kts.utils.collectWhenResumed
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.strings
 import com.denchic45.kts.utils.toast
@@ -23,7 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
-
 
 abstract class BaseDialogFragment<VM : BaseViewModel, VB : ViewBinding>(
     private val layoutId: Int = 0
@@ -37,6 +37,8 @@ abstract class BaseDialogFragment<VM : BaseViewModel, VB : ViewBinding>(
     abstract val binding: VB
 
     lateinit var alertDialog: AlertDialog
+
+    val navController by lazy { findNavController() }
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -78,6 +80,17 @@ abstract class BaseDialogFragment<VM : BaseViewModel, VB : ViewBinding>(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.navigate.collectWhenResumed(viewLifecycleOwner.lifecycleScope) { command ->
+            when (command) {
+                is NavigationCommand.To -> navController.navigate(command.directions)
+                NavigationCommand.Back -> navController.popBackStack()
+                is NavigationCommand.BackTo ->
+                    navController.popBackStack(command.destinationId, false)
+                NavigationCommand.ToRoot ->
+                    navController.popBackStack(navController.graph.startDestinationId, false)
+            }
+        }
 
         viewModel.finish.collectWhenStarted(lifecycleScope) { dismiss() }
 

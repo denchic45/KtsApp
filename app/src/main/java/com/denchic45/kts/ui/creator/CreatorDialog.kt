@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
@@ -19,11 +20,13 @@ import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.databinding.ItemEntityBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.HasViewModel
+import com.denchic45.kts.ui.NavigationCommand
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
+import com.denchic45.kts.utils.collectWhenResumed
 import com.denchic45.kts.utils.viewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.android.support.AndroidSupportInjection
@@ -47,14 +50,21 @@ class CreatorDialog : BottomSheetDialogFragment(), HasViewModel<CreatorViewModel
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
+        viewModel.navigate.collectWhenResumed(viewLifecycleOwner.lifecycleScope) { command ->
+            when (command) {
+                is NavigationCommand.To -> findNavController().navigate(command.directions)
+                NavigationCommand.Back -> findNavController().popBackStack()
+                is NavigationCommand.BackTo ->
+                    findNavController().popBackStack(command.destinationId, false)
+                NavigationCommand.ToRoot ->
+                    findNavController().popBackStack(findNavController().graph.startDestinationId, false)
+            }
+        }
+
         adapter!!.setData(viewModel.createEntityList())
         adapter!!.setOnItemClickListener { position: Int -> viewModel.onEntityClick(position) }
 
-        viewModel.openUserEditor.observe(viewLifecycleOwner) { args: Map<String, String> ->
-            findNavController().navigate(R.id.action_global_userEditorFragment, Bundle(2).apply {
-                args.forEach { (name: String, value: String) -> putString(name, value) }
-            })
-        }
         viewModel.openGroupEditor.observe(viewLifecycleOwner) {
             findNavController().navigate(
                 R.id.action_global_groupEditorFragment, Bundle.EMPTY
