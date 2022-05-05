@@ -77,10 +77,8 @@ open class UserEditorViewModel @Inject constructor(
     private val genderList: List<ListItem>
     private val uiValidator: UIValidator
     private val uiEditor: UIEditor<User>
-
-    //    var groupName: LiveData<String>? = null
     private var userId: String
-    private var role: String
+    private var role: User.Role
     private var gender = 0
     private var admin = false
     private var generatedAvatar = true
@@ -111,9 +109,9 @@ open class UserEditorViewModel @Inject constructor(
 //            ).sendMessageResult(R.id.til_phoneNum, fieldErrorMessage),
             Validation(Rule({ gender != 0 }, "Пол обязателен"))
                 .sendMessageResult(R.id.til_gender, fieldErrorMessage),
-            Validation(
-                Rule({ !TextUtils.isEmpty(role) }, "Роль обязательна")
-            ).sendMessageResult(R.id.til_role, fieldErrorMessage),
+//            Validation(
+//                Rule({ !TextUtils.isEmpty(role) }, "Роль обязательна")
+//            ).sendMessageResult(R.id.til_role, fieldErrorMessage),
             Validation(Rule({
                 isTeacher(
                     role
@@ -144,7 +142,7 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     init {
-        this.role = role ?: User.TEACHER
+        this.role = role?.let { User.Role.valueOf(it) } ?: User.Role.TEACHER
         this.userId = userId ?: UUIDS.createShort()
         this.genderList = genderList
         uiEditor = UIEditor(userId == null) {
@@ -196,9 +194,9 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     private fun setupForNewItem() {
-        toolbarTitle = when {
-            isStudent(role) -> "Новый студент"
-            isTeacher(role) -> "Новый преподаватель"
+        toolbarTitle = when (role) {
+            User.Role.STUDENT -> "Новый студент"
+            User.Role.TEACHER -> "Новый преподаватель"
             else -> throw IllegalStateException()
         }
     }
@@ -226,11 +224,9 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun setRoleView() {
         fieldRole.value = when (role) {
-            User.STUDENT -> R.string.role_student
-            User.DEPUTY_MONITOR -> R.string.role_deputyMonitor
-            User.CLASS_MONITOR -> R.string.role_classMonitor
-            User.TEACHER -> R.string.role_teacher
-            User.HEAD_TEACHER -> R.string.role_headTeacher
+            User.Role.STUDENT -> R.string.role_student
+            User.Role.TEACHER -> R.string.role_teacher
+            User.Role.HEAD_TEACHER -> R.string.role_headTeacher
             else -> throw IllegalStateException("Unknown role: $role")
         }
     }
@@ -257,7 +253,7 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     fun onRoleSelect(roleItem: ListItem) {
-        role = roleItem.content as String
+        role = User.Role.valueOf(roleItem.content as String)
 
     }
 
@@ -382,12 +378,10 @@ open class UserEditorViewModel @Inject constructor(
     }
 
     private fun setAvailableRoles() {
-        if (role != null) {
-            if (isStudent(role)) {
-                fieldRoles.value = R.raw.roles_student
-            } else if (isTeacher(role)) {
-                fieldRoles.value = R.raw.roles_teacher
-            }
+        if (isStudent(role)) {
+            fieldRoles.value = R.raw.roles_student
+        } else if (isTeacher(role)) {
+            fieldRoles.value = R.raw.roles_teacher
         }
     }
 

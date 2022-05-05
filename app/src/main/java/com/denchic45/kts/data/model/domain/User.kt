@@ -1,6 +1,5 @@
 package com.denchic45.kts.data.model.domain
 
-import androidx.annotation.StringDef
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.utils.UUIDS
 import java.util.*
@@ -11,7 +10,7 @@ data class User(
     val surname: String,
     val patronymic: String?,
     val groupId: String?,
-    val role: String,
+    val role: Role,
 //    val phoneNum: String,
     val email: String?,
     val photoUrl: String,
@@ -27,7 +26,7 @@ data class User(
         "",
         "",
         "",
-        "",
+        Role.STUDENT,
 //        "",
         "",
         "",
@@ -39,14 +38,14 @@ data class User(
 
 
     val isTeacher: Boolean
-        get() = role == TEACHER || role == HEAD_TEACHER
+        get() = role == Role.TEACHER || role == Role.HEAD_TEACHER
     val isStudent: Boolean
-        get() = role == STUDENT || role == DEPUTY_MONITOR || role == CLASS_MONITOR
+        get() = role == Role.STUDENT
 
 
     fun hasGroup(): Boolean = !groupId.isNullOrEmpty()
 
-    fun hasAdminPerms() = admin || role == "HEAD_TEACHER"
+    fun hasAdminPerms() = admin || role == Role.HEAD_TEACHER
 
     val fullName: String
         get() = "$firstName $surname"
@@ -57,9 +56,9 @@ data class User(
         return user.id == id
     }
 
-    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
-    @StringDef(STUDENT, DEPUTY_MONITOR, CLASS_MONITOR, TEACHER, HEAD_TEACHER)
-    annotation class Role
+//    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+//    @StringDef(STUDENT, DEPUTY_MONITOR, CLASS_MONITOR, TEACHER, HEAD_TEACHER)
+//    annotation class Role
 
     override fun copy(): User {
         return User(
@@ -81,19 +80,22 @@ data class User(
 
     fun curatorFor(groupId: String): Boolean = isTeacher && groupId == this.groupId
 
-    companion object {
-        const val STUDENT = "STUDENT"
-        const val DEPUTY_MONITOR = "DEPUTY_MONITOR"
-        const val CLASS_MONITOR = "CLASS_MONITOR"
-        const val TEACHER = "TEACHER"
-        const val HEAD_TEACHER = "HEAD_TEACHER"
+    enum class Role { STUDENT, TEACHER, HEAD_TEACHER }
 
-        fun isTeacher(role: String): Boolean {
-            return role == TEACHER || role == HEAD_TEACHER
+    companion object {
+//        const val STUDENT = "STUDENT"
+
+        //        const val DEPUTY_MONITOR = "DEPUTY_MONITOR"
+//        const val CLASS_MONITOR = "CLASS_MONITOR"
+//        const val TEACHER = "TEACHER"
+//        const val HEAD_TEACHER = "HEAD_TEACHER"
+
+        fun isTeacher(role: Role): Boolean {
+            return role == Role.TEACHER || role == Role.HEAD_TEACHER
         }
 
-        fun isStudent(role: String): Boolean {
-            return role == STUDENT || role == CLASS_MONITOR || role == DEPUTY_MONITOR
+        fun isStudent(role: Role): Boolean {
+            return role == Role.STUDENT
         }
 
         fun createEmpty(): User {

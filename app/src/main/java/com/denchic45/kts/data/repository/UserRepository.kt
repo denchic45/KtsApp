@@ -61,11 +61,10 @@ open class UserRepository @Inject constructor(
         userPreference.firstName = user.firstName
         userPreference.patronymic = user.patronymic ?: ""
         userPreference.surName = user.surname
-        userPreference.role = user.role
+        userPreference.role = user.role.toString()
         userPreference.gender = user.gender
         userPreference.photoUrl = user.photoUrl
         userPreference.email = user.email ?: ""
-//        userPreference.phoneNum = user.phoneNum
         userPreference.isAdmin = user.admin
         userPreference.timestamp = user.timestamp!!.time
         userPreference.isGeneratedAvatar = user.generatedAvatar
@@ -84,8 +83,7 @@ open class UserRepository @Inject constructor(
                 else
                     null
             },
-            userPreference.role,
-//            userPreference.phoneNum,
+            User.Role.valueOf(userPreference.role),
             userPreference.email,
             userPreference.photoUrl,
             Date(userPreference.timestamp), userPreference.gender,

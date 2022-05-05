@@ -10,7 +10,7 @@ data class UserDoc(
     var id: String = UUID.randomUUID().toString(),
     var firstName: String,
     var surname: String,
-    var role: String,
+    var role: User.Role,
     var email: String? = null,
     var photoUrl: String,
     var gender: Int,
@@ -30,7 +30,7 @@ data class UserDoc(
         "",
         "",
         "",
-        "",
+        User.Role.STUDENT,
         "",
         "",
         0,
@@ -46,9 +46,11 @@ data class UserDoc(
     }
 
     val isTeacher: Boolean
-        get() = role == User.TEACHER || role == User.HEAD_TEACHER
+        get() {
+            return role == User.Role.TEACHER || role == User.Role.HEAD_TEACHER
+        }
     val isStudent: Boolean
-        get() = role == User.STUDENT || role == User.DEPUTY_MONITOR || role == User.CLASS_MONITOR
+        get() = role == User.Role.STUDENT
     val fullName: String
         get() = "$firstName $surname"
 }

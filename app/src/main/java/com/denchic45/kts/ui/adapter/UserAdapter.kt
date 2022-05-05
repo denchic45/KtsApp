@@ -65,8 +65,8 @@ class UserAdapter(
             tvName.text = String.format("%s %s", user.firstName, user.surname)
             tvAdditionally.visibility = View.VISIBLE
             when (user.role) {
-                User.DEPUTY_MONITOR -> tvAdditionally.text = "Зам. старосты"
-                User.CLASS_MONITOR -> tvAdditionally.text = "Староста"
+//                User.DEPUTY_MONITOR -> tvAdditionally.text = "Зам. старосты"
+//                User.CLASS_MONITOR -> tvAdditionally.text = "Староста"
                 else -> tvAdditionally.visibility = View.GONE
             }
         }

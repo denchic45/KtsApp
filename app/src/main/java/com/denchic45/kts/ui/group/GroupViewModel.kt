@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.group
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.User
@@ -23,13 +24,11 @@ class GroupViewModel @Inject constructor(
 
     val menuItemVisibility = SingleLiveData<Pair<Int, Boolean>>()
 
-    val openUserEditor = SingleLiveData<Pair<String, String>>()
-
     val openGroupEditor = SingleLiveData<String>()
 
     val groupId: String = groupId ?: interactor.yourGroupId
 
-    val isExist =  interactor.isExistGroup(this@GroupViewModel.groupId).onEach { exist ->
+    val isExist = interactor.isExistGroup(this@GroupViewModel.groupId).onEach { exist ->
         Log.d("lol", "exist isExistGroup: $exist")
         if (!exist) {
             finish()
@@ -57,7 +56,15 @@ class GroupViewModel @Inject constructor(
     override fun onOptionClick(itemId: Int) {
         when (itemId) {
             R.id.option_edit_group -> openGroupEditor.setValue(groupId)
-            R.id.option_add_student -> openUserEditor.setValue(User.STUDENT to groupId)
+            R.id.option_add_student -> {
+                navigateTo(
+                    MobileNavigationDirections.actionGlobalUserEditorFragment(
+                        userId = null,
+                        role = User.Role.STUDENT.toString(),
+                        groupId = groupId
+                    )
+                )
+            }
         }
     }
 
@@ -79,11 +86,6 @@ class GroupViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch{
-            Log.d("lol", "exist : ")
-
-        }
-
         viewModelScope.launch {
             interactor.getNameByGroupId(this@GroupViewModel.groupId).collect {
                 toolbarTitle = it
