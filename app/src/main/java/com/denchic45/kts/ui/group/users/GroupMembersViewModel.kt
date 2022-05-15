@@ -125,11 +125,8 @@ class GroupMembersViewModel @Inject constructor(
                     navigateTo(
                         MobileNavigationDirections.actionGlobalUserEditorFragment(
                             userId = selectedUserId,
-                            role = (
-                                    if (_members.first().students.any { it.id == selectedUserId })
-                                        User.Role.STUDENT else User.Role.TEACHER
-                                    ).toString(),
-                            groupId = null
+                            role = User.Role.STUDENT.toString(),
+                            groupId = groupId
                         )
                     )
                 }

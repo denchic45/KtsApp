@@ -199,6 +199,7 @@ open class UserRepository @Inject constructor(
         }
         emitAll(
             userDao.observe(userId)
+                .distinctUntilChanged()
                 .map { entity: UserEntity? -> entity?.let { userMapper.entityToDomain(entity) } }
         )
     }

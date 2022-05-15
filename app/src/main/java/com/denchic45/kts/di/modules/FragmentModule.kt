@@ -100,7 +100,7 @@ interface FragmentModule {
     fun contributeTeacherChooserFragment(): TeacherChooserFragment
 
     @ContributesAndroidInjector
-    fun contributeChoiceOfGroupFragment(): GroupChooserFragment
+    fun contributeGroupChooserFragment(): GroupChooserFragment
 
     @ContributesAndroidInjector
     fun contributeVerifyPhoneNumFragment(): VerifyPhoneNumFragment

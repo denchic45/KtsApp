@@ -306,7 +306,9 @@ class GroupRepository @Inject constructor(
                 getGroupByIdRemotely(groupId)
             }
         }
-        return groupDao.getNameById(groupId).filterNotNull()
+        return groupDao.getNameById(groupId)
+            .filterNotNull()
+            .distinctUntilChanged()
     }
 
     fun isExistGroup(groupId: String): Flow<Boolean> {

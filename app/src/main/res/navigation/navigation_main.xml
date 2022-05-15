@@ -56,7 +56,7 @@
         android:name="com.denchic45.kts.ui.settings.SettingsFragment"
         android:label="SettingsFragment" />
     <fragment
-        android:id="@+id/choiceOfGroupFragment"
+        android:id="@+id/GroupChooserFragment"
         android:name="com.denchic45.kts.ui.login.groupChooser.GroupChooserFragment"
         android:label="ChoiceOfGroupFragment" />
     <fragment
@@ -72,8 +72,8 @@
         android:id="@+id/action_global_profileFragment"
         app:destination="@id/profileFragment" />
     <action
-        android:id="@+id/action_global_choiceOfGroupFragment"
-        app:destination="@id/choiceOfGroupFragment" />
+        android:id="@+id/action_global_GroupChooserFragment"
+        app:destination="@id/GroupChooserFragment" />
     <action
         android:id="@+id/action_global_menu_settings"
         app:destination="@id/menu_settings" />

@@ -219,7 +219,7 @@ class TimetableLoaderFragment :
         }
         viewModel.openChoiceOfGroup.observe(
             viewLifecycleOwner
-        ) { navController.navigate(R.id.action_global_choiceOfGroupFragment) }
+        ) { navController.navigate(R.id.action_global_GroupChooserFragment) }
 
         viewModel.addGroup.observe(viewLifecycleOwner) {
             groupTimetablesAdapter.notifyItemInserted(

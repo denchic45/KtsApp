@@ -2,6 +2,7 @@ package com.denchic45.kts.ui.courseEditor
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
@@ -46,7 +47,7 @@ class CourseEditorViewModel @Inject constructor(
     val teacherNameTypeEnable = MutableLiveData<Boolean>()
     val groupList = MutableLiveData(addAdderGroupItem())
     val title = MutableLiveData<String>()
-    val openChoiceOfGroup = SingleLiveData<Unit>()
+//    val openChoiceOfGroup = SingleLiveData<Unit>()
 
     private val courseId: String = courseId ?: UUID.randomUUID().toString()
     private var foundTeachers: List<User>? = null
@@ -263,8 +264,8 @@ class CourseEditorViewModel @Inject constructor(
     }
 
     fun onGroupAddClick() {
-        openChoiceOfGroup.call()
         viewModelScope.launch {
+            navigateTo(MobileNavigationDirections.actionGlobalGroupChooserFragment())
             groupChooserInteractor.receiveSelectedGroup()
                 .let { courseGroup ->
                     groupHeaders.add(courseGroup)

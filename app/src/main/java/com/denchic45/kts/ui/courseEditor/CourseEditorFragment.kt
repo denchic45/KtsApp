@@ -11,7 +11,6 @@ import android.widget.TextView.OnEditorActionListener
 import androidx.appcompat.widget.ListPopupWindow
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -178,10 +177,6 @@ class CourseEditorFragment :
                     viewModel.onSubjectSelect(position)
                 }
                 popupWindow!!.show()
-            }
-
-            viewModel.openChoiceOfGroup.observe(viewLifecycleOwner) {
-                findNavController().navigate(R.id.action_global_choiceOfGroupFragment)
             }
 
             etSubjectName.textChanges()
