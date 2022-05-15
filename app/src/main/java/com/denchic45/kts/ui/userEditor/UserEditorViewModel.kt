@@ -3,6 +3,7 @@ package com.denchic45.kts.ui.userEditor
 import android.text.TextUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
@@ -15,6 +16,7 @@ import com.denchic45.kts.domain.usecase.FindGroupNameUseCase
 import com.denchic45.kts.domain.usecase.RemoveStudentUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
+import com.denchic45.kts.ui.login.groupChooser.GroupChooserInteractor
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
@@ -39,38 +41,45 @@ open class UserEditorViewModel @Inject constructor(
     private val removeStudentUseCase: RemoveStudentUseCase,
     private val confirmInteractor: ConfirmInteractor,
     private val findGroupByContainsNameUseCase: FindGroupByContainsNameUseCase,
-    private val findGroupNameUseCase: FindGroupNameUseCase
+    private val findGroupNameUseCase: FindGroupNameUseCase,
+    private val groupChooserInteractor: GroupChooserInteractor
 ) : BaseViewModel() {
 
-    val fieldRoles = MutableStateFlow(0)
+    val roles = MutableStateFlow(0)
 
-    val fieldGenders = MutableLiveData<List<ListItem>>()
+    val genders = MutableLiveData<List<ListItem>>()
 
     val groupList = MutableLiveData<List<ListItem>>()
 
-    val fieldFirstName = MutableStateFlow("")
+    val firstNameField = MutableStateFlow("")
 
-    val fieldSurname = MutableStateFlow("")
+    val surnameField = MutableStateFlow("")
 
-    val fieldPatronymic = MutableStateFlow("")
+    val patronymicField = MutableStateFlow("")
 
-    val fieldEmail = MutableStateFlow("")
+    val emailField = MutableStateFlow("")
 
-    val fieldGender = MutableStateFlow("")
+    val passwordField = MutableStateFlow("")
 
-    val fieldRole = MutableStateFlow(R.string.role_student)
+    val genderField = MutableStateFlow("")
 
-    val fieldGroup = MutableStateFlow("")
+    val roleField = MutableStateFlow(R.string.role_student)
+
+    val groupField = MutableStateFlow("")
 
     val avatarUser = MutableStateFlow("")
 
-    val fieldGroupVisibility = MutableStateFlow(false)
+//    val emailFieldEnable = MutableStateFlow(true)
 
-    val fieldEmailEnable = MutableStateFlow(true)
+//    val passwordFieldVisibility = MutableStateFlow(true)
 
-    val fieldPasswordVisibility = MutableStateFlow(true)
+    val roleFieldVisibility = MutableStateFlow(false)
 
-    val fieldErrorMessage = SingleLiveData<Pair<Int, String?>>()
+    val groupFieldVisibility = MutableStateFlow(false)
+
+    val accountFieldsVisibility = MutableStateFlow(true)
+
+    val errorMessageField = SingleLiveData<Pair<Int, String?>>()
 
     private val typedNameGroup = MutableSharedFlow<String>()
 
@@ -82,19 +91,19 @@ open class UserEditorViewModel @Inject constructor(
     private var gender = 0
     private var admin = false
     private var generatedAvatar = true
-    private var password: String? = null
+    private var password: String = ""
     private fun getUiValidator(): UIValidator {
         val uiValidator: UIValidator = UIValidator.of(
             Validation(Rule({
-                fieldFirstName.value.isNotEmpty()
+                firstNameField.value.isNotEmpty()
             }, "Имя обязательно"))
-                .sendMessageResult(R.id.til_firstName, fieldErrorMessage),
+                .sendMessageResult(R.id.til_firstName, errorMessageField),
             Validation(Rule({
                 !TextUtils.isEmpty(
-                    fieldSurname.value
+                    surnameField.value
                 )
             }, "Фамилия обязательна"))
-                .sendMessageResult(R.id.til_surname, fieldErrorMessage),
+                .sendMessageResult(R.id.til_surname, errorMessageField),
 //            Validation(
 //                Rule({
 //                    !TextUtils.isEmpty(
@@ -108,7 +117,7 @@ open class UserEditorViewModel @Inject constructor(
 //                }, "Номер некоректный")
 //            ).sendMessageResult(R.id.til_phoneNum, fieldErrorMessage),
             Validation(Rule({ gender != 0 }, "Пол обязателен"))
-                .sendMessageResult(R.id.til_gender, fieldErrorMessage),
+                .sendMessageResult(R.id.til_gender, errorMessageField),
 //            Validation(
 //                Rule({ !TextUtils.isEmpty(role) }, "Роль обязательна")
 //            ).sendMessageResult(R.id.til_role, fieldErrorMessage),
@@ -117,26 +126,26 @@ open class UserEditorViewModel @Inject constructor(
                     role
                 ) || isStudent(role) && !groupId.isNullOrEmpty()
             }, "Группа отсутствует"))
-                .sendMessageResult(R.id.til_group, fieldErrorMessage),
+                .sendMessageResult(R.id.til_group, errorMessageField),
             Validation(
                 Rule({
-                    !fieldEmailEnable.value || Validations.validEmail(
-                        fieldEmail.value
-                    ) && fieldEmailEnable.value
+                    !accountFieldsVisibility.value || Validations.validEmail(
+                        emailField.value
+                    ) && accountFieldsVisibility.value
                 }, "Некоректная почта!")
             )
-                .sendMessageResult(R.id.til_email, fieldErrorMessage),
+                .sendMessageResult(R.id.til_email, errorMessageField),
             Validation(
                 Rule(
-                    { !fieldPasswordVisibility.value || !TextUtils.isEmpty(password) && fieldPasswordVisibility.value },
+                    { !accountFieldsVisibility.value || !TextUtils.isEmpty(password) && accountFieldsVisibility.value },
                     "Некоректный пароль!"
                 ),
                 Rule(
-                    { !fieldPasswordVisibility.value || fieldPasswordVisibility.value && password!!.length > 5 },
+                    { !accountFieldsVisibility.value || accountFieldsVisibility.value && password.length > 5 },
                     "Минимальный размер пароля - 6 символов!"
                 )
             )
-                .sendMessageResult(R.id.til_password, fieldErrorMessage)
+                .sendMessageResult(R.id.til_password, errorMessageField)
         )
         return uiValidator
     }
@@ -148,12 +157,12 @@ open class UserEditorViewModel @Inject constructor(
         uiEditor = UIEditor(userId == null) {
             User(
                 this.userId,
-                fieldFirstName.value,
-                fieldSurname.value,
-                fieldPatronymic.value,
+                firstNameField.value,
+                surnameField.value,
+                patronymicField.value,
                 groupId,
                 this.role,
-                fieldEmail.value,
+                emailField.value,
                 "",
                 Date(),
                 gender,
@@ -171,8 +180,9 @@ open class UserEditorViewModel @Inject constructor(
         }
         setRoleView()
         setAvailableRoles()
-        fieldGroupVisibility.value = isStudent(role)
-        fieldGenders.value = genderList
+        groupFieldVisibility.value = isStudent(role)
+        roleFieldVisibility.value = isTeacher(role)
+        genders.value = genderList
         viewModelScope.launch {
             typedNameGroup.flatMapLatest { name: String -> findGroupByContainsNameUseCase(name) }
                 .collect { resource ->
@@ -203,12 +213,15 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun setupForExistItem() {
         getExistUser()
-        fieldEmailEnable.value = false
-        fieldPasswordVisibility.value = false
-        toolbarTitle = when {
-            isStudent(role) -> "Редактировать студента"
-            isTeacher(role) -> "Редактировать преподавателя"
-            else -> throw IllegalStateException()
+//        emailFieldEnable.value = false
+        accountFieldsVisibility.value = false
+        toolbarTitle = when (role) {
+            User.Role.STUDENT -> {
+                "Редактировать студента"
+            }
+            User.Role.TEACHER, User.Role.HEAD_TEACHER -> {
+                "Редактировать руководителя"
+            }
         }
     }
 
@@ -216,18 +229,17 @@ open class UserEditorViewModel @Inject constructor(
         groupId?.let {
             viewModelScope.launch {
                 findGroupNameUseCase(it).collect {
-                    fieldGroup.value = it
+                    groupField.value = it
                 }
             }
         }
     }
 
     private fun setRoleView() {
-        fieldRole.value = when (role) {
+        roleField.value = when (role) {
             User.Role.STUDENT -> R.string.role_student
             User.Role.TEACHER -> R.string.role_teacher
             User.Role.HEAD_TEACHER -> R.string.role_headTeacher
-            else -> throw IllegalStateException("Unknown role: $role")
         }
     }
 
@@ -240,12 +252,11 @@ open class UserEditorViewModel @Inject constructor(
                     gender = user.gender
                     admin = user.admin
                     generatedAvatar = user.generatedAvatar
-                    fieldFirstName.value = user.firstName
-                    fieldSurname.value = user.surname
-                    fieldPatronymic.value = user.patronymic ?: ""
-                    fieldGender.value = fieldGenders.value!![gender - 1].title
-//                    fieldPhoneNum.value = user.phoneNum
-                    fieldEmail.value = user.email!!
+                    firstNameField.value = user.firstName
+                    surnameField.value = user.surname
+                    patronymicField.value = user.patronymic ?: ""
+                    genderField.value = genders.value!![gender - 1].title
+                    emailField.value = user.email!!
                     avatarUser.value = user.photoUrl
                 } ?: run { finish() }
             }
@@ -261,25 +272,25 @@ open class UserEditorViewModel @Inject constructor(
         val item = genderList[position]
         gender = (item.content as Double).toInt()
 
-        fieldGender.value = item.title
+        genderField.value = item.title
     }
 
     fun onGroupSelect(position: Int) {
         val item = groupList.value!![position]
         groupId = item.id
-        fieldGroup.value = item.title
+        groupField.value = item.title
     }
 
     fun onFirstNameType(firstName: String) {
-        fieldFirstName.value = firstName
+        firstNameField.value = firstName
     }
 
     fun onSurnameType(surname: String) {
-        fieldSurname.value = surname
+        surnameField.value = surname
     }
 
     fun onPatronymicType(patronymic: String) {
-        fieldPatronymic.value = patronymic
+        patronymicField.value = patronymic
     }
 
 //    fun onPhoneNumType(phoneNum: String) {
@@ -287,7 +298,7 @@ open class UserEditorViewModel @Inject constructor(
 //    }
 
     fun onEmailType(email: String) {
-        fieldEmail.value = email
+        emailField.value = email
     }
 
     fun onGroupNameType(groupName: String) {
@@ -304,7 +315,7 @@ open class UserEditorViewModel @Inject constructor(
     private fun saveChanges() {
         viewModelScope.launch {
             if (uiEditor.isNew) {
-                interactor.signUpUser(fieldEmail.value, password!!)
+                interactor.signUpUser(emailField.value, password)
                 interactor.addUser(uiEditor.item)
             } else {
                 interactor.updateUser(uiEditor.item)
@@ -379,9 +390,9 @@ open class UserEditorViewModel @Inject constructor(
 
     private fun setAvailableRoles() {
         if (isStudent(role)) {
-            fieldRoles.value = R.raw.roles_student
+            roles.value = R.raw.roles_student
         } else if (isTeacher(role)) {
-            fieldRoles.value = R.raw.roles_teacher
+            roles.value = R.raw.roles_teacher
         }
     }
 
@@ -399,7 +410,29 @@ open class UserEditorViewModel @Inject constructor(
         }
     }
 
-    fun onPasswordType(password: String?) {
+    fun onPasswordType(password: String) {
         this.password = password
+    }
+
+    fun onSelectGroupClick() {
+        viewModelScope.launch {
+            navigateTo(MobileNavigationDirections.actionGlobalGroupChooserFragment())
+            groupChooserInteractor.receiveSelectedGroup().let {
+                groupId = it.id
+                groupField.value = it.name
+            }
+        }
+    }
+
+    fun onPasswordGenerateClick() {
+        passwordField.value = randomAlphaNumericString(16)
+    }
+
+    private fun randomAlphaNumericString(desiredStrLength: Int): String {
+        val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+        return (1..desiredStrLength)
+            .map { kotlin.random.Random.nextInt(0, charPool.size) }
+            .map(charPool::get)
+            .joinToString("")
     }
 }
