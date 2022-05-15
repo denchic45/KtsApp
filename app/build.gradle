@@ -173,4 +173,8 @@ dependencies {
     implementation 'com.github.kirich1409:viewbindingpropertydelegate-noreflection:1.5.3'
 
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+
+    // https://mvnrepository.com/artifact/com.sun.mail/javax.mail
+    implementation group: 'com.sun.mail', name: 'javax.mail', version: '1.6.2'
+
 }
