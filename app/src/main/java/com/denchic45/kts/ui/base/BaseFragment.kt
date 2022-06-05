@@ -1,4 +1,4 @@
-package com.denchic45.kts.ui
+package com.denchic45.kts.ui.base
 
 import android.content.Context
 import android.os.Bundle
@@ -19,7 +19,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.viewbinding.ViewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
-import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.utils.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

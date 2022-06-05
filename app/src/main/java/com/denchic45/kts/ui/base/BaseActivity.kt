@@ -1,4 +1,4 @@
-package com.denchic45.kts.ui
+package com.denchic45.kts.ui.base
 
 import android.os.Bundle
 import android.util.Log
@@ -10,7 +10,6 @@ import androidx.navigation.findNavController
 import androidx.viewbinding.ViewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
-import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmDialog
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.kts.utils.strings
