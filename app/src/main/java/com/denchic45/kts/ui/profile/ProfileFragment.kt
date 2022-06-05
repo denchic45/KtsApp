@@ -18,8 +18,8 @@ import com.canhub.cropper.PickImageContract
 import com.canhub.cropper.options
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentProfileBinding
-import com.denchic45.kts.ui.BaseFragment
-import com.denchic45.kts.ui.HasNavArgs
+import com.denchic45.kts.ui.base.BaseFragment
+import com.denchic45.kts.ui.base.HasNavArgs
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.profile.fullAvatar.FullAvatarActivity
 import com.example.appbarcontroller.appbarcontroller.AppBarController

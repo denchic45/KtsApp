@@ -19,7 +19,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentEventEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.collectWhenResumed
 import com.example.appbarcontroller.appbarcontroller.AppBarController

@@ -14,7 +14,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentGroupEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges

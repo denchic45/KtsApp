@@ -13,7 +13,7 @@ import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.ui.UiText
 import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.data.model.ui.onString
-import com.denchic45.kts.ui.NavigationCommand
+import com.denchic45.kts.ui.base.NavigationCommand
 import com.denchic45.kts.ui.adapter.*
 import com.denchic45.kts.ui.adminPanel.AdminPanelFragmentDirections
 import com.denchic45.kts.ui.base.BaseViewModel

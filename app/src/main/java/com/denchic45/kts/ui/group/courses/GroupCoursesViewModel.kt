@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.CourseHeader
-import com.denchic45.kts.ui.NavigationCommand
+import com.denchic45.kts.ui.base.NavigationCommand
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.course.CourseFragmentDirections
 import kotlinx.coroutines.flow.SharingStarted

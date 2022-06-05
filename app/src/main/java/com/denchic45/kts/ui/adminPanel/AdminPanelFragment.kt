@@ -6,7 +6,7 @@ import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentAdminPanelBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.ItemAdapter
 import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.creator.CreatorDialog

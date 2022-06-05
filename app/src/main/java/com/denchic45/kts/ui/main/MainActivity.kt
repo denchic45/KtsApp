@@ -16,7 +16,7 @@ import com.denchic45.kts.CustomToolbar
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.ActivityMainBinding
-import com.denchic45.kts.ui.BaseActivity
+import com.denchic45.kts.ui.base.BaseActivity
 import com.denchic45.kts.ui.adapter.NavDropdownItemHolder
 import com.denchic45.kts.ui.adapter.NavItemHolder
 import com.denchic45.kts.ui.adapter.navAdapter

@@ -11,7 +11,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentContentBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment

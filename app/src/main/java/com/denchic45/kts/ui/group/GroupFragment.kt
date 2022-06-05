@@ -15,20 +15,19 @@ import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentGroupBinding
-import com.denchic45.kts.ui.BaseFragment
-import com.denchic45.kts.ui.HasNavArgs
+import com.denchic45.kts.ui.base.BaseFragment
+import com.denchic45.kts.ui.base.HasNavArgs
 import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.group.users.GroupMembersFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
-import com.denchic45.kts.ui.userEditor.UserEditorFragment
 import com.denchic45.kts.utils.collectWhenResumed
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(
     R.layout.fragment_group,
     R.menu.options_group
-),HasNavArgs<GroupFragmentArgs> {
+), HasNavArgs<GroupFragmentArgs> {
 
     override val navArgs: GroupFragmentArgs by navArgs()
     override val binding: FragmentGroupBinding by viewBinding(FragmentGroupBinding::bind)

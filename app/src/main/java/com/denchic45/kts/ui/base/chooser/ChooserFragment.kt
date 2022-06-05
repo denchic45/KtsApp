@@ -9,7 +9,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.DomainModel
 import com.denchic45.kts.databinding.FragmentChooserBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.utils.NetworkException
 import com.denchic45.kts.utils.collectWhenStarted
 import com.denchic45.sample.SearchBar

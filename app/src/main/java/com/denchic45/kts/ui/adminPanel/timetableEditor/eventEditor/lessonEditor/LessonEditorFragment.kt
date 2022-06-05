@@ -25,7 +25,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.databinding.FragmentLessonEditorBinding
 import com.denchic45.kts.glideSvg.GlideApp
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.utils.Dimensions
 import com.denchic45.kts.utils.dpToPx
 import com.google.android.material.chip.Chip

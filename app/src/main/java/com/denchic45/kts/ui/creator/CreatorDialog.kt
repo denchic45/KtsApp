@@ -19,8 +19,8 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.databinding.ItemEntityBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
-import com.denchic45.kts.ui.HasViewModel
-import com.denchic45.kts.ui.NavigationCommand
+import com.denchic45.kts.ui.base.HasViewModel
+import com.denchic45.kts.ui.base.NavigationCommand
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment

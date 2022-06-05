@@ -9,7 +9,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.databinding.FragmentChoiceOfGroupSubjectBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.SubjectAdapter
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
 import com.denchic45.kts.utils.NetworkException

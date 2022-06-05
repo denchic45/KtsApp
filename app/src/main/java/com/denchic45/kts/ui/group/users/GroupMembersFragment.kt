@@ -12,7 +12,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.OptionsPopupAdapter
 import com.denchic45.kts.databinding.FragmentGroupMembersBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.HeaderAdapterDelegate
 import com.denchic45.kts.ui.adapter.UserAdapterDelegate
 import com.denchic45.kts.utils.Dimensions

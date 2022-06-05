@@ -23,7 +23,7 @@ import com.denchic45.kts.databinding.FragmentCourseEditorBinding
 import com.denchic45.kts.databinding.ItemGroupInCourseBinding
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.rx.EditTextTransformer
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.utils.*
 import com.denchic45.widget.extendedAdapter.ItemAdapterDelegate

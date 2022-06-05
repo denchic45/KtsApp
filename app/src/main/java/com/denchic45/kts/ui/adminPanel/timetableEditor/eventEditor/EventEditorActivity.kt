@@ -6,7 +6,7 @@ import androidx.appcompat.widget.Toolbar
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.ActivityEventEditorBinding
-import com.denchic45.kts.ui.BaseActivity
+import com.denchic45.kts.ui.base.BaseActivity
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class EventEditorActivity :

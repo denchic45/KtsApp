@@ -16,7 +16,7 @@ import com.denchic45.kts.data.model.domain.Section
 import com.denchic45.kts.databinding.FragmentCourseSectionEditorBinding
 import com.denchic45.kts.databinding.ItemAddSectionBinding
 import com.denchic45.kts.databinding.ItemEditSectionBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.utils.closeKeyboard
 import com.denchic45.kts.utils.setActivityTitle
