@@ -8,7 +8,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
-import com.denchic45.kts.ui.HasViewModel
+import com.denchic45.kts.ui.base.HasViewModel
 import com.denchic45.kts.utils.setActivityTitle
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject

@@ -19,7 +19,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.SimpleEventDetails
 import com.denchic45.kts.databinding.FragmentSimpleEventBinding
 import com.denchic45.kts.glideSvg.GlideApp
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.utils.Dimensions
 
 class SimpleEventEditorFragment :

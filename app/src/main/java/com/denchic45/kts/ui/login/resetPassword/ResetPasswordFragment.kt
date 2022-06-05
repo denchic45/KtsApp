@@ -6,7 +6,7 @@ import androidx.fragment.app.viewModels
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentResetPasswordBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 
 class ResetPasswordFragment :
     BaseFragment<ResetPasswordViewModel, FragmentResetPasswordBinding>(R.layout.fragment_reset_password) {

@@ -14,7 +14,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentTimetableFinderBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity

@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentVerifyPhoneNumberBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.login.LoginViewModel
 import com.denchic45.kts.utils.closeKeyboard
 import com.denchic45.kts.utils.collectWhenStarted

@@ -8,7 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentTasksBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.tasks.completed.CompletedTasksFragment
 import com.denchic45.kts.ui.tasks.overdue.OverdueTasksFragment
 import com.denchic45.kts.ui.tasks.upcoming.UpcomingTasksFragment

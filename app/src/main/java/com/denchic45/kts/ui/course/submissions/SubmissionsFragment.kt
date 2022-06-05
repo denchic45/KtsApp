@@ -13,7 +13,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Task
 import com.denchic45.kts.databinding.FragmentSubmissionsBinding
 import com.denchic45.kts.databinding.ItemSubmissionBinding
-import com.denchic45.kts.ui.BaseFragment
+import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.course.submission.SubmissionDialog
 import com.denchic45.kts.utils.viewBinding
