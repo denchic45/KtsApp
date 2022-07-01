@@ -4,12 +4,12 @@ plugins {
 apply(plugin = ("kotlin-android"))
 
 android {
-    compileSdk = 31
+    compileSdk = 32
     buildToolsVersion = "30.0.3"
 
     defaultConfig {
         minSdk = 24
-        targetSdk = 31
+        targetSdk = 32
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 //        consumerProguardFiles = "consumer-rules.pro"

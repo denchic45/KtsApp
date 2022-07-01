@@ -14,7 +14,7 @@ android {
         unitTests.isIncludeAndroidResources = true
 //        useJUnitPlatform()
     }
-    compileSdk = 31
+    compileSdk = 32
     buildToolsVersion = "30.0.3"
 
     compileOptions {
@@ -27,9 +27,9 @@ android {
     defaultConfig {
         applicationId = "com.denchic45.kts"
         minSdk = 24
-        targetSdk = 31
-        versionCode = 82
-        versionName = "1.0.6"
+        targetSdk = 32
+        versionCode = 83
+        versionName = "1.0.7"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
 
@@ -60,14 +60,37 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.1.1"
     }
     namespace = "com.denchic45.kts"
+
+    sourceSets.all {
+        kotlin.srcDir("src/$name/kotlin")
+    }
 }
 
 
 dependencies {
+    implementation(project((":common")))
+    //Compose
+    val compose_version = "1.1.1"
+    implementation("androidx.compose.runtime:runtime:$compose_version")
+    implementation("androidx.compose.compiler:compiler:$compose_version")
+    implementation("androidx.compose.ui:ui:$compose_version")
+    // Tooling support (Previews, etc.)
+    implementation("androidx.compose.ui:ui-tooling:$compose_version")
+    // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
+    implementation("androidx.compose.foundation:foundation:$compose_version")
+    // Material Design
+    implementation("androidx.compose.material:material:$compose_version")
+    // Material design icons
+    implementation("androidx.compose.material:material-icons-core:$compose_version")
+    implementation("androidx.compose.material:material-icons-extended:$compose_version")
 
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.21")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.0")
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.appcompat:appcompat:1.4.2")
@@ -131,10 +154,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
     implementation("com.airbnb.android:lottie:4.0.0")
 
-    implementation("androidx.room:room-rxjava3:2.4.2")
-    implementation("androidx.room:room-ktx:2.4.2")
-    implementation("androidx.room:room-runtime:2.4.2")
-    kapt("androidx.room:room-compiler:2.4.2")
+    implementation("androidx.room:room-rxjava3:2.5.0-alpha02")
+    
+    implementation("androidx.room:room-ktx:2.5.0-alpha02")
+    implementation("androidx.room:room-runtime:2.5.0-alpha02")
+    kapt("androidx.room:room-compiler:2.5.0-alpha02")
 
 //    implementation "android.arch.persistence.room:runtime:1.1.1"
 //    kapt "android.arch.persistence.room:compiler:1.1.1"
