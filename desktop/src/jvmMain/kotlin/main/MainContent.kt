@@ -26,13 +26,11 @@ fun MainContent() {
                 Spacer(Modifier.weight(1f))
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Email, "") },
-                    label = { Text("Item 1") },
                     selected = selectedItem == 0,
                     onClick = { selectedItem = 0 }
                 )
                 NavigationRailItem(
                     icon = { Icon(Icons.Filled.Call, "") },
-                    label = { Text("Item 2") },
                     selected = selectedItem == 1,
                     onClick = { selectedItem = 1 }
                 )
