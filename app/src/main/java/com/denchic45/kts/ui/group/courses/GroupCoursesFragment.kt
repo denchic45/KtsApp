@@ -11,7 +11,7 @@ import com.denchic45.kts.data.model.domain.CourseHeader
 import com.denchic45.kts.databinding.FragmentGroupCoursesBinding
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.CourseAdapter
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.collectWhenStarted
 
 class GroupCoursesFragment : BaseFragment<GroupCoursesViewModel, FragmentGroupCoursesBinding>(
     R.layout.fragment_group_courses

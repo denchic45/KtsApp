@@ -17,8 +17,8 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentVerifyPhoneNumberBinding
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.login.LoginViewModel
-import com.denchic45.kts.utils.closeKeyboard
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.closeKeyboard
+import com.denchic45.kts.util.collectWhenStarted
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges

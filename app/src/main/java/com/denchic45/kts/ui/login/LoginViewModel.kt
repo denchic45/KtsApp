@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.Validations
+import com.denchic45.kts.util.Validations
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthException
 import kotlinx.coroutines.launch

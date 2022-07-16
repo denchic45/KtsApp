@@ -15,9 +15,9 @@ import com.denchic45.kts.databinding.FragmentGroupMembersBinding
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.HeaderAdapterDelegate
 import com.denchic45.kts.ui.adapter.UserAdapterDelegate
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.ViewUtils
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.Dimensions
+import com.denchic45.kts.util.ViewUtils
+import com.denchic45.kts.util.collectWhenStarted
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.click
 import com.example.appbarcontroller.appbarcontroller.AppBarController

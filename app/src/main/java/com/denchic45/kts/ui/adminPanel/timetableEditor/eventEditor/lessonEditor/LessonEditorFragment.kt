@@ -22,12 +22,12 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.databinding.FragmentLessonEditorBinding
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.ui.base.BaseFragment
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.dpToPx
+import com.denchic45.kts.util.Dimensions
+import com.denchic45.kts.util.dpToPx
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 

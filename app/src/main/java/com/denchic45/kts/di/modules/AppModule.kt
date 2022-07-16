@@ -2,7 +2,7 @@ package com.denchic45.kts.di.modules
 
 import android.app.Application
 import android.content.Context
-import com.denchic45.appVersion.AppVersionService
+import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.appVersion.GoogleAppVersionService
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.TimestampPreference

@@ -14,7 +14,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.denchic45.kts.CustomToolbar
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.databinding.ActivityMainBinding
 import com.denchic45.kts.ui.base.BaseActivity
 import com.denchic45.kts.ui.adapter.NavDropdownItemHolder
@@ -22,9 +22,9 @@ import com.denchic45.kts.ui.adapter.NavItemHolder
 import com.denchic45.kts.ui.adapter.navAdapter
 import com.denchic45.kts.ui.login.LoginActivity
 import com.denchic45.kts.ui.updateView.SnackbarUpdateView
-import com.denchic45.kts.utils.collectWhenResumed
-import com.denchic45.kts.utils.collectWhenStarted
-import com.denchic45.kts.utils.findFragmentContainerNavController
+import com.denchic45.kts.util.collectWhenResumed
+import com.denchic45.kts.util.collectWhenStarted
+import com.denchic45.kts.util.findFragmentContainerNavController
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.appbar.AppBarLayout

@@ -2,7 +2,7 @@ package com.denchic45.kts.data.model.domain
 
 import com.denchic45.kts.data.model.mapper.Default
 import com.denchic45.kts.data.model.room.EventEntity.TYPE
-import com.denchic45.kts.utils.UUIDS
+import com.denchic45.kts.util.UUIDS
 
 data class SimpleEventDetails @Default constructor (
     override var id: String,

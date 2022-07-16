@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.domain
 
-import com.denchic45.kts.utils.swap
-import com.denchic45.kts.utils.toString
+import com.denchic45.kts.util.swap
+import com.denchic45.kts.util.toString
 import java.time.LocalDate
 
 data class EventsOfDay(

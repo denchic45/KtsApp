@@ -23,15 +23,15 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.LessonTimeCalculator
 import com.denchic45.kts.R
 import com.denchic45.kts.SvgColorListener
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.databinding.*
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.ui.adapter.EventAdapter.OnCreateLessonClickListener
 import com.denchic45.kts.ui.adapter.EventAdapter.OnEditEventItemClickListener
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.Dimensions
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.transition.Elevation
 import java.time.LocalDate
 

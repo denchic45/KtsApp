@@ -6,6 +6,7 @@ import android.util.Log
 import com.denchic45.kts.BuildConfig
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
+import com.denchic45.kts.data.service.AppVersionService
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
@@ -29,7 +30,6 @@ class GoogleAppVersionService @Inject constructor(
     private val appPreference: AppPreference,
     private val timestampPreference: TimestampPreference,
 ) : AppVersionService(), Closeable {
-
     private val appUpdateManager = AppUpdateManagerFactory.create(context)
 
     private val info by lazy { appUpdateManager.appUpdateInfo }

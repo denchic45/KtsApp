@@ -3,7 +3,7 @@ package com.denchic45.kts.data.model.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.denchic45.kts.data.model.EntityModel
+import com.denchic45.kts.domain.EntityModel
 
 @Entity(
     tableName = "group_course",

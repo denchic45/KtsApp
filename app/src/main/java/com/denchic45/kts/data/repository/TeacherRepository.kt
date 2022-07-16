@@ -1,17 +1,15 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Repository
-import com.denchic45.kts.data.getDataFlow
-import com.denchic45.kts.data.model.domain.User
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
-import com.denchic45.kts.utils.SearchKeysGenerator
+import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.data.service.AppVersionService
+import com.denchic45.kts.data.service.NetworkService
+import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.util.SearchKeysGenerator
+import com.denchic45.kts.util.getDataFlow
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.*
@@ -22,11 +20,10 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class TeacherRepository @Inject constructor(
-    context: Context,
     private val userMapper: UserMapper,
     override val appVersionService: AppVersionService,
     override val networkService: NetworkService
-) : Repository(context), FindByContainsNameRepository<User> {
+) : Repository(), FindByContainsNameRepository<User> {
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val usersRef: CollectionReference = firestore.collection("Users")
     private val groupsRef: CollectionReference = firestore.collection("Groups")

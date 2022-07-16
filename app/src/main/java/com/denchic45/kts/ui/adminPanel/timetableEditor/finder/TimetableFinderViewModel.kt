@@ -5,14 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.ui.UiImage
 import com.denchic45.kts.domain.usecase.FindGroupByContainsNameUseCase
 import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorInteractor
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.util.NetworkException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate

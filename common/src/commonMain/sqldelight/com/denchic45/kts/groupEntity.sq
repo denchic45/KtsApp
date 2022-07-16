@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS groupEntity (
+group_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+name TEXT NOT NULL,
+curator_id TEXT NOT NULL,
+course INTEGER NOT NULL,
+specialty_id TEXT NOT NULL,
+headman_id TEXT NOT NULL,
+timestamp INTEGER
+);

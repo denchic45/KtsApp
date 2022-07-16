@@ -1,7 +1,8 @@
 package com.denchic45.kts.data.model.firestore
 
-import com.denchic45.kts.data.model.DocModel
-import com.denchic45.kts.utils.SearchKeysGenerator
+import com.denchic45.kts.domain.DocModel
+import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.util.SearchKeysGenerator
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 

@@ -10,7 +10,7 @@ import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.ItemAdapter
 import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.creator.CreatorDialog
-import com.denchic45.kts.utils.setActivityTitle
+import com.denchic45.kts.util.setActivityTitle
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class AdminPanelFragment :

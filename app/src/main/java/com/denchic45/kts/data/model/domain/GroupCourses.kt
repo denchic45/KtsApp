@@ -1,6 +1,6 @@
 package com.denchic45.kts.data.model.domain
 
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 
 data class GroupCourses(
     val groupHeader: GroupHeader,

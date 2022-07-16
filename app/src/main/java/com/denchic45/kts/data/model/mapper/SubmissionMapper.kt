@@ -6,7 +6,7 @@ import com.denchic45.kts.data.model.firestore.SubmissionDoc
 import com.denchic45.kts.data.model.room.SubmissionCommentEntity
 import com.denchic45.kts.data.model.room.SubmissionEntity
 import com.denchic45.kts.data.model.room.SubmissionWithStudentUserAndCommentsEntities
-import com.denchic45.kts.utils.toLocalDateTime
+import com.denchic45.kts.util.toLocalDateTime
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import java.time.LocalDateTime

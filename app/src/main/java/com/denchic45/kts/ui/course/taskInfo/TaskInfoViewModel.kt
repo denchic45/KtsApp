@@ -4,13 +4,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.ui.UiText
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.course.taskEditor.AddAttachmentItem
-import com.denchic45.kts.utils.toString
+import com.denchic45.kts.util.toString
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

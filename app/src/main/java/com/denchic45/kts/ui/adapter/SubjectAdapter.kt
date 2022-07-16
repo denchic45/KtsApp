@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.glideSvg.GlideApp
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class SubjectAdapter : CustomAdapter<DomainModel, BaseViewHolder<DomainModel, *>> {
 

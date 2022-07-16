@@ -16,7 +16,7 @@ import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.data.model.ui.onString
 import com.denchic45.kts.data.model.ui.onUrl
 import com.denchic45.kts.databinding.ItemPopupIconContentBinding
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class OptionsPopupAdapter(context: Context, items: List<OptionItem>) : ArrayAdapter<OptionItem>(
     context, 0, items

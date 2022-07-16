@@ -17,7 +17,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.databinding.ItemFinderEntityBinding
 import com.denchic45.kts.ui.adapter.FinderEntityAdapter.FinderEntityHolder
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class FinderEntityAdapter :
     ListAdapter<ListItem, FinderEntityHolder>(object : DiffUtil.ItemCallback<ListItem>() {

@@ -1,0 +1,6 @@
+CREATE TABLE subjectEntity (
+subject_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+name TEXT NOT NULL,
+icon_url TEXT NOT NULL,
+color_name TEXT NOT NULL
+);

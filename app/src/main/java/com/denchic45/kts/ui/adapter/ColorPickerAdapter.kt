@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.denchic45.kts.R
 import com.denchic45.kts.databinding.ItemColorBinding
 import com.denchic45.kts.ui.adapter.ColorPickerAdapter.ColorHolder
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class ColorPickerAdapter : RecyclerView.Adapter<ColorHolder>() {
     private var current = 0

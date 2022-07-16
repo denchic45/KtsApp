@@ -1,17 +1,15 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.SpecialtyDao
-import com.denchic45.kts.data.getDataFlow
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.firestore.SpecialtyDoc
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
+import com.denchic45.kts.data.service.AppVersionService
+import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.utils.SearchKeysGenerator
+import com.denchic45.kts.util.SearchKeysGenerator
+import com.denchic45.kts.util.getDataFlow
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,7 +22,6 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class SpecialtyRepository @Inject constructor(
-    override val context: Context,
     override val appVersionService: AppVersionService,
     private val coroutineScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
@@ -32,7 +29,7 @@ class SpecialtyRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val specialtyMapper: SpecialtyMapper,
     override val networkService: NetworkService
-) : Repository(context), FindByContainsNameRepository<Specialty> {
+) : Repository(), FindByContainsNameRepository<Specialty> {
 
     override fun findByContainsName(text: String): Flow<List<Specialty>> {
         return specialtyRef
@@ -69,6 +66,7 @@ class SpecialtyRepository @Inject constructor(
         val data = specialtyMapper.domainToDoc(specialty)
         specialtyRef.document(specialty.id).set(data)
             .await()
+
     }
 
     suspend fun update(specialty: Specialty) {

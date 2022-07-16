@@ -7,7 +7,7 @@ import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.glideSvg.GlideApp
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 
 class SubjectAdapterDelegate :

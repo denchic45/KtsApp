@@ -15,10 +15,10 @@ import androidx.viewbinding.ViewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.confirm.ConfirmDialog
-import com.denchic45.kts.utils.collectWhenResumed
-import com.denchic45.kts.utils.collectWhenStarted
-import com.denchic45.kts.utils.strings
-import com.denchic45.kts.utils.toast
+import com.denchic45.kts.util.collectWhenResumed
+import com.denchic45.kts.util.collectWhenStarted
+import com.denchic45.kts.util.strings
+import com.denchic45.kts.util.toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection

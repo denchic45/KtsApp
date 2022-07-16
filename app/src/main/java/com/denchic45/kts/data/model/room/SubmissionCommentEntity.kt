@@ -1,8 +1,8 @@
 package com.denchic45.kts.data.model.room
 
 import androidx.room.*
-import com.denchic45.kts.data.model.DocModel
-import com.denchic45.kts.data.model.EntityModel
+import com.denchic45.kts.domain.DocModel
+import com.denchic45.kts.domain.EntityModel
 import com.google.firebase.firestore.Exclude
 import java.util.*
 

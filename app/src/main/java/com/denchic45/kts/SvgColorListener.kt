@@ -7,8 +7,8 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.target.Target
 import com.denchic45.kts.glideSvg.SvgSoftwareLayerSetter
-import com.denchic45.kts.utils.ViewUtils
-import com.denchic45.kts.utils.paintColor
+import com.denchic45.kts.util.ViewUtils
+import com.denchic45.kts.util.paintColor
 
 class SvgColorListener(
     private val view: ImageView,

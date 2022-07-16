@@ -1,7 +1,7 @@
 package com.denchic45.kts.uieditor
 
 import android.util.Log
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 
 
 class UIEditor<T : DomainModel> @JvmOverloads constructor(

@@ -26,8 +26,8 @@ import com.denchic45.kts.ui.adapter.OnItemClickListener
 import com.denchic45.kts.ui.courseEditor.CourseEditorFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
-import com.denchic45.kts.utils.collectWhenResumed
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.collectWhenResumed
+import com.denchic45.kts.util.viewBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject

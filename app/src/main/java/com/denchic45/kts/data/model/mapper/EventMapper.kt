@@ -9,6 +9,7 @@ import com.denchic45.kts.data.model.room.EventEntity.TYPE
 import com.denchic45.kts.data.model.room.EventWithSubjectAndTeachersEntities
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
 import com.denchic45.kts.data.model.room.TeacherEventCrossRef
+import com.denchic45.kts.domain.model.User
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Named

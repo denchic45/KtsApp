@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.course.content
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.domain.usecase.FindSelfUserUseCase
 import com.denchic45.kts.domain.usecase.IsCourseTeacherUseCase
 import com.denchic45.kts.domain.usecase.RemoveCourseContentUseCase

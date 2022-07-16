@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.adapter
 import android.view.ViewGroup
 import com.denchic45.kts.data.model.ui.Header
 import com.denchic45.kts.databinding.ItemHeaderBinding
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 
 class HeaderAdapterDelegate :

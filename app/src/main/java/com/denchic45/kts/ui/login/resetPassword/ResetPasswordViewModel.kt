@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.repository.AuthRepository
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.Validations
+import com.denchic45.kts.util.Validations
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

@@ -8,9 +8,9 @@ import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.data.model.domain.User.Companion.isStudent
-import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
+import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.domain.model.User.Companion.isStudent
+import com.denchic45.kts.domain.model.User.Companion.isTeacher
 import com.denchic45.kts.domain.usecase.FindGroupByContainsNameUseCase
 import com.denchic45.kts.domain.usecase.FindGroupNameUseCase
 import com.denchic45.kts.domain.usecase.RemoveStudentUseCase
@@ -21,9 +21,9 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.NetworkException
-import com.denchic45.kts.utils.UUIDS
-import com.denchic45.kts.utils.Validations
+import com.denchic45.kts.util.NetworkException
+import com.denchic45.kts.util.UUIDS
+import com.denchic45.kts.util.Validations
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest

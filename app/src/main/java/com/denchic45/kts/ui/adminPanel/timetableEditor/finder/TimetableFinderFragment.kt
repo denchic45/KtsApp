@@ -19,9 +19,9 @@ import com.denchic45.kts.ui.adapter.EventAdapter
 import com.denchic45.kts.ui.adapter.EventAdapter.EventHolder
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.ui.base.PrimaryActionModeCallback
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.closeKeyboard
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.Dimensions
+import com.denchic45.kts.util.closeKeyboard
+import com.denchic45.kts.util.collectWhenStarted
 import com.denchic45.sample.SearchBar
 import com.denchic45.widget.calendar.WeekCalendarListener
 import com.denchic45.widget.calendar.model.WeekItem

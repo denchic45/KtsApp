@@ -3,7 +3,7 @@ package com.denchic45.kts.di.modules
 import android.content.Context
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.utils.JsonUtil
+import com.denchic45.kts.util.JsonUtil
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named

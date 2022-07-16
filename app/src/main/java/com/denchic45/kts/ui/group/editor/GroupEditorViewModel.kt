@@ -9,7 +9,7 @@ import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.model.domain.Group
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.domain.Specialty
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
@@ -18,8 +18,8 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.NetworkException
-import com.denchic45.kts.utils.UUIDS
+import com.denchic45.kts.util.NetworkException
+import com.denchic45.kts.util.UUIDS
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch

@@ -1,6 +1,6 @@
 package com.denchic45.kts.uipermissions
 
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 
 class UiPermissions(private val user: User) {
     private val permissions: MutableMap<String, Permission> = mutableMapOf()

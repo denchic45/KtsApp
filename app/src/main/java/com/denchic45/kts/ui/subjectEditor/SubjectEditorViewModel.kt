@@ -13,9 +13,9 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.Colors
-import com.denchic45.kts.utils.NetworkException
-import com.denchic45.kts.utils.UUIDS
+import com.denchic45.kts.util.Colors
+import com.denchic45.kts.util.NetworkException
+import com.denchic45.kts.util.UUIDS
 import kotlinx.coroutines.launch
 import java.util.stream.IntStream
 import javax.inject.Inject

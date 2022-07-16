@@ -21,7 +21,7 @@ import com.denchic45.kts.ui.group.courses.GroupCoursesFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.group.users.GroupMembersFragment
 import com.denchic45.kts.ui.timetable.TimetableFragment
-import com.denchic45.kts.utils.collectWhenResumed
+import com.denchic45.kts.util.collectWhenResumed
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 
 class GroupFragment : BaseFragment<GroupViewModel, FragmentGroupBinding>(

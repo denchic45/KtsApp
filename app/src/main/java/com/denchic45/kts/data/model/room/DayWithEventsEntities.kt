@@ -3,7 +3,7 @@ package com.denchic45.kts.data.model.room
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import com.denchic45.kts.data.model.EntityModel
+import com.denchic45.kts.domain.EntityModel
 
 data class DayWithEventsEntities(
     @Embedded

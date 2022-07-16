@@ -8,14 +8,14 @@ import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.databinding.ItemHeaderBinding
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.databinding.ItemUserBinding
 import com.denchic45.kts.ui.adapter.ItemAdapter.IconItemHolder
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class UserAdapter(
     override val onItemClickListener: OnItemClickListener = OnItemClickListener { },

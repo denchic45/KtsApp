@@ -1,0 +1,19 @@
+
+CREATE TABLE submissionEntity (
+submission_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+student_id TEXT NOT NULL,
+content_id TEXT NOT NULL,
+course_id TEXT NOT NULL,
+status TEXT NOT NULL,
+text TEXT NOT NULL,
+-- TODO Сделать конвертер списка
+-- attachments TEXT AS List<String>,
+attachments TEXT,
+teacher_id TEXT,
+cause TEXT NOT NULL,
+grade INTEGER,
+graded_date TEXT ,
+rejectd_date TEXT,
+submitted_date TEXT,
+timestamp INTEGER
+);

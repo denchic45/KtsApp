@@ -19,9 +19,9 @@ import com.denchic45.kts.databinding.FragmentUserEditorBinding
 import com.denchic45.kts.rx.AsyncTransformer
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.base.HasNavArgs
-import com.denchic45.kts.utils.JsonUtil
-import com.denchic45.kts.utils.collectWhenResumed
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.JsonUtil
+import com.denchic45.kts.util.collectWhenResumed
+import com.denchic45.kts.util.collectWhenStarted
 import com.google.android.material.textfield.TextInputLayout
 import com.jakewharton.rxbinding4.widget.textChanges
 import kotlinx.coroutines.flow.filter

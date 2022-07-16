@@ -1,30 +1,33 @@
 package com.denchic45.kts.data.repository
 
-import com.denchic45.kts.data.database.DataBase
+import com.denchic45.kts.UserEntity
 import com.denchic45.kts.data.dao.GroupDao
 import com.denchic45.kts.data.dao.SpecialtyDao
-import com.denchic45.kts.data.dao.UserDao
+import com.denchic45.kts.data.database.DataBase
+import com.denchic45.kts.data.db.UserLocalDataSource
+import com.denchic45.kts.data.mapper.docsToEntities
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.GroupMapper
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
-import com.denchic45.kts.data.model.mapper.UserMapper
-import com.denchic45.kts.data.model.room.UserEntity
 
 interface SaveGroupOperation {
-
-    val userMapper: UserMapper
+    //    val userMapper: UserMapper
     val groupDao: GroupDao
     val specialtyDao: SpecialtyDao
     val groupMapper: GroupMapper
     val specialtyMapper: SpecialtyMapper
-    val userDao: UserDao
+    //    val userDao: UserDao
+    val userLocalDataSource: UserLocalDataSource
     val dataBase: DataBase
 
     private suspend fun upsertUsersOfGroup(groupDoc: GroupDoc) {
-        val allUsersEntity = userMapper.docToEntity(groupDoc.allUsers)
-        userDao.upsert(allUsersEntity)
-        val availableUsers = allUsersEntity.map { obj: UserEntity -> obj.id }
-        userDao.deleteMissingStudentsByGroup(availableUsers, groupDoc.id)
+//        val allUsersEntity = userMapper.docToEntity(groupDoc.allUsers)
+        val allUsersEntity: List<UserEntity> = groupDoc.allUsers.docsToEntities()
+//        userDao.upsert(allUsersEntity)
+        userLocalDataSource.upsert(allUsersEntity)
+        val availableUsers = allUsersEntity.map { obj: UserEntity -> obj.user_id }
+//        userDao.deleteMissingStudentsByGroup(availableUsers, groupDoc.id)
+        userLocalDataSource.deleteMissingStudentsByGroup(availableUsers, groupDoc.id)
     }
 
     suspend fun saveGroup(groupDoc: GroupDoc) {

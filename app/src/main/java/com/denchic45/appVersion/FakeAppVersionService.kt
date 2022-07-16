@@ -1,5 +1,6 @@
 package com.denchic45.appVersion
 
+import com.denchic45.kts.data.service.AppVersionService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

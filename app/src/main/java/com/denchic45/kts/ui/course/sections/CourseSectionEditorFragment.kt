@@ -18,10 +18,10 @@ import com.denchic45.kts.databinding.ItemAddSectionBinding
 import com.denchic45.kts.databinding.ItemEditSectionBinding
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
-import com.denchic45.kts.utils.closeKeyboard
-import com.denchic45.kts.utils.setActivityTitle
-import com.denchic45.kts.utils.showKeyboard
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.closeKeyboard
+import com.denchic45.kts.util.setActivityTitle
+import com.denchic45.kts.util.showKeyboard
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 

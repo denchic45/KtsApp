@@ -16,9 +16,9 @@ import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.SubmissionSettings
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.databinding.FragmentTaskInfoBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.base.BaseFragment
@@ -26,7 +26,7 @@ import com.denchic45.kts.ui.course.taskEditor.AddAttachmentAdapterDelegate
 import com.denchic45.kts.ui.course.taskEditor.AddAttachmentHolder
 import com.denchic45.kts.ui.course.taskEditor.AttachmentAdapterDelegate
 import com.denchic45.kts.ui.course.taskEditor.AttachmentHolder
-import com.denchic45.kts.utils.*
+import com.denchic45.kts.util.*
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder
 import com.example.appbarcontroller.appbarcontroller.AppBarController

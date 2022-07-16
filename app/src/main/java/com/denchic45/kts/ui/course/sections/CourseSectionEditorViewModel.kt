@@ -7,7 +7,7 @@ import com.denchic45.kts.domain.usecase.FindCourseSectionsUseCase
 import com.denchic45.kts.domain.usecase.RemoveCourseSectionsUseCase
 import com.denchic45.kts.domain.usecase.UpdateCourseSectionsUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.Orders
+import com.denchic45.kts.util.Orders
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first

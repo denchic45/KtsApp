@@ -6,7 +6,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.data.model.ui.UserItem
 import com.denchic45.kts.databinding.ItemUserBinding
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 
 class UserAdapterDelegate : ListItemAdapterDelegate<UserItem, UserAdapterDelegate.UserHolder>() {

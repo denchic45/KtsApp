@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.denchic45.kts.data.model.EntityModel
+import com.denchic45.kts.domain.EntityModel
 import java.util.*
 
 @Entity(tableName = "group")

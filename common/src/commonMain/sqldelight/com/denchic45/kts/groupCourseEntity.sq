@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS groupCourseEntity (
+    group_id TEXT NOT NULL,
+    course_id TEXT NOT NULL,
+    PRIMARY KEY(group_id, course_id),
+    FOREIGN KEY (group_id) REFERENCES groupEntity(group_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courseEntity(course_id) ON DELETE CASCADE
+);

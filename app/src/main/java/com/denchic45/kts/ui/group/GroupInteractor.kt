@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.group
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.repository.GroupRepository
 import com.denchic45.kts.data.repository.UserRepository
 import kotlinx.coroutines.flow.Flow

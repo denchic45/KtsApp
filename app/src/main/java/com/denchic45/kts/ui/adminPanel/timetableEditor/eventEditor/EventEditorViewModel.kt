@@ -13,9 +13,9 @@ import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule
 import com.denchic45.kts.uivalidator.UIValidator
 import com.denchic45.kts.uivalidator.Validation
-import com.denchic45.kts.utils.DatePatterns
-import com.denchic45.kts.utils.UUIDS
-import com.denchic45.kts.utils.toString
+import com.denchic45.kts.util.DatePatterns
+import com.denchic45.kts.util.UUIDS
+import com.denchic45.kts.util.toString
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

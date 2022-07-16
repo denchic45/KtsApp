@@ -34,10 +34,10 @@ import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.BaseViewHolder
 import com.denchic45.kts.ui.course.sectionPicker.SectionPickerFragment
 import com.denchic45.kts.ui.course.sectionPicker.SectionPickerViewModel
-import com.denchic45.kts.utils.FilePicker
-import com.denchic45.kts.utils.ValueFilter
-import com.denchic45.kts.utils.getType
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.FilePicker
+import com.denchic45.kts.util.ValueFilter
+import com.denchic45.kts.util.getType
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate
 import com.denchic45.widget.extendedAdapter.adapter
 import com.denchic45.widget.extendedAdapter.extension.clickBuilder

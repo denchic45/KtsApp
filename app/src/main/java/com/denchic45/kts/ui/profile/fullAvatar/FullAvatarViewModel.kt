@@ -2,10 +2,10 @@ package com.denchic45.kts.ui.profile.fullAvatar
 
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.ui.avatar.FullImageActivity
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.util.NetworkException
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Named

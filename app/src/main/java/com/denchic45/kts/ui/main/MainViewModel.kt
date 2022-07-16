@@ -9,7 +9,7 @@ import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.model.domain.CourseHeader
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.model.ui.UiText
 import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.data.model.ui.onString

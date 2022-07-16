@@ -20,7 +20,7 @@ import com.denchic45.kts.data.model.domain.SimpleEventDetails
 import com.denchic45.kts.databinding.FragmentSimpleEventBinding
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.ui.base.BaseFragment
-import com.denchic45.kts.utils.Dimensions
+import com.denchic45.kts.util.Dimensions
 
 class SimpleEventEditorFragment :
     BaseFragment<SimpleEventEditorViewModel, FragmentSimpleEventBinding>(R.layout.fragment_simple_event) {

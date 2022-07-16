@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.denchic45.kts.data.model.EntityModel
+import com.denchic45.kts.domain.EntityModel
 
 @Entity(tableName = "section", foreignKeys = [
     ForeignKey(
@@ -23,4 +23,4 @@ data class SectionEntity(
     val courseId: String,
     val name: String,
     val order: Int
-):EntityModel
+): EntityModel

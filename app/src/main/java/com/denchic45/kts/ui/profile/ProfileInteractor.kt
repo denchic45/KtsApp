@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.profile
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Group
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.repository.GroupRepository
 import com.denchic45.kts.data.repository.StudentRepository
 import com.denchic45.kts.data.repository.TeacherRepository

@@ -1,0 +1,5 @@
+CREATE TABLE eventEntity (
+event_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+day_id TEXT NOT NULL,
+position INTEGER
+);

@@ -3,11 +3,11 @@ package com.denchic45.kts.ui.timetable
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Event
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.domain.usecase.FindEventsOfDayByYourUserUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
-import com.denchic45.kts.utils.Dates
-import com.denchic45.kts.utils.capitalized
+import com.denchic45.kts.util.Dates
+import com.denchic45.kts.util.capitalized
 import com.denchic45.widget.calendar.model.WeekItem
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

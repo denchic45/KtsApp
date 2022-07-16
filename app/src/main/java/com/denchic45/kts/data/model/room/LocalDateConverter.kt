@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.room
 
 import androidx.room.TypeConverter
-import com.denchic45.kts.utils.*
+import com.denchic45.kts.util.*
 import java.time.LocalDate
 
 class LocalDateConverter {

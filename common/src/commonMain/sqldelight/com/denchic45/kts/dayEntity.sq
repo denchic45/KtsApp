@@ -1,0 +1,6 @@
+CREATE TABLE dayEntity (
+day_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+date TEXT NOT NULL,
+startAtZero INTEGER AS Boolean NOT NULL,
+group_id TEXT
+);

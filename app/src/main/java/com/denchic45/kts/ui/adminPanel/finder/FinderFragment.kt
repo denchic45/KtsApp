@@ -13,7 +13,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
 import com.denchic45.kts.customPopup.ListPopupWindowAdapter
 import com.denchic45.kts.data.Resource
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.databinding.FragmentFinderBinding
 import com.denchic45.kts.ui.base.BaseFragment
@@ -22,7 +22,7 @@ import com.denchic45.kts.ui.course.CourseFragment
 import com.denchic45.kts.ui.group.editor.GroupEditorFragment
 import com.denchic45.kts.ui.specialtyEditor.SpecialtyEditorDialog
 import com.denchic45.kts.ui.subjectEditor.SubjectEditorDialog
-import com.denchic45.kts.utils.*
+import com.denchic45.kts.util.*
 import com.denchic45.sample.SearchBar
 import com.denchic45.widget.ListStateLayout
 import com.example.appbarcontroller.appbarcontroller.AppBarController

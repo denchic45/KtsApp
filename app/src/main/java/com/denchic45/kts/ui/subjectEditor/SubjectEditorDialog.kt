@@ -16,7 +16,7 @@ import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.base.BaseDialogFragment
 import com.denchic45.kts.ui.adapter.ColorPickerAdapter
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
-import com.denchic45.kts.utils.ViewUtils
+import com.denchic45.kts.util.ViewUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding4.widget.textChanges
 

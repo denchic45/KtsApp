@@ -19,7 +19,7 @@ import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.data.model.ui.onUrl
 import com.denchic45.kts.databinding.ItemPopupContentBinding
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class ListPopupWindowAdapter(context: Context, items: List<ListItem>) : ArrayAdapter<ListItem>(
     context, 0, items

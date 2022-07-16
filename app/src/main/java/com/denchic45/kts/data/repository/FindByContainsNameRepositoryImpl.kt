@@ -1,8 +1,8 @@
 package com.denchic45.kts.data.repository
 
-import com.denchic45.kts.data.getDataFlow
-import com.denchic45.kts.data.model.DocModel
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DocModel
+import com.denchic45.kts.domain.DomainModel
+import com.denchic45.kts.util.getDataFlow
 import com.google.firebase.firestore.CollectionReference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

@@ -3,10 +3,10 @@ package com.denchic45.kts.ui.adapter
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import com.bumptech.glide.Glide
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.databinding.ItemContentSwitchBinding
 import com.denchic45.kts.databinding.ItemIconContent2Binding
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.DelegationAdapterDsl
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate

@@ -11,8 +11,8 @@ import androidx.navigation.NavController
 import com.denchic45.kts.R
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.ui.main.MainActivity
-import com.denchic45.kts.utils.closeKeyboard
-import com.denchic45.kts.utils.findFragmentContainerNavController
+import com.denchic45.kts.util.closeKeyboard
+import com.denchic45.kts.util.findFragmentContainerNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.richpath.RichPath
 import com.richpath.RichPathView

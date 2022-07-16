@@ -15,7 +15,7 @@ import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.course.submissions.SubmissionsFragment
 import com.denchic45.kts.ui.course.taskEditor.TaskEditorFragment
 import com.denchic45.kts.ui.course.taskInfo.TaskInfoFragment
-import com.denchic45.kts.utils.setActivityTitle
+import com.denchic45.kts.util.setActivityTitle
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.distinctUntilChanged

@@ -1,16 +1,11 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.getQuerySnapshotFlow
+import com.denchic45.kts.data.db.UserLocalDataSource
 import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.data.model.domain.User.Companion.isStudent
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.*
@@ -18,8 +13,14 @@ import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.UserPreference
+import com.denchic45.kts.data.service.AppVersionService
+import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.utils.SearchKeysGenerator
+import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.domain.model.User.Companion.isStudent
+import com.denchic45.kts.util.SearchKeysGenerator
+import com.denchic45.kts.util.getQuerySnapshotFlow
+import com.denchic45.kts.util.timestampsNotNull
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +32,6 @@ import java.util.*
 import javax.inject.Inject
 
 class GroupRepository @Inject constructor(
-    override val context: Context,
     override val appVersionService: AppVersionService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     private val coroutineScope: CoroutineScope,
@@ -54,15 +54,16 @@ class GroupRepository @Inject constructor(
     override val sectionDao: SectionDao,
     override val subjectDao: SubjectDao,
     private val firestore: FirebaseFirestore,
-    override val dataBase: DataBase
-) : Repository(context), SaveGroupOperation, SaveCourseRepository,
+    override val dataBase: DataBase,
+    override val userLocalDataSource: UserLocalDataSource
+) : Repository(), SaveGroupOperation, SaveCourseRepository,
     FindByContainsNameRepository<GroupHeader> {
 
     override fun findByContainsName(text: String): Flow<List<GroupHeader>> {
         return groupsRef
             .whereArrayContains("searchKeys", SearchKeysGenerator.formatInput(text))
             .getQuerySnapshotFlow()
-            .filter { timestampsNotNull(it) }
+            .filter { it.timestampsNotNull() }
             .map {
                 it.toObjects(GroupDoc::class.java).let { groupDocs ->
                     for (groupDoc in groupDocs) {
@@ -365,7 +366,7 @@ class GroupRepository @Inject constructor(
                 if (error != null) {
                     throw error
                 }
-                if (!value!!.isEmpty && timestampsNotNull(value))
+                if (!value!!.isEmpty && value.timestampsNotNull())
                     coroutineScope.launch(dispatcher) {
                         saveGroup(
                             value.documents[0].toObject(GroupDoc::class.java)!!

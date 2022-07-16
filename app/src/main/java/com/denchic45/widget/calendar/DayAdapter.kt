@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import com.denchic45.kts.R
-import com.denchic45.kts.utils.toString
+import com.denchic45.kts.util.toString
 import java.time.LocalDate
 
 class DayAdapter(context: Context, resource: Int, private val dayOfWeekList: List<LocalDate>) :

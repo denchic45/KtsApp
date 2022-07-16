@@ -1,14 +1,9 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.net.Uri
 import androidx.room.withTransaction
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.getDataFlow
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.SubjectDoc
@@ -17,7 +12,10 @@ import com.denchic45.kts.data.model.mapper.SectionMapper
 import com.denchic45.kts.data.model.mapper.SubjectMapper
 import com.denchic45.kts.data.model.mapper.UserMapper
 import com.denchic45.kts.data.model.room.SubjectEntity
+import com.denchic45.kts.data.service.AppVersionService
+import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.di.modules.IoDispatcher
+import com.denchic45.kts.util.getDataFlow
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,7 +30,6 @@ import java.util.*
 import javax.inject.Inject
 
 class SubjectRepository @Inject constructor(
-    override val context: Context,
     override val appVersionService: AppVersionService,
     override val coroutineScope: CoroutineScope,
     override val networkService: NetworkService,
@@ -49,7 +46,7 @@ class SubjectRepository @Inject constructor(
     override val userDao: UserDao,
     private val dataBase: DataBase,
     @IoDispatcher override val dispatcher: CoroutineDispatcher,
-) : Repository(context), SaveCourseRepository, RemoveCourseOperation,
+) : Repository(), SaveCourseRepository, RemoveCourseOperation,
     FindByContainsNameRepository<Subject>, UpdateCourseOperation {
 
     private val subjectsRef: CollectionReference = firestore.collection("Subjects")

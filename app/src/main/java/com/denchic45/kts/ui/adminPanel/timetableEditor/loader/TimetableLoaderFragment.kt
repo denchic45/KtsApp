@@ -14,7 +14,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentViewHolder
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.databinding.FragmentTimetableLoaderBinding
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.EventAdapter
@@ -24,8 +24,8 @@ import com.denchic45.kts.ui.adapter.PreferenceSwitchAdapterDelegate
 import com.denchic45.kts.ui.adapter.preferenceAdapter
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorActivity
 import com.denchic45.kts.ui.adminPanel.timetableEditor.loader.lessonsOfDay.EventsFragment
-import com.denchic45.kts.utils.FilePicker
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.FilePicker
+import com.denchic45.kts.util.collectWhenStarted
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.extension.check
 import com.google.android.material.datepicker.CalendarConstraints

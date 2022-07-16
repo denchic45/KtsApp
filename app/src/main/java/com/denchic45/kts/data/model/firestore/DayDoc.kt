@@ -1,9 +1,9 @@
 package com.denchic45.kts.data.model.firestore
 
-import com.denchic45.kts.data.model.DocModel
+import com.denchic45.kts.domain.DocModel
 import com.denchic45.kts.data.model.mapper.Default
 import com.denchic45.kts.data.model.room.EventEntity
-import com.denchic45.kts.utils.UUIDS
+import com.denchic45.kts.util.UUIDS
 import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 

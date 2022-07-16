@@ -4,11 +4,11 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.MobileNavigationDirections
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.GroupMember
 import com.denchic45.kts.data.model.domain.GroupMembers
 import com.denchic45.kts.data.model.domain.OptionItem
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.model.ui.Header
 import com.denchic45.kts.data.model.ui.UiText
 import com.denchic45.kts.data.model.ui.UserItem
@@ -17,7 +17,7 @@ import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.teacherChooser.TeacherChooserInteractor
 import com.denchic45.kts.uipermissions.Permission
 import com.denchic45.kts.uipermissions.UiPermissions
-import com.denchic45.kts.utils.NetworkException
+import com.denchic45.kts.util.NetworkException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject

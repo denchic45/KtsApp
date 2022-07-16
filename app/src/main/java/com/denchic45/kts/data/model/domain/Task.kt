@@ -1,9 +1,10 @@
 package com.denchic45.kts.data.model.domain
 
-import com.denchic45.kts.data.model.DomainModel
-import com.denchic45.kts.utils.Files
-import com.denchic45.kts.utils.getExtension
-import com.denchic45.kts.utils.toString
+import com.denchic45.kts.domain.DomainModel
+import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.util.Files
+import com.denchic45.kts.util.getExtension
+import com.denchic45.kts.util.toString
 import java.io.File
 import java.time.LocalDateTime
 import java.util.*

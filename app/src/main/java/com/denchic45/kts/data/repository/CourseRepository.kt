@@ -1,13 +1,10 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
 import androidx.room.withTransaction
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.*
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.data.db.UserLocalDataSource
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.firestore.CourseContentDoc
 import com.denchic45.kts.data.model.firestore.CourseDoc
@@ -17,12 +14,13 @@ import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.*
 import com.denchic45.kts.data.prefs.*
 import com.denchic45.kts.data.prefs.TimestampPreference.Companion.TIMESTAMP_LAST_UPDATE_GROUP_COURSES
+import com.denchic45.kts.data.service.AppVersionService
+import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.data.storage.ContentAttachmentStorage
 import com.denchic45.kts.data.storage.SubmissionAttachmentStorage
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.utils.CourseContents
-import com.denchic45.kts.utils.FieldsComparator
-import com.denchic45.kts.utils.toDate
+import com.denchic45.kts.domain.DomainModel
+import com.denchic45.kts.util.*
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +31,6 @@ import java.util.*
 import javax.inject.Inject
 
 class CourseRepository @Inject constructor(
-    override val context: Context,
     override val appVersionService: AppVersionService,
     override val coroutineScope: CoroutineScope,
     override val userMapper: UserMapper,
@@ -66,7 +63,8 @@ class CourseRepository @Inject constructor(
     override val groupCourseDao: GroupCourseDao,
     override val subjectDao: SubjectDao,
     override val groupDao: GroupDao,
-) : Repository(context), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation,
+    override val userLocalDataSource: UserLocalDataSource
+) : Repository(), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation,
     FindByContainsNameRepository<CourseHeader>, UpdateCourseOperation {
     override val groupsRef: CollectionReference = firestore.collection("Groups")
     override val coursesRef: CollectionReference = firestore.collection("Courses")
@@ -94,7 +92,7 @@ class CourseRepository @Inject constructor(
                     }
                     return@withSnapshotListener
                 }
-                if (timestampIsNull(documentSnapshot))
+                if (documentSnapshot.timestampIsNull())
                     return@withSnapshotListener
                 val courseDoc = documentSnapshot.toObject(CourseDoc::class.java)!!
                 coroutineScope.launch {
@@ -103,7 +101,7 @@ class CourseRepository @Inject constructor(
                             val querySnapshot = groupsRef.whereIn("id", courseDoc.groupIds)
                                 .get()
                                 .await()
-                            if (timestampsNotNull(querySnapshot))
+                            if (querySnapshot.timestampsNotNull())
                                 saveGroups(querySnapshot.toObjects(GroupDoc::class.java))
                         }
                         saveCourse(courseDoc)
@@ -164,7 +162,7 @@ class CourseRepository @Inject constructor(
                     return@addSnapshotListener
                 }
                 if (value != null && !value.isEmpty) {
-                    if (timestampsNotNull(value)) {
+                    if (value.timestampsNotNull()) {
                         coroutineScope.launch(dispatcher) {
                             val courseContents = courseContentMapper.docToEntity(value)
 
@@ -493,10 +491,8 @@ class CourseRepository @Inject constructor(
             attachments = submission.content.attachments
         )
 
-        val submittedDate =
-            if (submission.status is Task.SubmissionStatus.Submitted)
-                submission.status.submittedDate.toDate()
-            else null
+        val submittedDate = (submission.status as Task.SubmissionStatus.Submitted)
+            .submittedDate.toDate()
 
         val updatedFields = mapOf(
             "submissions.$studentId.text" to submission.content.text,

@@ -12,8 +12,8 @@ import com.denchic45.kts.databinding.FragmentChoiceOfGroupSubjectBinding
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.SubjectAdapter
 import com.denchic45.kts.ui.iconPicker.IconPickerDialog
-import com.denchic45.kts.utils.NetworkException
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.NetworkException
+import com.denchic45.kts.util.collectWhenStarted
 import com.denchic45.widget.ListStateLayout
 
 class ChoiceOfGroupSubjectFragment :

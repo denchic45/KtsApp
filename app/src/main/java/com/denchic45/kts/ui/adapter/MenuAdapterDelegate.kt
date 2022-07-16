@@ -12,8 +12,8 @@ import com.denchic45.kts.databinding.ItemNavBinding
 import com.denchic45.kts.databinding.ItemNavDividerBinding
 import com.denchic45.kts.databinding.ItemNavDropdownBinding
 import com.denchic45.kts.databinding.ItemNavSubHeaderBinding
-import com.denchic45.kts.utils.dp
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.dp
+import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.DelegationAdapterDsl
 import com.denchic45.widget.extendedAdapter.DelegationAdapterExtended
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate

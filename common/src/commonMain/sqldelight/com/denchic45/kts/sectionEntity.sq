@@ -1,0 +1,6 @@
+CREATE TABLE sectionEntity (
+section_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+course_id TEXT NOT NULL,
+name TEXT NOT NULL,
+'order' INTEGER NOT NULL
+);

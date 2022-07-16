@@ -1,7 +1,7 @@
 package com.denchic45.kts
 
 import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.utils.CourseContents
+import com.denchic45.kts.util.CourseContents
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
 import java.util.*

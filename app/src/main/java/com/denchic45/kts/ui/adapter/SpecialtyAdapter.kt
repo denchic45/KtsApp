@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.denchic45.kts.R
 import com.denchic45.kts.data.model.domain.Specialty
 import com.denchic45.kts.databinding.ItemIconContentBinding
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class SpecialtyAdapter(itemClickListener: OnItemClickListener) :
     CustomAdapter<Specialty, SpecialtyAdapter.SpecialtyHolder>(

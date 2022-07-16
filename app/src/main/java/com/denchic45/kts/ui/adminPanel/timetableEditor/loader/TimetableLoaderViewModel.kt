@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.Event
 import com.denchic45.kts.data.model.domain.GroupHeader
 import com.denchic45.kts.data.model.domain.GroupTimetable
@@ -16,8 +16,8 @@ import com.denchic45.kts.ui.adapter.PreferenceSwitchItem
 import com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor.EventEditorInteractor
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.login.groupChooser.GroupChooserInteractor
-import com.denchic45.kts.utils.NetworkException
-import com.denchic45.kts.utils.updated
+import com.denchic45.kts.util.NetworkException
+import com.denchic45.kts.util.updated
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

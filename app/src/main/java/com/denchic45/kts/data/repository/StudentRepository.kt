@@ -1,13 +1,11 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Repository
 import com.denchic45.kts.data.dao.UserDao
-import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.data.model.firestore.UserDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
+import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.data.service.AppVersionService
+import com.denchic45.kts.data.service.NetworkService
+import com.denchic45.kts.domain.model.User
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,13 +16,12 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class StudentRepository @Inject constructor(
-    override val context: Context,
     override val appVersionService: AppVersionService,
     override val networkService: NetworkService,
     private val userDao: UserDao,
     private val userMapper: UserMapper,
     private val firestore: FirebaseFirestore
-) : Repository(context) {
+) : Repository() {
     private val storage: FirebaseStorage = FirebaseStorage.getInstance()
     private val avatarRef: StorageReference = storage.reference.child("avatars")
     private val userRef: CollectionReference = firestore.collection("Users")

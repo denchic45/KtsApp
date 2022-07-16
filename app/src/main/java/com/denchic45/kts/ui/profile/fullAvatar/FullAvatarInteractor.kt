@@ -4,7 +4,7 @@ import android.content.Context
 import com.denchic45.avatarGenerator.AvatarGenerator
 import com.denchic45.kts.AvatarBuilderTemplate
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.repository.StudentRepository
 import com.denchic45.kts.data.repository.TeacherRepository
 import com.denchic45.kts.data.repository.UserRepository

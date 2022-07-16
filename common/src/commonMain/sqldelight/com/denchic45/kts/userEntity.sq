@@ -1,0 +1,59 @@
+
+CREATE TABLE IF NOT EXISTS userEntity (
+    user_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+    first_name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    patronymic TEXT,
+    user_group_id TEXT NOT NULL,
+    role TEXT NOT NULL,
+    email TEXT,
+    photo_url TEXT NOT NULL,
+    gender INTEGER AS Int NOT NULL,
+    admin INTEGER AS Boolean NOT NULL,
+    generated_avatar INTEGER AS Boolean NOT NULL,
+    timestamp INTEGER NOT NULL
+);
+
+
+upsert:
+INSERT INTO userEntity
+VALUES ?
+ON CONFLICT(user_id)
+DO UPDATE SET
+first_name = excluded.first_name,
+surname = excluded.surname,
+patronymic = excluded.patronymic,
+user_group_id = excluded.user_group_id,
+role = excluded.role,
+email = excluded.email,
+photo_url = excluded.photo_url,
+gender = excluded.gender,
+admin = excluded.admin,
+generated_avatar = excluded.generated_avatar;
+
+getById:
+SELECT *
+FROM userEntity
+WHERE user_id = :id;
+
+getAll:
+SELECT *
+FROM userEntity;
+
+isExist:
+SELECT EXISTS(
+SELECT * FROM userEntity
+WHERE user_id = :id
+);
+
+deleteMissingStudentsByGroup:
+DELETE FROM userEntity
+WHERE user_group_id =:groupId
+AND user_id NOT IN(:availableStudents);
+
+getStudentIdsOfCourseByCourseId:
+SELECT u.user_id
+FROM userEntity AS u
+JOIN groupCourseEntity gc
+ON u.user_group_id = gc.group_id
+WHERE gc.course_id = :courseId;

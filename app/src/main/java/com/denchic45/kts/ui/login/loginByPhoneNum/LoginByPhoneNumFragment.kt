@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.denchic45.kts.R
 import com.denchic45.kts.ui.login.LoginViewModel
-import com.denchic45.kts.utils.closeKeyboard
+import com.denchic45.kts.util.closeKeyboard
 import com.google.android.material.textfield.TextInputLayout
 
 class LoginByPhoneNumFragment : Fragment() {

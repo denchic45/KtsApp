@@ -1,6 +1,6 @@
 package com.denchic45.kts.data.model.firestore
 
-import com.denchic45.kts.data.model.DocModel
+import com.denchic45.kts.domain.DocModel
 import com.denchic45.kts.data.model.domain.ContentDetails
 import com.denchic45.kts.data.model.domain.ContentType
 import com.denchic45.kts.data.model.domain.Task

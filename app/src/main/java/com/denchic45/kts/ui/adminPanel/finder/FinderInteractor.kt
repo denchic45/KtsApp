@@ -2,9 +2,9 @@ package com.denchic45.kts.ui.adminPanel.finder
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Subject
-import com.denchic45.kts.data.model.domain.User
-import com.denchic45.kts.data.model.domain.User.Companion.isStudent
-import com.denchic45.kts.data.model.domain.User.Companion.isTeacher
+import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.domain.model.User.Companion.isStudent
+import com.denchic45.kts.domain.model.User.Companion.isTeacher
 import com.denchic45.kts.data.repository.*
 import javax.inject.Inject
 

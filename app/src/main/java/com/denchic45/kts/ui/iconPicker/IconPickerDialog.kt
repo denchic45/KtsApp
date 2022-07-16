@@ -11,7 +11,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentIconPickerBinding
 import com.denchic45.kts.ui.base.BaseDialogFragment
 import com.denchic45.kts.ui.adapter.IconPickerAdapter
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.collectWhenStarted
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class IconPickerDialog :

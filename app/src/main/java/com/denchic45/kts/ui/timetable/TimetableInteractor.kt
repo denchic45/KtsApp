@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.timetable
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.EventsOfDay
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.data.repository.EventRepository

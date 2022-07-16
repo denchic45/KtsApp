@@ -24,10 +24,6 @@ class UserPreference @Inject constructor(context: Context) : BaseSharedPreferenc
         get() = getValue(PHOTO_URL, "")
         set(role) = setValue(PHOTO_URL, role)
 
-//    var phoneNum: String
-//        get() = getValue(PHONE_NUM, "")
-//        set(phoneNum) = setValue(PHONE_NUM, phoneNum)
-
     var id: String
         get() = getValue(ID, "")
         set(id) = setValue(ID, id)

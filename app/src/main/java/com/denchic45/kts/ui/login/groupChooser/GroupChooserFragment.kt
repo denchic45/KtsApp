@@ -9,7 +9,7 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentGroupChooserBinding
 import com.denchic45.kts.ui.base.BaseFragment
 import com.denchic45.kts.ui.adapter.GroupAdapter
-import com.denchic45.kts.utils.collectWhenStarted
+import com.denchic45.kts.util.collectWhenStarted
 
 class GroupChooserFragment : BaseFragment<GroupChooserViewModel, FragmentGroupChooserBinding>(
     R.layout.fragment_group_chooser

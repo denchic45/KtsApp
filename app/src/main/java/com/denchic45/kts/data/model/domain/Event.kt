@@ -1,8 +1,8 @@
 package com.denchic45.kts.data.model.domain
 
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.room.EventEntity.TYPE
-import com.denchic45.kts.utils.UUIDS
+import com.denchic45.kts.util.UUIDS
 import java.time.LocalDate
 import java.util.*
 

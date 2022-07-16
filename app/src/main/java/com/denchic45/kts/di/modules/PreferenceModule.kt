@@ -1,15 +1,22 @@
 package com.denchic45.kts.di.modules
 
 import android.content.Context
+import com.denchic45.kts.data.pref.UserPreferences
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.prefs.UserPreference
+import com.russhwolf.settings.AndroidSettings
 import dagger.Module
 import dagger.Provides
 
 @Module
 object PreferenceModule {
+
+    @Provides
+    fun provideUserPreferences(context: Context): UserPreferences {
+        return UserPreferences(AndroidSettings.Factory(context).create("User"))
+    }
 
     @Provides
     fun provideAppPreference(context: Context) = AppPreference(context)

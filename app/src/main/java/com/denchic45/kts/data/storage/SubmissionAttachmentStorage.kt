@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.denchic45.kts.data.DownloadByUrlApi
 import com.denchic45.kts.data.model.domain.Attachment
-import com.denchic45.kts.utils.clearAndDelete
+import com.denchic45.kts.util.clearAndDelete
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException
 import com.google.firebase.storage.StorageReference

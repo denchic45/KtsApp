@@ -1,8 +1,8 @@
 package com.denchic45.kts.data.model.room
 
 import androidx.room.*
-import com.denchic45.kts.data.model.EntityModel
-import com.denchic45.kts.data.model.domain.User
+import com.denchic45.kts.domain.EntityModel
+import com.denchic45.kts.domain.model.User
 import java.util.*
 
 @Entity(tableName = "user")

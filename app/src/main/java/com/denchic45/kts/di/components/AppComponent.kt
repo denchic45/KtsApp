@@ -14,6 +14,7 @@ import javax.inject.Singleton
         AndroidSupportInjectionModule::class,
         AppModule::class,
         DatabaseModule::class,
+        StorageModule::class,
         MapperModule::class,
         PreferenceModule::class,
         RawModule::class,

@@ -8,7 +8,7 @@ import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.data.model.ui.onUrl
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.ui.adapter.BaseViewHolder
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class ItemAdapterDelegate : ListItemAdapterDelegate<ListItem, ItemAdapterDelegate.ItemHolder>() {
 

@@ -1,10 +1,8 @@
 package com.denchic45.kts.data.repository
 
-import android.content.Context
 import android.util.Log
-import com.denchic45.appVersion.AppVersionService
-import com.denchic45.kts.data.NetworkService
-import com.denchic45.kts.data.Repository
+import com.denchic45.kts.data.service.AppVersionService
+import com.denchic45.kts.data.service.NetworkService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.channels.awaitClose
@@ -14,10 +12,9 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
-    override val context: Context,
     override val networkService: NetworkService,
     override val appVersionService: AppVersionService
-) : Repository(context) {
+) : Repository() {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 

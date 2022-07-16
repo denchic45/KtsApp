@@ -20,8 +20,8 @@ import com.denchic45.kts.R
 import com.denchic45.kts.databinding.FragmentEventEditorBinding
 import com.denchic45.kts.rx.EditTextTransformer
 import com.denchic45.kts.ui.base.BaseFragment
-import com.denchic45.kts.utils.Dimensions
-import com.denchic45.kts.utils.collectWhenResumed
+import com.denchic45.kts.util.Dimensions
+import com.denchic45.kts.util.collectWhenResumed
 import com.example.appbarcontroller.appbarcontroller.AppBarController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jakewharton.rxbinding4.widget.textChanges

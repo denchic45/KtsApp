@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.denchic45.kts.databinding.SnackbarUpdateBinding
-import com.denchic45.kts.utils.animateHeight
+import com.denchic45.kts.util.animateHeight
 
 
 class SnackbarUpdateView @JvmOverloads constructor(

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import com.denchic45.kts.data.model.domain.ListItem
 import com.denchic45.kts.data.model.ui.onId
 import com.denchic45.kts.databinding.*
-import com.denchic45.kts.utils.viewBinding
+import com.denchic45.kts.util.viewBinding
 
 class ItemAdapter : ListAdapter<ListItem, BaseViewHolder<ListItem, *>>(DIFF_CALLBACK) {
     var itemClickListener: OnItemClickListener = OnItemClickListener { }

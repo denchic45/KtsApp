@@ -10,10 +10,6 @@ class LoginInteractor @Inject constructor(
     private val authRepository: AuthRepository
 ) {
 
-    suspend fun findUserByPhoneNum(phoneNum: String) {
-        userRepository.findAndSaveByPhoneNum(phoneNum)
-    }
-
     suspend fun authByEmail(mail: String, password: String) {
         Log.d("lol", "A authByEmail: ")
         authRepository.authByEmail(mail, password)

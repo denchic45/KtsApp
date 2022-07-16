@@ -1,7 +1,7 @@
 package com.denchic45.kts
 
-import com.denchic45.kts.utils.DatePatterns
-import com.denchic45.kts.utils.toString
+import com.denchic45.kts.util.DatePatterns
+import com.denchic45.kts.util.toString
 import org.junit.jupiter.api.Test
 import java.time.DayOfWeek
 import java.time.LocalDate

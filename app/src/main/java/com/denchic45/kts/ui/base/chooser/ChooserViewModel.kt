@@ -3,7 +3,7 @@ package com.denchic45.kts.ui.base.chooser
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.data.getData
-import com.denchic45.kts.data.model.DomainModel
+import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
