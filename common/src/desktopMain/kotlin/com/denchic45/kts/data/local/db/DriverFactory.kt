@@ -11,7 +11,7 @@ actual class DriverFactory {
     actual val driver: SqlDriver = run {
         val file = File(appDirectory)
         file.mkdirs()
-        val url = "jdbc:sqlite:${file.path}\\database.db"
+        val url = "jdbc:sqlite:${file.path}${File.separator}database.db"
         val driver = JdbcSqliteDriver(url, Properties())
         driver
     }
