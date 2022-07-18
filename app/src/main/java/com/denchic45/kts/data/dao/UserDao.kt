@@ -28,16 +28,6 @@ abstract class UserDao : BaseDao<UserEntity>() {
     @Query("DELETE FROM user WHERE user_id IN(SELECT u.user_id FROM user u JOIN course c JOIN group_course gc ON c.teacher_id == u.user_id AND c.course_id == gc.course_id WHERE gc.group_id =:groupId AND u.user_id NOT IN (:availableUsers) )")
     abstract suspend fun deleteMissingTeachersByGroup(availableUsers: List<String>, groupId: String)
 
-    @Query("DELETE FROM user WHERE user_id=:id")
-    abstract suspend fun deleteById(id: String)
-
-    @Transaction
-    open suspend fun updateCuratorByGroupId(groupId: String, teacherId: String) {
-        val currentCurator = getCurator(groupId)
-        updateGroupId(currentCurator.id, null)
-        updateGroupId(teacherId, groupId)
-    }
-
     @Query("UPDATE user SET user_group_id =:groupId WHERE user_id =:userId")
     abstract suspend fun updateGroupId(userId: String, groupId: String?)
 
@@ -55,18 +45,6 @@ abstract class UserDao : BaseDao<UserEntity>() {
 
     @Query("SELECT EXISTS(SELECT * FROM user where user_id =:id AND user_group_id =:groupId)")
     abstract suspend fun isExistByIdAndGroupId(id: String, groupId: String?): Boolean
-
-    @Query("DELETE FROM user WHERE user_group_id =:groupId AND user_id NOT IN(:availableStudents) ")
-    abstract suspend fun deleteMissingStudentsByGroup(
-        availableStudents: List<String>,
-        groupId: String
-    )
-
-    @Query("DELETE FROM user WHERE role IN('TEACHER','HEAD_TEACHER') AND user_id NOT IN(SELECT u.user_id FROM user u LEFT JOIN course c LEFT JOIN `group` g ON c.teacher_id == u.user_id OR g.curator_id = u.user_id)")
-    abstract suspend fun deleteUnrelatedTeachersByCourseOrGroupAsCurator()
-
-    @Query("SELECT EXISTS(SELECT * FROM user WHERE user_id=:userId AND role IN('STUDENT','DEPUTY_HEADMAN','HEADMAN'))")
-    abstract suspend fun isStudent(userId: String): Boolean
 
     @Query("SELECT u.user_id FROM user u JOIN group_course gc ON u.user_group_id = gc.group_id WHERE gc.course_id=:courseId")
     abstract suspend fun getStudentIdsOfCourseByCourseId(courseId: String): List<String>

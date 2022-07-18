@@ -1,9 +1,41 @@
 CREATE TABLE IF NOT EXISTS groupEntity (
 group_id TEXT NOT NULL UNIQUE PRIMARY KEY,
-name TEXT NOT NULL,
+group_name TEXT NOT NULL,
 curator_id TEXT NOT NULL,
 course INTEGER NOT NULL,
 specialty_id TEXT NOT NULL,
 headman_id TEXT NOT NULL,
-timestamp INTEGER
+timestamp INTEGER NOT NULL
 );
+
+getWithCuratorAndSpecialtyById:
+SELECT * FROM groupEntity g
+JOIN userEntity  u ON g.curator_id = u.user_id
+JOIN specialtyEntity s ON g.specialty_id = s.specialty_id
+WHERE group_id =:groupId;
+
+getNameById:
+SELECT group_name FROM groupEntity
+WHERE group_id =:groupId;
+
+isExist:
+SELECT EXISTS(
+SELECT * FROM groupEntity
+WHERE group_id = :id
+);
+
+deleteById:
+DELETE FROM groupEntity
+WHERE group_id =:groupId;
+
+getWithCuratorAndSpecialtyByStudentId:
+SELECT * FROM groupEntity g
+JOIN userEntity u ON g.group_id = u.user_group_id
+JOIN specialtyEntity s ON g.specialty_id = s.specialty_id
+WHERE u.user_id =:userId;
+
+getWithCuratorAndSpecialtyByCuratorId:
+SELECT * FROM groupEntity g
+JOIN userEntity u ON g.group_id = u.user_group_id
+JOIN specialtyEntity s ON g.specialty_id = s.specialty_id
+WHERE curator_id =:userId;

@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.db.UserLocalDataSource
+import com.denchic45.kts.data.local.db.UserLocalDataSource
 import com.denchic45.kts.data.model.domain.EventsOfDay
-import com.denchic45.kts.data.model.domain.GroupHeader
+import com.denchic45.kts.domain.model.GroupHeader
 import com.denchic45.kts.data.model.domain.GroupTimetable
 import com.denchic45.kts.data.model.firestore.DayDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc

@@ -2,8 +2,8 @@ package com.denchic45.kts.ui.login.groupChooser
 
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.domain.DomainModel
-import com.denchic45.kts.data.model.domain.GroupHeader
-import com.denchic45.kts.data.model.domain.Specialty
+import com.denchic45.kts.domain.model.GroupHeader
+import com.denchic45.kts.domain.model.Specialty
 import com.denchic45.kts.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

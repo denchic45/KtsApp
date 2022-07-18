@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.login.groupChooser
 
-import com.denchic45.kts.data.model.domain.GroupHeader
-import com.denchic45.kts.data.model.domain.Specialty
+import com.denchic45.kts.domain.model.GroupHeader
+import com.denchic45.kts.domain.model.Specialty
 import com.denchic45.kts.data.repository.GroupRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow

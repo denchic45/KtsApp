@@ -1,4 +1,4 @@
-package com.denchic45.kts.data.model.domain
+package com.denchic45.kts.domain.model
 
 import com.denchic45.kts.domain.DomainModel
 

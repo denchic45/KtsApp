@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.courseEditor
 
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.model.domain.Course
-import com.denchic45.kts.data.model.domain.GroupHeader
+import com.denchic45.kts.domain.model.GroupHeader
 import com.denchic45.kts.data.model.domain.Subject
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.repository.*

@@ -6,13 +6,11 @@ import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
 import com.denchic45.kts.data.local.db.DbHelper
 import com.denchic45.kts.data.local.db.DriverFactory
-import com.denchic45.kts.data.db.UserLocalDataSource
-import com.denchic45.kts.data.db.UserLocalDataSourceImpl
+import com.denchic45.kts.data.local.db.UserLocalDataSource
 import com.denchic45.kts.data.remote.db.UserRemoteDataSource
 import com.denchic45.kts.data.service.AndroidNetworkService
 import com.denchic45.kts.data.service.NetworkService
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.squareup.sqldelight.db.SqlDriver
 import dagger.Module
 import dagger.Provides
@@ -38,7 +36,7 @@ object DatabaseModule {
 
     @Provides
     fun provideUserLocalDataSource(appDatabase: AppDatabase): UserLocalDataSource {
-        return UserLocalDataSourceImpl(appDatabase)
+        return UserLocalDataSource(appDatabase)
     }
 
     @Provides

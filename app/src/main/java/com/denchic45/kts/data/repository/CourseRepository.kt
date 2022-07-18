@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.db.UserLocalDataSource
+import com.denchic45.kts.data.local.db.UserLocalDataSource
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.firestore.CourseContentDoc
 import com.denchic45.kts.data.model.firestore.CourseDoc

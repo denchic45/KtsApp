@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
-import com.denchic45.kts.data.model.domain.Group
+import com.denchic45.kts.domain.model.Group
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.Specialty
+import com.denchic45.kts.domain.model.Specialty
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel

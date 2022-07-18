@@ -1,6 +1,6 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.finder
 
-import com.denchic45.kts.data.model.domain.GroupHeader
+import com.denchic45.kts.domain.model.GroupHeader
 import com.denchic45.kts.data.model.domain.EventsOfDay
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.repository.EventRepository

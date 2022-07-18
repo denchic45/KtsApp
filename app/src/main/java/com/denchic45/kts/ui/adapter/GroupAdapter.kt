@@ -8,8 +8,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import com.denchic45.kts.R
 import com.denchic45.kts.domain.DomainModel
-import com.denchic45.kts.data.model.domain.GroupHeader
-import com.denchic45.kts.data.model.domain.Specialty
+import com.denchic45.kts.domain.model.GroupHeader
+import com.denchic45.kts.domain.model.Specialty
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.databinding.ItemSpecialtyBinding
 import com.denchic45.kts.util.viewBinding

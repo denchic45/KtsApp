@@ -1,8 +1,8 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.GroupCurator
-import com.denchic45.kts.data.model.domain.GroupMembers
-import com.denchic45.kts.data.model.domain.GroupStudent
+import com.denchic45.kts.domain.model.GroupCurator
+import com.denchic45.kts.domain.model.GroupMembers
+import com.denchic45.kts.domain.model.GroupStudent
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndStudentsEntity
 import com.denchic45.kts.data.model.room.UserEntity
 import org.mapstruct.Mapper

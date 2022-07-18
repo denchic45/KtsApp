@@ -1,19 +1,16 @@
-package com.denchic45.kts.data.model.domain
+package com.denchic45.kts.domain.model
 
 import com.denchic45.kts.domain.DomainModel
-import com.denchic45.kts.data.model.mapper.Default
-import com.denchic45.kts.domain.model.User
-import com.google.firebase.firestore.ServerTimestamp
 import java.util.*
 
-data class Group @Default constructor(
+data class Group constructor(
     override var id: String,
     var name: String,
     var course: Int,
     var specialty: Specialty,
     var curator: User
 ) : DomainModel {
-    @ServerTimestamp
+
     var timestamp: Date? = null
 
     constructor(group: Group) : this() {

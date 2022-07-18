@@ -27,6 +27,7 @@ import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.databinding.*
+import com.denchic45.kts.domain.model.GroupHeader
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.ui.adapter.EventAdapter.OnCreateLessonClickListener
 import com.denchic45.kts.ui.adapter.EventAdapter.OnEditEventItemClickListener

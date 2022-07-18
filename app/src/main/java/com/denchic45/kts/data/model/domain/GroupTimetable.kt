@@ -1,5 +1,6 @@
 package com.denchic45.kts.data.model.domain
 
+import com.denchic45.kts.domain.model.GroupHeader
 import java.time.LocalDate
 
 data class GroupTimetable(

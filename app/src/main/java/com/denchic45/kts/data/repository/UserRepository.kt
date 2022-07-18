@@ -1,6 +1,6 @@
 package com.denchic45.kts.data.repository
 
-import com.denchic45.kts.data.db.UserLocalDataSource
+import com.denchic45.kts.data.local.db.UserLocalDataSource
 import com.denchic45.kts.data.mapper.*
 import com.denchic45.kts.data.pref.UserPreferences
 import com.denchic45.kts.data.remote.db.UserRemoteDataSource
@@ -8,11 +8,8 @@ import com.denchic45.kts.data.remote.storage.UserRemoteStorage
 import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.domain.model.User
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.tasks.await
 import java.util.*
 import javax.inject.Inject
 

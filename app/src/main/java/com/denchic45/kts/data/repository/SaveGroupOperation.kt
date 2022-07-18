@@ -4,7 +4,7 @@ import com.denchic45.kts.UserEntity
 import com.denchic45.kts.data.dao.GroupDao
 import com.denchic45.kts.data.dao.SpecialtyDao
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.db.UserLocalDataSource
+import com.denchic45.kts.data.local.db.UserLocalDataSource
 import com.denchic45.kts.data.mapper.docsToEntities
 import com.denchic45.kts.data.model.firestore.GroupDoc
 import com.denchic45.kts.data.model.mapper.GroupMapper
@@ -27,7 +27,7 @@ interface SaveGroupOperation {
         userLocalDataSource.upsert(allUsersEntity)
         val availableUsers = allUsersEntity.map { obj: UserEntity -> obj.user_id }
 //        userDao.deleteMissingStudentsByGroup(availableUsers, groupDoc.id)
-        userLocalDataSource.deleteMissingStudentsByGroup(availableUsers, groupDoc.id)
+        userLocalDataSource.deleteMissingStudentsByGroup( groupDoc.id, availableUsers)
     }
 
     suspend fun saveGroup(groupDoc: GroupDoc) {

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.db.UserLocalDataSource
+import com.denchic45.kts.data.local.db.UserLocalDataSource
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.firestore.CourseDoc
 import com.denchic45.kts.data.model.firestore.GroupDoc
@@ -16,7 +16,7 @@ import com.denchic45.kts.data.prefs.UserPreference
 import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.di.modules.IoDispatcher
-import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.domain.model.*
 import com.denchic45.kts.domain.model.User.Companion.isStudent
 import com.denchic45.kts.util.SearchKeysGenerator
 import com.denchic45.kts.util.getQuerySnapshotFlow
@@ -391,7 +391,7 @@ class GroupRepository @Inject constructor(
     fun findGroupMembersByGroupId(groupId: String): Flow<GroupMembers> {
         return userDao.observeStudentsWithCuratorByGroupId(groupId)
             .filterNotNull()
-            .map { groupMemberMapper.entityToDomainGroupMembers(it) }
+            .map(groupMemberMapper::entityToDomainGroupMembers)
     }
 
     suspend fun setHeadman(studentId: String, groupId: String) {

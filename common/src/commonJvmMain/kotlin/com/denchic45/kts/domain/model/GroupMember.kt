@@ -1,12 +1,12 @@
-package com.denchic45.kts.data.model.domain
+package com.denchic45.kts.domain.model
 
 import com.denchic45.kts.domain.DomainModel
 
 data class GroupMembers(
     val groupId: String?,
     val curator: GroupCurator,
-    val students: List<GroupStudent>,
-    val headmanId: String?
+    val headmanId: String?,
+    val students: List<GroupStudent>
 ) {
     fun isHeadman(member: GroupMember): Boolean {
         return headmanId == member.id
@@ -32,7 +32,7 @@ data class GroupStudent(
     override val patronymic: String?,
     override val groupId: String?,
     override val photoUrl: String,
-):GroupMember
+): GroupMember
 
 data class GroupCurator(
     override val id: String,
@@ -41,4 +41,4 @@ data class GroupCurator(
     override val patronymic: String?,
     override val groupId: String?,
     override val photoUrl: String,
-):GroupMember
+): GroupMember
