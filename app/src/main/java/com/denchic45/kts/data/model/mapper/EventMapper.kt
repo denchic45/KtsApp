@@ -1,16 +1,15 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.data.model.firestore.EventDetailsDoc
-import com.denchic45.kts.data.model.firestore.EventDetailsDoc.Companion.createEmpty
-import com.denchic45.kts.data.model.firestore.EventDoc
+import com.denchic45.kts.data.model.domain.Lesson
+import com.denchic45.kts.data.model.domain.SimpleEventDetails
 import com.denchic45.kts.data.model.room.EventEntity
-import com.denchic45.kts.data.model.room.EventEntity.TYPE
 import com.denchic45.kts.data.model.room.EventWithSubjectAndTeachersEntities
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
 import com.denchic45.kts.data.model.room.TeacherEventCrossRef
-import com.denchic45.kts.domain.model.GroupHeader
-import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.data.remote.model.EventDetailsDoc
+import com.denchic45.kts.data.remote.model.EventDetailsDoc.Companion.createEmpty
+import com.denchic45.kts.data.remote.model.EventDoc
+import com.denchic45.kts.domain.model.*
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
 import org.mapstruct.Named
@@ -24,9 +23,9 @@ abstract class EventMapper {
     @Named("mapDetails")
     fun mapDetails(entities: EventWithSubjectAndTeachersEntities): EventDetails {
         return when (entities.eventEntity.type) {
-            TYPE.LESSON -> eventEntityToLesson(entities)
-            TYPE.SIMPLE -> eventEntityToSimple(entities)
-            TYPE.EMPTY -> eventEntityToEmpty(entities)
+            Event.TYPE.LESSON -> eventEntityToLesson(entities)
+            Event.TYPE.SIMPLE -> eventEntityToSimple(entities)
+            Event.TYPE.EMPTY -> eventEntityToEmpty(entities)
         }
     }
 
@@ -91,9 +90,9 @@ abstract class EventMapper {
     @Named("detailsToDetailsDoc")
     fun detailsToDetailsDoc(eventDetails: EventDetails): EventDetailsDoc {
         return when (eventDetails.type) {
-            TYPE.LESSON -> lessonToDetailsDoc(eventDetails as Lesson)
-            TYPE.SIMPLE -> simpleToDetailsDoc(eventDetails as SimpleEventDetails)
-            TYPE.EMPTY -> emptyToDetailsDoc()
+            Event.TYPE.LESSON -> lessonToDetailsDoc(eventDetails as Lesson)
+            Event.TYPE.SIMPLE -> simpleToDetailsDoc(eventDetails as SimpleEventDetails)
+            Event.TYPE.EMPTY -> emptyToDetailsDoc()
         }
     }
 

@@ -4,22 +4,24 @@ import android.util.Log
 import androidx.room.withTransaction
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
+import com.denchic45.kts.data.local.db.GroupLocalDataSource
+import com.denchic45.kts.data.local.db.SpecialtyLocalDataSource
 import com.denchic45.kts.data.local.db.UserLocalDataSource
-import com.denchic45.kts.data.model.domain.EventsOfDay
-import com.denchic45.kts.domain.model.GroupHeader
 import com.denchic45.kts.data.model.domain.GroupTimetable
-import com.denchic45.kts.data.model.firestore.DayDoc
-import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.firestore.SubjectDoc
 import com.denchic45.kts.data.model.mapper.*
 import com.denchic45.kts.data.model.room.DayEntity
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
 import com.denchic45.kts.data.prefs.UserPreference
-import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.data.remote.model.DayDoc
+import com.denchic45.kts.data.remote.model.GroupDoc
+import com.denchic45.kts.data.remote.model.SubjectDoc
+import com.denchic45.kts.data.remote.model.UserDoc
 import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.di.modules.IoDispatcher
+import com.denchic45.kts.domain.model.EventsOfDay
+import com.denchic45.kts.domain.model.GroupHeader
 import com.denchic45.kts.util.NetworkException
 import com.denchic45.kts.util.toDateUTC
 import com.denchic45.kts.util.toLocalDate
@@ -43,8 +45,8 @@ class EventRepository @Inject constructor(
     private val coroutineScope: CoroutineScope,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     val userMapper: UserMapper,
-    override val groupMapper: GroupMapper,
-    override val specialtyMapper: SpecialtyMapper,
+     val groupMapper: GroupMapper,
+     val specialtyMapper: SpecialtyMapper,
     private val dayMapper: DayMapper,
     override val dataBase: DataBase,
     private val eventDao: EventDao,
@@ -58,12 +60,14 @@ class EventRepository @Inject constructor(
     private val eventMapper: EventMapper,
     private val subjectMapper: SubjectMapper,
     private val dayDao: DayDao,
-    override val groupDao: GroupDao,
-    override val specialtyDao: SpecialtyDao,
+    val groupDao: GroupDao,
+    val specialtyDao: SpecialtyDao,
     private val userPreference: UserPreference,
     private val appPreference: AppPreference,
     override val appVersionService: AppVersionService,
-    override val userLocalDataSource: UserLocalDataSource
+    override val userLocalDataSource: UserLocalDataSource,
+    override val groupLocalDataSource: GroupLocalDataSource,
+    override val specialtyLocalDataSource: SpecialtyLocalDataSource
 ) : Repository(), SaveGroupOperation {
 
     private val groupsRef = firestore.collection("Groups")

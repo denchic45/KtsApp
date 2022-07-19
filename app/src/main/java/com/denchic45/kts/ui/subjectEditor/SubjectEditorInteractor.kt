@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.subjectEditor
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.domain.model.Subject
 import com.denchic45.kts.data.repository.SubjectRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

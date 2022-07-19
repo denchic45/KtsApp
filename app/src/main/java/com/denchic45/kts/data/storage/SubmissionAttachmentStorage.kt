@@ -3,7 +3,7 @@ package com.denchic45.kts.data.storage
 import android.content.Context
 import android.net.Uri
 import com.denchic45.kts.data.DownloadByUrlApi
-import com.denchic45.kts.data.model.domain.Attachment
+import com.denchic45.kts.domain.model.Attachment
 import com.denchic45.kts.util.clearAndDelete
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageException

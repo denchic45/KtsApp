@@ -1,8 +1,8 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.Attachment
-import com.denchic45.kts.data.model.domain.Task
-import com.denchic45.kts.data.model.firestore.SubmissionDoc
+import com.denchic45.kts.domain.model.Attachment
+import com.denchic45.kts.domain.model.Task
+import com.denchic45.kts.data.remote.model.SubmissionDoc
 import com.denchic45.kts.data.model.room.SubmissionCommentEntity
 import com.denchic45.kts.data.model.room.SubmissionEntity
 import com.denchic45.kts.data.model.room.SubmissionWithStudentUserAndCommentsEntities
@@ -30,7 +30,6 @@ abstract class SubmissionMapper {
             entities.submissionEntity.contentId,
             userMapper.entityToDomain(entities.studentEntity),
             content,
-            comments,
             submissionStatus,
             entities.submissionEntity.contentUpdateDate!!.toLocalDateTime()
         )

@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.mapper
 
 import com.denchic45.kts.domain.model.Specialty
-import com.denchic45.kts.data.model.firestore.SpecialtyDoc
+import com.denchic45.kts.data.remote.model.SpecialtyDoc
 import com.denchic45.kts.data.model.room.SpecialtyEntity
 import org.mapstruct.Mapper
 

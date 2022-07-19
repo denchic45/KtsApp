@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.group.courses
 
 import com.denchic45.kts.data.Interactor
-import com.denchic45.kts.data.model.domain.CourseHeader
+import com.denchic45.kts.domain.model.CourseHeader
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.repository.CourseRepository
 import com.denchic45.kts.data.repository.GroupRepository

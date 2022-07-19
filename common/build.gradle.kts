@@ -58,6 +58,7 @@ kotlin {
                 implementation("io.insert-koin:koin-core:$koinVersion")
 
                 api("com.russhwolf:multiplatform-settings:0.9")
+                api("com.russhwolf:multiplatform-settings-coroutines:0.9")
             }
         }
         val commonTest by getting {

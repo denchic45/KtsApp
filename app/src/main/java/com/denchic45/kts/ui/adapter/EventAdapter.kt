@@ -27,7 +27,10 @@ import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.room.EventEntity
 import com.denchic45.kts.databinding.*
+import com.denchic45.kts.domain.model.Event
 import com.denchic45.kts.domain.model.GroupHeader
+import com.denchic45.kts.domain.model.Subject
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.ui.adapter.EventAdapter.OnCreateLessonClickListener
 import com.denchic45.kts.ui.adapter.EventAdapter.OnEditEventItemClickListener
@@ -111,9 +114,9 @@ class EventAdapter(
 
     override fun getItemViewType(position: Int): Int {
         if (getItem(position) is Event) {
-            if ((getItem(position) as Event).details.type == EventEntity.TYPE.LESSON) return TYPE_LESSON
-            if ((getItem(position) as Event).details.type == EventEntity.TYPE.SIMPLE) return TYPE_SIMPLE
-            if ((getItem(position) as Event).details.type == EventEntity.TYPE.EMPTY) return TYPE_EMPTY
+            if ((getItem(position) as Event).details.type == Event.TYPE.LESSON) return TYPE_LESSON
+            if ((getItem(position) as Event).details.type == Event.TYPE.SIMPLE) return TYPE_SIMPLE
+            if ((getItem(position) as Event).details.type == Event.TYPE.EMPTY) return TYPE_EMPTY
         } else if (getItem(position) is ListItem) {
             return (getItem(position) as ListItem).type
         }

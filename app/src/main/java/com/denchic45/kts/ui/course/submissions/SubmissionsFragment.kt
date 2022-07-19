@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.databinding.FragmentSubmissionsBinding
 import com.denchic45.kts.databinding.ItemSubmissionBinding
 import com.denchic45.kts.ui.base.BaseFragment
@@ -75,7 +75,7 @@ class SubmissionAdapterDelegate :
                 Glide.with(itemView)
                     .load(item.student.photoUrl)
                     .into(ivAvatar)
-                when (item.status) {
+                when (val status = item.status) {
                     is Task.SubmissionStatus.NotSubmitted -> {
                         tvStatus.text = "Не сдано"
                     }
@@ -83,7 +83,7 @@ class SubmissionAdapterDelegate :
                         tvStatus.text = "Сдано"
                     }
                     is Task.SubmissionStatus.Graded -> {
-                        tvStatus.text = "${item.status.grade}/5"
+                        tvStatus.text = "${status.grade}/5"
                     }
                     is Task.SubmissionStatus.Rejected -> {
                         tvStatus.text = "Отклонено"

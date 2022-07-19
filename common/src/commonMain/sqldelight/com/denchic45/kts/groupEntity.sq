@@ -2,11 +2,23 @@ CREATE TABLE IF NOT EXISTS groupEntity (
 group_id TEXT NOT NULL UNIQUE PRIMARY KEY,
 group_name TEXT NOT NULL,
 curator_id TEXT NOT NULL,
-course INTEGER NOT NULL,
+course INTEGER AS Int NOT NULL,
 specialty_id TEXT NOT NULL,
 headman_id TEXT NOT NULL,
 timestamp INTEGER NOT NULL
 );
+
+upsert:
+INSERT INTO groupEntity
+VALUES ?
+ON CONFLICT(group_id)
+DO UPDATE SET
+group_name = excluded.group_name,
+curator_id = excluded.curator_id,
+course = excluded.course,
+specialty_id = excluded.specialty_id,
+headman_id = excluded.headman_id,
+timestamp = excluded.timestamp;
 
 getWithCuratorAndSpecialtyById:
 SELECT * FROM groupEntity g

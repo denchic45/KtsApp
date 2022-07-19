@@ -1,3 +1,4 @@
+import kotlin.collections.List;
 
 CREATE TABLE submissionEntity (
 submission_id TEXT NOT NULL UNIQUE PRIMARY KEY,
@@ -6,14 +7,59 @@ content_id TEXT NOT NULL,
 course_id TEXT NOT NULL,
 status TEXT NOT NULL,
 text TEXT NOT NULL,
--- TODO Сделать конвертер списка
--- attachments TEXT AS List<String>,
-attachments TEXT,
+attachments TEXT AS List<String> NOT NULL,
 teacher_id TEXT,
 cause TEXT NOT NULL,
-grade INTEGER,
-graded_date TEXT ,
-rejectd_date TEXT,
-submitted_date TEXT,
-timestamp INTEGER
+grade INTEGER NOT NULL,
+graded_date INTEGER NOT NULL ,
+rejectd_date INTEGER NOT NULL,
+submitted_date INTEGER NOT NULL,
+timestamp INTEGER NOT NULL
 );
+
+upsert:
+INSERT INTO submissionEntity VALUES ?
+ON CONFLICT (submission_id)
+DO UPDATE SET
+status = excluded.status,
+text = excluded.text,
+attachments = excluded.attachments,
+cause = excluded.cause,
+grade = excluded.grade,
+graded_date = excluded.graded_date,
+rejectd_date = excluded.rejectd_date,
+submitted_date = excluded.submitted_date,
+timestamp = excluded.timestamp;
+
+getSubmissionAndStudentByTaskIdAndUserId:
+SELECT * FROM submissionEntity s
+JOIN userEntity u ON u.user_id = s.student_id
+WHERE content_id=:contentId AND student_id =: studentId;
+
+getSubmissionsAndStudentsByTaskId:
+SELECT * FROM submissionEntity s
+JOIN userEntity u ON u.user_id = s.student_id
+WHERE content_id =: taskId;
+
+getStudentsWithoutSubmission:
+SELECT
+  u.*
+FROM
+  userEntity u
+  LEFT JOIN submissionEntity s ON s.student_id = u.user_id
+WHERE
+  u.user_group_id IN(
+    SELECT
+      u.user_group_id
+    FROM
+      userEntity uu
+      JOIN groupCourseEntity gc ON u.user_group_id = gc.group_id
+      JOIN courseContentEntity cc ON gc.course_id = cc.course_id
+    WHERE
+      cc.content_id =:taskId
+  )
+  AND s.student_id IS NULL;
+
+deleteByContentId:
+DELETE FROM submissionEntity
+WHERE content_id =: id;

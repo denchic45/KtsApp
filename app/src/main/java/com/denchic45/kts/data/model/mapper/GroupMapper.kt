@@ -3,7 +3,7 @@ package com.denchic45.kts.data.model.mapper
 import com.denchic45.kts.domain.model.GroupHeader
 import com.denchic45.kts.domain.model.Group
 import com.denchic45.kts.domain.model.Group.Companion.deleted
-import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.remote.model.GroupDoc
 import com.denchic45.kts.data.model.room.GroupEntity
 import com.denchic45.kts.data.model.room.GroupWithCuratorAndSpecialtyEntity
 import com.google.firebase.firestore.FieldValue
@@ -17,16 +17,16 @@ abstract class GroupMapper {
     @Mapping(target = "students", ignore = true)
     abstract fun domainToDoc(domain: Group): GroupDoc
 
-    @DoIgnore
-    @Mapping(target = "specialty", source = "specialtyEntity")
-    @Mapping(target = ".", source = "groupEntity")
-    @Mapping(target = "curator", source = "curatorEntity")
-    abstract fun groupWithCuratorAndSpecialtyEntityToGroup(entity: GroupWithCuratorAndSpecialtyEntity?): Group
-
-    fun entityToDomain(entity: GroupWithCuratorAndSpecialtyEntity?): Group {
-        return entity?.let { groupWithCuratorAndSpecialtyEntityToGroup(it) }
-            ?: deleted()
-    }
+//    @DoIgnore
+//    @Mapping(target = "specialty", source = "specialtyEntity")
+//    @Mapping(target = ".", source = "groupEntity")
+//    @Mapping(target = "curator", source = "curatorEntity")
+//    abstract fun groupWithCuratorAndSpecialtyEntityToGroup(entity: GroupWithCuratorAndSpecialtyEntity?): Group
+//
+//    fun entityToDomain(entity: GroupWithCuratorAndSpecialtyEntity?): Group {
+//        return entity?.let { groupWithCuratorAndSpecialtyEntityToGroup(it) }
+//            ?: deleted()
+//    }
 
     fun domainToMap(group: Group): Map<String, Any> {
         val map: MutableMap<String, Any> = HashMap()

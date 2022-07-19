@@ -2,3 +2,12 @@ CREATE TABLE specialtyEntity (
 specialty_id TEXT NOT NULL UNIQUE PRIMARY KEY,
 name TEXT NOT NULL
 );
+
+upsert:
+INSERT INTO specialtyEntity VALUES ?
+ON CONFLICT(specialty_id) DO UPDATE SET
+name = excluded.name;
+
+getById:
+SELECT * FROM specialtyEntity
+WHERE specialty_id =: id;

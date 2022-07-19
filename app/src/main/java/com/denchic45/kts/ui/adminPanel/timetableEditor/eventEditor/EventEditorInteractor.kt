@@ -1,8 +1,8 @@
 package com.denchic45.kts.ui.adminPanel.timetableEditor.eventEditor
 
-import com.denchic45.kts.data.model.domain.Event
-import com.denchic45.kts.data.model.domain.EventDetails
-import com.denchic45.kts.data.model.domain.EventsOfDay
+import com.denchic45.kts.domain.model.Event
+import com.denchic45.kts.domain.model.EventDetails
+import com.denchic45.kts.domain.model.EventsOfDay
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

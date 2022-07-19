@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.EmptyEventDetails
-import com.denchic45.kts.data.model.domain.Event
-import com.denchic45.kts.data.model.domain.Event.Companion.createEmpty
+import com.denchic45.kts.domain.model.EmptyEventDetails
+import com.denchic45.kts.domain.model.Event
+import com.denchic45.kts.domain.model.Event.Companion.createEmpty
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uieditor.UIEditor
 import com.denchic45.kts.uivalidator.Rule

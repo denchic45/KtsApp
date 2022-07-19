@@ -18,7 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.databinding.FragmentSubmissionBinding
 import com.denchic45.kts.di.viewmodel.ViewModelFactory
 import com.denchic45.kts.rx.EditTextTransformer
@@ -166,22 +166,22 @@ class SubmissionDialog : BottomSheetDialogFragment() {
                         rvAttachments.visibility = View.GONE
                     }
 
-                    tvStatus.text = when (it.status) {
+                    tvStatus.text = when (val status = it.status) {
                         Task.SubmissionStatus.NotSubmitted -> {
                             "Не сдано"
                         }
                         is Task.SubmissionStatus.Submitted -> {
                             "Сдано: ${
                                 DateTimeFormatter.ofPattern("dd MMM HH:mm")
-                                    .format(it.status.submittedDate)
+                                    .format(status.submittedDate)
                             }"
                         }
                         is Task.SubmissionStatus.Graded -> {
-                            etGrade.setText(it.status.grade.toString())
-                            "Оценено: ${it.status.grade}/5"
+                            etGrade.setText(status.grade.toString())
+                            "Оценено: ${status.grade}/5"
                         }
                         is Task.SubmissionStatus.Rejected -> {
-                            "Отклонено по причине: ${it.status.cause}"
+                            "Отклонено по причине: ${status.cause}"
                         }
                     }
                 }

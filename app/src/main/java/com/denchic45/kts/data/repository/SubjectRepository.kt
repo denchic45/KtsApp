@@ -4,9 +4,10 @@ import android.net.Uri
 import androidx.room.withTransaction
 import com.denchic45.kts.data.dao.*
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.model.domain.Subject
-import com.denchic45.kts.data.model.firestore.CourseDoc
-import com.denchic45.kts.data.model.firestore.SubjectDoc
+import com.denchic45.kts.data.local.db.*
+import com.denchic45.kts.domain.model.Subject
+import com.denchic45.kts.data.remote.model.CourseDoc
+import com.denchic45.kts.data.remote.model.SubjectDoc
 import com.denchic45.kts.data.model.mapper.CourseMapper
 import com.denchic45.kts.data.model.mapper.SectionMapper
 import com.denchic45.kts.data.model.mapper.SubjectMapper
@@ -35,17 +36,19 @@ class SubjectRepository @Inject constructor(
     override val networkService: NetworkService,
     override val firestore: FirebaseFirestore,
     override val courseMapper: CourseMapper,
-    override val subjectMapper: SubjectMapper,
-    override val userMapper: UserMapper,
-    override val sectionMapper: SectionMapper,
-    override val courseDao: CourseDao,
-    override val groupCourseDao: GroupCourseDao,
-    override val groupDao: GroupDao,
-    override val sectionDao: SectionDao,
-    override val subjectDao: SubjectDao,
-    override val userDao: UserDao,
+    val subjectMapper: SubjectMapper,
+    val userMapper: UserMapper,
+    val sectionMapper: SectionMapper,
+    val courseDao: CourseDao,
+    val subjectDao: SubjectDao,
     private val dataBase: DataBase,
     @IoDispatcher override val dispatcher: CoroutineDispatcher,
+    override val userLocalDataSource: UserLocalDataSource,
+    override val groupLocalDataSource: GroupLocalDataSource,
+    override val courseLocalDataSource: CourseLocalDataSource,
+    override val sectionLocalDataSource: SectionLocalDataSource,
+    override val groupCourseLocalDataSource: GroupCourseLocalDataSource,
+    override val subjectLocalDataSource: SubjectLocalDataSource,
 ) : Repository(), SaveCourseRepository, RemoveCourseOperation,
     FindByContainsNameRepository<Subject>, UpdateCourseOperation {
 

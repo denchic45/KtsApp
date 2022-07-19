@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.mapper
 
 import com.denchic45.kts.UserEntity
-import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.data.remote.model.UserDoc
 import com.denchic45.kts.domain.model.User
 import java.util.*
 

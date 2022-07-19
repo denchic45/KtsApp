@@ -1,9 +1,9 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.Course
+import com.denchic45.kts.domain.model.Course
 import com.denchic45.kts.domain.model.GroupHeader
-import com.denchic45.kts.data.model.domain.CourseHeader
-import com.denchic45.kts.data.model.firestore.CourseDoc
+import com.denchic45.kts.domain.model.CourseHeader
+import com.denchic45.kts.data.remote.model.CourseDoc
 import com.denchic45.kts.data.model.room.CourseEntity
 import com.denchic45.kts.data.model.room.CourseWithSubjectAndTeacherEntities
 import com.denchic45.kts.data.model.room.CourseWithSubjectWithTeacherAndGroupsEntities

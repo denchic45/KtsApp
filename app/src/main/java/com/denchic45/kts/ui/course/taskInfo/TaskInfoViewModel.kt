@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.domain.DomainModel
-import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.data.model.ui.UiText
+import com.denchic45.kts.domain.model.Attachment
+import com.denchic45.kts.domain.model.SubmissionSettings
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
@@ -51,12 +53,12 @@ class TaskInfoViewModel @Inject constructor(
             TaskViewState(
                 name = task.name,
                 description = task.description,
-                dateWithTimeLeft = task.completionDate?.let {
+                dateWithTimeLeft = task.completionDate?.let { completionDate ->
                     val pattern = DateTimeFormatter.ofPattern("dd MMM HH:mm")
-                    task.completionDate.format(pattern) to
+                    completionDate.format(pattern) to
                             UiText.FormattedQuantityText(
                                 value = R.plurals.day,
-                                quantity = Period.between(LocalDate.now(), task.completionDate.toLocalDate()).days,
+                                quantity = Period.between(LocalDate.now(), completionDate.toLocalDate()).days,
                                 formatArgs = null
                             )
 
@@ -258,7 +260,7 @@ class TaskInfoViewModel @Inject constructor(
             else
                 content.attachments + AddAttachmentItem
 
-        return when (status) {
+        return when (val status = status) {
             Task.SubmissionStatus.NotSubmitted ->
                 SubmissionViewState(
                     btnVisibility = true,

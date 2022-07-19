@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.EventsOfDay
-import com.denchic45.kts.data.model.firestore.DayDoc
+import com.denchic45.kts.domain.model.EventsOfDay
+import com.denchic45.kts.data.remote.model.DayDoc
 import com.denchic45.kts.data.model.room.DayEntity
 import com.denchic45.kts.data.model.room.DayWithEventsEntities
 import org.mapstruct.Mapper

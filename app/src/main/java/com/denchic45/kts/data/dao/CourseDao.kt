@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class CourseDao : BaseDao<CourseEntity>() {
 
-    @Query("DELETE FROM course WHERE course_id IN(SELECT course_id FROM group_course WHERE group_id=:groupId)")
-    abstract fun clearByGroupId(groupId: String)
+//    @Query("DELETE FROM course WHERE course_id IN(SELECT course_id FROM group_course WHERE group_id=:groupId)")
+//    abstract fun clearByGroupId(groupId: String)
 
     @Query("SELECT * FROM course WHERE course_id =:id")
     abstract fun observe(id: String): Flow<CourseWithSubjectWithTeacherAndGroupsEntities?>
@@ -23,21 +23,21 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
     @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
     abstract fun observeCoursesByGroupId(groupId: String): Flow<List<CourseWithSubjectAndTeacherEntities>>
 
-    @Query("SELECT gc.course_id FROM group_course gc WHERE gc.group_id =:groupId")
-    abstract fun getCourseIdsByGroupId(groupId: String): Flow<List<String>>
+//    @Query("SELECT gc.course_id FROM group_course gc WHERE gc.group_id =:groupId")
+//    abstract fun getCourseIdsByGroupId(groupId: String): Flow<List<String>>
 
-    @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
-    abstract suspend fun getCoursesByGroupId(groupId: String): List<CourseWithSubjectWithTeacherAndGroupsEntities>
+//    @Query("SELECT c.* FROM course c JOIN group_course gc ON gc.course_id =c.course_id WHERE gc.group_id =:groupId")
+//    abstract suspend fun getCoursesByGroupId(groupId: String): List<CourseWithSubjectWithTeacherAndGroupsEntities>
 
-    @Query("SELECT EXISTS(SELECT * FROM course c JOIN group_course gc ON gc.group_id =:groupId WHERE c.teacher_id= :teacherId)")
-    abstract fun isGroupHasSuchTeacher(teacherId: String, groupId: String): Boolean
+//    @Query("SELECT EXISTS(SELECT * FROM course c JOIN group_course gc ON gc.group_id =:groupId WHERE c.teacher_id= :teacherId)")
+//    abstract fun isGroupHasSuchTeacher(teacherId: String, groupId: String): Boolean
 
-    @Query("SELECT EXISTS(SELECT * FROM course JOIN group_course gc ON gc.group_id =:groupId = :groupId AND teacher_id= :teacherId AND subject_id = :subjectId)")
-    abstract fun isExistCourse(
-        groupId: String,
-        teacherId: String,
-        subjectId: String
-    ): Boolean
+//    @Query("SELECT EXISTS(SELECT * FROM course JOIN group_course gc ON gc.group_id =:groupId = :groupId AND teacher_id= :teacherId AND subject_id = :subjectId)")
+//    abstract fun isExistCourse(
+//        groupId: String,
+//        teacherId: String,
+//        subjectId: String
+//    ): Boolean
 
     @Query("SELECT EXISTS (SELECT 1 FROM course c JOIN group_course gc ON gc.group_id =:groupId WHERE teacher_id=:teacherId)")
     abstract fun hasRelatedTeacherToGroup(teacherId: String, groupId: String): Boolean
@@ -62,11 +62,11 @@ abstract class CourseDao : BaseDao<CourseEntity>() {
         .filter { subjectId -> !hasRelatedSubjectToGroup(subjectId, groupId) }
 
 
-    @Query("DELETE FROM course WHERE course_id NOT IN(SELECT c.course_id FROM course c INNER JOIN group_course gc INNER JOIN `group` g  ON c.course_id = gc.course_id AND g.group_id = gc.group_id)")
-    abstract fun deleteUnrelatedByGroup()
+//    @Query("DELETE FROM course WHERE course_id NOT IN(SELECT c.course_id FROM course c INNER JOIN group_course gc INNER JOIN `group` g  ON c.course_id = gc.course_id AND g.group_id = gc.group_id)")
+//    abstract fun deleteUnrelatedByGroup()
 
-    @Query("DELETE FROM course WHERE teacher_id =:teacherId AND course_id NOT IN(:availableCourseIds)")
-    abstract suspend fun deleteMissingByTeacher(availableCourseIds: List<String>, teacherId: String)
+//    @Query("DELETE FROM course WHERE teacher_id =:teacherId AND course_id NOT IN(:availableCourseIds)")
+//    abstract suspend fun deleteMissingByTeacher(availableCourseIds: List<String>, teacherId: String)
 
     @Query("SELECT * FROM course WHERE teacher_id=:id")
     abstract fun getByTeacherId(id: String): Flow<List<CourseWithSubjectAndTeacherEntities>>

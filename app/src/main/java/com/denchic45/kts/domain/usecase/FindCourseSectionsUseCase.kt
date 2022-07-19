@@ -1,7 +1,7 @@
 package com.denchic45.kts.domain.usecase
 
 import android.util.Log
-import com.denchic45.kts.data.model.domain.Section
+import com.denchic45.kts.domain.model.Section
 import com.denchic45.kts.data.repository.CourseRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

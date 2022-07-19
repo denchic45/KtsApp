@@ -1,6 +1,7 @@
 package com.denchic45.kts.di.modules
 
 import android.content.Context
+import com.denchic45.kts.data.pref.GroupPreferences
 import com.denchic45.kts.data.pref.UserPreferences
 import com.denchic45.kts.data.prefs.AppPreference
 import com.denchic45.kts.data.prefs.GroupPreference
@@ -15,7 +16,16 @@ object PreferenceModule {
 
     @Provides
     fun provideUserPreferences(context: Context): UserPreferences {
-        return UserPreferences(AndroidSettings.Factory(context).create("User"))
+        return UserPreferences(
+            AndroidSettings(context.getSharedPreferences("User", Context.MODE_PRIVATE))
+        )
+    }
+
+    @Provides
+    fun provideGroupPreferences(context: Context): GroupPreferences {
+        return GroupPreferences(
+            AndroidSettings(context.getSharedPreferences("Group", Context.MODE_PRIVATE))
+        )
     }
 
     @Provides

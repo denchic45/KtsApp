@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.course.submission
 
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.domain.usecase.FindTaskSubmissionUseCase
 import com.denchic45.kts.domain.usecase.GradeSubmissionUseCase
 import com.denchic45.kts.domain.usecase.RejectSubmissionUseCase
@@ -52,7 +52,9 @@ class SubmissionViewModel @Inject constructor(
     fun onSendGradeClick() {
         viewModelScope.launch {
             val submission = submission()
-            if (submission.status !is Task.SubmissionStatus.Graded || submission.status.grade != grade) {
+            if (submission.status !is Task.SubmissionStatus.Graded ||
+                (submission.status as Task.SubmissionStatus.Graded).grade != grade
+            ) {
                 gradeSubmissionUseCase(taskId, studentId, grade)
             }
         }
@@ -63,11 +65,11 @@ class SubmissionViewModel @Inject constructor(
     }
 
     fun onRejectConfirmClick() {
-       viewModelScope.launch {
-           if (cause.isNotEmpty())
-           rejectSubmissionUseCase(taskId, studentId, cause)
-           closeRejectConfirmation.call()
-       }
+        viewModelScope.launch {
+            if (cause.isNotEmpty())
+                rejectSubmissionUseCase(taskId, studentId, cause)
+            closeRejectConfirmation.call()
+        }
     }
 
     fun onRejectCancelClick() {

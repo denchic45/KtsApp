@@ -4,10 +4,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.Attachment
-import com.denchic45.kts.data.model.domain.Section
-import com.denchic45.kts.data.model.domain.SubmissionSettings
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.Attachment
+import com.denchic45.kts.domain.model.Section
+import com.denchic45.kts.domain.model.SubmissionSettings
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.ui.confirm.ConfirmInteractor
@@ -188,7 +188,7 @@ class TaskEditorViewModel @Inject constructor(
                         )
                     }
                     commentsEnabled.value = it.commentsEnabled
-                    section = findSectionUseCase(it.sectionId)
+                    section = findSectionUseCase(it.sectionId)!! //TODO найти другое решение!
                     postSelection()
                     observeAttachments()
                 }

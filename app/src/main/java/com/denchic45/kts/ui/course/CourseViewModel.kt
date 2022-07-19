@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
 import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.domain.DomainModel
-import com.denchic45.kts.data.model.domain.CourseContent
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.CourseContent
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.domain.usecase.*
 import com.denchic45.kts.ui.base.BaseViewModel
 import com.denchic45.kts.uipermissions.Permission
@@ -123,12 +123,12 @@ class CourseViewModel @Inject constructor(
         viewModelScope.launch {
             val contents = showContents.value!!
 
-            val prevOrder = if (position == 0 || contents[position - 1] !is CourseContent) 0
-            else (contents[position - 1] as CourseContent).order
+            val prevOrder:Int = if (position == 0 || contents[position - 1] !is CourseContent) 0
+            else (contents[position - 1] as CourseContent).order.toInt()
 
-            val nextOrder =
-                if (position == contents.size - 1) (contents[position - 1] as CourseContent).order + (1024 * 2)
-                else (contents[position + 1] as CourseContent).order
+            val nextOrder: Int =
+                if (position == contents.size - 1) ((contents[position - 1] as CourseContent).order + (1024 * 2)).toInt()
+                else (contents[position + 1] as CourseContent).order.toInt()
 
             updateCourseContentOrderUseCase(
                 contents[position].id,

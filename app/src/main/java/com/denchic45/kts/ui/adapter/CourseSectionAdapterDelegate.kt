@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.adapter
 
 import android.view.ViewGroup
-import com.denchic45.kts.data.model.domain.Section
+import com.denchic45.kts.domain.model.Section
 import com.denchic45.kts.databinding.ItemCourseSectionBinding
 import com.denchic45.kts.util.viewBinding
 import com.denchic45.widget.extendedAdapter.ListItemAdapterDelegate

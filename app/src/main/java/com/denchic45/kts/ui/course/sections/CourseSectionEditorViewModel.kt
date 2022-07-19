@@ -1,7 +1,7 @@
 package com.denchic45.kts.ui.course.sections
 
 import androidx.lifecycle.viewModelScope
-import com.denchic45.kts.data.model.domain.Section
+import com.denchic45.kts.domain.model.Section
 import com.denchic45.kts.domain.usecase.AddCourseSectionsUseCase
 import com.denchic45.kts.domain.usecase.FindCourseSectionsUseCase
 import com.denchic45.kts.domain.usecase.RemoveCourseSectionsUseCase
@@ -52,7 +52,7 @@ class CourseSectionEditorViewModel @Inject constructor(
             return
 
         viewModelScope.launch {
-            val sections = sections.first()
+            val sections: List<Section> = sections.first()
 
             val prevOrder = if (position == 0) 0 else sections[position - 1].order
 

@@ -24,7 +24,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.denchic45.kts.R
 import com.denchic45.kts.data.UiModel
-import com.denchic45.kts.data.model.domain.Attachment
+import com.denchic45.kts.domain.model.Attachment
 import com.denchic45.kts.databinding.FragmentTaskEditorBinding
 import com.denchic45.kts.databinding.ItemAddAttachmentBinding
 import com.denchic45.kts.databinding.ItemAttachmentBinding

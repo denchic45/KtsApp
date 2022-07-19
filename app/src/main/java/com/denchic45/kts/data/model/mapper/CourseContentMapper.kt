@@ -1,8 +1,8 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.data.model.firestore.CourseContentDoc
+import com.denchic45.kts.data.remote.model.CourseContentDoc
 import com.denchic45.kts.data.model.room.CourseContentEntity
+import com.denchic45.kts.domain.model.*
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -25,7 +25,6 @@ abstract class CourseContentMapper {
         courseEntity: CourseContentEntity,
         contentDetails: ContentDetails.Task
     ): CourseContentDoc
-
 
     abstract fun taskToTaskDetails(task: Task): ContentDetails.Task
 

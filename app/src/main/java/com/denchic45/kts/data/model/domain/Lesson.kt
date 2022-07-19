@@ -1,7 +1,6 @@
 package com.denchic45.kts.data.model.domain
 
-import com.denchic45.kts.data.model.room.EventEntity.TYPE
-import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.domain.model.*
 
 data class Lesson(
     val subject: Subject,
@@ -18,8 +17,8 @@ data class Lesson(
         return Lesson(subject, teachers, task)
     }
 
-    override val type: TYPE
-        get() = TYPE.LESSON
+    override val type: Event.TYPE
+        get() = Event.TYPE.LESSON
 
     companion object {
         fun createEmpty(): Lesson {

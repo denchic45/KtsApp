@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.timetable
 
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.Event
+import com.denchic45.kts.domain.model.Event
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.domain.usecase.FindEventsOfDayByYourUserUseCase
 import com.denchic45.kts.ui.base.BaseViewModel

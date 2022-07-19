@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.mapper
 
 import com.denchic45.kts.domain.model.User
-import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.data.remote.model.UserDoc
 import com.denchic45.kts.data.model.room.UserEntity
 import org.mapstruct.Mapper
 

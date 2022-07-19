@@ -1,7 +1,8 @@
 package com.denchic45.kts.data.model.domain
 
 import com.denchic45.kts.data.model.mapper.Default
-import com.denchic45.kts.data.model.room.EventEntity.TYPE
+import com.denchic45.kts.domain.model.Event
+import com.denchic45.kts.domain.model.EventDetails
 import com.denchic45.kts.util.UUIDS
 
 data class SimpleEventDetails @Default constructor (
@@ -23,8 +24,8 @@ data class SimpleEventDetails @Default constructor (
         return SimpleEventDetails(id, name, iconUrl, color)
     }
 
-    override val type: TYPE
-        get() = TYPE.SIMPLE
+    override val type: Event.TYPE
+        get() = Event.TYPE.SIMPLE
 
     companion object {
 

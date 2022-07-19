@@ -1,6 +1,6 @@
 package com.denchic45.kts.domain.usecase
 
-import com.denchic45.kts.data.model.domain.Course
+import com.denchic45.kts.domain.model.Course
 import com.denchic45.kts.data.repository.CourseRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

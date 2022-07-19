@@ -2,7 +2,7 @@ package com.denchic45.kts.data.model.room
 
 import androidx.room.*
 import com.denchic45.kts.domain.EntityModel
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.Task
 import java.util.*
 
 @Entity(

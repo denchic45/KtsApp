@@ -1,10 +1,10 @@
 package com.denchic45.kts.data.repository
 
 import android.util.Log
-import com.denchic45.kts.data.model.firestore.CourseDoc
-import com.denchic45.kts.data.model.firestore.GroupDoc
+import com.denchic45.kts.data.remote.model.CourseDoc
+import com.denchic45.kts.data.remote.model.GroupDoc
 import com.denchic45.kts.data.model.mapper.UserMapper
-import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.data.remote.model.UserDoc
 import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.domain.model.User

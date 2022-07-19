@@ -1,25 +1,33 @@
 package com.denchic45.kts.data.repository
 
-import android.util.Log
 import androidx.room.withTransaction
-import com.denchic45.kts.data.dao.*
+import com.denchic45.kts.ContentCommentEntity
+import com.denchic45.kts.GroupCourseEntity
+import com.denchic45.kts.SubmissionCommentEntity
+import com.denchic45.kts.SubmissionEntity
+import com.denchic45.kts.data.dao.CourseContentDao
+import com.denchic45.kts.data.dao.GroupCourseDao
+import com.denchic45.kts.data.dao.SubjectDao
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.local.db.UserLocalDataSource
-import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.data.model.firestore.CourseContentDoc
-import com.denchic45.kts.data.model.firestore.CourseDoc
-import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.firestore.SubmissionDoc
+import com.denchic45.kts.data.local.db.*
+import com.denchic45.kts.data.mapper.*
 import com.denchic45.kts.data.model.mapper.*
-import com.denchic45.kts.data.model.room.*
+import com.denchic45.kts.data.model.room.CourseContentEntity
+import com.denchic45.kts.data.model.room.GroupCourseCrossRef
+import com.denchic45.kts.data.model.room.ListConverter
 import com.denchic45.kts.data.prefs.*
 import com.denchic45.kts.data.prefs.TimestampPreference.Companion.TIMESTAMP_LAST_UPDATE_GROUP_COURSES
+import com.denchic45.kts.data.remote.model.CourseContentDoc
+import com.denchic45.kts.data.remote.model.CourseDoc
+import com.denchic45.kts.data.remote.model.GroupDoc
+import com.denchic45.kts.data.remote.model.SubmissionDoc
 import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.data.storage.ContentAttachmentStorage
 import com.denchic45.kts.data.storage.SubmissionAttachmentStorage
 import com.denchic45.kts.di.modules.IoDispatcher
 import com.denchic45.kts.domain.DomainModel
+import com.denchic45.kts.domain.model.*
 import com.denchic45.kts.util.*
 import com.google.firebase.firestore.*
 import kotlinx.coroutines.CoroutineDispatcher
@@ -33,15 +41,11 @@ import javax.inject.Inject
 class CourseRepository @Inject constructor(
     override val appVersionService: AppVersionService,
     override val coroutineScope: CoroutineScope,
-    override val userMapper: UserMapper,
     @IoDispatcher override val dispatcher: CoroutineDispatcher,
     override val courseMapper: CourseMapper,
-    override val specialtyMapper: SpecialtyMapper,
-    override val groupMapper: GroupMapper,
     private val submissionMapper: SubmissionMapper,
     private val coursePreference: CoursePreference,
     private val groupPreference: GroupPreference,
-    override val subjectMapper: SubjectMapper,
     override val networkService: NetworkService,
     private val contentAttachmentStorage: ContentAttachmentStorage,
     private val submissionAttachmentStorage: SubmissionAttachmentStorage,
@@ -50,20 +54,18 @@ class CourseRepository @Inject constructor(
     private val userPreference: UserPreference,
     private val timestampPreference: TimestampPreference,
     private val appPreference: AppPreference,
-    override val sectionMapper: SectionMapper,
     private val courseContentMapper: CourseContentMapper,
-    override val specialtyDao: SpecialtyDao,
-    override val userDao: UserDao,
-    override val courseDao: CourseDao,
     private val courseContentDao: CourseContentDao,
-    override val sectionDao: SectionDao,
-    private val submissionDao: SubmissionDao,
-    private val submissionCommentDao: SubmissionCommentDao,
-    private val contentCommentDao: ContentCommentDao,
-    override val groupCourseDao: GroupCourseDao,
-    override val subjectDao: SubjectDao,
-    override val groupDao: GroupDao,
-    override val userLocalDataSource: UserLocalDataSource
+    private val submissionLocalDataSource: SubmissionLocalDataSource,
+    private val contentCommentLocalDataSource: ContentCommentLocalDataSource,
+    private val submissionCommentLocalDataSource: SubmissionCommentLocalDataSource,
+    override val userLocalDataSource: UserLocalDataSource,
+    override val groupLocalDataSource: GroupLocalDataSource,
+    override val courseLocalDataSource: CourseLocalDataSource,
+    override val specialtyLocalDataSource: SpecialtyLocalDataSource,
+    override val sectionLocalDataSource: SectionLocalDataSource,
+    override val groupCourseLocalDataSource: GroupCourseLocalDataSource,
+    override val subjectLocalDataSource: SubjectLocalDataSource,
 ) : Repository(), SaveGroupOperation, SaveCourseRepository, RemoveCourseOperation,
     FindByContainsNameRepository<CourseHeader>, UpdateCourseOperation {
     override val groupsRef: CollectionReference = firestore.collection("Groups")
@@ -82,13 +84,13 @@ class CourseRepository @Inject constructor(
             }
     }
 
-    fun find(courseId: String): Flow<Course?> = courseDao.observe(courseId)
+    fun find(courseId: String): Flow<Course?> = courseLocalDataSource.observe(courseId)
         .withSnapshotListener(
             documentReference = coursesRef.document(courseId),
             onDocumentSnapshot = { documentSnapshot: DocumentSnapshot ->
                 if (!documentSnapshot.exists()) {
                     coroutineScope.launch {
-                        courseDao.deleteById(courseId)
+                        courseLocalDataSource.deleteById(courseId)
                     }
                     return@withSnapshotListener
                 }
@@ -110,8 +112,9 @@ class CourseRepository @Inject constructor(
             }
         )
         .map {
-            dataBase.withTransaction { }
-            it?.let { courseMapper.entityToDomain2(it) }
+            if (it.isEmpty())
+                return@map null
+            it.toDomain()
         }
         .distinctUntilChanged()
 
@@ -143,8 +146,8 @@ class CourseRepository @Inject constructor(
 
     fun findByYourAsTeacher(): Flow<List<CourseHeader>> {
         getCoursesByTeacherRemotely(userPreference.id)
-        return courseDao.getByTeacherId(userPreference.id)
-            .map { courseMapper.entityToDomainHeaders(it) }
+        return courseLocalDataSource.getByTeacherId(userPreference.id)
+            .map { it.entitiesToDomains() }
     }
 
     fun findContentByCourseId(courseId: String): Flow<List<DomainModel>> {
@@ -180,11 +183,12 @@ class CourseRepository @Inject constructor(
             }
         }
 
-        return sectionDao.getByCourseId(courseId)
+        return sectionLocalDataSource.getByCourseId(courseId)
             .combine(courseContentDao.getByCourseId(courseId)) { sectionEntities, courseContentEntities ->
                 CourseContents.sort(
                     courseContentMapper.entityToDomain(courseContentEntities),
-                    sectionMapper.entityToDomain(sectionEntities)
+                    sectionEntities.entitiesToDomains()
+//                    sectionMapper.entityToDomain(sectionEntities)
                 )
             }
             .distinctUntilChanged()
@@ -211,23 +215,23 @@ class CourseRepository @Inject constructor(
             val submissionCommentEntities = mutableListOf<SubmissionCommentEntity>()
 
             courseContents.second.forEach {
-                submissionDao.deleteByContentId(it.id)
-                contentCommentDao.deleteByContentId(it.id)
+                submissionLocalDataSource.deleteByContentId(it.id)
+                contentCommentLocalDataSource.deleteByContentId(it.id)
 
                 it.submissions?.forEach { submissionDoc ->
                     submissionEntities.add(
-                        submissionMapper.docToEntity(submissionDoc.value)
+                        submissionDoc.value.toEntity()
                     )
-                    submissionCommentEntities.addAll(submissionDoc.value.comments)
+                    submissionCommentEntities.addAll(submissionDoc.value.comments.docsToEntity())
                     it.comments?.let { contentComments ->
-                        contentCommentEntities.addAll(contentComments)
+                        contentCommentEntities.addAll(contentComments.docsToEntity())
                     }
                 }
             }
 
-            submissionDao.insert(submissionEntities)
-            contentCommentDao.upsert(contentCommentEntities)
-            submissionCommentDao.upsert(submissionCommentEntities)
+            submissionLocalDataSource.upsert(submissionEntities)
+            contentCommentLocalDataSource.upsert(contentCommentEntities)
+            submissionCommentLocalDataSource.upsert(submissionCommentEntities)
         }
     }
 
@@ -238,15 +242,15 @@ class CourseRepository @Inject constructor(
                     getCoursesByGroupIdRemotely(groupId)
                 }
             }
-        return courseDao.observeCoursesByGroupId(groupId)
-            .map { courseMapper.entityToDomainHeaders(it) }
+        return courseLocalDataSource.observeCoursesByGroupId(groupId)
+            .map { it.entitiesToCourseHeaders() }
     }
 
     private suspend fun getCoursesByGroupIdRemotely(groupId: String) {
         coursesByGroupIdQuery(groupId).get().await().let {
             if (!it.isEmpty)
                 dataBase.withTransaction {
-                    groupCourseDao.deleteByGroup(groupId)
+                    groupCourseLocalDataSource.deleteByGroup(groupId)
                     saveCourses(it.toObjects(CourseDoc::class.java))
                 }
         }
@@ -273,10 +277,8 @@ class CourseRepository @Inject constructor(
     fun findByYourGroup(): Flow<List<CourseHeader>> {
         return groupPreference.observeGroupId
             .filter(String::isNotEmpty)
-            .flatMapLatest { courseDao.observeCoursesByGroupId(it) }
-            .map { entity ->
-                courseMapper.entityToDomainHeaders(entity)
-            }
+            .flatMapLatest { courseLocalDataSource.observeCoursesByGroupId(it) }
+            .map { it.entitiesToCourseHeaders() }
     }
 
     suspend fun add(course: Course) {
@@ -363,7 +365,7 @@ class CourseRepository @Inject constructor(
     fun findAttachmentsByContentId(contentId: String): Flow<List<Attachment>> {
         return courseContentDao.getAttachmentsById(contentId)
             .filterNotNull()
-            .mapLatest { attachments ->
+            .mapLatest { attachments: String ->
                 contentAttachmentStorage.get(contentId, ListConverter.tolList(attachments))
             }
     }
@@ -380,7 +382,7 @@ class CourseRepository @Inject constructor(
                 this.order = order
             }.asMutableMap().apply {
                 val studentIdsOfCourseByCourseId =
-                    userDao.getStudentIdsOfCourseByCourseId(task.courseId)
+                    userLocalDataSource.getStudentIdsOfCourseByCourseId(task.courseId)
                 val mapOfEmptySubmissions =
                     studentIdsOfCourseByCourseId
                         .associateWith { studentId ->
@@ -451,30 +453,28 @@ class CourseRepository @Inject constructor(
             .document(contentId)
 
     fun findSectionsByCourseId(courseId: String) =
-        sectionDao.getByCourseId(courseId).map {
-            Log.d("lol", "findSectionsByCourseId MAP: ")
-            sectionMapper.entityToDomain(it)
-        }
+        sectionLocalDataSource.getByCourseId(courseId)
+            .map { it.entitiesToDomains() }
 
-    suspend fun findSection(sectionId: String) =
-        sectionMapper.entityToDomain(sectionDao.get(sectionId))
+    suspend fun findSection(sectionId: String): Section? {
+        return sectionLocalDataSource.get(sectionId)?.toDomain()
+    }
 
     fun findTaskSubmissionByContentIdAndStudentId(
         taskId: String,
         studentId: String
     ): Flow<Task.Submission> {
-        return submissionDao.getByTaskIdAndUserId(taskId, studentId)
+        return submissionLocalDataSource.getByTaskIdAndUserId(taskId, studentId)
             .map {
-                it?.let {
-                    val attachments = submissionAttachmentStorage.get(
-                        it.submissionEntity.contentId,
-                        it.submissionEntity.studentId,
+                it?.toDomain(
+                    submissionAttachmentStorage.get(
+                        it.submissionEntity.content_id,
+                        it.submissionEntity.student_id,
                         it.submissionEntity.attachments
                     )
-                    submissionMapper.entityToDomain(it, attachments)
-                } ?: Task.Submission.createEmpty(
+                ) ?: Task.Submission.createEmpty(
                     contentId = taskId,
-                    student = userMapper.entityToDomain(userDao.get(studentId)!!)
+                    student = userLocalDataSource.get(studentId)!!.toDomain()
                 )
             }
             .distinctUntilChanged()
@@ -574,24 +574,26 @@ class CourseRepository @Inject constructor(
     )
 
     suspend fun isCourseTeacher(userId: String, courseId: String): Boolean {
-        return courseDao.isCourseTeacher(courseId, userId)
+        return courseLocalDataSource.isCourseTeacher(courseId, userId)
     }
 
     fun findTaskSubmissions(taskId: String): Flow<List<Task.Submission>> {
-        return submissionDao.getByTaskId(taskId).map { list ->
+        return submissionLocalDataSource.getByTaskId(taskId).map { list ->
             list.map {
-                val attachments = submissionAttachmentStorage.get(
-                    it.submissionEntity.contentId,
-                    it.submissionEntity.studentId,
-                    it.submissionEntity.attachments
+                it.toDomain(
+                    submissionAttachmentStorage.get(
+                        it.submissionEntity.content_id,
+                        it.submissionEntity.student_id,
+                        it.submissionEntity.attachments
+                    )
                 )
-                submissionMapper.entityToDomain(it, attachments)
+//                submissionMapper.entityToDomain(it, attachments)
             }
         }
             .mapLatest {
-                it + submissionDao.getStudentsWithoutSubmission(taskId)
+                it + submissionLocalDataSource.getStudentsWithoutSubmission(taskId)
                     .map { userEntity ->
-                        Task.Submission.createEmpty(taskId, userMapper.entityToDomain(userEntity))
+                        Task.Submission.createEmpty(taskId, userEntity.toDomain())
                     }
             }
             .distinctUntilChanged()
@@ -633,7 +635,7 @@ class CourseRepository @Inject constructor(
         batch.commit().await()
     }
 
-    suspend fun updateContentOrder(contentId: String, order: Long) {
+    suspend fun updateContentOrder(contentId: String, order: Int) {
         requireAllowWriteData()
         getContentDocument(contentId)
             .update(
@@ -759,7 +761,9 @@ interface UpdateCourseOperation : PreconditionsRepository {
 
     val firestore: FirebaseFirestore
     val courseMapper: CourseMapper
-    val courseDao: CourseDao
+
+    //    val courseDao: CourseDao
+    val courseLocalDataSource: CourseLocalDataSource
     val groupsRef: CollectionReference
     val coursesRef: CollectionReference
 
@@ -768,7 +772,7 @@ interface UpdateCourseOperation : PreconditionsRepository {
         val batch = firestore.batch()
         val courseDoc = courseMapper.domainToDoc(course)
 
-        val oldCourse = courseMapper.entityToDomain2(courseDao.get(course.id))
+        val oldCourse = courseLocalDataSource.get(course.id).toDomain()
         val oldCourseDoc = courseMapper.domainToDoc(oldCourse)
 
         updateGroupsOfCourse(batch, (oldCourseDoc.groupIds + courseDoc.groupIds))
@@ -799,38 +803,36 @@ interface UpdateCourseOperation : PreconditionsRepository {
 
 interface SaveCourseRepository {
 
-    val courseMapper: CourseMapper
-    val userMapper: UserMapper
-    val subjectMapper: SubjectMapper
-    val sectionMapper: SectionMapper
-    val groupDao: GroupDao
-    val userDao: UserDao
-    val subjectDao: SubjectDao
-    val courseDao: CourseDao
-    val sectionDao: SectionDao
-    val groupCourseDao: GroupCourseDao
+    val userLocalDataSource: UserLocalDataSource
+    val groupLocalDataSource: GroupLocalDataSource
+    val courseLocalDataSource: CourseLocalDataSource
+
+    val subjectLocalDataSource:SubjectLocalDataSource
+
+    val sectionLocalDataSource: SectionLocalDataSource
+    val groupCourseLocalDataSource:GroupCourseLocalDataSource
 
 
     suspend fun saveCourse(courseDoc: CourseDoc) {
 
-        groupCourseDao.deleteByCourse(courseDoc.id)
+        groupCourseLocalDataSource.deleteByCourse(courseDoc.id)
 
-        userDao.upsert(userMapper.docToEntity(courseDoc.teacher))
+        userLocalDataSource.upsert(courseDoc.teacher.toEntity())
 
-        subjectDao.upsert(subjectMapper.docToEntity(courseDoc.subject))
+        subjectLocalDataSource.upsert(courseDoc.subject.toEntity())
 
-        courseDao.upsert(courseMapper.docToEntity(courseDoc))
+        courseLocalDataSource.upsert(courseDoc.toEntity())
 
-        sectionDao.deleteByCourseId(courseDoc.id)
+        sectionLocalDataSource.deleteByCourseId(courseDoc.id)
 
-        sectionDao.upsert(
-            sectionMapper.docToEntity(courseDoc.sections ?: emptyList())
+        sectionLocalDataSource.upsert(
+            courseDoc.sections?.docsToEntities() ?: emptyList()
         )
 
-        groupCourseDao.upsert(
+        groupCourseLocalDataSource.upsert(
             courseDoc.groupIds
-                .filter { groupDao.isExist(it) }
-                .map { groupId -> GroupCourseCrossRef(groupId, courseDoc.id) }
+                .filter { groupLocalDataSource.isExist(it) }
+                .map { groupId -> GroupCourseEntity(groupId, courseDoc.id) }
         )
     }
 

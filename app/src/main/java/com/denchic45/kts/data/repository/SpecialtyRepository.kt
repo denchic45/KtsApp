@@ -2,8 +2,8 @@ package com.denchic45.kts.data.repository
 
 import com.denchic45.kts.data.dao.SpecialtyDao
 import com.denchic45.kts.domain.model.Specialty
-import com.denchic45.kts.data.model.firestore.GroupDoc
-import com.denchic45.kts.data.model.firestore.SpecialtyDoc
+import com.denchic45.kts.data.remote.model.GroupDoc
+import com.denchic45.kts.data.remote.model.SpecialtyDoc
 import com.denchic45.kts.data.model.mapper.SpecialtyMapper
 import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.kts.data.service.NetworkService

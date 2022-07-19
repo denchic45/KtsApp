@@ -1,0 +1,76 @@
+import kotlin.collections.List;
+
+CREATE TABLE courseContentEntity (
+content_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+course_id TEXT NOT NULL,
+section_id TEXT NOT NULL,
+name TEXT NOT NULL,
+attachments TEXT AS List<String> NOT NULL,
+description TEXT NOT NULL,
+content_details TEXT NOT NULL,
+comments_enabled INTEGER AS Boolean NOT NULL,
+content_type TEXT NOT NULL,
+created_date INTEGER NOT NULL,
+timestamp INTEGER NOT NULL,
+completion_date INTEGER NOT NULL,
+week_date TEXT NOT NULL,
+'order' INTEGER NOT NULL
+);
+
+upsert:
+INSERT INTO courseContentEntity
+VALUES ?
+ON CONFLICT(content_id)
+DO UPDATE SET
+section_id = excluded.section_id,
+name = excluded.name,
+attachments = excluded.attachments,
+description = excluded.description,
+content_details = excluded.content_details,
+comments_enabled = excluded.comments_enabled,
+comments_enabled = excluded.comments_enabled,
+content_type = excluded.content_type,
+created_date = excluded.created_date,
+timestamp = excluded.timestamp,
+completion_date = excluded.completion_date,
+week_date = excluded.week_date,
+'order' = excluded.'order';
+
+getById:
+SELECT * FROM courseContentEntity WHERE content_id=: id;
+
+getByCourseId:
+SELECT * FROM courseContentEntity WHERE course_id =: courseId;
+
+getAttachmentsById:
+SELECT cc.attachments FROM courseContentEntity cc WHERE content_id =: id;
+
+getCourseIdByTaskId:
+SELECT course_id FROM courseContentEntity WHERE content_id =: taskId;
+
+getByMaxTimestampAndGroupIdAndCurrentWeekAndNextWeek:
+SELECT MAX(cc.timestamp) FROM courseContentEntity cc
+    INNER JOIN groupCourseEntity gc ON gc.course_id = cc.course_id
+    WHERE cc.week_date IN(:currentWeek, :nextWeek) AND gc.group_id=:groupId;
+
+getByGroupIdAndGreaterCompletionDate:
+SELECT cc.* FROM courseContentEntity cc
+            INNER JOIN groupCourseEntity gc ON gc.course_id = cc.course_id
+            WHERE cc.completion_date >:startDate AND gc.group_id=:groupId;
+
+getByGroupIdAndNotSubmittedUser:
+SELECT cc.* FROM courseContentEntity cc
+            INNER JOIN groupCourseEntity gc ON gc.course_id = cc.course_id
+            JOIN submissionEntity s ON s.course_id = gc.course_id
+            WHERE cc.completion_date <:endDate
+                AND gc.group_id=:groupId
+                AND s.student_id=:studentId
+                AND s.status = "NOT_SUBMITTED";
+
+getByGroupIdAndSubmittedUser:
+SELECT cc.* FROM courseContentEntity cc
+            INNER JOIN groupCourseEntity gc ON gc.course_id = cc.course_id
+            JOIN submissionEntity s ON s.course_id = gc.course_id
+            WHERE gc.group_id=:groupId
+                AND s.student_id=:studentId
+                AND s.status IN('SUBMITTED','GRADED', 'REJECTED');

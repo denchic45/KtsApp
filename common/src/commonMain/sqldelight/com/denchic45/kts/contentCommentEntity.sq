@@ -1,0 +1,18 @@
+CREATE TABLE contentCommentEntity (
+comment_id TEXT NOT NULL UNIQUE PRIMARY KEY,
+content_id TEXT NOT NULL,
+content TEXT NOT NULL,
+author_id TEXT NOT NULL,
+created_date INTEGER NOT NULL
+);
+
+upsert:
+INSERT INTO contentCommentEntity
+VALUES ?
+ON CONFLICT(comment_id)
+DO UPDATE SET
+content = excluded.content;
+
+deleteByContentId:
+DELETE FROM contentCommentEntity
+WHERE content_id =: id;

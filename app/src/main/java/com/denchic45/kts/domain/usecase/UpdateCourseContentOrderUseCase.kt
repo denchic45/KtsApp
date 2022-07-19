@@ -5,7 +5,7 @@ import javax.inject.Inject
 
 class UpdateCourseContentOrderUseCase @Inject constructor(private val courseRepository: CourseRepository) {
 
-    suspend operator fun invoke(contentId: String, order: Long) {
+    suspend operator fun invoke(contentId: String, order: Int) {
         courseRepository.updateContentOrder(contentId, order)
     }
 

@@ -2,7 +2,7 @@ package com.denchic45.kts.data.model.room
 
 import androidx.room.*
 import com.denchic45.kts.domain.EntityModel
-import com.denchic45.kts.data.model.domain.ContentType
+import com.denchic45.kts.domain.model.ContentType
 import com.denchic45.kts.data.model.mapper.Default
 import java.util.*
 

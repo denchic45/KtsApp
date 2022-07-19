@@ -1,7 +1,7 @@
 package com.denchic45.kts.data.model.mapper
 
-import com.denchic45.kts.data.model.domain.Subject
-import com.denchic45.kts.data.model.firestore.SubjectDoc
+import com.denchic45.kts.domain.model.Subject
+import com.denchic45.kts.data.remote.model.SubjectDoc
 import com.denchic45.kts.data.model.room.SubjectEntity
 import org.mapstruct.Mapper
 

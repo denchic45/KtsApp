@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import com.denchic45.kts.data.Interactor
 import com.denchic45.kts.data.database.DataBase
-import com.denchic45.kts.data.model.domain.CourseHeader
+import com.denchic45.kts.domain.model.CourseHeader
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.prefs.TimestampPreference
 import com.denchic45.kts.data.repository.*

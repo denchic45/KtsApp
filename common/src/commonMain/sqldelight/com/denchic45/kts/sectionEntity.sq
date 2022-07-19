@@ -2,5 +2,27 @@ CREATE TABLE sectionEntity (
 section_id TEXT NOT NULL UNIQUE PRIMARY KEY,
 course_id TEXT NOT NULL,
 name TEXT NOT NULL,
-'order' INTEGER NOT NULL
+`order` INTEGER AS Int NOT NULL
+);
+
+upsert:
+INSERT INTO sectionEntity VALUES ?
+ON CONFLICT(section_id)
+DO UPDATE SET
+name = excluded.name,
+`order` = excluded.`order`;
+
+getById:
+SELECT * FROM sectionEntity WHERE section_id =: sectionId;
+
+getByCourseId:
+SELECT * FROM sectionEntity WHERE course_id =:courseId ORDER BY `order`;
+
+deleteByCourseId:
+DELETE FROM sectionEntity WHERE course_id =: courseId;
+
+deleteMissing:
+DELETE FROM sectionEntity WHERE section_id NOT IN(
+    SELECT section_id FROM sectionEntity
+    WHERE section_id IN(:availableSections)
 );

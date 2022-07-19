@@ -2,10 +2,10 @@ package com.denchic45.kts.data
 
 import android.util.Log
 import com.denchic45.kts.data.model.domain.*
-import com.denchic45.kts.data.model.domain.Event.Companion.createEmpty
+import com.denchic45.kts.domain.model.Event.Companion.createEmpty
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.dinner
 import com.denchic45.kts.data.model.domain.SimpleEventDetails.Companion.practice
-import com.denchic45.kts.domain.model.User
+import com.denchic45.kts.domain.model.*
 import com.denchic45.kts.util.DatePatterns
 import com.denchic45.kts.util.Dates
 import com.denchic45.kts.util.toLocalDate

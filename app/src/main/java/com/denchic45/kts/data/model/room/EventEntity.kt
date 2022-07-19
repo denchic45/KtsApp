@@ -1,6 +1,7 @@
 package com.denchic45.kts.data.model.room
 
 import androidx.room.*
+import com.denchic45.kts.domain.model.Event
 import com.denchic45.kts.domain.EntityModel
 
 @Entity(
@@ -29,14 +30,12 @@ data class EventEntity(
     var teacherIds: List<String>?,
     @ColumnInfo(name = "group_id")
     var groupId: String,
-    var type: TYPE,
+    var type: Event.TYPE,
     var name: String?,
     @ColumnInfo(name = "icon_url")
     var iconUrl: String?,
     var color: String?,
 ) : EntityModel {
-    enum class TYPE {
-        LESSON, SIMPLE, EMPTY
-    }
+
 }
 

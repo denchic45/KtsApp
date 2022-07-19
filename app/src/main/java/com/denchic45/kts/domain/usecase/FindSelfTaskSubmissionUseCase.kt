@@ -1,6 +1,6 @@
 package com.denchic45.kts.domain.usecase
 
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.data.repository.CourseRepository
 import com.denchic45.kts.data.repository.UserRepository
 import kotlinx.coroutines.flow.Flow

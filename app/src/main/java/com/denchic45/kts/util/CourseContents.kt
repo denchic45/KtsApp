@@ -1,8 +1,8 @@
 package com.denchic45.kts.util
 
 import com.denchic45.kts.domain.DomainModel
-import com.denchic45.kts.data.model.domain.CourseContent
-import com.denchic45.kts.data.model.domain.Section
+import com.denchic45.kts.domain.model.CourseContent
+import com.denchic45.kts.domain.model.Section
 
 object CourseContents {
 
@@ -21,18 +21,18 @@ object CourseContents {
         }
             .toSortedMap(compareBy { (sectionsById[it] ?: Section.createEmpty()).order })
             .flatMap {
-                        it.value.sortedWith { o1, o2 ->
-                            when {
-                                o1 is Section && o2 is CourseContent -> -1
-                                o1 is CourseContent && o2 is Section -> 1
-                                o1 is CourseContent && o2 is CourseContent -> {
-                                    val order1 = o1.order
-                                    val other2 = o2.order
-                                    order1.compareTo(other2)
-                                }
-                                else -> throw IllegalStateException()
-                            }
+                it.value.sortedWith { o1, o2 ->
+                    when {
+                        o1 is Section && o2 is CourseContent -> -1
+                        o1 is CourseContent && o2 is Section -> 1
+                        o1 is CourseContent && o2 is CourseContent -> {
+                            val order1 = o1.order
+                            val other2 = o2.order
+                            order1.compareTo(other2)
                         }
+                        else -> throw IllegalStateException()
+                    }
+                }
             }
     }
 }

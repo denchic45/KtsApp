@@ -8,7 +8,7 @@ import com.denchic45.kts.SingleLiveData
 import com.denchic45.kts.data.Resource
 import com.denchic45.kts.domain.DomainModel
 import com.denchic45.kts.data.model.domain.ListItem
-import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.domain.model.Subject
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.model.ui.UiImage
 import com.denchic45.kts.domain.usecase.*

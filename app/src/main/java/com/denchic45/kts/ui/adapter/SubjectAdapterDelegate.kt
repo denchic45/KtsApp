@@ -4,7 +4,7 @@ import android.graphics.drawable.PictureDrawable
 import android.view.ViewGroup
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.SvgColorListener
-import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.domain.model.Subject
 import com.denchic45.kts.databinding.ItemIconContentBinding
 import com.denchic45.kts.glideSvg.GlideApp
 import com.denchic45.kts.util.viewBinding

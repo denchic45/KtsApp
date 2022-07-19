@@ -2,7 +2,7 @@ package com.denchic45.kts.data.repository
 
 import com.denchic45.kts.data.dao.UserDao
 import com.denchic45.kts.data.model.mapper.UserMapper
-import com.denchic45.kts.data.remotedb.model.UserDoc
+import com.denchic45.kts.data.remote.model.UserDoc
 import com.denchic45.kts.data.service.AppVersionService
 import com.denchic45.kts.data.service.NetworkService
 import com.denchic45.kts.domain.model.User

@@ -8,6 +8,7 @@ import com.denchic45.kts.data.mapper.ListMapper
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.squareup.sqldelight.runtime.coroutines.mapToOne
+import com.squareup.sqldelight.runtime.coroutines.mapToOneOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -23,9 +24,7 @@ class UserLocalDataSource(db: AppDatabase) {
 
     suspend fun upsert(userEntities: List<UserEntity>) {
         queries.transaction {
-            userEntities.forEach {
-                queries.upsert(it)
-            }
+            userEntities.forEach { queries.upsert(it) }
         }
     }
 
@@ -38,7 +37,7 @@ class UserLocalDataSource(db: AppDatabase) {
     }
 
     fun observe(id: String): Flow<UserEntity?> {
-        return queries.getById(id).asFlow().mapToOne(Dispatchers.IO)
+        return queries.getById(id).asFlow().mapToOneOrNull(Dispatchers.IO)
     }
 
     fun observeByGroupId(groupId: String): Flow<List<UserEntity>> {
@@ -76,6 +75,6 @@ class UserLocalDataSource(db: AppDatabase) {
         return queries.getStudentsWithCuratorByGroupId(groupId)
             .asFlow()
             .mapToList()
-            .filter { it.isNotEmpty() }
+
     }
 }

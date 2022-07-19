@@ -15,8 +15,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.denchic45.kts.SvgColorListener
 import com.denchic45.kts.R
-import com.denchic45.kts.data.model.domain.CourseHeader
-import com.denchic45.kts.data.model.domain.Subject
+import com.denchic45.kts.domain.model.CourseHeader
+import com.denchic45.kts.domain.model.Subject
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.databinding.ItemCourseBinding
 import com.denchic45.kts.glideSvg.GlideApp

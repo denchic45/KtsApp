@@ -17,7 +17,7 @@ import by.kirich1409.viewbindingdelegate.viewBinding
 import com.bumptech.glide.Glide
 import com.denchic45.kts.R
 import com.denchic45.kts.domain.DomainModel
-import com.denchic45.kts.data.model.domain.SubmissionSettings
+import com.denchic45.kts.domain.model.SubmissionSettings
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.databinding.FragmentTaskInfoBinding
 import com.denchic45.kts.rx.EditTextTransformer

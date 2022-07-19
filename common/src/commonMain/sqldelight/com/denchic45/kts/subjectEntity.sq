@@ -4,3 +4,19 @@ name TEXT NOT NULL,
 icon_url TEXT NOT NULL,
 color_name TEXT NOT NULL
 );
+
+upsert:
+INSERT INTO subjectEntity VALUES ?
+ON CONFLICT(subject_id) DO UPDATE SET
+name = excluded.name,
+icon_url = excluded.icon_url,
+color_name = excluded.color_name;
+
+getById:
+SELECT * FROM subjectEntity WHERE subject_id =: id;
+
+getByGroupId:
+SELECT s.* FROM subjectEntity s
+JOIN courseEntity c ON s.subject_id == c.subject_id
+JOIN groupCourseEntity gc ON gc.course_id == c.course_id
+WHERE gc.group_id =:groupId;

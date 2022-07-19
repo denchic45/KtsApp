@@ -2,7 +2,7 @@ package com.denchic45.kts.ui.course.submissions
 
 import androidx.lifecycle.viewModelScope
 import com.denchic45.kts.SingleLiveData
-import com.denchic45.kts.data.model.domain.Task
+import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.domain.usecase.FindTaskSubmissionsUseCase
 import com.denchic45.kts.ui.base.BaseViewModel
 import kotlinx.coroutines.flow.SharedFlow

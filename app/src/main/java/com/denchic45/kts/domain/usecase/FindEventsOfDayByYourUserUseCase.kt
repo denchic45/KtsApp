@@ -1,6 +1,6 @@
 package com.denchic45.kts.domain.usecase
 
-import com.denchic45.kts.data.model.domain.EventsOfDay
+import com.denchic45.kts.domain.model.EventsOfDay
 import com.denchic45.kts.domain.model.User
 import com.denchic45.kts.data.repository.EventRepository
 import kotlinx.coroutines.flow.Flow
