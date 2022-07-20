@@ -7,7 +7,6 @@ import java.io.File
 import java.util.*
 
 actual class DriverFactory {
-
     actual val driver: SqlDriver = run {
         val file = File(appDirectory)
         file.mkdirs()

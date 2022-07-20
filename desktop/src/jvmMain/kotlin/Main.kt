@@ -12,6 +12,7 @@ import com.denchic45.kts.UserEntity
 import com.denchic45.kts.data.local.db.DbHelper
 import com.denchic45.kts.data.local.db.DriverFactory
 import com.denchic45.kts.data.pref.core.FilePreferencesFactory
+import com.denchic45.kts.main.MainContent
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.GlobalScope
@@ -28,10 +29,10 @@ fun main() = application {
         var users by remember { mutableStateOf<List<String>>(emptyList()) }
 
         KtsTheme {
-//            MainContent()
-            users.forEach {
-                Text(it)
-            }
+            MainContent()
+//            users.forEach {
+//                Text(it)
+//            }
         }
 
         GlobalScope.launch {

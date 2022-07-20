@@ -9,6 +9,7 @@ import com.denchic45.kts.data.model.domain.GroupCourses
 import com.denchic45.kts.data.pref.GroupPreferences
 import com.denchic45.kts.data.pref.UserPreferences
 import com.denchic45.kts.data.prefs.TimestampPreference
+import com.denchic45.kts.data.remote.db.GroupRemoteDataSource
 import com.denchic45.kts.data.remote.model.CourseDoc
 import com.denchic45.kts.data.remote.model.GroupDoc
 import com.denchic45.kts.data.service.AppVersionService
@@ -45,7 +46,8 @@ class GroupRepository @Inject constructor(
     override val userLocalDataSource: UserLocalDataSource,
     override val courseLocalDataSource: CourseLocalDataSource,
     override val sectionLocalDataSource: SectionLocalDataSource,
-    override val subjectLocalDataSource: SubjectLocalDataSource
+    override val subjectLocalDataSource: SubjectLocalDataSource,
+    private val groupRemoteDataSource: GroupRemoteDataSource
 ) : Repository(), SaveGroupOperation, SaveCourseRepository,
     FindByContainsNameRepository<GroupHeader> {
 
@@ -252,7 +254,7 @@ class GroupRepository @Inject constructor(
             .get()
             .await().apply {
                 batch.delete(groupDocReference(groupId))
-                this.toObject(GroupDoc::class.java)!!
+                toObject(GroupDoc::class.java)!!
                     .students!!
                     .values
                     .forEach { userDoc ->

@@ -15,20 +15,12 @@ import javax.inject.Inject
 
 open class UserRepository @Inject constructor(
     override val appVersionService: AppVersionService,
-//    @IoDispatcher private val dispatcher: CoroutineDispatcher,
-//    private val coroutineScope: CoroutineScope,
     private val userPreferences: UserPreferences,
     override val networkService: NetworkService,
-//    private val userDao: UserDao,
     private val userLocalDataSource: UserLocalDataSource,
     private val userRemoteDataSource: UserRemoteDataSource,
     private val userRemoteStorage: UserRemoteStorage,
-//    private val userMapper: UserMapper,
-//    fireStore: FirebaseFirestore
 ) : Repository(), FindByContainsNameRepository<User> {
-    //    private val usersRef: CollectionReference = fireStore.collection("Users")
-//    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
-//    private val avatarStorage: StorageReference = storage.reference.child("avatars")
 
     override fun findByContainsName(text: String): Flow<List<User>> {
         return userRemoteDataSource.findByContainsName(text)
@@ -37,10 +29,6 @@ open class UserRepository @Inject constructor(
                 users.mapsToUsers()
             }
     }
-
-//    fun findByGroupId(groupId: String): Flow<List<User>> {
-//        return userDao.observeByGroupId(groupId).map { userMapper.entityToDomain(it) }
-//    }
 
     private fun saveUserPreference(user: User) {
         userPreferences.id = user.id
@@ -81,36 +69,6 @@ open class UserRepository @Inject constructor(
     suspend fun loadAvatar(avatarBytes: ByteArray, userId: String): String {
         return userRemoteStorage.uploadAvatar(avatarBytes, userId)
     }
-
-//    suspend fun add(user: User) {
-//        requireAllowWriteData()
-//        val userDoc = user.toDoc()
-//        usersRef.document(user.id).set(userDoc)
-//            .await()
-//    }
-
-//    suspend fun update(user: UserEntity) {
-//        requireAllowWriteData()
-//        userDao.update(user)
-//        val userDoc = userMapper.entityToDoc(user)
-//        usersRef.document(user.id).set(userDoc)
-//            .await()
-//    }
-
-//    open suspend fun remove(user: User) {
-//        requireAllowWriteData()
-//        deleteAvatar(user.id)
-//        usersRef.document(user.id)
-//            .delete()
-//            .await()
-//
-//    }
-
-//    private suspend fun deleteAvatar(userId: String) {
-//        val reference = avatarStorage.child(userId)
-//        reference.delete()
-//            .await()
-//    }
 
     suspend fun findAndSaveByEmail(email: String) {
         saveUserPreference(
