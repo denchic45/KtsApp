@@ -1,7 +1,7 @@
 package com.denchic45.kts
 
-import com.denchic45.kts.data.model.domain.*
 import com.denchic45.kts.domain.model.CourseContent
+import com.denchic45.kts.domain.model.Section
 import com.denchic45.kts.domain.model.SubmissionSettings
 import com.denchic45.kts.domain.model.Task
 import com.denchic45.kts.util.CourseContents
@@ -21,9 +21,9 @@ class SortContentsTest {
         val sectionId3 = "h43grt95f"
 
         val sections = listOf(
-            Section(sectionId3, courseId, 0,"Some Section"),
-            Section(sectionId1, courseId, 0,"Divider"),
-            Section(sectionId2, courseId, 0,"Other")
+            Section(sectionId3, courseId, 0, "Some Section"),
+            Section(sectionId1, courseId, 0, "Divider"),
+            Section(sectionId2, courseId, 0, "Other")
         )
 
         val contents = listOf(

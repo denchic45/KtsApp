@@ -248,31 +248,40 @@ class GroupRepository @Inject constructor(
 
     suspend fun remove(groupId: String) {
         requireAllowWriteData()
-        val batch = firestore.batch()
 
-        groupDocReference(groupId)
-            .get()
-            .await().apply {
-                batch.delete(groupDocReference(groupId))
-                toObject(GroupDoc::class.java)!!
-                    .students!!
-                    .values
-                    .forEach { userDoc ->
-                        batch.delete(usersRef.document(userDoc.id))
-                    }
-            }
+//        val studentIds = mutableListOf<String>()
 
-        coursesRef.whereArrayContains("groupIds", groupId)
-            .get()
-            .await()
-            .forEach { courseDocSnapshot ->
-                batch.update(
-                    coursesRef.document(courseDocSnapshot.id),
-                    "groupIds",
-                    FieldValue.arrayRemove(groupId)
-                )
-            }
 
+        val studentIds: Set<String> =
+            (groupRemoteDataSource.findById(groupId)["students"] as Map<String, Any?>).keys
+
+//        groupDocReference(groupId)
+//            .get()
+//            .await().apply {
+//                this.toObject(GroupDoc::class.java)!!
+//                    .students!!
+//                    .values
+//                    .forEach { userDoc -> studentIds.add(userDoc.id) }
+//            }
+
+        val courseWithGroupIds: List<String> = groupRemoteDataSource.findCoursesByGroupId(groupId)
+
+//        coursesRef.whereArrayContains("groupIds", groupId)
+//            .get()
+//            .await()
+//            .forEach { courseDocSnapshot ->
+//                courseWithGroupIds.add(courseDocSnapshot.id)
+//            }
+
+        val batch = firestore.batch().delete(groupDocReference(groupId))
+        studentIds.forEach { userId -> batch.delete(usersRef.document(userId)) }
+        courseWithGroupIds.forEach { courseId ->
+            batch.update(
+                coursesRef.document(courseId),
+                "groupIds",
+                FieldValue.arrayRemove(groupId)
+            )
+        }
         batch.commit().await()
     }
 
